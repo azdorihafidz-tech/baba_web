@@ -12,7 +12,7 @@
       <v-card-text>
         <v-tabs-window v-model="tab">
 
-          <!-- Tab Dashboard Overview -->
+          <!-- Tab Dashboard Overview Desktop -->
           <v-tabs-window-item value="dashboard-overview">
             <v-row class="mb-4">
               <!-- Card Total Pengguna -->
@@ -429,7 +429,7 @@
               </v-col>
 
               <!-- Monthly Growth Card -->
-              <v-col cols="12" md="4">
+              <!-- <v-col cols="12" md="4">
                 <v-card color="success" dark @click="showDetailModal('monthly_growth')" style="cursor: pointer;">
                   <v-card-text class="text-center">
                     <v-icon size="48" class="mb-2">mdi-chart-bar</v-icon>
@@ -437,7 +437,7 @@
                     <div class="text-subtitle-1">Pertumbuhan Bulanan</div>
                   </v-card-text>
                 </v-card>
-              </v-col>
+              </v-col> -->
 
               <!-- MVO Growth Card -->
               <v-col cols="12" md="4">
@@ -499,7 +499,7 @@
                         <v-progress-linear
                           :model-value="(parseInt(item.total_bawahan_baru) / getMaxMVOGrowthValue()) * 100"
                           :color="getMVOColor(index)" height="20" rounded>
-                          <span class="text-white text-caption">{{ item.total_bawahan_baru }} bawahan</span>
+                          <span class="text-white text-caption">{{ item.total_bawahan_baru }} Downline</span>
                         </v-progress-linear>
                       </div>
                     </div>
@@ -573,15 +573,29 @@
       <!-- Mobile Overview Section -->
       <div v-if="mobileActiveSection === 'overview'">
         <v-row dense>
-          <v-col cols="6">
-            <v-card color="success" dark @click="showDetailModal('mvo_accounts_only')" style="cursor: pointer;">
+          <!-- Card Total Pengguna - sesuai dengan desktop -->
+          <!-- <v-col cols="6">
+            <v-card color="purple" dark @click="showDetailModal('all_users')" style="cursor: pointer;">
               <v-card-text class="text-center pa-3">
-                <v-icon size="32">mdi-account</v-icon>
-                <div class="text-h6 mt-2">{{ getMVOOnlyCount() }}</div>
+                <v-icon size="32">mdi-account-group</v-icon>
+                <div class="text-h6 mt-2">{{ dashboardData.summary?.user_total || 0 }}</div>
                 <div class="text-caption">Total Akun</div>
               </v-card-text>
             </v-card>
-          </v-col>
+          </v-col> -->
+
+          <!-- Card Total Dokumen - ditambahkan -->
+          <!-- <v-col cols="6">
+            <v-card color="primary" dark @click="showDetailModal('all_documents')" style="cursor: pointer;">
+              <v-card-text class="text-center pa-3">
+                <v-icon size="32">mdi-file-document-multiple</v-icon>
+                <div class="text-h6 mt-2">{{ dashboardData.summary?.documents?.total || 0 }}</div>
+                <div class="text-caption">Total Dokumen</div>
+              </v-card-text>
+            </v-card>
+          </v-col> -->
+
+          <!-- Card Total Daerah -->
           <v-col cols="6">
             <v-card color="info" dark @click="showDetailModal('all_regions')" style="cursor: pointer;">
               <v-card-text class="text-center pa-3">
@@ -591,23 +605,25 @@
               </v-card-text>
             </v-card>
           </v-col>
+
+          <!-- Card Total MVO dengan Bawahan -->
+          <v-col cols="6" v-if="hasAkunPerMVO">
+            <v-card color="success" dark @click="showDetailModal('all_mvo_with_subordinates')" style="cursor: pointer;">
+              <v-card-text class="text-center pa-3">
+                <v-icon size="32">mdi-account-network</v-icon>
+                <div class="text-h6 mt-2">{{ dashboardData.summary?.akun_per_mvo?.length || 0 }}</div>
+                <div class="text-caption">MVO dengan Downline</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
         </v-row>
 
         <!-- Mobile Cards untuk Akun per MVO -->
         <div v-if="hasAkunPerMVO" class="mt-3">
-          <v-card class="mb-3" color="success" dark @click="showDetailModal('all_mvo_with_subordinates')"
-            style="cursor: pointer;">
-            <v-card-text class="text-center pa-3">
-              <v-icon size="32">mdi-account-network</v-icon>
-              <div class="text-h6 mt-2">{{ dashboardData.summary?.akun_per_mvo?.length || 0 }}</div>
-              <div class="text-caption">MVO dengan Bawahan</div>
-            </v-card-text>
-          </v-card>
-
           <v-card>
             <v-card-title class="pa-3">
               <v-icon class="mr-2">mdi-account-supervisor</v-icon>
-              MVO dengan Bawahan
+              MVO dengan Downline
             </v-card-title>
             <v-card-text class="pa-0">
               <v-list>
@@ -626,7 +642,7 @@
                     <div class="text-caption mb-1">{{ mvo.mvo_code }}</div>
                     <div class="d-flex gap-1">
                       <v-chip size="x-small" color="teal" variant="tonal">
-                        {{ mvo.total_bawahan }} Bawahan
+                        {{ mvo.total_bawahan }} Downline
                       </v-chip>
                     </div>
                   </v-list-item-subtitle>
@@ -735,23 +751,24 @@
       <div v-if="mobileActiveSection === 'accounts'">
         <v-row dense class="mb-3">
           <v-col cols="6">
-            <v-card color="primary" dark @click="showDetailModal('all_accounts')" style="cursor: pointer;">
+            <!-- <v-card color="primary" dark @click="showDetailModal('all_accounts')" style="cursor: pointer;">
               <v-card-text class="text-center pa-3">
                 <v-icon size="28">mdi-account-multiple</v-icon>
                 <div class="text-h6 mt-2">{{ dashboardData.summary?.akun?.total || 0 }}</div>
-                <div class="text-caption">Total</div>
+                <div class="text-caption">Total Akun</div>
               </v-card-text>
-            </v-card>
+            </v-card> -->
           </v-col>
-          <v-col cols="6">
+          <v-col cols="12">
             <v-card color="info" dark @click="showDetailModal('all_users')" style="cursor: pointer;">
-              <v-card-text class="text-center pa-3">
-                <v-icon size="28">mdi-account-group</v-icon>
-                <div class="text-h6 mt-2">{{ dashboardData.summary?.user_total || 0 }}</div>
-                <div class="text-caption">Users</div>
+              <v-card-text class="text-center pa-6">
+                <v-icon size="40">mdi-account-group</v-icon>
+                <div class="text-h5 mt-3">{{ dashboardData.summary?.user_total || 0 }}</div>
+                <div class="text-body-2 mt-1">Total Akun</div>
               </v-card-text>
             </v-card>
           </v-col>
+
         </v-row>
 
         <v-row dense class="mb-3">
@@ -835,23 +852,28 @@
           </v-card-title>
           <v-card-text class="pa-0">
             <div v-for="(region, index) in dashboardData.summary?.akun_per_daerah || []" :key="region.daerah"
-              class="pa-3 border-b" @click="showRegionDetail(region.daerah, region)" style="cursor: pointer;">
+              class="pa-3 border-b" style="cursor: default;" <!-- ubah cursor -->
+              >
               <div class="d-flex align-center justify-space-between">
                 <div class="d-flex align-center">
                   <v-icon :color="getRegionColor(index)" class="mr-2">mdi-map-marker</v-icon>
                   <div>
                     <div class="text-body-1 font-weight-medium">{{ region.daerah }}</div>
-                    <div class="text-caption text-grey">{{ getRegionPercentage(region.total).toFixed(1) }}% of total
+                    <div class="text-caption text-grey">
+                      {{ getRegionPercentage(region.total).toFixed(1) }}% of total
                     </div>
                   </div>
                 </div>
+
                 <v-chip :color="getRegionColor(index)" dark size="small">
                   {{ region.total }}
                 </v-chip>
               </div>
+
               <v-progress-linear :value="getRegionPercentage(region.total)" :color="getRegionColor(index)" height="4"
                 rounded class="mt-2" />
             </div>
+
           </v-card-text>
         </v-card>
       </div>
@@ -1050,18 +1072,18 @@
                       <v-chip size="x-small" color="primary" variant="tonal">
                         Total: {{ item.total_accounts }}
                       </v-chip>
-                      <v-chip size="x-small" color="success" variant="tonal">
+                      <!-- <v-chip size="x-small" color="success" variant="tonal">
                         Disetujui: {{ item.approved_accounts }}
                       </v-chip>
                       <v-chip size="x-small" color="orange" variant="tonal">
                         Pending: {{ item.pending_accounts }}
-                      </v-chip>
+                      </v-chip> -->
                     </div>
                   </v-list-item-subtitle>
 
-                  <template v-slot:append>
+                  <!-- <template v-slot:append>
                     <v-icon>mdi-chevron-right</v-icon>
-                  </template>
+                  </template> -->
                 </v-list-item>
               </template>
 
