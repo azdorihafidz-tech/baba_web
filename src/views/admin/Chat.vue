@@ -125,6 +125,8 @@ export default {
 
   data() {
     return {
+      currentChannelName: null,
+
       user: {},
       newMessage: "",
       messages: [],
@@ -176,7 +178,8 @@ export default {
       this.selectedRoom = room;
       this.messages = [];
       await this.getAllMessages();
-      this.startPolling();
+      this.listenToRoom(room.id); // ===> tambahkan ini
+      // this.startPolling();
 
       // 🔹 Tandai semua pesan di room ini sebagai sudah dibaca
       try {
@@ -210,28 +213,56 @@ export default {
       }
     },
 
+    // async sendMessage() {
+    //   if (!this.newMessage.trim() || !this.selectedRoom) return;
+    //   try {
+    //     const token = Cookies.get("token");
+    //     const payload = {
+    //       room_id: this.selectedRoom.id,
+    //       message: this.newMessage,
+    //     };
+    //     await axios.post(`https://babaapi.babaparfume.id/api/chat/send`, payload, {
+    //       headers: { Authorization: `Bearer ${token}` },
+    //     });
+    //     this.messages.push({
+    //       sender_id: this.user.id,
+    //       message: this.newMessage,
+    //       created_at: new Date().toISOString(),
+    //     });
+    //     this.newMessage = "";
+    //     this.scrollToBottom();
+    //   } catch (error) {
+    //     console.error("Gagal mengirim pesan:", error);
+    //   }
+    // },
     async sendMessage() {
       if (!this.newMessage.trim() || !this.selectedRoom) return;
+
       try {
         const token = Cookies.get("token");
-        const payload = {
-          room_id: this.selectedRoom.id,
-          message: this.newMessage,
-        };
-        await axios.post(`https://babaapi.babaparfume.id/api/chat/send`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        this.messages.push({
-          sender_id: this.user.id,
-          message: this.newMessage,
-          created_at: new Date().toISOString(),
-        });
+        await axios.post(
+          "https://babaapi.babaparfume.id/api/chat/send",
+          {
+            room_id: this.selectedRoom.id,
+            message: this.newMessage,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+
+        );
+
+        // this.messages.push({
+        //   sender_id: this.user.id,
+        //   message: this.newMessage,
+        //   created_at: new Date().toISOString(),
+        // });
         this.newMessage = "";
         this.scrollToBottom();
-      } catch (error) {
-        console.error("Gagal mengirim pesan:", error);
+
+      } catch (e) {
+        console.error("Gagal mengirim pesan:", e);
       }
     },
+
 
     async createGroup() {
       try {
@@ -273,6 +304,177 @@ export default {
       return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     },
 
+    // listenToRoom(roomId) {
+    //   // stop listener sebelumnya
+    //   if (this.channel) {
+    //     this.channel.unsubscribe();
+    //   }
+
+    //   this.channel = window.Echo.channel(`chat-room.${roomId}`);
+
+    //   this.channel.listen('.message.sent', (e) => {
+    //     // Tambah pesan SEGERA tanpa reload
+    //     this.messages.push(e.message);
+    //     this.scrollToBottom();
+    //   });
+    // },
+
+    // listenToRoom(roomId) {
+    //   console.log("📩 Pesan realtime xx:");
+    //   // Hentikan listener sebelumnya
+    //   if (this.channel) {
+    //     window.Echo.leave(`private-chat.${this.selectedRoom?.id}`);
+    //   }
+
+    //   // Subscribe private channel
+    //   this.channel = window.Echo.private(`chat.${roomId}`);
+
+    //   // Listen event
+    //   this.channel.listen('.MessageSent', (e) => {
+    //     console.log("📩 Pesan realtime:", e.message);
+    //     this.messages.push(e.message);
+    //     this.scrollToBottom();
+    //   });
+    // },
+
+    // listenToRoom(roomId) {
+    //   console.log("🔔 Listening room:", roomId);
+
+    //   // Hentikan listener lama
+    //   if (this.channel) {
+    //     window.Echo.leave(`chat.${this.selectedRoom?.id}`);
+    //   }
+
+    //   // Subscribe public channel
+    //   this.channel = window.Echo.channel(`chat.${roomId}`);
+
+    //   // Listen event
+    //   this.channel.listen('.MessageSent', (e) => {
+    //     console.log("📩 Pesan realtime:", e.message);
+    //     this.messages.push(e.message);
+    //     this.scrollToBottom();
+    //   });
+    // },
+
+    // listenToRoom(roomId) {
+    //   console.log("🔔 Listening room:", roomId);
+
+    //   // Hentikan listener sebelumnya
+    //   if (this.currentChannelName) {
+    //     window.Echo.leave(this.currentChannelName);
+    //   }
+
+    //   // Nama channel baru
+    //   this.currentChannelName = `chat-room.${roomId}`;
+
+    //   this.channel = window.Echo.channel(this.currentChannelName);
+
+    //   this.channel.listen('.message.sent', (e) => {
+    //     console.log("📩 Pesan realtime:", e.message);
+    //     this.messages.push(e.message);
+    //     this.scrollToBottom();
+    //   });
+    // }
+
+    // listenToRoom(roomId) {
+    //   console.log("🔔 Listening room:", roomId);
+
+    //   // Hentikan listener lama
+    //   if (this.currentChannelName) {
+    //     window.Echo.leave(this.currentChannelName);
+    //   }
+
+    //   // Set channel baru
+    //   this.currentChannelName = `chat-room.${roomId}`;
+    //   this.channel = window.Echo.channel(this.currentChannelName);
+
+    //   this.channel.listen('message.sent', (e) => {
+    //     console.log("📩 Pesan realtime:", e.message);
+    //     this.messages.push(e.message);
+    //     this.scrollToBottom();
+    //   });
+    // },
+
+    listenToRoom(roomId) {
+      console.log("🔔 Listening room:", roomId);
+
+      // Hentikan listener lama
+      if (this.currentChannelName) {
+        window.Echo.leave(this.currentChannelName);
+      }
+
+      // Set channel baru - HARUS SAMA dengan backend
+      this.currentChannelName = `chat-room.${roomId}`;
+      this.channel = window.Echo.channel(this.currentChannelName);
+
+      // ✅ TANGKAP SEMUA EVENT MENTAH dari Pusher
+      const pusherChannel = window.Echo.connector.pusher.channel(this.currentChannelName);
+
+      pusherChannel.bind_global((eventName, data) => {
+        console.log("📡 Raw event dari Pusher:", eventName, data);
+
+        // Filter hanya event message
+        if (eventName.includes('message') || eventName.includes('MessageSent')) {
+          console.log("✅ Event message ditemukan!");
+          this.handleNewMessage(data);
+        }
+      });
+
+      // Tetap coba dengan cara Laravel Echo biasa
+      this.channel.listen('message.sent', (e) => {
+        console.log("📩 [Echo] message.sent:", e);
+        this.handleNewMessage(e);
+      });
+
+      // Debug: cek apakah channel berhasil subscribe
+      this.channel.subscribed(() => {
+        console.log(`✅ Berhasil subscribe ke ${this.currentChannelName}`);
+      });
+
+      this.channel.error((error) => {
+        console.error(`❌ Error subscribe ke ${this.currentChannelName}:`, error);
+      });
+    },
+
+    // Handle pesan baru
+    handleNewMessage(e) {
+      console.log("🔥 handleNewMessage called:", e);
+
+      if (e.message) {
+        // Cek apakah pesan sudah ada (hindari duplikat)
+        const exists = this.messages.find(m => m.id === e.message.id);
+        if (!exists) {
+          this.messages.push(e.message);
+          this.scrollToBottom();
+          console.log("✅ Pesan ditambahkan ke UI");
+        } else {
+          console.log("⚠️ Pesan sudah ada, skip");
+        }
+
+        // Refresh chat list untuk update last_message
+        this.getChatList();
+      }
+    },
+    // Handle pesan baru
+    handleNewMessage(e) {
+      console.log("🔥 handleNewMessage called:", e);
+
+      if (e.message) {
+        // Cek apakah pesan sudah ada (hindari duplikat)
+        const exists = this.messages.find(m => m.id === e.message.id);
+        if (!exists) {
+          this.messages.push(e.message);
+          this.scrollToBottom();
+          console.log("✅ Pesan ditambahkan ke UI");
+        } else {
+          console.log("⚠️ Pesan sudah ada, skip");
+        }
+
+        // Refresh chat list untuk update last_message
+        this.getChatList();
+      }
+    },
+
     // ✅ MULAI POLLING
     startPolling() {
       this.stopPolling(); // hentikan polling sebelumnya kalau ada
@@ -297,10 +499,15 @@ export default {
     await this.getUser();
     await this.getChatList();
 
+    // Jika user membuka room terakhir yang disimpan
+    if (this.selectedRoom) {
+      this.listenToRoom(this.selectedRoom.id);
+    }
+
   },
 
   beforeUnmount() {
-    this.stopPolling(); // ✅ hentikan polling saat keluar dari halaman
+    // this.stopPolling(); // ✅ hentikan polling saat keluar dari halaman
   },
 };
 </script>
