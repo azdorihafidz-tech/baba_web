@@ -19,9 +19,8 @@
     </v-toolbar>
 
     <v-row no-gutters class="chat-content">
-      <!-- SIDEBAR (LIST CHAT) -->
-      <v-col :cols="sidebarVisible ? 12 : 4" :md="4"
-        :class="['sidebar-col', { 'sidebar-mobile-open': sidebarVisible && isMobile }]">
+      <!-- SIDEBAR (LIST CHAT) - Tampil di mobile saat belum pilih room -->
+      <v-col :cols="12" :md="4" :class="['sidebar-col']" v-show="!selectedRoom || !isMobile">
         <div class="sidebar-gradient">
           <v-list class="sidebar-list">
             <v-subheader class="sidebar-header">
@@ -54,9 +53,8 @@
         </div>
       </v-col>
 
-      <!-- AREA CHAT -->
-      <v-col :cols="sidebarVisible && isMobile ? 0 : 12" :md="8"
-        :class="['chat-col', { 'chat-hidden': sidebarVisible && isMobile }]">
+      <!-- AREA CHAT - Tampil di mobile setelah pilih room -->
+      <v-col :cols="12" :md="8" :class="['chat-col']" v-show="selectedRoom || !isMobile">
         <div class="chat-wrapper">
           <div v-if="!selectedRoom" class="empty-state">
             <div class="empty-state-content">
@@ -176,21 +174,17 @@ export default {
   data() {
     return {
       currentChannelName: null,
-
       user: {},
       newMessage: "",
       messages: [],
       chatList: [],
       selectedRoom: null,
-
       dialogAddGroup: false,
       groupForm: {
         room_name: "",
         member_ids: [],
       },
       userList: [],
-      pollingInterval: null,
-
       showEmojiPicker: false,
       emojiList: [
         "😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃",
@@ -209,11 +203,8 @@ export default {
         "✝️", "☪️", "🕉️", "☸️", "✡️", "🔯", "🕎", "☯️", "☦️", "🛐",
         "⭐", "🌟", "✨", "⚡", "☄️", "💥", "🔥", "🌈", "☀️", "🌤️"
       ],
-
       provinsiList: [],
       loadingProvinsi: false,
-
-      // Responsive data
       sidebarVisible: true,
       isMobile: false,
     };
@@ -228,25 +219,15 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("Response API Provinsi:", response);
-        console.log("Response Data:", response.data);
-
-        // Cek struktur data response
         if (response.data && Array.isArray(response.data)) {
           this.provinsiList = response.data;
         } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-          // Kalau datanya nested di dalam .data
           this.provinsiList = response.data.data;
         } else {
-          console.error("Format data tidak sesuai:", response.data);
           this.provinsiList = [];
         }
-
-        console.log("Provinsi List setelah diset:", this.provinsiList);
-
       } catch (error) {
         console.error("Gagal memuat daftar provinsi:", error);
-        console.error("Error response:", error.response);
         this.provinsiList = [];
       } finally {
         this.loadingProvinsi = false;
@@ -270,29 +251,11 @@ export default {
       }
     },
 
-    async getUserList() {
-      try {
-        const token = Cookies.get("token");
-        const response = await axios.get("https://babaapi.babaparfume.id/api/user", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("Daftar user:", this.userList);
-      } catch (error) {
-        console.error("Gagal memuat daftar user:", error);
-      }
-    },
-
     async selectRoom(room) {
       this.selectedRoom = room;
       this.messages = [];
       await this.getAllMessages();
-      this.listenToRoom(room.id); // ===> tambahkan ini
-      // this.startPolling();
-
-      // Mobile: hide sidebar when room selected
-      if (this.isMobile) {
-        this.sidebarVisible = false;
-      }
+      this.listenToRoom(room.id);
 
       try {
         const token = Cookies.get("token");
@@ -317,9 +280,7 @@ export default {
         );
 
         this.messages = response.data || [];
-        console.log("Pesan:", this.messages);
 
-        // ✅ Scroll ke bawah setelah pesan dimuat
         this.$nextTick(() => {
           setTimeout(() => {
             this.scrollToBottom();
@@ -352,6 +313,7 @@ export default {
     //     console.error("Gagal mengirim pesan:", error);
     //   }
     // },
+
     async sendMessage() {
       if (!this.newMessage.trim() || !this.selectedRoom) return;
 
@@ -364,7 +326,6 @@ export default {
             message: this.newMessage,
           },
           { headers: { Authorization: `Bearer ${token}` } }
-
         );
 
         // this.messages.push({
@@ -374,26 +335,21 @@ export default {
         // });
         this.newMessage = "";
         this.scrollToBottom();
-
       } catch (e) {
         console.error("Gagal mengirim pesan:", e);
       }
     },
 
-
     async createGroup() {
       try {
         const token = Cookies.get("token");
-
         const superadminId = 6;
         const memberIds = Array.from(new Set([...this.groupForm.member_ids, superadminId]));
 
         const payload = {
-          room_name: this.groupForm.room_name, // Ini sekarang berisi code provinsi
+          room_name: this.groupForm.room_name,
           member_ids: memberIds,
         };
-
-        console.log("payload dikirim:", payload);
 
         await axios.post("https://babaapi.babaparfume.id/api/chat/create-group", payload, {
           headers: { Authorization: `Bearer ${token}` },
@@ -407,19 +363,21 @@ export default {
       }
     },
 
-    // ✅ Method scroll ke bawah dengan delay untuk memastikan DOM sudah render
     scrollToBottom() {
       const chatBody = this.$refs.chatBody;
       if (chatBody) {
-        // Gunakan scrollHeight untuk scroll ke paling bawah
         chatBody.scrollTop = chatBody.scrollHeight;
-        console.log('Scrolling to bottom:', chatBody.scrollTop, chatBody.scrollHeight);
       }
     },
 
     formatTime(datetime) {
       const date = new Date(datetime);
       return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    },
+
+    addEmoji(emoji) {
+      this.newMessage += emoji;
+      this.showEmojiPicker = false;
     },
 
     // listenToRoom(roomId) {
@@ -514,37 +472,25 @@ export default {
     // },
 
     listenToRoom(roomId) {
-      console.log("🔔 Listening room:", roomId);
-
-      // Hentikan listener lama
       if (this.currentChannelName) {
         window.Echo.leave(this.currentChannelName);
       }
 
-      // Set channel baru - HARUS SAMA dengan backend
       this.currentChannelName = `chat-room.${roomId}`;
       this.channel = window.Echo.channel(this.currentChannelName);
 
-      // ✅ TANGKAP SEMUA EVENT MENTAH dari Pusher
       const pusherChannel = window.Echo.connector.pusher.channel(this.currentChannelName);
 
       pusherChannel.bind_global((eventName, data) => {
-        console.log("📡 Raw event dari Pusher:", eventName, data);
-
-        // Filter hanya event message
         if (eventName.includes('message') || eventName.includes('MessageSent')) {
-          console.log("✅ Event message ditemukan!");
           this.handleNewMessage(data);
         }
       });
 
-      // Tetap coba dengan cara Laravel Echo biasa
       this.channel.listen('message.sent', (e) => {
-        console.log("📩 [Echo] message.sent:", e);
         this.handleNewMessage(e);
       });
 
-      // Debug: cek apakah channel berhasil subscribe
       this.channel.subscribed(() => {
         console.log(`✅ Berhasil subscribe ke ${this.currentChannelName}`);
       });
@@ -554,102 +500,51 @@ export default {
       });
     },
 
-    // Handle pesan baru
     handleNewMessage(e) {
-      console.log("🔥 handleNewMessage called:", e);
-
       if (e.message) {
-        // Cek apakah pesan sudah ada (hindari duplikat)
         const exists = this.messages.find(m => m.id === e.message.id);
         if (!exists) {
           this.messages.push(e.message);
           this.scrollToBottom();
-          console.log("✅ Pesan ditambahkan ke UI");
-        } else {
-          console.log("⚠️ Pesan sudah ada, skip");
         }
-
-        // Refresh chat list untuk update last_message
-        this.getChatList();
-      }
-    },
-    // Handle pesan baru
-    handleNewMessage(e) {
-      console.log("🔥 handleNewMessage called:", e);
-
-      if (e.message) {
-        // Cek apakah pesan sudah ada (hindari duplikat)
-        const exists = this.messages.find(m => m.id === e.message.id);
-        if (!exists) {
-          this.messages.push(e.message);
-          this.scrollToBottom();
-          console.log("✅ Pesan ditambahkan ke UI");
-        } else {
-          console.log("⚠️ Pesan sudah ada, skip");
-        }
-
-        // Refresh chat list untuk update last_message
         this.getChatList();
       }
     },
 
-    // ✅ MULAI POLLING
-    startPolling() {
-      this.stopPolling();
-      this.pollingInterval = setInterval(() => {
-        if (this.selectedRoom) {
-          this.getAllMessages();
-          this.getChatList();
-        }
-      }, 10000); // setiap 10 detik
-    },
-
-    // ✅ HENTIKAN POLLING
-    stopPolling() {
-      if (this.pollingInterval) {
-        clearInterval(this.pollingInterval);
-        this.pollingInterval = null;
-      }
-    },
-
-    // Mobile functions
     toggleSidebar() {
       this.sidebarVisible = !this.sidebarVisible;
     },
 
     backToSidebar() {
       if (this.isMobile) {
-        this.sidebarVisible = true;
         this.selectedRoom = null;
-        this.stopPolling();
+        if (this.currentChannelName) {
+          window.Echo.leave(this.currentChannelName);
+        }
       }
     },
 
     checkMobile() {
       this.isMobile = window.innerWidth < 960;
-      if (!this.isMobile) {
-        this.sidebarVisible = true;
-      }
     },
   },
 
   async mounted() {
+    this.checkMobile();
+    window.addEventListener('resize', this.checkMobile);
+
     await this.getUser();
     await this.getChatList();
-
-    // Jika user membuka room terakhir yang disimpan
-    if (this.selectedRoom) {
-      this.listenToRoom(this.selectedRoom.id);
-    }
-
   },
 
   beforeUnmount() {
-    // this.stopPolling(); // ✅ hentikan polling saat keluar dari halaman
+    window.removeEventListener('resize', this.checkMobile);
+    if (this.currentChannelName) {
+      window.Echo.leave(this.currentChannelName);
+    }
   },
 
   watch: {
-    // Watch untuk messages changes dan scroll ke bawah
     messages: {
       handler() {
         this.$nextTick(() => {
@@ -662,7 +557,6 @@ export default {
     },
     dialogAddGroup(val) {
       if (val) {
-        console.log("Dialog dibuka, memanggil getProvinsiList");
         this.getProvinsiList();
       }
     }
@@ -677,7 +571,6 @@ export default {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* Gradient Header */
 .gradient-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
@@ -698,12 +591,10 @@ export default {
   transform: scale(1.1);
 }
 
-/* Chat Content */
 .chat-content {
   height: calc(600px - 48px);
 }
 
-/* Sidebar */
 .sidebar-col {
   transition: all 0.3s ease;
   overflow-y: auto;
@@ -767,7 +658,6 @@ export default {
   white-space: nowrap;
 }
 
-/* Chat Area */
 .chat-col {
   transition: all 0.3s ease;
 }
@@ -878,7 +768,6 @@ export default {
   max-width: 70%;
 }
 
-/* Chat Input */
 .chat-input-actions {
   gap: 8px;
   background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
@@ -912,7 +801,6 @@ export default {
   opacity: 0.5;
 }
 
-/* Emoji Picker */
 .emoji-picker-card {
   border-radius: 12px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -940,7 +828,6 @@ export default {
   transform: scale(1.2);
 }
 
-/* Dialog */
 .dialog-card {
   border-radius: 16px !important;
   overflow: hidden;
@@ -961,7 +848,6 @@ export default {
   letter-spacing: 0.5px;
 }
 
-/* Scrollbar */
 .chat-body::-webkit-scrollbar,
 .sidebar-gradient::-webkit-scrollbar,
 .emoji-grid::-webkit-scrollbar {
@@ -988,36 +874,13 @@ export default {
   background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
 }
 
-/* Mobile Styles */
 .mobile-only {
   display: none;
 }
 
-/* Mobile Responsive */
 @media (max-width: 959px) {
   .mobile-only {
     display: inline-flex;
-  }
-
-  .sidebar-col {
-    position: absolute;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    transition: left 0.3s ease;
-  }
-
-  .sidebar-mobile-open {
-    left: 0;
-  }
-
-  .chat-col {
-    width: 100%;
-  }
-
-  .chat-hidden {
-    display: none;
   }
 
   .max-width-70 {
