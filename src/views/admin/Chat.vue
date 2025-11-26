@@ -1,115 +1,165 @@
 <template>
-  <v-card class="rounded-xl" height="600">
-    <!-- Header -->
-    <v-toolbar color="primary" dark dense flat>
-      <v-toolbar-title>Chat</v-toolbar-title>
+  <v-card class="chat-container rounded-xl" height="600">
+    <!-- Header dengan Gradient -->
+    <v-toolbar class="gradient-header" dark dense flat>
+      <v-btn icon @click="toggleSidebar" class="mobile-only">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
+      <v-toolbar-title class="header-title">
+        <v-icon class="me-2">mdi-chat-processing</v-icon>
+        Chat
+      </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="getChatList">
+      <v-btn icon @click="getChatList" class="header-btn">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
-      <v-btn icon @click="dialogAddGroup = true">
+      <v-btn icon @click="dialogAddGroup = true" class="header-btn">
         <v-icon>mdi-account-multiple-plus</v-icon>
       </v-btn>
     </v-toolbar>
 
-    <v-row no-gutters>
+    <v-row no-gutters class="chat-content">
       <!-- SIDEBAR (LIST CHAT) -->
-      <v-col cols="4" class="border-e" style="background-color: #f5f5f5; overflow-y: auto;">
-        <v-list>
-          <v-subheader>Daftar Chat</v-subheader>
+      <v-col :cols="sidebarVisible ? 12 : 4" :md="4"
+        :class="['sidebar-col', { 'sidebar-mobile-open': sidebarVisible && isMobile }]">
+        <div class="sidebar-gradient">
+          <v-list class="sidebar-list">
+            <v-subheader class="sidebar-header">
+              <v-icon small class="me-2">mdi-message-text</v-icon>
+              Daftar Chat
+            </v-subheader>
 
-          <v-list-item v-for="(chat, index) in chatList" :key="index" @click="selectRoom(chat)"
-            :class="{ 'bg-grey-lighten-3': selectedRoom?.id == chat.id }">
-            <v-list-item-avatar>
-              <v-avatar :color="chat.is_group ? 'deep-purple' : 'primary'" size="32">
-                <v-icon v-if="chat.is_group" small>mdi-account-group</v-icon>
-                <span v-else class="text-white text-sm">
-                  {{ chat.room_name ? chat.room_name[0].toUpperCase() : 'U' }}
-                </span>
-              </v-avatar>
-            </v-list-item-avatar>
+            <v-list-item v-for="(chat, index) in chatList" :key="index" @click="selectRoom(chat)"
+              :class="['chat-item', { 'chat-item-active': selectedRoom?.id == chat.id }]">
+              <v-list-item-avatar>
+                <v-avatar :class="chat.is_group ? 'avatar-group' : 'avatar-private'" size="40">
+                  <v-icon v-if="chat.is_group" small>mdi-account-group</v-icon>
+                  <span v-else class="text-white text-body-2 font-weight-bold">
+                    {{ chat.room_name ? chat.room_name[0].toUpperCase() : 'U' }}
+                  </span>
+                </v-avatar>
+              </v-list-item-avatar>
 
-            <v-list-item-content>
-              <v-list-item-title>{{ chat.room_name || 'Private Chat' }}</v-list-item-title>
-              <v-list-item-subtitle v-if="chat.last_message">
-                {{ chat.last_message.message }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-title class="chat-name">
+                  {{ chat.room_name || 'Private Chat' }}
+                </v-list-item-title>
+                <v-list-item-subtitle v-if="chat.last_message" class="chat-preview">
+                  {{ chat.last_message.message }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
 
-            <!-- 🔔 Tambahkan indikator belum dibaca -->
-            <!--<template
-              v-if="chat.last_message && chat.last_message.is_read == 0 && chat.last_message.sender_id !== user.id">
-              <v-badge dot color="red" offset-x="10" offset-y="10">
-                <v-icon color="red" small>mdi-bell-alert</v-icon>
-              </v-badge>
-            </template>-->
-          </v-list-item>
-
-        </v-list>
+          </v-list>
+        </div>
       </v-col>
 
       <!-- AREA CHAT -->
-      <v-col cols="8" class="d-flex flex-column">
-        <div v-if="!selectedRoom" class="d-flex align-center justify-center flex-grow-1 text-grey">
-          <v-icon large class="me-2">mdi-chat-outline</v-icon>
-          Pilih percakapan untuk memulai
+      <v-col :cols="sidebarVisible && isMobile ? 0 : 12" :md="8"
+        :class="['chat-col', { 'chat-hidden': sidebarVisible && isMobile }]">
+        <div class="chat-wrapper">
+          <div v-if="!selectedRoom" class="empty-state">
+            <div class="empty-state-content">
+              <v-icon size="80" class="empty-icon">mdi-chat-outline</v-icon>
+              <h3 class="empty-title">Selamat Datang!</h3>
+              <p class="empty-subtitle">Pilih percakapan untuk memulai</p>
+            </div>
+          </div>
+
+          <template v-else>
+            <!-- Header Room Chat -->
+            <v-toolbar dense flat class="chat-room-header">
+              <v-btn icon @click="backToSidebar" class="mobile-only me-2">
+                <v-icon>mdi-arrow-left</v-icon>
+              </v-btn>
+              <v-avatar :class="selectedRoom.is_group ? 'avatar-group' : 'avatar-private'" size="36" class="me-3">
+                <v-icon v-if="selectedRoom.is_group" small>mdi-account-group</v-icon>
+                <span v-else class="text-white text-sm font-weight-bold">
+                  {{ selectedRoom.room_name ? selectedRoom.room_name[0].toUpperCase() : 'U' }}
+                </span>
+              </v-avatar>
+              <v-toolbar-title class="room-title">
+                {{ selectedRoom.room_name || 'Private Chat' }}
+              </v-toolbar-title>
+            </v-toolbar>
+
+            <div class="chat-body flex-grow-1" ref="chatBody">
+              <div class="pa-4">
+                <v-row v-for="(msg, index) in messages" :key="index" class="mb-3"
+                  :justify="msg.sender_id == user.id ? 'end' : 'start'">
+                  <v-col cols="auto" class="max-width-70">
+                    <!-- Nama pengirim -->
+                    <div v-if="msg.sender_id !== user.id && selectedRoom.is_group" class="sender-name">
+                      {{ msg.sender?.nama || 'Pengguna' }}
+                    </div>
+
+                    <!-- Bubble pesan -->
+                    <v-sheet
+                      :class="['message-bubble', msg.sender_id == user.id ? 'message-sent' : 'message-received']">
+                      <div class="text-body-2 message-content">{{ msg.message }}</div>
+                      <div class="message-time">
+                        {{ formatTime(msg.created_at) }}
+                      </div>
+                    </v-sheet>
+                  </v-col>
+                </v-row>
+              </div>
+            </div>
+
+            <!-- Input Chat -->
+            <v-divider></v-divider>
+            <v-card-actions class="pa-3 chat-input-actions">
+              <!-- Button Emoji Picker -->
+              <v-menu v-model="showEmojiPicker" :close-on-content-click="false" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-btn icon v-bind="props" size="small" class="emoji-btn">
+                    <v-icon>mdi-emoticon-happy-outline</v-icon>
+                  </v-btn>
+                </template>
+                <v-card class="emoji-picker-card pa-2" max-width="320">
+                  <v-card-text class="pa-2">
+                    <div class="emoji-grid">
+                      <span v-for="emoji in emojiList" :key="emoji" @click="addEmoji(emoji)" class="emoji-item">
+                        {{ emoji }}
+                      </span>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-menu>
+
+              <v-text-field v-model="newMessage" placeholder="Tulis pesan..." variant="outlined" hide-details dense
+                class="flex-grow-1 mx-2 message-input" @keyup.enter="sendMessage">
+              </v-text-field>
+
+              <v-btn icon color="primary" class="send-btn" @click="sendMessage" :disabled="newMessage.trim() == ''">
+                <v-icon>mdi-send</v-icon>
+              </v-btn>
+            </v-card-actions>
+          </template>
         </div>
-
-        <template v-else>
-          <v-card-text class="chat-body flex-grow-1" ref="chatBody">
-            <v-row v-for="(msg, index) in messages" :key="index" class="mb-2"
-              :justify="msg.sender_id == user.id ? 'end' : 'start'">
-              <v-col cols="auto">
-                <!-- Nama pengirim -->
-                <div v-if="msg.sender_id !== user.id" class="text-caption text-grey-darken-1 mb-1">
-                  {{ msg.sender?.nama || 'Pengguna' }}
-                </div>
-
-                <!-- Bubble pesan -->
-                <v-sheet :color="msg.sender_id == user.id ? 'primary' : 'grey lighten-3'"
-                  :class="msg.sender_id == user.id ? 'text-white' : 'text-black'" rounded="xl" class="pa-2">
-                  <div class="text-body-2">{{ msg.message }}</div>
-                  <div class="text-caption text-right opacity-60">
-                    {{ formatTime(msg.created_at) }}
-                  </div>
-                </v-sheet>
-              </v-col>
-            </v-row>
-          </v-card-text>
-
-
-          <!-- Input Chat -->
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-text-field v-model="newMessage" placeholder="Tulis pesan..." variant="outlined" hide-details dense
-              class="flex-grow-1" @keyup.enter="sendMessage"></v-text-field>
-            <v-btn icon color="primary" @click="sendMessage" :disabled="newMessage.trim() == ''">
-              <v-icon>mdi-send</v-icon>
-            </v-btn>
-          </v-card-actions>
-        </template>
       </v-col>
     </v-row>
 
-    <!-- ✅ DIALOG TAMBAH GRUP -->
+    <!-- DIALOG TAMBAH GRUP -->
     <v-dialog v-model="dialogAddGroup" persistent max-width="500px">
-      <v-card>
-        <v-card-title class="text-h6">Buat Grup Baru</v-card-title>
-        <v-card-text>
-          <v-text-field label="Nama Grup" v-model="groupForm.room_name" outlined dense required></v-text-field>
-          <!-- 
-          <v-select label="Pilih Anggota" v-model="groupForm.member_ids" :items="[
-            { id: 1, nama: 'Ridwan Pranajaya' },
-            { id: 2, nama: 'Mega Bintang' },
-            { id: 3, nama: 'Andi Saputra' },
-            { id: 6, nama: 'Superadmin' }
-          ]" item-title="nama" item-value="id" multiple chips outlined dense required></v-select> -->
+      <v-card class="dialog-card">
+        <v-card-title class="text-h6 dialog-title">
+          <v-icon class="me-2">mdi-account-group</v-icon>
+          Buat Grup Baru
+        </v-card-title>
+        <v-card-text class="pt-4">
+          <v-select v-model="groupForm.room_name" :items="provinsiList" item-title="name" item-value="code"
+            label="Pilih Provinsi" outlined dense :loading="loadingProvinsi" required>
+            <template v-slot:prepend-inner>
+              <v-icon small>mdi-map-marker</v-icon>
+            </template>
+          </v-select>
         </v-card-text>
 
-        <v-card-actions>
+        <v-card-actions class="pa-4">
           <v-spacer></v-spacer>
           <v-btn text @click="dialogAddGroup = false">Batal</v-btn>
-          <v-btn color="primary" @click="createGroup">Simpan</v-btn>
+          <v-btn color="primary" class="gradient-btn" @click="createGroup">Simpan</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -139,11 +189,70 @@ export default {
         member_ids: [],
       },
       userList: [],
-      pollingInterval: null, // ✅ untuk interval polling
+      pollingInterval: null,
+
+      showEmojiPicker: false,
+      emojiList: [
+        "😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃",
+        "😉", "😊", "😇", "🥰", "😍", "🤩", "😘", "😗", "😚", "😙",
+        "😋", "😛", "😜", "🤪", "😝", "🤑", "🤗", "🤭", "🤫", "🤔",
+        "🤐", "🤨", "😐", "😑", "😶", "😏", "😒", "🙄", "😬", "🤥",
+        "😌", "😔", "😪", "🤤", "😴", "😷", "🤒", "🤕", "🤢", "🤮",
+        "🤧", "🥵", "🥶", "😶‍🌫️", "😵", "🤯", "🤠", "🥳", "😎", "🤓",
+        "🧐", "😕", "😟", "🙁", "☹️", "😮", "😯", "😲", "😳", "🥺",
+        "😦", "😧", "😨", "😰", "😥", "😢", "😭", "😱", "😖", "😣",
+        "😞", "😓", "😩", "😫", "🥱", "😤", "😡", "😠", "🤬", "😈",
+        "👍", "👎", "👌", "✌️", "🤞", "🤟", "🤘", "🤙", "👏", "🙌",
+        "👐", "🤲", "🤝", "🙏", "✍️", "💪", "🦾", "🦿", "🦵", "🦶",
+        "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔",
+        "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "☮️",
+        "✝️", "☪️", "🕉️", "☸️", "✡️", "🔯", "🕎", "☯️", "☦️", "🛐",
+        "⭐", "🌟", "✨", "⚡", "☄️", "💥", "🔥", "🌈", "☀️", "🌤️"
+      ],
+
+      provinsiList: [],
+      loadingProvinsi: false,
+
+      // Responsive data
+      sidebarVisible: true,
+      isMobile: false,
     };
   },
 
   methods: {
+    async getProvinsiList() {
+      this.loadingProvinsi = true;
+      try {
+        const token = Cookies.get("token");
+        const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log("Response API Provinsi:", response);
+        console.log("Response Data:", response.data);
+
+        // Cek struktur data response
+        if (response.data && Array.isArray(response.data)) {
+          this.provinsiList = response.data;
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          // Kalau datanya nested di dalam .data
+          this.provinsiList = response.data.data;
+        } else {
+          console.error("Format data tidak sesuai:", response.data);
+          this.provinsiList = [];
+        }
+
+        console.log("Provinsi List setelah diset:", this.provinsiList);
+
+      } catch (error) {
+        console.error("Gagal memuat daftar provinsi:", error);
+        console.error("Error response:", error.response);
+        this.provinsiList = [];
+      } finally {
+        this.loadingProvinsi = false;
+      }
+    },
+
     async getUser() {
       const userData = localStorage.getItem("user");
       this.user = userData ? JSON.parse(userData) : { id: 1, username: "DemoUser" };
@@ -167,7 +276,6 @@ export default {
         const response = await axios.get("https://babaapi.babaparfume.id/api/user", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // this.userList = response.data.data || [];
         console.log("Daftar user:", this.userList);
       } catch (error) {
         console.error("Gagal memuat daftar user:", error);
@@ -181,7 +289,11 @@ export default {
       this.listenToRoom(room.id); // ===> tambahkan ini
       // this.startPolling();
 
-      // 🔹 Tandai semua pesan di room ini sebagai sudah dibaca
+      // Mobile: hide sidebar when room selected
+      if (this.isMobile) {
+        this.sidebarVisible = false;
+      }
+
       try {
         const token = Cookies.get("token");
         await axios.post(
@@ -189,13 +301,11 @@ export default {
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        // Refresh daftar chat agar indikator hilang
         this.getChatList();
       } catch (error) {
         console.error("Gagal menandai pesan sebagai dibaca:", error);
       }
     },
-
 
     async getAllMessages() {
       if (!this.selectedRoom) return;
@@ -205,9 +315,16 @@ export default {
           `https://babaapi.babaparfume.id/api/chat/messages/${this.selectedRoom.id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
         this.messages = response.data || [];
         console.log("Pesan:", this.messages);
-        this.scrollToBottom();
+
+        // ✅ Scroll ke bawah setelah pesan dimuat
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.scrollToBottom();
+          }, 300);
+        });
       } catch (error) {
         console.error("Gagal memuat pesan:", error);
       }
@@ -268,12 +385,11 @@ export default {
       try {
         const token = Cookies.get("token");
 
-        // Pastikan Superadmin (id: 6) selalu ikut
         const superadminId = 6;
         const memberIds = Array.from(new Set([...this.groupForm.member_ids, superadminId]));
 
         const payload = {
-          room_name: this.groupForm.room_name,
+          room_name: this.groupForm.room_name, // Ini sekarang berisi code provinsi
           member_ids: memberIds,
         };
 
@@ -291,12 +407,14 @@ export default {
       }
     },
 
-
+    // ✅ Method scroll ke bawah dengan delay untuk memastikan DOM sudah render
     scrollToBottom() {
-      this.$nextTick(() => {
-        const chatBody = this.$refs.chatBody;
-        if (chatBody) chatBody.scrollTop = chatBody.scrollHeight;
-      });
+      const chatBody = this.$refs.chatBody;
+      if (chatBody) {
+        // Gunakan scrollHeight untuk scroll ke paling bawah
+        chatBody.scrollTop = chatBody.scrollHeight;
+        console.log('Scrolling to bottom:', chatBody.scrollTop, chatBody.scrollHeight);
+      }
     },
 
     formatTime(datetime) {
@@ -477,7 +595,7 @@ export default {
 
     // ✅ MULAI POLLING
     startPolling() {
-      this.stopPolling(); // hentikan polling sebelumnya kalau ada
+      this.stopPolling();
       this.pollingInterval = setInterval(() => {
         if (this.selectedRoom) {
           this.getAllMessages();
@@ -491,6 +609,26 @@ export default {
       if (this.pollingInterval) {
         clearInterval(this.pollingInterval);
         this.pollingInterval = null;
+      }
+    },
+
+    // Mobile functions
+    toggleSidebar() {
+      this.sidebarVisible = !this.sidebarVisible;
+    },
+
+    backToSidebar() {
+      if (this.isMobile) {
+        this.sidebarVisible = true;
+        this.selectedRoom = null;
+        this.stopPolling();
+      }
+    },
+
+    checkMobile() {
+      this.isMobile = window.innerWidth < 960;
+      if (!this.isMobile) {
+        this.sidebarVisible = true;
       }
     },
   },
@@ -509,17 +647,424 @@ export default {
   beforeUnmount() {
     // this.stopPolling(); // ✅ hentikan polling saat keluar dari halaman
   },
+
+  watch: {
+    // Watch untuk messages changes dan scroll ke bawah
+    messages: {
+      handler() {
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.scrollToBottom();
+          }, 100);
+        });
+      },
+      deep: true
+    },
+    dialogAddGroup(val) {
+      if (val) {
+        console.log("Dialog dibuka, memanggil getProvinsiList");
+        this.getProvinsiList();
+      }
+    }
+  }
 };
 </script>
 
 <style scoped>
-.chat-body {
-  height: 450px;
-  overflow-y: auto;
-  background-color: #fafafa;
+.chat-container {
+  border-radius: 20px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-.border-e {
-  border-right: 1px solid #ddd;
+/* Gradient Header */
+.gradient-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.header-btn {
+  transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+/* Chat Content */
+.chat-content {
+  height: calc(600px - 48px);
+}
+
+/* Sidebar */
+.sidebar-col {
+  transition: all 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar-gradient {
+  height: 100%;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  overflow-y: auto;
+}
+
+.sidebar-list {
+  background: transparent !important;
+}
+
+.sidebar-header {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 16px;
+}
+
+.chat-item {
+  margin: 4px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.chat-item:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+  transform: translateX(4px);
+}
+
+.chat-item-active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.avatar-group {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.avatar-private {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+.chat-name {
+  font-weight: 600;
+  color: #212529;
+  font-size: 0.95rem;
+}
+
+.chat-preview {
+  color: #6c757d;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Chat Area */
+.chat-col {
+  transition: all 0.3s ease;
+}
+
+.chat-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.empty-state {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.empty-state-content {
+  text-align: center;
+  color: white;
+}
+
+.empty-icon {
+  opacity: 0.3;
+  margin-bottom: 20px;
+}
+
+.empty-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.empty-subtitle {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.chat-room-header {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05)) !important;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.room-title {
+  font-weight: 600;
+  color: #212529;
+  font-size: 1rem;
+}
+
+.chat-body {
+  height: 400px;
+  overflow-y: auto;
+  background-color: #fafafa;
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+}
+
+.sender-name {
+  font-size: 0.75rem;
+  color: #667eea;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding-left: 12px;
+}
+
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 100%;
+  word-wrap: break-word;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.message-bubble:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.message-sent {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-bottom-right-radius: 4px;
+}
+
+.message-received {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  color: #212529 !important;
+  border-bottom-left-radius: 4px;
+}
+
+.message-content {
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.message-time {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  opacity: 0.7;
+  text-align: right;
+}
+
+.max-width-70 {
+  max-width: 70%;
+}
+
+/* Chat Input */
+.chat-input-actions {
+  gap: 8px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.emoji-btn {
+  transition: all 0.3s ease;
+}
+
+.emoji-btn:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+  transform: scale(1.1);
+}
+
+.message-input {
+  flex: 1;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+}
+
+/* Emoji Picker */
+.emoji-picker-card {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.emoji-item {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  text-align: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.emoji-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  transform: scale(1.2);
+}
+
+/* Dialog */
+.dialog-card {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.dialog-title {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  padding: 20px 24px;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+/* Scrollbar */
+.chat-body::-webkit-scrollbar,
+.sidebar-gradient::-webkit-scrollbar,
+.emoji-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-body::-webkit-scrollbar-track,
+.sidebar-gradient::-webkit-scrollbar-track,
+.emoji-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.chat-body::-webkit-scrollbar-thumb,
+.sidebar-gradient::-webkit-scrollbar-thumb,
+.emoji-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+.chat-body::-webkit-scrollbar-thumb:hover,
+.sidebar-gradient::-webkit-scrollbar-thumb:hover,
+.emoji-grid::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Mobile Styles */
+.mobile-only {
+  display: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 959px) {
+  .mobile-only {
+    display: inline-flex;
+  }
+
+  .sidebar-col {
+    position: absolute;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar-mobile-open {
+    left: 0;
+  }
+
+  .chat-col {
+    width: 100%;
+  }
+
+  .chat-hidden {
+    display: none;
+  }
+
+  .max-width-70 {
+    max-width: 85%;
+  }
+
+  .emoji-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+
+  .message-bubble {
+    padding: 10px 14px;
+  }
+
+  .chat-name {
+    font-size: 0.9rem;
+  }
+
+  .chat-preview {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .chat-container {
+    border-radius: 0 !important;
+  }
+
+  .header-title {
+    font-size: 1.1rem;
+  }
+
+  .empty-title {
+    font-size: 1.5rem;
+  }
+
+  .empty-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .emoji-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .emoji-item {
+    font-size: 20px;
+    padding: 6px;
+  }
 }
 </style>

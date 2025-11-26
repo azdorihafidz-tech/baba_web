@@ -22,8 +22,8 @@
         <router-view />
       </v-container>
 
-      <!-- MUSIC PLAYER - COMPACT VERSION (Bottom Right) -->
-      <div class="music-player-compact">
+      <!-- MUSIC PLAYER - COMPACT VERSION (Bottom Right) - Hidden on Chat Page -->
+      <div v-if="!isOnChatPage" class="music-player-compact">
         <!-- Minimized State -->
         <v-card v-if="!musicExpanded" class="player-minimized" elevation="8" rounded="pill"
           @click="musicExpanded = true">
@@ -178,7 +178,7 @@ export default {
       duration: 0,
       progress: 0,
       loadingSongs: false,
-      musicExpanded: false, // NEW: Control expanded/minimized state
+      musicExpanded: false,
       musicSnackbar: {
         show: false,
         text: '',
@@ -192,6 +192,30 @@ export default {
       if (this.volume === 0) return 'mdi-volume-mute'
       if (this.volume < 50) return 'mdi-volume-low'
       return 'mdi-volume-high'
+    },
+
+    isOnChatPage() {
+      // Check if current route is the Chat page
+      const currentPath = this.$route.path;
+      const currentName = this.$route.name;
+
+      console.log('Current Route Path:', currentPath);
+      console.log('Current Route Name:', currentName);
+
+      return currentPath === '/admin/Chat' ||
+        currentPath === '/admin/chat' ||
+        currentName === 'Chat' ||
+        currentName === 'chat' ||
+        currentPath.toLowerCase().includes('/admin/chat');
+    }
+  },
+
+  watch: {
+    // Watch for route changes - DON'T pause music when entering Chat page
+    '$route'(to, from) {
+      // Music continues playing in background even on Chat page
+      // Only the UI is hidden, audio keeps playing
+      console.log('Route changed to:', to.path, '- Music continues playing');
     }
   },
 
@@ -569,12 +593,6 @@ export default {
           message: error.message
         });
 
-        // Error codes:
-        // 1 = MEDIA_ERR_ABORTED
-        // 2 = MEDIA_ERR_NETWORK
-        // 3 = MEDIA_ERR_DECODE
-        // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED
-
         switch (error.code) {
           case 1:
             console.error('Audio loading aborted');
@@ -589,7 +607,6 @@ export default {
             break;
           case 4:
             console.error('Audio format not supported');
-            // Try next URL pattern
             break;
         }
       }
@@ -710,7 +727,7 @@ export default {
   background: linear-gradient(135deg, #fff5e1 0%, #f9f1d4 100%);
 }
 
-/* Content Container - NO PADDING BOTTOM */
+/* Content Container */
 .main-content-container {
   position: relative;
   z-index: 1;
@@ -825,12 +842,10 @@ export default {
   background: rgba(251, 191, 36, 0.8);
 }
 
-
 /* Responsive - Mobile Adjustments */
 @media (max-width: 600px) {
   .music-player-compact {
     bottom: 80px;
-    /* Raised to avoid bottom navigation */
     right: 10px;
   }
 
