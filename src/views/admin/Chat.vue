@@ -126,10 +126,11 @@
               </v-menu>
 
               <v-text-field v-model="newMessage" placeholder="Tulis pesan..." variant="outlined" hide-details dense
-                class="flex-grow-1 mx-2 message-input" @keyup.enter="sendMessage">
+                class="flex-grow-1 mx-2 mb-5 message-input" @keyup.enter="sendMessage">
               </v-text-field>
 
-              <v-btn icon color="primary" class="send-btn" @click="sendMessage" :disabled="newMessage.trim() == ''">
+              <v-btn icon color="primary" class="send-btn mb-5" @click="sendMessage"
+                :disabled="newMessage.trim() == ''">
                 <v-icon>mdi-send</v-icon>
               </v-btn>
             </v-card-actions>
