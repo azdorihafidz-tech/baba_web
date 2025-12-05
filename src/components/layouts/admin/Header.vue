@@ -286,7 +286,7 @@ export default {
       console.warn('❌ Header image failed to load:', event.target.src);
 
       if (this.headerData?.path_gambar_header && event.target.src.includes('https://')) {
-        const httpUrl = event.target.src.replace('https://babaapi.babaparfume.id/project/public/', 'http://babaapi.babaparfume.id/project/public/');
+        const httpUrl = event.target.src.replace('https://babaapi.babaparfume.id/project/public/', 'https://babaapi.babaparfume.id/project/public/');
         console.log('🔄 Trying HTTP fallback for header image:', httpUrl);
         event.target.src = httpUrl;
       } else {
@@ -376,8 +376,8 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            console.log('🔓 Trying HTTP: http://babaapi.babaparfume.id/api/gambar-header');
-            headerResponse = await apiClient.get('http://babaapi.babaparfume.id/api/gambar-header');
+            console.log('🔓 Trying HTTP: https://babaapi.babaparfume.id/api/gambar-header');
+            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header');
             console.log('✅ HTTP request successful');
           } else {
             throw httpsError;
@@ -564,7 +564,7 @@ export default {
 
             try {
               console.log('Attempting HTTP logout...');
-              await apiClient.post('http://babaapi.babaparfume.id/api/logout', {});
+              await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
               logoutSuccess = true;
               console.log('HTTP logout successful');
             } catch (httpError) {

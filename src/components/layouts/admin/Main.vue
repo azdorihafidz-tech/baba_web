@@ -281,7 +281,7 @@ export default {
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('http://babaapi.babaparfume.id/api/gambar-header');
+            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header');
           } else {
             throw httpsError;
           }

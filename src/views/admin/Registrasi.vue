@@ -330,7 +330,7 @@ const handleRegister = async () => {
     // Daftar URL API
     const apiUrls = [
         'https://babaapi.babaparfume.id/api/user',
-        'http://babaapi.babaparfume.id/api/user'
+        'https://babaapi.babaparfume.id/api/user'
     ]
 
     const requestConfig = {
