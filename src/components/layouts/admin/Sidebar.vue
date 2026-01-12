@@ -60,7 +60,7 @@
     <v-card class="more-menu-card">
       <!-- Header -->
       <v-card-title class="more-menu-title">
-        <v-icon class="me-2" color="red">mdi-menu</v-icon>
+        <v-icon class="me-2" color="#d4af37">mdi-menu</v-icon>
         <span class="title-text">Menu Lainnya</span>
         <v-btn icon size="small" @click="showMoreMenu = false" class="close-btn">
           <v-icon color="black">mdi-close</v-icon>
@@ -342,7 +342,7 @@ export default {
 }
 
 .menu-item-active .menu-icon {
-  color: #1a1a1a !important;
+  color: #ddd !important;
   font-weight: bold;
 }
 
@@ -361,13 +361,13 @@ export default {
 }
 
 .menu-item-active .menu-text {
-  color: #1a1a1a !important;
+  color: #ddd !important;
   font-weight: 700;
 }
 
 /* ========== MOBILE BOTTOM NAVIGATION STYLES - ENHANCED VERSION ========== */
 .mobile-bottom-nav {
-  background: #1fc9d9 !important;
+  background: #1a1a1a !important;
   border-top: 1px solid #ddd;
   position: relative;
   overflow: visible !important;
@@ -396,14 +396,14 @@ export default {
 
 /* Default Theme - Premium Gold Gradient */
 .fab-gradient {
-  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #b8941f 100%) !important;
-  box-shadow:
+  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%) !important;
+  /* box-shadow:
     0 8px 24px rgba(212, 175, 55, 0.4),
     0 4px 12px rgba(212, 175, 55, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2); */
 }
 
-.fab-gradient:hover {
+/* .fab-gradient:hover {
   background: linear-gradient(135deg, #f4d03f 0%, #d4af37 50%, #d4af37 100%) !important;
   transform: scale(1.1) translateY(-3px);
   box-shadow:
@@ -411,7 +411,7 @@ export default {
     0 6px 16px rgba(212, 175, 55, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   border: 3px solid rgba(255, 255, 255, 0.3);
-}
+} */
 
 /* Active State - Red Gradient when menu open */
 .fab-active {
@@ -492,7 +492,7 @@ export default {
 
 /* Bottom Nav Buttons */
 .bottom-nav-btn {
-  color: #000000 !important;
+  color: #d4af37 !important;
   transition: all 0.3s ease;
   border-radius: 8px !important;
   margin: 2px;
