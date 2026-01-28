@@ -524,13 +524,22 @@
             <!-- Documents Section -->
             <div class="detail-section mb-6">
               <div class="d-flex align-center justify-space-between mb-4">
-                <h3 class="detail-section-title mb-0">
+                <h3 class="detail-section-title mb-0 d-flex align-center">
                   <v-icon class="mr-2" color="#FFD700">mdi-file-document-multiple</v-icon>
-                  Dokumen
+
+                  <span>Dokumen</span>
+
+                  <!-- CHIP KODE -->
                   <v-chip color="success" size="small" class="ml-3" v-if="getDocumentMvoId()">
                     {{ getDocumentMvoCode() }}
                   </v-chip>
+
+                  <!-- NAMA PEMILIK -->
+                  <span class="text-caption text-grey ml-2">
+                    {{ originalDetailMvoData?.nama || '-' }}
+                  </span>
                 </h3>
+
                 <v-btn color="primary" size="small" @click="showDialogAddDocument" :disabled="!getDocumentMvoId()">
                   <v-icon start>mdi-plus</v-icon>
                   Tambah Dokumen
@@ -795,12 +804,20 @@
                     <v-icon start>mdi-plus</v-icon>
                     Tambah Dokumen
                   </v-btn>
-                  <div class="text-center mt-2" v-if="getDocumentMvoId()">
+
+                  <div class="d-flex justify-center align-center mt-2 gap-2" v-if="getDocumentMvoId()">
+                    <!-- KODE -->
                     <v-chip color="success" size="small">
                       {{ getDocumentMvoCode() }}
                     </v-chip>
+
+                    <!-- NAMA PEMILIK -->
+                    <span class="text-caption text-grey">
+                      {{ originalDetailMvoData?.nama || '-' }}
+                    </span>
                   </div>
                 </div>
+
 
                 <!-- Document Search -->
                 <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
@@ -1035,7 +1052,7 @@
                             @click.stop="showParentDetail(child.id)" :loading="isLoadingParentDetail"
                             class="text-white">
                             <v-icon start size="16">mdi-account-arrow-up</v-icon>
-                            Detail Upline
+                            Downline
                           </v-btn>
                         </div>
                       </v-card-text>
@@ -1236,7 +1253,7 @@ export default {
           { key: "approve", title: "Approve", sortable: false, align: "center" },
           { key: "detail", title: "Detail", sortable: false, align: "center" },
           { key: "print", title: "Print", sortable: false, align: "center" },
-          { key: "action", title: "Actions", sortable: false, align: "center" },
+          { key: "action", title: "Detail", sortable: false, align: "center" },
         ],
         items: [],
       },
@@ -1262,7 +1279,7 @@ export default {
         { key: "province", title: "Provinsi" },
         { key: "parent", title: "Upline" },
         { key: "level", title: "Level" },
-        { key: "action", title: "Actions", sortable: false, align: "center" },
+        { key: "action", title: "Detail", sortable: false, align: "center" },
       ],
 
       // Document headers and data

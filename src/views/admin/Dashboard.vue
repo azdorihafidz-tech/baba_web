@@ -73,7 +73,7 @@
                     <v-divider class="my-2"></v-divider>
                     <div class="d-flex justify-center align-center">
                       <v-icon small class="mr-1">mdi-account-multiple</v-icon>
-                      <span class="text-body-1">{{ mvo.total_bawahan }} Bawahan</span>
+                      <span class="text-body-1">{{ mvo.total_bawahan }} Downline</span>
                     </div>
                   </v-card-text>
                 </v-card>
@@ -991,6 +991,7 @@
           <!-- Mobile List View -->
           <div class="d-block d-md-none">
             <v-list>
+
               <!-- Growth Data Templates -->
               <template v-if="selectedDetailType === 'total_growth' || selectedDetailType === 'monthly_growth'">
                 <v-list-item v-for="item in detailData" :key="item.bulan" class="py-3">
@@ -1040,7 +1041,7 @@
                     </div>
                     <div class="d-flex gap-1">
                       <v-chip size="x-small" color="success" variant="tonal">
-                        Bawahan Baru: {{ item.total_bawahan_baru }}
+                        Downline Baru: {{ item.total_bawahan_baru }}
                       </v-chip>
                     </div>
                   </v-list-item-subtitle>
@@ -1241,7 +1242,47 @@
                   </v-list-item-subtitle>
                 </v-list-item>
               </template>
+              <!-- MOBILE DOWNLINE DETAIL -->
+              <template v-else-if="selectedDetailType === 'mvo_subordinates_detail'">
+
+                <v-list-item v-for="(item, index) in detailData" :key="item.id" class="py-3">
+
+                  <template #prepend>
+                    <v-avatar color="primary">
+                      <span class="text-white font-weight-bold">
+                        {{ index + 1 }}
+                      </span>
+                    </v-avatar>
+                  </template>
+
+                  <v-list-item-title class="font-weight-medium">
+                    {{ item.nama || '-' }}
+                  </v-list-item-title>
+
+                  <v-list-item-subtitle>
+
+                    <div class="text-caption">
+                      {{ item.code || '-' }}
+                    </div>
+
+                    <div class="d-flex gap-1 mt-1">
+                      <v-chip size="x-small" :color="getMvoTypeColor(item.mvo_type_id)" variant="tonal">
+                        {{ getMvoTypeName(item.mvo_type_id) }}
+                      </v-chip>
+
+                      <v-chip size="x-small" :color="getStatusColor(item.status_inputan)" variant="tonal">
+                        {{ getStatusText(item.status_inputan) }}
+                      </v-chip>
+                    </div>
+
+                  </v-list-item-subtitle>
+
+                </v-list-item>
+
+              </template>
+
             </v-list>
+
           </div>
 
           <!-- Desktop Table View -->
@@ -1323,6 +1364,9 @@
                 <v-chip :color="getMvoTypeColor(item.mvo_type_id)" dark size="small">
                   {{ getMvoTypeName(item.mvo_type_id) }}
                 </v-chip>
+              </template>
+              <template v-slot:item.no="{ index }">
+                {{ index + 1 }}
               </template>
 
               <template v-slot:item.status_inputan="{ item }">
@@ -1499,12 +1543,14 @@ export default {
       mvoWithSubordinatesHeaders: [
         { title: "Nama MVO", key: "mvo_nama" },
         { title: "Kode MVO", key: "mvo_code" },
-        { title: "Total Bawahan", key: "total_bawahan", align: "center" },
+        { title: "Total Downline", key: "total_bawahan", align: "center" },
         { title: "Aksi", key: "actions", align: "center", sortable: false },
       ],
 
       mvoSubordinatesHeaders: [
-        { title: "Nama Bawahan", key: "nama" },
+
+        { title: "No", key: "no" },
+        { title: "Nama Downline", key: "nama" },
         { title: "Kode", key: "code" },
         // { title: "ID", key: "id", align: "center" },
       ],
@@ -1517,7 +1563,7 @@ export default {
       mvoGrowthHeaders: [
         { title: "Nama MVO", key: "mvo_nama" },
         { title: "Bulan", key: "bulan" },
-        { title: "Total Bawahan Baru", key: "total_bawahan_baru", align: "center" },
+        { title: "Total Downline Baru", key: "total_bawahan_baru", align: "center" },
       ],
 
       regionSummaryHeaders: [
@@ -1935,8 +1981,8 @@ export default {
 
     getDetailTitle(type) {
       const titles = {
-        'all_mvo_with_subordinates': 'Semua MVO dengan Bawahan',
-        'mvo_subordinates_detail': 'Detail Bawahan MVO',
+        'all_mvo_with_subordinates': 'Semua MVO dengan Downline',
+        'mvo_subordinates_detail': 'Detail Downline MVO',
         'all_accounts': 'Semua Akun',
         'mvo_accounts_only': 'MVO Akun Saja',
         'mvo_accounts': 'Akun MVO',
@@ -1958,7 +2004,7 @@ export default {
     },
     showMVOSubordinatesDetail(mvoData) {
       this.selectedDetailType = 'mvo_subordinates_detail';
-      this.selectedDetailTitle = `Bawahan ${mvoData.mvo_nama}`;
+      this.selectedDetailTitle = `Downline ${mvoData.mvo_nama}`;
       this.selectedMVOData = mvoData;
       this.detailData = mvoData.bawahan || [];
       this.detailModal = true;
