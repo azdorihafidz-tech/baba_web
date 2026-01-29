@@ -9,7 +9,7 @@
           hide-details variant="outlined" class="search-field" />
       </template>
       <template v-slot:datatable>
-        <v-data-table class="bg-grey-lighten-4" hover :headers="datatable.headers" :items="filteredItems"
+        <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="filteredItems"
           :search="datatable.search" :loading="isTableLoading">
 
           <!-- Template for code with color coding based on level -->

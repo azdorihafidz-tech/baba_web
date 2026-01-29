@@ -87,8 +87,9 @@
                 Top 5 Akun Bintang Terbanyak
               </v-card-title>
               <v-card-text>
-                <v-data-table :headers="topBintangHeaders" :items="dashboardData.summary?.top_5_bintang || []"
-                  :loading="isLoading" item-key="mvo_id" class="elevation-1" :items-per-page="5">
+                <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders"
+                  :items="dashboardData.summary?.top_5_bintang || []" :loading="isLoading" item-key="mvo_id"
+                  :items-per-page="5">
 
                   <template v-slot:item.rank="{ index }">
                     <v-chip :color="getRankColor(index + 1)" dark size="small">
@@ -346,8 +347,8 @@
                 Akun per Region
               </v-card-title>
               <v-card-text>
-                <v-data-table :headers="regionHeaders" :items="dashboardData.summary?.akun_per_daerah || []"
-                  :loading="isLoading" item-key="daerah" class="elevation-1">
+                <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="regionHeaders"
+                  :items="dashboardData.summary?.akun_per_daerah || []" :loading="isLoading" item-key="daerah">
 
                   <template v-slot:item.daerah="{ item }">
                     <div class="d-flex align-center">
@@ -1288,9 +1289,9 @@
           <!-- Desktop Table View -->
           <div class="d-none d-md-block">
             <!-- Growth Data Tables -->
-            <v-data-table v-if="selectedDetailType === 'total_growth' || selectedDetailType === 'monthly_growth'"
-              :headers="growthHeaders" :items="detailData" :loading="isLoadingDetail" class="elevation-0"
-              :items-per-page="10">
+            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap"
+              v-if="selectedDetailType === 'total_growth' || selectedDetailType === 'monthly_growth'"
+              :headers="growthHeaders" :items="detailData" :loading="isLoadingDetail" :items-per-page="10">
               <template v-slot:item.bulan="{ item }">
                 <div class="font-weight-medium">
                   {{ formatMonth(item.bulan) }}
@@ -1304,8 +1305,8 @@
               </template>
             </v-data-table>
 
-            <v-data-table v-else-if="selectedDetailType === 'mvo_growth'" :headers="mvoGrowthHeaders"
-              :items="detailData" :loading="isLoadingDetail" class="elevation-0" :items-per-page="10">
+            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" v-else-if="selectedDetailType === 'mvo_growth'"
+              :headers="mvoGrowthHeaders" :items="detailData" :loading="isLoadingDetail" :items-per-page="10">
               <template v-slot:item.mvo_nama="{ item }">
                 <div class="font-weight-medium">
                   {{ item.mvo_nama }}
@@ -1326,8 +1327,8 @@
             </v-data-table>
 
             <!-- Your existing tables for other types -->
-            <v-data-table v-else-if="selectedDetailType === 'all_regions'" :headers="regionSummaryHeaders"
-              :items="detailData" :loading="isLoadingDetail" class="elevation-0" :items-per-page="10">
+            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" v-else-if="selectedDetailType === 'all_regions'"
+              :headers="regionSummaryHeaders" :items="detailData" :loading="isLoadingDetail" :items-per-page="10">
               <template v-slot:item.region_name="{ item }">
                 <div class="d-flex align-center">
                   <v-icon class="mr-2" color="primary">mdi-map-marker</v-icon>
@@ -1358,8 +1359,8 @@
             </v-data-table>
 
             <!-- Regular table for other types -->
-            <v-data-table v-else :headers="getDetailHeaders()" :items="detailData" :loading="isLoadingDetail"
-              class="elevation-0" :items-per-page="10">
+            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" v-else :headers="getDetailHeaders()"
+              :items="detailData" :loading="isLoadingDetail" :items-per-page="10">
               <template v-slot:item.mvo_type="{ item }" v-if="isAccountType(selectedDetailType)">
                 <v-chip :color="getMvoTypeColor(item.mvo_type_id)" dark size="small">
                   {{ getMvoTypeName(item.mvo_type_id) }}

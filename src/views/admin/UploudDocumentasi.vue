@@ -22,7 +22,7 @@
           hide-details variant="outlined" class="search-field" />
       </template>
       <template v-slot:datatable>
-        <v-data-table class="bg-grey-lighten-4" hover :headers="datatable.headers" :items="datatable.items"
+        <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="datatable.items"
           :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
           @update:options="updateCurrentPageInfo">
           <template v-slot:item.no="{ index }">

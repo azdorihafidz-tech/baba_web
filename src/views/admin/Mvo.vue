@@ -16,7 +16,7 @@
         </template>
 
         <template v-slot:datatable>
-          <v-data-table class="bg-grey-lighten-4 custom-data-table" hover :headers="displayHeaders"
+          <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" hover :headers="displayHeaders"
             :items="datatable.items" :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
             @update:options="updateCurrentPageInfo">
 
@@ -549,7 +549,7 @@
               <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-              <v-data-table class="bg-grey-lighten-4 custom-detail-table" :headers="documentHeaders"
+              <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="documentHeaders"
                 :items="documentItems" :search="documentSearch" :loading="isLoadingDocuments" hide-default-footer
                 items-per-page="-1">
 
@@ -662,7 +662,7 @@
               <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Downline..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-              <v-data-table class="bg-grey-lighten-4 custom-detail-table" :headers="detailHeaders"
+              <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="detailHeaders"
                 :items="getCurrentDetailData()" :search="detailSearch" hide-default-footer items-per-page="-1">
 
                 <template v-slot:item.mvo_type="{ item }">
