@@ -45,14 +45,8 @@
 
                         <v-select v-model="inputRegister.class_member" label="Class Member" density="compact"
                             prepend-inner-icon="mdi-account-group" variant="outlined" :items="classMemberOptions"
-                            item-title="text" item-value="value" :class="inputClass" color="amber"
+                            item-title="text" item-value="description" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" clearable />
-                        <!-- Tambahkan SEBELUM atau SETELAH field cabang -->
-
-                        <!-- <v-select v-model="inputRegister.otoritas" label="Otoritas" density="compact"
-                            prepend-inner-icon="mdi-account-key" variant="outlined" :items="otoritasOptions"
-                            item-title="text" item-value="value" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" clearable /> -->
 
                         <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
                             prepend-inner-icon="mdi-gender-male-female" variant="outlined" :items="jenisKelaminOptions"
@@ -100,17 +94,9 @@
                             Masuk sekarang
                         </v-btn>
                     </div>
+                </v-card>
 
-                    <!-- <div :class="footerClass">
-                        <p :class="footerTitleClass">Open Reseller & Distributor</p>
-                        <p :class="footerContactClass">
-                            📱 <a href="tel:082276617334"
-                                style="color: inherit; text-decoration: none;">0822-7661-7334</a> |
-                            🌐 <a href="https://www.babaparfumeindonesia.com" target="_blank"
-                                style="color: inherit; text-decoration: none;">www.babaparfumeindonesia.com</a>
-                        </p>
-                    </div> -->
-                </v-card <!-- Copyright -->
+                <!-- Copyright -->
                 <div :class="copyrightClass">
                     <p class="text-caption text-grey-lighten-1">
                         © 2025 - BABA PARFUM INDONESIA - Version 1.0.0
@@ -131,351 +117,470 @@
     </v-container>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
 import axios from 'axios'
-import { useDisplay } from 'vuetify'
 
-// Composables
-const router = useRouter()
-const { mobile, smAndDown, xs } = useDisplay()
+export default {
+    name: 'RegisterForm',
 
-// Reactive data
-const visible = ref(false)
-const isButtonLoading = ref(false)
-const loadingProvinsi = ref(false)
-const previewFotoProfile = ref(null)
+    data() {
+        return {
+            visible: false,
+            isButtonLoading: false,
+            loadingProvinsi: false,
+            previewFotoProfile: null,
 
-const inputRegister = ref({
-    no_id: '',
-    nama: '',
-    nama_panggilan: '',
-    tempat_lahir: '',
-    tgl_lahir: '',
-    jenis_kelamin: '',
-    nohp: '',
-    alamat: '',
-    class_member: '',
-    username: '',
-    password: '',
-    cabang: '',
-    path_gambar_profile: '',
-    otoritas: ''
-})
-
-const contentSnackbar = ref({
-    snackbar: false,
-    text: '',
-    color: 'success'
-})
-
-// Data provinsi akan diisi dari API
-const cabangOptions = ref([
-    { text: 'MVO', value: 'mvo' },
-    { text: 'Distributor', value: 'distributor' },
-    { text: 'Founder', value: 'founder' }
-])
-
-// Options untuk otoritas
-const otoritasOptions = ref([
-    { text: 'MVO', value: 'mvo' },
-    { text: 'Distributor', value: 'distributor' },
-    { text: 'Founder', value: 'founder' }
-])
-
-// Options untuk class member
-const classMemberOptions = ref([
-    { text: 'SILVER', value: 'silver' },
-    { text: 'PLATINUM', value: 'platinum' },
-    { text: 'GOLD', value: 'gold' },
-])
-// Options untuk jenis kelamin
-const jenisKelaminOptions = ref([
-    { text: 'Laki-laki', value: 'L' },
-    { text: 'Perempuan', value: 'P' }
-])
-
-// Responsive computed properties
-const logoSize = computed(() => xs.value ? 60 : smAndDown.value ? 70 : 80)
-const titleClass = computed(() => xs.value ? 'text-h6 font-weight-bold text-amber mb-1' : smAndDown.value ? 'text-h5 font-weight-bold text-amber mb-1' : 'text-h4 font-weight-bold text-amber mb-1')
-const subtitleClass = computed(() => xs.value ? 'text-caption text-amber-lighten-1 mb-0' : 'text-body-2 text-amber-lighten-1 mb-0')
-const formTitleClass = computed(() => xs.value ? 'text-subtitle-1 font-weight-medium text-white mt-2' : smAndDown.value ? 'text-h6 font-weight-medium text-white mt-3' : 'text-h6 font-weight-medium text-white mt-4')
-const cardClass = computed(() => xs.value ? 'pa-4 bg-grey-darken-4' : smAndDown.value ? 'pa-6 bg-grey-darken-4' : 'pa-8 bg-grey-darken-4')
-const logoSection = computed(() => xs.value ? 'text-center mb-4' : smAndDown.value ? 'text-center mb-6' : 'text-center mb-8')
-const formClass = computed(() => xs.value ? 'mb-3' : 'mb-4')
-const inputClass = computed(() => xs.value ? 'mb-2' : 'mb-3')
-const buttonClass = computed(() => xs.value ? 'mb-3 text-black font-weight-bold' : 'mb-4 text-black font-weight-bold')
-const buttonSize = computed(() => xs.value ? 'default' : 'large')
-const dividerClass = computed(() => xs.value ? 'my-3 border-opacity-25' : 'my-4 border-opacity-25')
-const linkTextClass = computed(() => xs.value ? 'text-caption text-grey-lighten-1' : 'text-grey-lighten-1')
-const linkButtonSize = computed(() => xs.value ? 'small' : 'default')
-const footerClass = computed(() => xs.value ? 'text-center mt-4' : smAndDown.value ? 'text-center mt-5' : 'text-center mt-6')
-const footerTitleClass = computed(() => xs.value ? 'text-caption font-weight-bold text-amber mb-1' : 'text-body-2 font-weight-bold text-amber mb-1')
-const footerContactClass = computed(() => xs.value ? 'text-caption text-grey-lighten-1' : 'text-caption text-grey-lighten-1')
-const copyrightClass = computed(() => xs.value ? 'text-center mt-2' : 'text-center mt-4')
-
-// Methods
-const fetchProvinsiData = async () => {
-    loadingProvinsi.value = true
-
-    try {
-        console.log('Fetching provinsi data from API...')
-
-        const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+            inputRegister: {
+                no_id: '',
+                nama: '',
+                nama_panggilan: '',
+                tempat_lahir: '',
+                tgl_lahir: '',
+                jenis_kelamin: '',
+                nohp: '',
+                alamat: '',
+                class_member: '',
+                username: '',
+                password: '',
+                cabang: '',
+                path_gambar_profile: '',
+                otoritas: ''
             },
-            timeout: 10000 // 10 detik timeout
-        })
 
-        console.log('Provinsi API response:', response.data)
+            contentSnackbar: {
+                snackbar: false,
+                text: '',
+                color: 'success'
+            },
 
-        if (response.data.status === 'success' && response.data.data) {
-            // Transform API data to select options format
-            cabangOptions.value = response.data.data.map(provinsi => ({
-                text: provinsi.code,
-                value: provinsi.id
-            }))
+            cabangOptions: [
+                { text: 'MVO', value: 'mvo' },
+                { text: 'Distributor', value: 'distributor' },
+                { text: 'Founder', value: 'founder' }
+            ],
 
-            console.log('Provinsi options loaded:', cabangOptions.value.length, 'items')
-        } else {
-            console.error('Invalid provinsi API response structure')
-            showSnackbar('Gagal memuat data provinsi', 'error')
+            otoritasOptions: [
+                { text: 'MVO', value: 'mvo' },
+                { text: 'Distributor', value: 'distributor' },
+                { text: 'Founder', value: 'founder' }
+            ],
+
+            classMemberOptions: [],
+
+            jenisKelaminOptions: [
+                { text: 'Laki-laki', value: 'L' },
+                { text: 'Perempuan', value: 'P' }
+            ]
         }
+    },
 
-    } catch (error) {
-        console.error('Error fetching provinsi data:', error)
-
-        let message = 'Gagal memuat data provinsi'
-
-        if (error.response) {
-            message = `Error ${error.response.status}: ${error.response.data?.message || 'Server error'}`
-        } else if (error.id === 'ECONNABORTED') {
-            message = 'Timeout saat memuat data provinsi'
-        } else if (error.id === 'ERR_NETWORK') {
-            message = 'Tidak dapat terhubung ke server provinsi'
-        }
-
-        showSnackbar(message, 'error')
-
-        // Fallback: gunakan data provinsi default jika API gagal
-    } finally {
-        loadingProvinsi.value = false
-    }
-}
-const handleFotoProfileChange = (event) => {
-    // Untuk Vuetify v-file-input, file langsung tersedia di v-model
-    const file = inputRegister.value.path_gambar_profile
-
-    if (file) {
-        // Validasi tipe file
-        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg']
-        if (!allowedTypes.includes(file.type)) {
-            showSnackbar('Format file harus PNG, JPG, atau JPEG', 'error')
-            inputRegister.value.path_gambar_profile = null
-            previewFotoProfile.value = null
-            return
-        }
-
-        // Validasi ukuran file (max 5MB)
-        const maxSize = 5 * 1024 * 1024 // 5MB
-        if (file.size > maxSize) {
-            showSnackbar('Ukuran file maksimal 5MB', 'error')
-            inputRegister.value.path_gambar_profile = null
-            previewFotoProfile.value = null
-            return
-        }
-
-        // Baca file untuk preview
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            previewFotoProfile.value = e.target.result
-        }
-        reader.readAsDataURL(file)
-    } else {
-        previewFotoProfile.value = null
-    }
-}
-const validateno_id = (event) => {
-    // Hanya izinkan angka untuk no_id
-    const value = event.target.value
-    inputRegister.value.no_id = value.replace(/[^0-9]/g, '')
-}
-
-const validatePhone = (event) => {
-    // Hanya izinkan angka untuk nomor HP
-    const value = event.target.value
-    inputRegister.value.nohp = value.replace(/[^0-9]/g, '')
-}
-
-const togglePasswordVisibility = () => {
-    visible.value = !visible.value
-}
-
-const handleRegister = async () => {
-    console.log('Register attempt with new API (NO FRONTEND VALIDATION)')
-
-    isButtonLoading.value = true
-
-    // Buat FormData
-    const formData = new FormData()
-
-    // Append semua field (langsung kirim ke backend)
-    for (const [key, value] of Object.entries(inputRegister.value)) {
-        formData.append(key, value ?? '')
-    }
-
-    // Daftar URL API
-    const apiUrls = [
-        'https://babaapi.babaparfume.id/api/user',
-        'https://babaapi.babaparfume.id/api/user'
-    ]
-
-    const requestConfig = {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json'
+    computed: {
+        mobile() {
+            return this.$vuetify.display.mobile
         },
-        timeout: 30000
-    }
 
-    let lastError = null
-    let success = false
+        smAndDown() {
+            return this.$vuetify.display.smAndDown
+        },
 
-    // Loop mencoba API
-    for (const apiUrl of apiUrls) {
-        try {
-            console.log(`Trying API: ${apiUrl}`)
+        xs() {
+            return this.$vuetify.display.xs
+        },
 
-            const response = await axios.post(apiUrl, formData, requestConfig)
-            console.log('Register success:', response.data)
+        logoSize() {
+            return this.xs ? 60 : this.smAndDown ? 70 : 80
+        },
 
-            if (response.status === 200 || response.status === 201) {
-                showSnackbar(`Registrasi berhasil!`, 'success')
+        titleClass() {
+            return this.xs
+                ? 'text-h6 font-weight-bold text-amber mb-1'
+                : this.smAndDown
+                    ? 'text-h5 font-weight-bold text-amber mb-1'
+                    : 'text-h4 font-weight-bold text-amber mb-1'
+        },
 
-                // Reset form
-                inputRegister.value = {
-                    no_id: '',
-                    nama: '',
-                    nama_panggilan: '',
-                    tempat_lahir: '',
-                    tgl_lahir: '',
-                    nohp: '',
-                    alamat: '',
-                    class_member: '',
-                    username: '',
-                    password: '',
-                    cabang: '',
-                    path_gambar_profile: null,
-                    otoritas: '',
-                    jenis_kelamin: ''
+        subtitleClass() {
+            return this.xs
+                ? 'text-caption text-amber-lighten-1 mb-0'
+                : 'text-body-2 text-amber-lighten-1 mb-0'
+        },
+
+        formTitleClass() {
+            return this.xs
+                ? 'text-subtitle-1 font-weight-medium text-white mt-2'
+                : this.smAndDown
+                    ? 'text-h6 font-weight-medium text-white mt-3'
+                    : 'text-h6 font-weight-medium text-white mt-4'
+        },
+
+        cardClass() {
+            return this.xs
+                ? 'pa-4 bg-grey-darken-4'
+                : this.smAndDown
+                    ? 'pa-6 bg-grey-darken-4'
+                    : 'pa-8 bg-grey-darken-4'
+        },
+
+        logoSection() {
+            return this.xs
+                ? 'text-center mb-4'
+                : this.smAndDown
+                    ? 'text-center mb-6'
+                    : 'text-center mb-8'
+        },
+
+        formClass() {
+            return this.xs ? 'mb-3' : 'mb-4'
+        },
+
+        inputClass() {
+            return this.xs ? 'mb-2' : 'mb-3'
+        },
+
+        buttonClass() {
+            return this.xs
+                ? 'mb-3 text-black font-weight-bold'
+                : 'mb-4 text-black font-weight-bold'
+        },
+
+        buttonSize() {
+            return this.xs ? 'default' : 'large'
+        },
+
+        dividerClass() {
+            return this.xs ? 'my-3 border-opacity-25' : 'my-4 border-opacity-25'
+        },
+
+        linkTextClass() {
+            return this.xs ? 'text-caption text-grey-lighten-1' : 'text-grey-lighten-1'
+        },
+
+        linkButtonSize() {
+            return this.xs ? 'small' : 'default'
+        },
+
+        footerClass() {
+            return this.xs
+                ? 'text-center mt-4'
+                : this.smAndDown
+                    ? 'text-center mt-5'
+                    : 'text-center mt-6'
+        },
+
+        footerTitleClass() {
+            return this.xs
+                ? 'text-caption font-weight-bold text-amber mb-1'
+                : 'text-body-2 font-weight-bold text-amber mb-1'
+        },
+
+        footerContactClass() {
+            return this.xs
+                ? 'text-caption text-grey-lighten-1'
+                : 'text-caption text-grey-lighten-1'
+        },
+
+        copyrightClass() {
+            return this.xs ? 'text-center mt-2' : 'text-center mt-4'
+        }
+    },
+
+    mounted() {
+        console.log('BABA Parfum Register Form mounted with API Provinsi and Otoritas')
+        console.log('Provinsi API Endpoint:', 'https://babaapi.babaparfume.id/api/provinsi')
+        this.debugRouteInfo()
+        this.fetchProvinsiData()
+        this.getAllMvoType()
+    },
+
+    methods: {
+        async fetchProvinsiData() {
+            this.loadingProvinsi = true
+
+            try {
+                console.log('Fetching provinsi data from API...')
+
+                const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    timeout: 10000
+                })
+
+                console.log('Provinsi API response:', response.data)
+
+                if (response.data.status === 'success' && response.data.data) {
+                    this.cabangOptions = response.data.data.map(provinsi => ({
+                        text: provinsi.code,
+                        value: provinsi.id
+                    }))
+
+                    console.log('Provinsi options loaded:', this.cabangOptions.length, 'items')
+                } else {
+                    console.error('Invalid provinsi API response structure')
+                    this.showSnackbar('Gagal memuat data provinsi', 'error')
                 }
-                previewFotoProfile.value = null
 
-                setTimeout(() => {
-                    router.push('/admin/login')
-                }, 2000)
+            } catch (error) {
+                console.error('Error fetching provinsi data:', error)
 
-                success = true
-                break
+                let message = 'Gagal memuat data provinsi'
+
+                if (error.response) {
+                    message = `Error ${error.response.status}: ${error.response.data?.message || 'Server error'}`
+                } else if (error.code === 'ECONNABORTED') {
+                    message = 'Timeout saat memuat data provinsi'
+                } else if (error.code === 'ERR_NETWORK') {
+                    message = 'Tidak dapat terhubung ke server provinsi'
+                }
+
+                this.showSnackbar(message, 'error')
+
+            } finally {
+                this.loadingProvinsi = false
+            }
+        },
+
+
+        async getAllMvoType() {
+
+            try {
+                console.log('Fetching mvotype data from API...')
+
+                const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    timeout: 10000
+                })
+
+                console.log('mvotype API response:', response.data)
+
+                if (response.data.status === 'success' && response.data.data) {
+                    // 🔥 mapping ke format select
+                    this.classMemberOptions = response.data.data.map(item => ({
+                        text: item.description,   // yang tampil di dropdown
+                        value: item.id            // value yang dikirim ke backend
+                    }));
+                    console.log('mvotype options loaded:', this.classMemberOptions.length, 'items')
+                } else {
+                    console.error('Invalid mvotype API response structure')
+                    this.showSnackbar('Gagal memuat data mvotype', 'error')
+                }
+
+            } catch (error) {
+                console.error('Error fetching mvotype data:', error)
+
+                let message = 'Gagal memuat data mvotype'
+
+                if (error.response) {
+                    message = `Error ${error.response.status}: ${error.response.data?.message || 'Server error'}`
+                } else if (error.code === 'ECONNABORTED') {
+                    message = 'Timeout saat memuat data mvotype'
+                } else if (error.code === 'ERR_NETWORK') {
+                    message = 'Tidak dapat terhubung ke server mvotype'
+                }
+
+                this.showSnackbar(message, 'error')
+
+            } finally {
+                this.loadingProvinsi = false
+            }
+        },
+
+        handleFotoProfileChange(event) {
+            const file = this.inputRegister.path_gambar_profile
+
+            if (file) {
+                const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg']
+                if (!allowedTypes.includes(file.type)) {
+                    this.showSnackbar('Format file harus PNG, JPG, atau JPEG', 'error')
+                    this.inputRegister.path_gambar_profile = null
+                    this.previewFotoProfile = null
+                    return
+                }
+
+                const maxSize = 5 * 1024 * 1024
+                if (file.size > maxSize) {
+                    this.showSnackbar('Ukuran file maksimal 5MB', 'error')
+                    this.inputRegister.path_gambar_profile = null
+                    this.previewFotoProfile = null
+                    return
+                }
+
+                const reader = new FileReader()
+                reader.onload = (e) => {
+                    this.previewFotoProfile = e.target.result
+                }
+                reader.readAsDataURL(file)
+            } else {
+                this.previewFotoProfile = null
+            }
+        },
+
+        validateno_id(event) {
+            const value = event.target.value
+            this.inputRegister.no_id = value.replace(/[^0-9]/g, '')
+        },
+
+        validatePhone(event) {
+            const value = event.target.value
+            this.inputRegister.nohp = value.replace(/[^0-9]/g, '')
+        },
+
+        togglePasswordVisibility() {
+            this.visible = !this.visible
+        },
+
+        async handleRegister() {
+            console.log('Register attempt with new API (NO FRONTEND VALIDATION)')
+
+            this.isButtonLoading = true
+
+            const formData = new FormData()
+
+            for (const [key, value] of Object.entries(this.inputRegister)) {
+                formData.append(key, value ?? '')
             }
 
-        } catch (error) {
-            console.error(`Error at ${apiUrl}:`, error)
-            lastError = error
+            const apiUrls = [
+                'https://babaapi.babaparfume.id/api/user',
+                'https://babaapi.babaparfume.id/api/user'
+            ]
 
-            if (error.response) break
-
-            if (
-                error.code === 'ERR_CERT_DATE_INVALID' ||
-                error.code === 'ERR_NETWORK' ||
-                error.message?.includes('ERR_CERT') ||
-                error.message?.includes('SSL') ||
-                error.message?.includes('Network Error')
-            ) {
-                console.log(`SSL/Network error, trying next URL...`)
-                continue
+            const requestConfig = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Accept': 'application/json'
+                },
+                timeout: 30000
             }
 
-            break
-        }
-    }
+            let lastError = null
+            let success = false
 
-    // Error handling backend
-    if (!success && lastError) {
-        let message = 'Registrasi gagal'
+            for (const apiUrl of apiUrls) {
+                try {
+                    console.log(`Trying API: ${apiUrl}`)
 
-        if (lastError.response) {
-            const status = lastError.response.status
-            const data = lastError.response.data
+                    const response = await axios.post(apiUrl, formData, requestConfig)
+                    console.log('Register success:', response.data)
 
-            switch (status) {
-                case 400: message = data?.message || 'Bad Request'; break
-                case 409: message = data?.message || 'Data sudah ada'; break
-                case 422: message = JSON.stringify(data?.errors) || 'Data tidak valid'; break
-                case 500: message = 'Server error'; break
-                default: message = data?.message || `Error: ${status}`
+                    if (response.status === 200 || response.status === 201) {
+                        this.showSnackbar(`Registrasi berhasil!`, 'success')
+
+                        this.inputRegister = {
+                            no_id: '',
+                            nama: '',
+                            nama_panggilan: '',
+                            tempat_lahir: '',
+                            tgl_lahir: '',
+                            nohp: '',
+                            alamat: '',
+                            class_member: '',
+                            username: '',
+                            password: '',
+                            cabang: '',
+                            path_gambar_profile: null,
+                            otoritas: '',
+                            jenis_kelamin: ''
+                        }
+                        this.previewFotoProfile = null
+
+                        setTimeout(() => {
+                            this.$router.push('/admin/login')
+                        }, 2000)
+
+                        success = true
+                        break
+                    }
+
+                } catch (error) {
+                    console.error(`Error at ${apiUrl}:`, error)
+                    lastError = error
+
+                    if (error.response) break
+
+                    if (
+                        error.code === 'ERR_CERT_DATE_INVALID' ||
+                        error.code === 'ERR_NETWORK' ||
+                        error.message?.includes('ERR_CERT') ||
+                        error.message?.includes('SSL') ||
+                        error.message?.includes('Network Error')
+                    ) {
+                        console.log(`SSL/Network error, trying next URL...`)
+                        continue
+                    }
+
+                    break
+                }
             }
-        } else if (lastError.code === 'ECONNABORTED') {
-            message = 'Timeout'
-        } else if (lastError.code === 'ERR_NETWORK') {
-            message = 'Network error'
-        }
 
-        showSnackbar(message, 'error')
-    }
+            if (!success && lastError) {
+                let message = 'Registrasi gagal'
 
-    isButtonLoading.value = false
-}
+                if (lastError.response) {
+                    const status = lastError.response.status
+                    const data = lastError.response.data
 
-const showSnackbar = (text, color = 'success') => {
-    contentSnackbar.value.text = text
-    contentSnackbar.value.color = color
-    contentSnackbar.value.snackbar = true
-}
+                    switch (status) {
+                        case 400: message = data?.message || 'Bad Request'; break
+                        case 409: message = data?.message || 'Data sudah ada'; break
+                        case 422: message = JSON.stringify(data?.errors) || 'Data tidak valid'; break
+                        case 500: message = 'Server error'; break
+                        default: message = data?.message || `Error: ${status}`
+                    }
+                } else if (lastError.code === 'ECONNABORTED') {
+                    message = 'Timeout'
+                } else if (lastError.code === 'ERR_NETWORK') {
+                    message = 'Network error'
+                }
 
-const goToLogin = () => {
-    console.log('Navigating to login page...')
+                this.showSnackbar(message, 'error')
+            }
 
-    try {
-        if (isButtonLoading.value) return
+            this.isButtonLoading = false
+        },
 
-        router.push({ name: 'Login' })
-            .then(() => {
-                console.log('Successfully navigated to login page')
-            })
-            .catch(error => {
-                console.error('Navigation error:', error)
-                router.push('/admin/login')
-                    .catch(fallbackError => {
-                        console.error('Fallback navigation failed:', fallbackError)
-                        showSnackbar('Gagal membuka halaman login', 'error')
+        showSnackbar(text, color = 'success') {
+            this.contentSnackbar.text = text
+            this.contentSnackbar.color = color
+            this.contentSnackbar.snackbar = true
+        },
+
+        goToLogin() {
+            console.log('Navigating to login page...')
+
+            try {
+                if (this.isButtonLoading) return
+
+                this.$router.push({ name: 'Login' })
+                    .then(() => {
+                        console.log('Successfully navigated to login page')
                     })
-            })
+                    .catch(error => {
+                        console.error('Navigation error:', error)
+                        this.$router.push('/admin/login')
+                            .catch(fallbackError => {
+                                console.error('Fallback navigation failed:', fallbackError)
+                                this.showSnackbar('Gagal membuka halaman login', 'error')
+                            })
+                    })
 
-    } catch (error) {
-        console.error('Exception in goToLogin:', error)
-        showSnackbar('Terjadi kesalahan saat membuka login', 'error')
+            } catch (error) {
+                console.error('Exception in goToLogin:', error)
+                this.showSnackbar('Terjadi kesalahan saat membuka login', 'error')
+            }
+        },
+
+        debugRouteInfo() {
+            console.log('Current route:', this.$router.currentRoute.value)
+            console.log('Router instance:', this.$router)
+            console.log('Available routes:', this.$router.getRoutes())
+        }
     }
 }
-
-const debugRouteInfo = () => {
-    console.log('Current route:', router.currentRoute.value)
-    console.log('Router instance:', router)
-    console.log('Available routes:', router.getRoutes())
-}
-
-// Lifecycle
-onMounted(() => {
-    console.log('BABA Parfum Register Form mounted with API Provinsi and Otoritas')
-    console.log('Provinsi API Endpoint:', 'https://babaapi.babaparfume.id/api/provinsi')
-    debugRouteInfo()
-
-    // Fetch provinsi data saat component dimount
-    fetchProvinsiData()
-})
 </script>
 
 <style scoped>

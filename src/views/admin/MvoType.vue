@@ -1,6 +1,6 @@
 <template>
   <Breadcrumb :items="itemsBreadcrumb" />
-  <!-- Tombol Tambah MVO Type -->
+  <!-- Tombol Tambah Tipe Akun -->
   <div class="mb-4">
     <v-btn class="text-white font-semibold" @click="showDialogFormAddMvoType()" style="
       background: linear-gradient(135deg, #000000, #1a1a1a);
@@ -10,7 +10,7 @@
       padding: 10px 18px;
     ">
       <v-icon start style="color: #FFD700;">mdi-pen-plus</v-icon>
-      <span class="ml-2">Tambah MVO Type</span>
+      <span class="ml-2">Tambah Tipe Akun</span>
     </v-btn>
   </div>
 
@@ -55,7 +55,7 @@
   <div class="d-block d-md-none">
     <v-card class="mobile-header-card mb-4">
       <v-card-text>
-        <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Cari MVO Type..." single-line
+        <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Cari Tipe Akun..." single-line
           hide-details variant="outlined" class="search-field-mobile" />
       </v-card-text>
     </v-card>
@@ -64,7 +64,7 @@
 
     <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-format-list-bulleted-type</v-icon>
-      <p class="text-grey mt-2">Tidak ada data MVO Type ditemukan</p>
+      <p class="text-grey mt-2">Tidak ada data Tipe Akun ditemukan</p>
     </div>
 
     <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
@@ -78,7 +78,7 @@
 
           <v-col cols="9" class="pl-3">
             <div class="mobile-mvo-name">
-              <strong>{{ item.name || 'Nama MVO Type Tidak Tersedia' }}</strong>
+              <strong>{{ item.name || 'Nama Tipe Akun Tidak Tersedia' }}</strong>
             </div>
           </v-col>
 
@@ -97,7 +97,7 @@
           <v-card-text class="mobile-card-details">
             <v-row class="mb-3">
               <v-col cols="12" class="detail-label">
-                <strong>Nama MVO Type:</strong>
+                <strong>Nama Tipe Akun:</strong>
               </v-col>
               <v-col cols="12" class="detail-value">
                 {{ item.name || '-' }}
@@ -140,12 +140,12 @@
     </v-card>
   </div>
 
-  <!-- Dialog Tambah MVO Type -->
+  <!-- Dialog Tambah Tipe Akun -->
   <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
         <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
-        <span class="dialog-title">TAMBAH DATA MVO TYPE</span>
+        <span class="dialog-title">TAMBAH DATA Tipe Akun</span>
       </v-card-title>
       <v-card-text class="dialog-content">
         <v-row>
@@ -174,12 +174,12 @@
     </v-card>
   </v-dialog>
 
-  <!-- Dialog Edit MVO Type -->
+  <!-- Dialog Edit Tipe Akun -->
   <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
         <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
-        <span class="dialog-title">EDIT DATA MVO TYPE</span>
+        <span class="dialog-title">EDIT DATA Tipe Akun</span>
       </v-card-title>
       <v-card-text class="dialog-content">
         <v-row>
@@ -212,7 +212,7 @@
   <!-- Dialog Delete Confirmation -->
   <v-dialog v-model="isShowDialogDelete" :max-width="$vuetify.display.mobile ? '95%' : '500px'">
     <v-card :color="this.app.colors.background">
-      <v-card-title class="text-h5">Apakah anda yakin ingin menghapus data MVO Type ini?</v-card-title>
+      <v-card-title class="text-h5">Apakah anda yakin ingin menghapus data Tipe Akun ini?</v-card-title>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">
@@ -269,7 +269,7 @@ export default {
         required: value => !!value || 'Field ini wajib diisi'
       },
 
-      title: "DATA MVO TYPE",
+      title: "DATA Tipe Akun",
       itemsBreadcrumb: [
         {
           title: "Dashboard",
@@ -277,7 +277,7 @@ export default {
           href: "/admin/dashboard",
         },
         {
-          title: "MVO Type",
+          title: "Tipe Akun",
           disabled: false,
           href: "/admin/mvo-type",
         },
@@ -438,13 +438,13 @@ export default {
         .then((response) => {
           if (response.data.status === "success") {
             this.datatable.items = response.data.data;
-            console.log('Data MVO Type berhasil dimuat:', this.datatable.items.length, 'item');
+            console.log('Data Tipe Akun berhasil dimuat:', this.datatable.items.length, 'item');
           } else {
             this.showSnackbar(response, true);
           }
         })
         .catch((error) => {
-          console.error('Error loading MVO Type:', error);
+          console.error('Error loading Tipe Akun:', error);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -481,14 +481,14 @@ export default {
         },
       })
         .then((response) => {
-          console.log('Response add MVO Type:', response.data);
+          console.log('Response add Tipe Akun:', response.data);
           this.getAllMvoType();
           this.isShowDialogAdd = false;
           this.showSnackbar(response, false);
           this.clearAddForm();
         })
         .catch((error) => {
-          console.error('Error add MVO Type:', error.response);
+          console.error('Error add Tipe Akun:', error.response);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -509,7 +509,7 @@ export default {
       this.clearEditForm();
       this.isShowDialogEdit = true;
 
-      console.log('Mengambil data MVO Type dengan ID:', id);
+      console.log('Mengambil data Tipe Akun dengan ID:', id);
 
       axios.get(`https://babaapi.babaparfume.id/api/mvo-type/${id}`, {
         headers: {
@@ -519,7 +519,7 @@ export default {
         .then((response) => {
           if (response.data.status === "success") {
             const data = response.data.data;
-            console.log('Data MVO Type yang diterima:', data);
+            console.log('Data Tipe Akun yang diterima:', data);
 
             this.modelEdit.id = data.id;
             this.modelEdit.name = data.name;
@@ -531,7 +531,7 @@ export default {
           }
         })
         .catch((error) => {
-          console.error('Error saat mengambil data MVO Type:', error);
+          console.error('Error saat mengambil data Tipe Akun:', error);
           this.showSnackbar(error.response || error, true);
           this.isShowDialogEdit = false;
         });
@@ -556,7 +556,7 @@ export default {
         description: this.modelEdit.description,
       };
 
-      console.log('Data yang akan dikirim untuk update MVO Type:', payload);
+      console.log('Data yang akan dikirim untuk update Tipe Akun:', payload);
 
       this.isButtonLoading = true;
       axios.put(`https://babaapi.babaparfume.id/api/mvo-type/${this.modelEdit.id}`, payload, {
@@ -567,14 +567,14 @@ export default {
         },
       })
         .then((response) => {
-          console.log('Response update MVO Type:', response.data);
+          console.log('Response update Tipe Akun:', response.data);
           this.getAllMvoType();
           this.showSnackbar(response, false);
           this.isShowDialogEdit = false;
           this.clearEditForm();
         })
         .catch((error) => {
-          console.error('Error update MVO Type:', error.response);
+          console.error('Error update Tipe Akun:', error.response);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -605,12 +605,12 @@ export default {
         },
       })
         .then((response) => {
-          console.log('Response delete MVO Type:', response.data);
+          console.log('Response delete Tipe Akun:', response.data);
           this.getAllMvoType();
           this.showSnackbar(response, false);
         })
         .catch((error) => {
-          console.error('Error delete MVO Type:', error.response);
+          console.error('Error delete Tipe Akun:', error.response);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -621,12 +621,12 @@ export default {
   },
 
   created() {
-    console.log('MVO Type component created, loading initial data...');
+    console.log('Tipe Akun component created, loading initial data...');
     this.getAllMvoType();
   },
 
   mounted() {
-    console.log('MVO Type component mounted');
+    console.log('Tipe Akun component mounted');
   },
 
   watch: {
@@ -663,7 +663,7 @@ export default {
   margin-top: 8px;
 }
 
-/* Mobile MVO Type Cards */
+/* Mobile Tipe Akun Cards */
 .mobile-mvo-card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
