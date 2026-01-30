@@ -35,11 +35,11 @@
               <!-- File Info and Actions -->
               <div>
                 <div class="text-caption">{{ item.file_name }}</div>
-                <v-btn size="x-small" color="primary" variant="text" @click="viewFile(item.file_path)"
+                <!-- <v-btn size="x-small" color="primary" variant="text" @click="viewFile(item.file_path)"
                   class="pa-0 ma-0">
                   <v-icon size="16" class="mr-1">mdi-eye</v-icon>
                   View
-                </v-btn>
+                </v-btn> -->
                 <v-btn size="x-small" color="success" variant="text"
                   @click="downloadFile(item.file_path, item.file_name)" class="pa-0 ma-0 ml-2">
                   <v-icon size="16" class="mr-1">mdi-download</v-icon>
@@ -277,11 +277,11 @@
 
                   <!-- Action Buttons -->
                   <div class="flex-grow-1">
-                    <v-btn size="small" color="primary" variant="outlined" @click="viewFile(item.file_path)"
+                    <!-- <v-btn size="small" color="primary" variant="outlined" @click="viewFile(item.file_path)"
                       class="mb-2 mr-2" block>
                       <v-icon size="16" class="mr-1">mdi-eye</v-icon>
                       View File
-                    </v-btn>
+                    </v-btn> -->
                     <v-btn size="small" color="success" variant="outlined"
                       @click="downloadFile(item.file_path, item.file_name)" block>
                       <v-icon size="16" class="mr-1">mdi-download</v-icon>

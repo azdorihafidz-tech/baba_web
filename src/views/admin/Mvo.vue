@@ -590,11 +590,11 @@
                     <div>
                       <div class="text-caption">{{ item.file_name }}</div>
                       <div class="d-flex">
-                        <v-btn size="x-small" color="primary" variant="text" @click="viewFile(item.file_path)"
+                        <!-- <v-btn size="x-small" color="primary" variant="text" @click="viewFile(item.file_path)"
                           class="pa-0 ma-0">
                           <v-icon size="14" class="mr-1">mdi-eye</v-icon>
                           View
-                        </v-btn>
+                        </v-btn> -->
                         <v-btn size="x-small" color="success" variant="text"
                           @click="downloadFile(item.file_path, item.file_name)" class="pa-0 ma-0 ml-2">
                           <v-icon size="14" class="mr-1">mdi-download</v-icon>
@@ -891,11 +891,11 @@
                     <!-- Document Actions -->
                     <v-divider class="mb-3"></v-divider>
                     <div class="d-flex flex-wrap gap-2">
-                      <v-btn size="small" color="primary" variant="outlined" @click="viewFile(document.file_path)"
+                      <!-- <v-btn size="small" color="primary" variant="outlined" @click="viewFile(document.file_path)"
                         class="flex-grow-1">
                         <v-icon start size="16">mdi-eye</v-icon>
                         View
-                      </v-btn>
+                      </v-btn> -->
                       <v-btn size="small" color="success" variant="outlined"
                         @click="downloadFile(document.file_path, document.file_name)" class="flex-grow-1">
                         <v-icon start size="16">mdi-download</v-icon>
@@ -1513,9 +1513,18 @@ export default {
       this.isLoadingUsers = true;
       try {
         const response = await axios.get("https://babaapi.babaparfume.id/api/user", { headers });
-        console.log('Users loaded:', response.data); // Debug
+
         if (response.data.status === "success") {
-          this.users = response.data.data;
+          const allUsers = response.data.data;
+
+          // 🔥 ambil no_id dari data MVO
+          const mvoNoIds = this.allMvoData.map(mvo => mvo.no_id);
+
+          // 🔥 buang user yang sudah jadi MVO
+          this.users = allUsers.filter(user => !mvoNoIds.includes(user.no_id));
+
+          // filter lag jika otritas s superadmin
+          this.users = this.users.filter(user => user.otoritas !== "superadmin");
         }
       } catch (error) {
         console.error("Error loading users:", error);
@@ -1917,7 +1926,27 @@ export default {
             items = allItems.filter(item => item.no_id === no_idUser);
           }
 
+          const jabatanOrder = {
+            'MVO': 1,
+            'DIST': 2,
+            'FO': 3,
+            'SELL': 4,
+          };
+
+          items = items.sort((a, b) => {
+            const [jabA, wilayahA] = a.code.split('-');
+            const [jabB, wilayahB] = b.code.split('-');
+
+            // 1️⃣ Urutkan berdasarkan wilayah dulu
+            if (wilayahA < wilayahB) return -1;
+            if (wilayahA > wilayahB) return 1;
+
+            // 2️⃣ Kalau wilayah sama, urutkan jabatan
+            return (jabatanOrder[jabA] || 99) - (jabatanOrder[jabB] || 99);
+          });
+
           this.datatable.items = items;
+
         } else {
           this.showSnackbar(response.data.message || "Error loading data", "error");
         }
