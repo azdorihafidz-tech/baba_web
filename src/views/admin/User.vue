@@ -240,7 +240,7 @@
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-select label="Class Member" v-model="modelAdd.class_member" :items="classMemberOptions" item-title="text"
-              item-value="value" class="mb-2" variant="outlined" clearable />
+              item-value="description" class="mb-2" variant="outlined" clearable />
           </v-col>
         </v-row>
         <v-row>
@@ -497,11 +497,7 @@ export default {
         { text: 'Laki-laki', value: 'L' },
         { text: 'Perempuan', value: 'P' }
       ],
-      classMemberOptions: [
-        { text: 'Resseler', value: 'Resseler' },
-        { text: 'Distributor', value: 'Distributor' },
-        { text: 'Supplier', value: 'Supplier' }
-      ],
+      classMemberOptions: [],
       provinsiOptions: [],
       jabatanOptions: [],
       datatable: {
@@ -580,6 +576,41 @@ export default {
   },
 
   methods: {
+    getAllMvoType() {
+      const token = Cookies.get("token");
+      if (!token) {
+        this.$router.push({ name: "Login" });
+        return;
+      }
+
+      axios.get("https://babaapi.babaparfume.id/api/mvo-type", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => {
+          console.log('list mvo type', response.data);
+
+          if (response.data.status === "success") {
+            const apiData = response.data.data;
+
+            // 🔥 mapping ke format select
+            this.classMemberOptions = apiData.map(item => ({
+              text: item.description,   // yang tampil di dropdown
+              value: item.id            // value yang dikirim ke backend
+            }));
+
+            console.log('Options loaded:', this.classMemberOptions);
+          } else {
+            this.showSnackbar(response, true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading MVO Type:', error);
+          this.showSnackbar(error.response || error, true);
+        });
+    },
+
     toggleMobileDetail(itemId) {
       if (this.expandedMobileCard === itemId) {
         this.expandedMobileCard = null;
@@ -900,7 +931,10 @@ export default {
         })
         .then((response) => {
           if (response.data.status === "success") {
-            this.datatable.items = response.data.data;
+            this.datatable.items = response.data.data.filter(user =>
+              user.otoritas !== 'superadmin'
+            );
+
             console.log('Data user berhasil dimuat:', this.datatable.items.length, 'users');
           } else {
             this.showSnackbar(response, true);
@@ -1196,6 +1230,7 @@ export default {
     this.getAllUser();
     this.getAllProvinsi();
     this.getAllJabatan();
+    this.getAllMvoType();
   },
 
   watch: {

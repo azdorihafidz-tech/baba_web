@@ -104,19 +104,19 @@ export default {
     return {
       bottomNavModel: "",
       showMoreMenu: false,
-      maxMobileItems: 5,
+      maxMobileItems: 3,
       screenWidth: 0,
       allMenus: {
         DIREKSI: [
           ["mdi-view-dashboard", "Live Performance", "/admin/dashboard"],
+          ["mdi-clipboard-text-outline", "Input Data", "/admin/mvo"],
           ["mdi-account", "Verifikasi ID", "/admin/user"],
           ["mdi-city", "Ruang Kota", "/admin/masterheaders"], // spasi depan sudah dibuang
-          ["mdi-clipboard-text-outline", "Input Data", "/admin/mvo"],
-          ["mdi-format-list-bulleted-type", "Akun Type", "/admin/mvotype"],
+          ["mdi-format-list-bulleted-type", "Tipe Akun", "/admin/mvotype"],
           ["mdi-account-alert", "Akun Belum Approve", "/admin/mvobelumapprove"],
           ["mdi-badge-account", "Master Jabatan", "/admin/jabatan"],
           ["mdi-domain", "Data Cabang", "/admin/provinsi"],
-          ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
+          // ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
@@ -170,11 +170,11 @@ export default {
     },
     getShortText(text) {
       const shortTexts = {
-        "Live Performance": "Performance",
         "Input Data": "Input",
+        "Live Performance": "Performance",
         "Verifikasi ID": "Verifikasi",
+        "Tipe Akun": "Type",
         "Ruang Kota": "Ruang Kota",
-        "Akun Type": "Type",
         "Akun Belum Approve": "Pending",
         "Master Jabatan": "Jobs",
         "Data Cabang": "Branch",
