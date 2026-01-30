@@ -16,7 +16,7 @@
         </template>
 
         <template v-slot:datatable>
-          <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" hover :headers="displayHeaders"
+          <v-data-table class="bg-grey-lighten-4 custom-data-table" hover :headers="displayHeaders"
             :items="datatable.items" :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
             @update:options="updateCurrentPageInfo">
 
@@ -429,11 +429,7 @@
             </v-row>
 
             <v-row>
-              <v-col cols="12" md="6">
-                <!-- <v-select label="Class Member" v-model="currentModel.class_member" :items="classMemberOptions"
-                  class="mb-2" clearable :readonly="!isEditMode && selectedUserId !== null" variant="outlined"
-                  density="comfortable" prepend-inner-icon="mdi-star" /> -->
-              </v-col>
+
               <v-col cols="12" md="6">
                 <v-textarea label="Alamat" v-model="currentModel.alamat" class="mb-2" rows="2"
                   :readonly="!isEditMode && selectedUserId !== null" variant="outlined" density="comfortable"
@@ -467,24 +463,18 @@
 
             <v-row>
               <v-col cols="12" md="6">
-                <v-select label="Class Member" v-model="currentModel.mvo_type_id" :items="mvoTypes" item-title="name"
-                  item-value="id" class="mb-2" :loading="isLoadingMvoTypes" :rules="[requiredRule]" variant="outlined"
-                  density="comfortable" prepend-inner-icon="mdi-shape" hint="Pilih manual (Level akan otomatis terisi)"
-                  persistent-hint />
+                <v-text-field label="Class Member" v-model="currentModel.class_member" readonly variant="outlined"
+                  density="comfortable" prepend-inner-icon="mdi-star" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-select label="Level" v-model="currentModel.level" :items="levelOptions" class="mb-2"
-                  variant="outlined" density="comfortable" prepend-inner-icon="mdi-chart-line"
-                  hint="Otomatis terisi berdasarkan Tipe" persistent-hint readonly disabled />
+                <v-select label="Level" v-model="currentModel.level" :items="levelOptions" readonly disabled
+                  variant="outlined" density="comfortable" />
               </v-col>
             </v-row>
 
             <v-row>
-              <v-col cols="12" md="6">
-                <v-select label="Provinsi *" v-model="currentModel.province_id" :items="provinces" item-title="name"
-                  item-value="id" class="mb-2" :loading="isLoadingProvinces" :rules="[requiredRule]" variant="outlined"
-                  density="comfortable" prepend-inner-icon="mdi-map" hint="Pilih manual" persistent-hint />
-              </v-col>
+              <v-text-field label="Provinsi *" v-model="currentModel.cabang" readonly variant="outlined"
+                density="comfortable" prepend-inner-icon="mdi-store" :rules="[requiredRule]" />
               <v-col cols="12" md="6">
                 <v-select label="Upline" v-model="currentModel.parent_id" :items="parentMvoOptions" item-title="nama"
                   item-value="id" class="mb-2" clearable variant="outlined" density="comfortable"
@@ -549,7 +539,7 @@
               <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-              <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="documentHeaders"
+              <v-data-table class="bg-grey-lighten-4 custom-detail-table" :headers="documentHeaders"
                 :items="documentItems" :search="documentSearch" :loading="isLoadingDocuments" hide-default-footer
                 items-per-page="-1">
 
@@ -662,7 +652,7 @@
               <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Downline..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-              <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="detailHeaders"
+              <v-data-table class="bg-grey-lighten-4 custom-detail-table" :headers="detailHeaders"
                 :items="getCurrentDetailData()" :search="detailSearch" hide-default-footer items-per-page="-1">
 
                 <template v-slot:item.mvo_type="{ item }">
@@ -1207,15 +1197,11 @@ export default {
       relatedMvoData: [],
       detailViewMode: 'single',
 
-      classMemberOptions: [
-        { title: 'GOLD', value: 'GOLD' },
-        { title: 'SILVER', value: 'SILVER' },
-        { title: 'PLATINUM', value: 'PLATINUM' }
-      ],
+
       levelOptions: [
-        { title: 'Level 1', value: '1' },
-        { title: 'Level 2', value: '2' },
-        { title: 'Level 3', value: '3' }
+        { title: 'Level 1', value: 'suppiler' },
+        { title: 'Level 2', value: 'Distributor' },
+        { title: 'Level 3', value: 'Resseler' }
       ],
 
       documentSearch: "",
@@ -1239,7 +1225,7 @@ export default {
           { key: "no_id", title: "No ID" },
           { key: "tempat_lahir", title: "Tempat Lahir" },
           { key: "tgl_lahir", title: "Tanggal Lahir" },
-          // { key: "class_member", title: "Class Member" },
+          { key: "class_member", title: "Class Member" },
           { key: "alamat", title: "Alamat" },
           { key: "nohp", title: "No HP" },
           { key: "sosmed", title: "Sosmed" },
@@ -1314,10 +1300,11 @@ export default {
         class_member: "",
         alamat: "",
         nohp: "",
+        cabang: "",
         sosmed: "",           // Manual
         jaringan_mvo: "",     // Manual
         mvo_type_id: "",      // Manual
-        province_id: "",      // Manual
+        // province_id: "",      // Manual
         parent_id: null,      // Manual
         level: "",            // Manual
       },
@@ -1465,31 +1452,48 @@ export default {
       // Bulatkan ke integer (hilangkan desimal)
       model.pointbintang = Math.floor(value);
     },
-    setLevelByMvoType(mvoTypeId) {
-      if (!mvoTypeId) {
+    // setLevelByMvoType(mvoTypeId) {
+    //   if (!mvoTypeId) {
+    //     this.currentModel.level = "";
+    //     return;
+    //   }
+
+    //   const mvoType = this.mvoTypes.find(type => type.id == mvoTypeId);
+    //   if (!mvoType) {
+    //     this.currentModel.level = "";
+    //     return;
+    //   }
+
+    //   const typeName = mvoType.name.toUpperCase();
+
+    //   // Set level berdasarkan nama tipe
+    //   if (typeName.includes('MVO')) {
+    //     this.currentModel.level = '1';
+    //   } else if (typeName.includes('DIST')) {
+    //     this.currentModel.level = '2';
+    //   } else if (typeName.includes('FO')) {
+    //     this.currentModel.level = '3';
+    //   } else {
+    //     this.currentModel.level = "";
+    //   }
+    // },
+    setLevelAuto(classMember) {
+      if (!classMember) {
         this.currentModel.level = "";
         return;
       }
 
-      const mvoType = this.mvoTypes.find(type => type.id == mvoTypeId);
-      if (!mvoType) {
-        this.currentModel.level = "";
-        return;
-      }
+      const cls = classMember.toLowerCase();
 
-      const typeName = mvoType.name.toUpperCase();
+      const levelMap = {
+        resseler: 'Resseler',     // Level 3
+        distributor: 'Distributor', // Level 2
+        suppiler: 'suppiler'      // Level 1
+      };
 
-      // Set level berdasarkan nama tipe
-      if (typeName.includes('MVO')) {
-        this.currentModel.level = '1';
-      } else if (typeName.includes('DIST')) {
-        this.currentModel.level = '2';
-      } else if (typeName.includes('FO')) {
-        this.currentModel.level = '3';
-      } else {
-        this.currentModel.level = "";
-      }
+      this.currentModel.level = levelMap[cls] || '';
     },
+
     customUserFilter(itemTitle, queryText, item) {
       if (!queryText) return true;
 
@@ -1572,12 +1576,13 @@ export default {
             tempat_lahir: userData.tempat_lahir || "",
             tgl_lahir: userData.tgl_lahir ? new Date(userData.tgl_lahir).toISOString().split('T')[0] : "",
             class_member: userData.class_member || "",
+            cabang: userData.cabang || "",
             alamat: userData.alamat || "",
             nohp: userData.nohp || "",
             // Keep manual fields
             ...manualFields
           };
-
+          this.setLevelAuto(userData.class_member);
           this.selectedUserId = userId;
           this.showSnackbar("Data user berhasil dimuat. Silakan isi Sosmed, Jaringan, Level, Tipe, Provinsi, dan Upline", "primary");
         }
@@ -2601,11 +2606,11 @@ export default {
     this.getProvinces();
     this.getUsers();
   },
-  watch: {
-    'currentModel.mvo_type_id'(newVal) {
-      this.setLevelByMvoType(newVal);
-    }
-  }
+  // watch: {
+  //   'currentModel.mvo_type_id'(newVal) {
+  //     this.setLevelAuto(newVal);
+  //   }
+  // }
 
   // watch: {
   //   'currentModel.mvo_type_id'(newVal) {
