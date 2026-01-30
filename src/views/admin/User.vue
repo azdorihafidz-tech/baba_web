@@ -239,8 +239,8 @@
               item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Class Member" v-model="modelAdd.class_member" :items="classMemberOptions" item-title="text"
-              item-value="description" class="mb-2" variant="outlined" clearable />
+            <v-combobox label="Class Member" v-model="modelAdd.class_member" :items="classMemberOptions"
+              item-title="text" item-value="description" class="mb-2" variant="outlined" clearable />
           </v-col>
         </v-row>
         <v-row>

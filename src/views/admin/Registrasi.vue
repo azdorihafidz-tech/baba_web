@@ -43,7 +43,7 @@
                             prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" rows="2" auto-grow />
 
-                        <v-select v-model="inputRegister.class_member" label="Class Member" density="compact"
+                        <v-combobox v-model="inputRegister.class_member" label="Class Member" density="compact"
                             prepend-inner-icon="mdi-account-group" variant="outlined" :items="classMemberOptions"
                             item-title="text" item-value="description" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" clearable />
