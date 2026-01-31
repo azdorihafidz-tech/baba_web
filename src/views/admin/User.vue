@@ -240,7 +240,7 @@
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-combobox label="Class Member" v-model="modelAdd.class_member" :items="classMemberOptions"
-              item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
+              item-title="text" item-value="value" :return-object="false" class="mb-2" variant="outlined" clearable />
 
           </v-col>
         </v-row>
@@ -340,7 +340,7 @@
               item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-combobox label="Class Member" v-model="modelEdit.class_member" :items="classMemberOptions"
+            <v-select label="Class Member" v-model="modelEdit.class_member" :items="classMemberOptions"
               item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
           </v-col>
         </v-row>
@@ -423,6 +423,7 @@
 </template>
 
 <script>
+
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import CardForm from "@/components/ui/CardForm.vue";
@@ -600,7 +601,6 @@ export default {
               text: item.description,   // tampil di dropdown
               value: item.description   // yang dikirim ke backend (huruf)
             }));
-
 
             console.log('Options loaded:', this.classMemberOptions);
           } else {
