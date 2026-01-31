@@ -43,25 +43,32 @@
                             prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" rows="2" auto-grow />
 
-                        <v-combobox v-model="inputRegister.class_member" label="Class Member" density="compact"
-                            prepend-inner-icon="mdi-account-group" variant="outlined" :items="classMemberOptions"
-                            item-title="text" item-value="description" :class="inputClass" color="amber"
+                        <v-combobox v-model="inputRegister.class_member" :items="classMemberOptions" item-title="text"
+                            item-value="value" :return-object="false" density="compact"
+                            prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" clearable />
+
 
                         <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
                             prepend-inner-icon="mdi-gender-male-female" variant="outlined" :items="jenisKelaminOptions"
                             item-title="text" item-value="value" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" clearable />
 
-                        <v-text-field v-model="inputRegister.username" label="Username" density="compact"
-                            prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" />
-
                         <v-select v-model="inputRegister.cabang" label="Cabang (Provinsi)" density="compact"
                             prepend-inner-icon="mdi-map-marker" variant="outlined" :items="cabangOptions"
                             item-title="text" item-value="value" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
                             :disabled="loadingProvinsi" />
+
+                        <v-text-field v-model="inputRegister.username" label="Username" density="compact"
+                            prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="amber"
+                            base-color="grey-lighten-1" />
+
+                        <v-text-field v-model="inputRegister.password" :type="visible ? 'text' : 'password'"
+                            density="compact" label="Password" prepend-inner-icon="mdi-lock"
+                            :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
+                            @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass"
+                            color="amber" base-color="grey-lighten-1" />
 
                         <!-- Upload Foto Profil -->
                         <v-file-input v-model="inputRegister.path_gambar_profile" label="Foto Profil"
@@ -73,11 +80,6 @@
                         <v-img v-if="previewFotoProfile" :src="previewFotoProfile" max-width="150" height="150"
                             class="mx-auto my-2 rounded-xl" contain />
 
-                        <v-text-field v-model="inputRegister.password" :type="visible ? 'text' : 'password'"
-                            density="compact" label="Password" prepend-inner-icon="mdi-lock"
-                            :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-                            @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass"
-                            color="amber" base-color="grey-lighten-1" />
 
                         <v-btn type="submit" :loading="isButtonLoading" :class="buttonClass" :size="buttonSize" block
                             rounded="lg" color="amber" style="letter-spacing: 1px;">
@@ -129,6 +131,7 @@ export default {
             isButtonLoading: false,
             loadingProvinsi: false,
             previewFotoProfile: null,
+
 
             inputRegister: {
                 no_id: '',
@@ -360,8 +363,8 @@ export default {
                 if (response.data.status === 'success' && response.data.data) {
                     // 🔥 mapping ke format select
                     this.classMemberOptions = response.data.data.map(item => ({
-                        text: item.description,   // yang tampil di dropdown
-                        value: item.id            // value yang dikirim ke backend
+                        text: item.description,    // tampil
+                        value: item.description    // dikirim ke backend (huruf)
                     }));
                     console.log('mvotype options loaded:', this.classMemberOptions.length, 'items')
                 } else {
