@@ -171,6 +171,15 @@ const routes = [
           requiresAuth: true,
         },
       },
+      {
+        path: "Tutorial",
+        name: "Tutorial",
+        component: () => import("@/views/admin/Tutorial.vue"),
+        meta: {
+          title: "Tutorial || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
     ],
   },
 ];
