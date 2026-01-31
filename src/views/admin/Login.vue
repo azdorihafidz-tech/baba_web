@@ -540,6 +540,7 @@ const handleLogin = async () => {
 
       const token = response.data.data.token
       Cookies.set('token', token, cookieOptions)
+      localStorage.setItem('token', token)
 
       if (response.data.data.user.nik) {
         localStorage.setItem('nik', response.data.data.user.nik)

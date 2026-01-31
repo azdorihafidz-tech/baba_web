@@ -446,7 +446,7 @@ export default {
 
       // cari room di chatList
       const idx = this.chatList.findIndex(
-        (c) => Number(c.id) === Number(msg.room_id)
+        (c) => Number(c.id) === Number(msg.room_id),
       );
       const isFromMe = Number(msg.sender_id) === Number(this.user.id);
 
@@ -506,13 +506,13 @@ export default {
       });
 
       this.socket.on("connect", () =>
-        console.log("Socket connected", this.socket.id)
+        console.log("Socket connected", this.socket.id),
       );
       this.socket.on("connect_error", (err) =>
         console.error(
           "Socket connect_error",
-          err && err.message ? err.message : err
-        )
+          err && err.message ? err.message : err,
+        ),
       );
 
       // ketika server mengirim event message
@@ -550,7 +550,7 @@ export default {
               }
               // pastikan badge local di sidebar di-clear
               const idxSel = this.chatList.findIndex(
-                (c) => Number(c.id) === Number(this.selectedRoom.id)
+                (c) => Number(c.id) === Number(this.selectedRoom.id),
               );
               if (idxSel !== -1)
                 this.$set(this.chatList[idxSel], "unread_count", 0);
@@ -567,7 +567,7 @@ export default {
         if (!data || !data.room_id) return;
 
         const roomIndex = this.chatList.findIndex(
-          (c) => Number(c.id) === Number(data.room_id)
+          (c) => Number(c.id) === Number(data.room_id),
         );
         if (roomIndex !== -1) {
           // jika server mengirim unread_count gunakan itu
@@ -575,7 +575,7 @@ export default {
             this.$set(
               this.chatList[roomIndex],
               "unread_count",
-              Number(data.unread_count)
+              Number(data.unread_count),
             );
           }
 
@@ -584,7 +584,7 @@ export default {
             this.$set(
               this.chatList[roomIndex],
               "last_message",
-              data.last_message
+              data.last_message,
             );
           }
         } else {
@@ -614,7 +614,7 @@ export default {
       });
 
       this.socket.on("disconnect", (reason) =>
-        console.log("Socket disconnected", reason)
+        console.log("Socket disconnected", reason),
       );
     },
 
@@ -625,12 +625,12 @@ export default {
         let list = Array.isArray(res.data)
           ? res.data
           : res.data && Array.isArray(res.data.data)
-          ? res.data.data
-          : [];
+            ? res.data.data
+            : [];
 
         this.chatList = list.map((c) => {
           const unread_count = Number(
-            c.unread_count ?? c.unreadCount ?? c.unreads ?? c.unread ?? 0
+            c.unread_count ?? c.unreadCount ?? c.unreads ?? c.unread ?? 0,
           );
           const has_unread =
             c.unread === true || unread_count > 0 || !!c.has_unread;
@@ -649,7 +649,7 @@ export default {
             id: x.id,
             name: x.room_name,
             unread_count: x.unread_count,
-          }))
+          })),
         );
       } catch (err) {
         console.error("Gagal memuat daftar chat:", err);
@@ -683,13 +683,13 @@ export default {
       try {
         if (!this.api) this.createApiInstance();
         const res = await this.api.get(
-          `/chat/messages/${this.selectedRoom.id}`
+          `/chat/messages/${this.selectedRoom.id}`,
         );
         this.messages = Array.isArray(res.data)
           ? res.data
           : res.data && res.data.data
-          ? res.data.data
-          : [];
+            ? res.data.data
+            : [];
 
         // langsung ke pesan terbaru ketika membuka room — instant (no smooth)
         this.$nextTick(() => setTimeout(() => this.scrollToBottom("auto"), 50));
@@ -805,7 +805,7 @@ export default {
         if (!this.api) this.createApiInstance();
         const superadminId = 6;
         const memberIds = Array.from(
-          new Set([...this.groupForm.member_ids, superadminId])
+          new Set([...this.groupForm.member_ids, superadminId]),
         );
         const payload = {
           room_name: this.groupForm.room_name,
@@ -966,7 +966,7 @@ export default {
     unreadCount() {
       return this.chatList.reduce(
         (sum, c) => sum + (Number(c.unread_count) || 0),
-        0
+        0,
       );
     },
   },
