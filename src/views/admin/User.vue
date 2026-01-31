@@ -240,7 +240,8 @@
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-combobox label="Class Member" v-model="modelAdd.class_member" :items="classMemberOptions"
-              item-title="text" item-value="description" class="mb-2" variant="outlined" clearable />
+              item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
+
           </v-col>
         </v-row>
         <v-row>
@@ -339,7 +340,7 @@
               item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Class Member" v-model="modelEdit.class_member" :items="classMemberOptions"
+            <v-combobox label="Class Member" v-model="modelEdit.class_member" :items="classMemberOptions"
               item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
           </v-col>
         </v-row>
@@ -596,9 +597,10 @@ export default {
 
             // 🔥 mapping ke format select
             this.classMemberOptions = apiData.map(item => ({
-              text: item.description,   // yang tampil di dropdown
-              value: item.id            // value yang dikirim ke backend
+              text: item.description,   // tampil di dropdown
+              value: item.description   // yang dikirim ke backend (huruf)
             }));
+
 
             console.log('Options loaded:', this.classMemberOptions);
           } else {
