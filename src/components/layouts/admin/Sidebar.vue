@@ -121,6 +121,7 @@ export default {
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
           ["mdi-chat", "Chat", "/admin/chat"],
+          ["mdi-chat", "Tutorial", "/admin/tutorial"],
         ],
       },
       nonSuperadminMenus: [
