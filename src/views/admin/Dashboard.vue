@@ -8,6 +8,8 @@
         <v-tab value="dashboard-accounts">DASHBOARD AKUN</v-tab>
         <v-tab value="dashboard-regions">DASHBOARD REGIONS</v-tab>
         <v-tab value="dashboard-growth">DASHBOARD GROWTH</v-tab>
+        <v-tab value="dashboard-star">DASHBOARD STAR</v-tab>
+
       </v-tabs>
       <v-card-text>
         <v-tabs-window v-model="tab">
@@ -71,9 +73,15 @@
                     <div class="text-h5">{{ mvo.mvo_nama }}</div>
                     <div class="text-caption mb-2">{{ mvo.mvo_code }}</div>
                     <v-divider class="my-2"></v-divider>
-                    <div class="d-flex justify-center align-center">
-                      <v-icon small class="mr-1">mdi-account-multiple</v-icon>
-                      <span class="text-body-1">{{ mvo.total_bawahan }} Downline</span>
+                    <div class="d-flex justify-center align-center gap-4">
+                      <div class="d-flex align-center">
+                        <v-icon small class="mr-1">mdi-account-multiple</v-icon>
+                        <span class="text-body-1">{{ mvo.total_bawahan }} Downline</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <v-icon small class="mr-1" color="amber">mdi-star</v-icon>
+                        <span class="text-body-1">{{ mvo.total_bintang_jaringan }}</span>
+                      </div>
                     </div>
                   </v-card-text>
                 </v-card>
@@ -81,16 +89,16 @@
             </v-row>
 
             <!-- Top 5 Bintang - tetap sama seperti sebelumnya -->
-            <v-card class="mb-4">
+            <!-- Top 5 Bintang per Role -->
+            <v-card class="mb-4" v-for="role in bintangRoles" :key="role.key">
               <v-card-title class="d-flex align-center">
-                <v-icon class="mr-2">mdi-star</v-icon>
-                Top 5 Akun Bintang Terbanyak
+                <v-icon class="mr-2" :color="role.iconColor">{{ role.icon }}</v-icon>
+                Top 5 Bintang — {{ role.label }}
               </v-card-title>
               <v-card-text>
-                <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders"
-                  :items="dashboardData.summary?.top_5_bintang || []" :loading="isLoading" item-key="mvo_id"
-                  :items-per-page="5">
-
+                <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders"
+                  :items="dashboardData.summary?.top_5_bintang_role?.[role.key] || []" :loading="isLoading"
+                  item-key="mvo_id" :items-per-page="5">
                   <template v-slot:item.rank="{ index }">
                     <v-chip :color="getRankColor(index + 1)" dark size="small">
                       {{ index + 1 }}
@@ -106,13 +114,18 @@
                     </div>
                   </template>
 
+                  <!-- Dashboard Star - Ranking Semua Akun (Desktop) -->
                   <template v-slot:item.total_bintang="{ item }">
-                    <v-chip color="amber" dark>
-                      <v-icon left small>mdi-star</v-icon>
-                      {{ item.total_bintang }}
-                    </v-chip>
+                    <div class="d-flex align-center justify-center">
+                      <v-icon v-for="n in parseInt(item.total_bintang)" :key="n" color="amber" size="small"
+                        class="mr-1">
+                        mdi-star
+                      </v-icon>
+                      <span v-if="!item.total_bintang || item.total_bintang == 0" class="text-grey">
+                        <v-icon color="grey lighten-2" size="small">mdi-star-outline</v-icon>
+                      </span>
+                    </div>
                   </template>
-
                 </v-data-table>
               </v-card-text>
             </v-card>
@@ -509,6 +522,219 @@
               </v-col>
             </v-row>
           </v-tabs-window-item>
+          <!-- Tab Dashboard Star -->
+          <v-tabs-window-item value="dashboard-star">
+
+            <!-- Date Filter Star -->
+
+
+            <!-- Summary Cards -->
+            <v-row class="mb-4">
+              <v-col cols="12" md="4">
+                <v-card color="primary" dark>
+                  <v-card-text class="text-center">
+                    <v-icon size="48" class="mb-2">mdi-star</v-icon>
+                    <div class="text-h4">{{ starSummary.totalBintang }}</div>
+                    <div class="text-subtitle-1">Total Bintang</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card color="success" dark>
+                  <v-card-text class="text-center">
+                    <v-icon size="48" class="mb-2">mdi-account-multiple</v-icon>
+                    <div class="text-h4">{{ starSummary.totalAkun }}</div>
+                    <div class="text-subtitle-1">Total Akun</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card color="warning" dark>
+                  <v-card-text class="text-center">
+                    <v-icon size="48" class="mb-2">mdi-map-marker-multiple</v-icon>
+                    <div class="text-h4">{{ starSummary.totalDaerah }}</div>
+                    <div class="text-subtitle-1">Total Daerah</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Section 1: Dashboard Star (All) -->
+            <v-card class="mb-4">
+              <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="amber">mdi-star</v-icon>
+                Ranking Bintang Semua Akun
+              </v-card-title>
+              <v-card-text>
+                <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="dashboardStarHeaders"
+                  :items="dashboardData.summary?.dashboard_star || []" :loading="isLoading" item-key="id"
+                  :items-per-page="10">
+                  <template v-slot:item.ranking="{ item }">
+                    <v-chip :color="getRankColor(item.ranking)" dark size="small">
+                      <v-icon v-if="item.ranking <= 3" left size="14">
+                        {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
+                      </v-icon>
+                      {{ item.ranking }}
+                    </v-chip>
+                  </template>
+
+                  <template v-slot:item.nama="{ item }">
+                    <div class="font-weight-medium">{{ item.nama }}</div>
+                    <div class="text-caption text-grey">{{ item.code }}</div>
+                  </template>
+
+                  <template v-slot:item.role="{ item }">
+                    <v-chip :color="getRoleColor(item.role)" dark size="small">
+                      {{ getRoleLabel(item.role) }}
+                    </v-chip>
+                  </template>
+
+                  <!-- Dashboard Star - Ranking Semua Akun (Desktop) -->
+                  <template v-slot:item.total_bintang="{ item }">
+                    <div class="d-flex align-center justify-center">
+                      <v-icon v-for="n in parseInt(item.total_bintang)" :key="n" color="amber" size="small"
+                        class="mr-1">
+                        mdi-star
+                      </v-icon>
+                      <span v-if="!item.total_bintang || item.total_bintang == 0" class="text-grey">
+                        <v-icon color="grey lighten-2" size="small">mdi-star-outline</v-icon>
+                      </span>
+                    </div>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+
+            <!-- Section 2: Leaderboard Per Bulan -->
+            <v-card class="mb-4">
+              <v-card class="mb-4">
+                <v-card-title class="d-flex align-center">
+                  <v-icon class="mr-2">mdi-calendar</v-icon>
+                  Filter Bulan
+                </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col cols="12" md="6">
+                      <v-text-field v-model="starDateRange.start" label="Bulan Mulai" type="month" variant="outlined"
+                        @update:model-value="onStarDateChange">
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field v-model="starDateRange.end" label="Bulan Akhir" type="month" variant="outlined"
+                        @update:model-value="onStarDateChange">
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+              <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
+                Leaderboard Per Bulan
+              </v-card-title>
+              <v-card-text>
+                <!-- Bulan Selector Chips -->
+                <v-chip-group v-model="selectedLeaderboardMonth" mandatory color="primary" class="mb-3">
+                  <v-chip v-for="bulan in availableLeaderboardMonths" :key="bulan" :value="bulan" size="small"
+                    variant="elevated">
+                    {{ formatMonth(bulan) }}
+                  </v-chip>
+                </v-chip-group>
+
+                <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="leaderboardPerBulanHeaders"
+                  :items="currentLeaderboardBulanData" :loading="isLoading" item-key="id" :items-per-page="10">
+                  <template v-slot:item.ranking="{ item }">
+                    <v-chip :color="getRankColor(item.ranking)" dark size="small">
+                      <v-icon v-if="item.ranking <= 3" left size="14">
+                        {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
+                      </v-icon>
+                      {{ item.ranking }}
+                    </v-chip>
+                  </template>
+
+                  <template v-slot:item.nama="{ item }">
+                    <div class="font-weight-medium">{{ item.nama }}</div>
+                    <div class="text-caption text-grey">{{ item.code }}</div>
+                  </template>
+
+                  <template v-slot:item.role="{ item }">
+                    <v-chip :color="getRoleColor(item.role)" dark size="small">
+                      {{ getRoleLabel(item.role) }}
+                    </v-chip>
+                  </template>
+
+                  <!-- Dashboard Star - Ranking Semua Akun (Desktop) -->
+                  <template v-slot:item.total_bintang="{ item }">
+                    <div class="d-flex align-center justify-center">
+                      <v-icon v-for="n in parseInt(item.total_bintang)" :key="n" color="amber" size="small"
+                        class="mr-1">
+                        mdi-star
+                      </v-icon>
+                      <span v-if="!item.total_bintang || item.total_bintang == 0" class="text-grey">
+                        <v-icon color="grey lighten-2" size="small">mdi-star-outline</v-icon>
+                      </span>
+                    </div>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+
+            <!-- Section 3: Leaderboard Per Daerah (Cards) -->
+            <v-card class="mb-4">
+              <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="warning">mdi-map-marker-multiple</v-icon>
+                Leaderboard Per Daerah
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col v-for="(daerahData, daerahKey) in dashboardData.summary?.leaderboard_per_daerah || {}"
+                    :key="daerahKey" cols="12" md="4">
+                    <v-card :color="getDaerahCardColor(daerahKey)" dark
+                      @click="showDaerahLeaderboardDetail(daerahKey, daerahData)" style="cursor: pointer;"
+                      class="h-100">
+                      <v-card-text class="text-center">
+                        <v-icon size="40" class="mb-2">mdi-map-marker</v-icon>
+                        <div class="text-h4 font-weight-bold">{{ daerahKey }}</div>
+                        <v-divider class="my-3" color="white"></v-divider>
+
+                        <!-- Top 1 Preview -->
+                        <div v-if="daerahData.length > 0" class="mb-2">
+                          <v-chip color="amber" dark size="small" class="mb-2">
+                            <v-icon left size="14">mdi-trophy</v-icon>
+                            #1
+                          </v-chip>
+                          <div class="text-body-1 font-weight-medium">{{ daerahData[0].nama }}</div>
+                          <div class="text-caption">{{ daerahData[0].code }}</div>
+                          <v-chip color="amber" dark size="small" class="mt-1">
+                            <v-icon left size="14">mdi-star</v-icon>
+                            {{ daerahData[0].total_bintang }} Bintang
+                          </v-chip>
+                        </div>
+
+                        <v-divider class="my-2" color="white"></v-divider>
+                        <div class="d-flex justify-center gap-3">
+                          <div class="d-flex align-center">
+                            <v-icon small class="mr-1">mdi-account-multiple</v-icon>
+                            <span class="text-body-2">{{ daerahData.length }} Akun</span>
+                          </div>
+                          <div class="d-flex align-center">
+                            <v-icon small class="mr-1" color="amber">mdi-star</v-icon>
+                            <span class="text-body-2">{{ getTotalBintangDaerah(daerahData) }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Click hint -->
+                        <div class="text-caption mt-3 opacity-70">
+                          <v-icon size="14" class="mr-1">mdi-chevron-down</v-icon>
+                          Tap untuk detail
+                        </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+
+          </v-tabs-window-item>
 
         </v-tabs-window>
       </v-card-text>
@@ -568,6 +794,10 @@
         <v-chip value="growth" size="small" variant="elevated" rounded="lg">
           <v-icon start size="18">mdi-chart-line</v-icon>
           GROWTH
+        </v-chip>
+        <v-chip value="star" size="small" variant="elevated" rounded="lg">
+          <v-icon start size="18">mdi-star</v-icon>
+          STAR
         </v-chip>
       </v-chip-group>
 
@@ -643,7 +873,12 @@
                     <div class="text-caption mb-1">{{ mvo.mvo_code }}</div>
                     <div class="d-flex gap-1">
                       <v-chip size="x-small" color="teal" variant="tonal">
+                        <v-icon start size="12">mdi-account-multiple</v-icon>
                         {{ mvo.total_bawahan }} Downline
+                      </v-chip>
+                      <v-chip size="x-small" color="amber" variant="tonal">
+                        <v-icon start size="12">mdi-star</v-icon>
+                        {{ mvo.total_bintang_jaringan }}
                       </v-chip>
                     </div>
                   </v-list-item-subtitle>
@@ -658,15 +893,16 @@
         </div>
 
         <!-- Mobile Top 5 Bintang Section -->
-        <v-card class="mt-3">
+        <!-- Mobile Top 5 Bintang per Role -->
+        <v-card class="mt-3" v-for="role in bintangRoles" :key="'mobile-' + role.key">
           <v-card-title class="pa-3">
-            <v-icon class="mr-2">mdi-star</v-icon>
-            Top 5 Akun Bintang
+            <v-icon class="mr-2" :color="role.iconColor">{{ role.icon }}</v-icon>
+            Top 5 Bintang — {{ role.label }}
           </v-card-title>
           <v-card-text class="pa-0">
             <v-list>
-              <v-list-item v-for="(item, index) in dashboardData.summary?.top_5_bintang || []" :key="item.mvo_id"
-                @click="showMVODetail(item.mvo_id, item)" style="cursor: pointer;" class="py-3">
+              <v-list-item v-for="(item, index) in dashboardData.summary?.top_5_bintang_role?.[role.key] || []"
+                :key="item.mvo_id" @click="showMVODetail(item.mvo_id, item)" style="cursor: pointer;" class="py-3">
                 <template v-slot:prepend>
                   <v-chip :color="getRankColor(index + 1)" dark size="small" class="mr-3">
                     {{ index + 1 }}
@@ -682,8 +918,8 @@
 
                 <template v-slot:append>
                   <v-chip color="amber" dark size="small">
-                    <v-icon left size="16">mdi-star</v-icon>
-                    {{ item.total_bintang }}
+                    <v-icon left size="14">mdi-star</v-icon>
+                    {{ item.bintang || 0 }}
                   </v-chip>
                 </template>
               </v-list-item>
@@ -971,6 +1207,184 @@
           </v-card-text>
         </v-card>
       </div>
+      <!-- Mobile Star Section -->
+      <div v-if="mobileActiveSection === 'star'">
+
+        <!-- Date Filter Mobile -->
+        <v-card class="mb-3">
+          <v-card-title class="pa-3">
+            <v-icon class="mr-2">mdi-calendar</v-icon>
+            Filter Bulan
+          </v-card-title>
+          <v-card-text class="pa-3">
+            <v-text-field v-model="starDateRange.start" label="Bulan Mulai" type="month" variant="outlined"
+              density="compact" @update:model-value="onStarDateChange" class="mb-2"></v-text-field>
+            <v-text-field v-model="starDateRange.end" label="Bulan Akhir" type="month" variant="outlined"
+              density="compact" @update:model-value="onStarDateChange"></v-text-field>
+          </v-card-text>
+        </v-card>
+
+        <!-- Summary Cards Mobile -->
+        <v-row dense class="mb-3">
+          <v-col cols="4">
+            <v-card class="text-center">
+              <v-card-text class="pa-2">
+                <v-icon color="amber" size="20">mdi-star</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ starSummary.totalBintang }}</div>
+                <div class="text-caption">Bintang</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="4">
+            <v-card class="text-center">
+              <v-card-text class="pa-2">
+                <v-icon color="success" size="20">mdi-account-multiple</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ starSummary.totalAkun }}</div>
+                <div class="text-caption">Akun</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="4">
+            <v-card class="text-center">
+              <v-card-text class="pa-2">
+                <v-icon color="warning" size="20">mdi-map-marker</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ starSummary.totalDaerah }}</div>
+                <div class="text-caption">Daerah</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- Mobile: Ranking Semua Akun -->
+        <v-card class="mb-3">
+          <v-card-title class="pa-3">
+            <v-icon class="mr-2" color="amber">mdi-star</v-icon>
+            Ranking Bintang
+          </v-card-title>
+          <v-card-text class="pa-0">
+            <v-list>
+              <v-list-item v-for="item in dashboardData.summary?.dashboard_star || []" :key="item.id" class="py-3">
+                <template v-slot:prepend>
+                  <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-2"
+                    style="min-width: 32px; justify-content: center;">
+                    {{ item.ranking }}
+                  </v-chip>
+                </template>
+
+                <v-list-item-title class="font-weight-medium">
+                  {{ item.nama }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  <div class="text-caption">{{ item.code }}</div>
+                  <v-chip :color="getRoleColor(item.role)" dark size="x-small" class="mt-1">
+                    {{ getRoleLabel(item.role) }}
+                  </v-chip>
+                </v-list-item-subtitle>
+
+                <template v-slot:append>
+                  <v-chip color="amber" dark size="small">
+                    <v-icon left size="14">mdi-star</v-icon>
+                    {{ item.total_bintang }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+
+        <!-- Mobile: Leaderboard Per Bulan -->
+        <v-card class="mb-3">
+          <v-card-title class="pa-3">
+            <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
+            Leaderboard Per Bulan
+          </v-card-title>
+          <v-card-text class="pa-3">
+            <v-chip-group v-model="selectedLeaderboardMonth" mandatory color="primary" class="mb-3">
+              <v-chip v-for="bulan in availableLeaderboardMonths" :key="bulan" :value="bulan" size="small"
+                variant="elevated">
+                {{ formatMonth(bulan) }}
+              </v-chip>
+            </v-chip-group>
+          </v-card-text>
+          <v-card-text class="pa-0">
+            <v-list>
+              <v-list-item v-for="item in currentLeaderboardBulanData" :key="item.id" class="py-3">
+                <template v-slot:prepend>
+                  <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-2"
+                    style="min-width: 32px; justify-content: center;">
+                    {{ item.ranking }}
+                  </v-chip>
+                </template>
+
+                <v-list-item-title class="font-weight-medium">
+                  {{ item.nama }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  <div class="text-caption">{{ item.code }}</div>
+                  <v-chip :color="getRoleColor(item.role)" dark size="x-small" class="mt-1">
+                    {{ getRoleLabel(item.role) }}
+                  </v-chip>
+                </v-list-item-subtitle>
+
+                <template v-slot:append>
+                  <v-chip color="amber" dark size="small">
+                    <v-icon left size="14">mdi-star</v-icon>
+                    {{ item.total_bintang }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+
+        <!-- Mobile: Leaderboard Per Daerah (Cards) -->
+        <div class="mb-3">
+          <v-card class="mb-2" color="white" elevation="1">
+            <v-card-title class="pa-3">
+              <v-icon class="mr-2" color="warning">mdi-map-marker-multiple</v-icon>
+              Leaderboard Per Daerah
+            </v-card-title>
+          </v-card>
+
+          <v-card v-for="(daerahData, daerahKey) in dashboardData.summary?.leaderboard_per_daerah || {}"
+            :key="'mobile-' + daerahKey" class="mb-2" @click="showDaerahLeaderboardDetail(daerahKey, daerahData)"
+            style="cursor: pointer;">
+            <v-card-text class="pa-3">
+              <div class="d-flex align-center justify-space-between">
+                <div class="d-flex align-center">
+                  <v-avatar :color="getDaerahCardColor(daerahKey)" size="40" class="mr-3">
+                    <v-icon color="white">mdi-map-marker</v-icon>
+                  </v-avatar>
+                  <div>
+                    <div class="text-body-1 font-weight-bold">{{ daerahKey }}</div>
+                    <div class="text-caption text-grey">{{ daerahData.length }} Akun</div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <v-chip color="amber" dark size="small">
+                    <v-icon left size="14">mdi-star</v-icon>
+                    {{ getTotalBintangDaerah(daerahData) }}
+                  </v-chip>
+                  <v-icon class="ml-2" color="grey">mdi-chevron-right</v-icon>
+                </div>
+              </div>
+
+              <!-- Top 1 Preview Mobile -->
+              <div v-if="daerahData.length > 0" class="mt-2 pt-2" style="border-top: 1px solid #eee;">
+                <div class="d-flex align-center">
+                  <v-chip color="amber" dark size="x-small" class="mr-2">
+                    <v-icon left size="10">mdi-trophy</v-icon>
+                    #1
+                  </v-chip>
+                  <span class="text-caption font-weight-medium">{{ daerahData[0].nama }}</span>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+
+      </div>
     </div>
 
     <!-- Detail Modal -->
@@ -1111,12 +1525,18 @@
                         Kode: {{ item.code || item.mvo?.code || 'N/A' }}
                       </v-chip>
                     </div>
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-1 mt-1 flex-wrap">
                       <v-chip size="x-small" :color="getMvoTypeColor(item.mvo_type_id)" variant="tonal">
                         {{ getMvoTypeName(item.mvo_type_id) }}
                       </v-chip>
+
                       <v-chip size="x-small" :color="getStatusColor(item.status_inputan)" variant="tonal">
                         {{ getStatusText(item.status_inputan) }}
+                      </v-chip>
+
+                      <v-chip size="x-small" color="amber" variant="tonal">
+                        <v-icon start size="10">mdi-star</v-icon>
+                        {{ item.bintang || 0 }}
                       </v-chip>
                     </div>
                     <div class="text-caption mt-1">
@@ -1269,13 +1689,18 @@
                       {{ item.code || '-' }}
                     </div>
 
-                    <div class="d-flex gap-1 mt-1">
+                    <div class="d-flex gap-1 mt-1 flex-wrap">
                       <v-chip size="x-small" :color="getMvoTypeColor(item.mvo_type_id)" variant="tonal">
                         {{ getMvoTypeName(item.mvo_type_id) }}
                       </v-chip>
 
                       <v-chip size="x-small" :color="getStatusColor(item.status_inputan)" variant="tonal">
                         {{ getStatusText(item.status_inputan) }}
+                      </v-chip>
+
+                      <v-chip size="x-small" color="amber" variant="tonal">
+                        <v-icon start size="10">mdi-star</v-icon>
+                        {{ item.bintang || 0 }}
                       </v-chip>
                     </div>
 
@@ -1374,7 +1799,12 @@
               <template v-slot:item.no="{ index }">
                 {{ index + 1 }}
               </template>
-
+              <template v-slot:item.bintang="{ item }" v-if="selectedDetailType === 'mvo_subordinates_detail'">
+                <v-chip color="amber" dark size="small">
+                  <v-icon left size="16">mdi-star</v-icon>
+                  {{ item.bintang || 0 }}
+                </v-chip>
+              </template>
               <template v-slot:item.status_inputan="{ item }">
                 <v-chip :color="getStatusColor(item.status_inputan)" dark size="small">
                   {{ getStatusText(item.status_inputan) }}
@@ -1452,7 +1882,137 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <!-- Daerah Leaderboard Detail Modal -->
+    <v-dialog v-model="daerahDetailModal" max-width="90vw" fullscreen-on-mobile>
+      <v-card>
+        <v-card-title class="d-flex justify-space-between align-center pa-4">
+          <div>
+            <div class="text-h6 font-weight-bold">
+              <v-icon class="mr-2" color="warning">mdi-map-marker</v-icon>
+              Leaderboard Daerah — {{ selectedDaerahKey }}
+            </div>
+            <div class="text-caption text-grey">{{ selectedDaerahData.length }} Akun</div>
+          </div>
+          <v-btn icon @click="daerahDetailModal = false" variant="text">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
 
+        <v-divider></v-divider>
+
+        <!-- Summary mini cards -->
+        <v-card-text class="pa-4 pb-2">
+          <v-row dense>
+            <v-col cols="6" md="3">
+              <v-card flat color="grey-lighten-4" class="text-center pa-3">
+                <v-icon color="amber" size="20">mdi-star</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ getTotalBintangDaerah(selectedDaerahData) }}</div>
+                <div class="text-caption">Total Bintang</div>
+              </v-card>
+            </v-col>
+            <v-col cols="6" md="3">
+              <v-card flat color="grey-lighten-4" class="text-center pa-3">
+                <v-icon color="success" size="20">mdi-account-multiple</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ selectedDaerahData.length }}</div>
+                <div class="text-caption">Total Akun</div>
+              </v-card>
+            </v-col>
+            <v-col cols="6" md="3">
+              <v-card flat color="grey-lighten-4" class="text-center pa-3">
+                <v-icon color="primary" size="20">mdi-account</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ getDaerahRoleCount('MVO') }}</div>
+                <div class="text-caption">MVO</div>
+              </v-card>
+            </v-col>
+            <v-col cols="6" md="3">
+              <v-card flat color="grey-lighten-4" class="text-center pa-3">
+                <v-icon color="cyan" size="20">mdi-store</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ getDaerahRoleCount('DIST') }}</div>
+                <div class="text-caption">Distributor</div>
+              </v-card>
+            </v-col>
+            <v-col cols="6" md="3">
+              <v-card flat color="grey-lighten-4" class="text-center pa-3">
+                <v-icon color="cyan" size="20">mdi-store</v-icon>
+                <div class="text-h6 font-weight-bold mt-1">{{ getDaerahRoleCount('FO') }}</div>
+                <div class="text-caption">Founder</div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-card-text class="pa-0">
+          <!-- Mobile List -->
+          <div class="d-block d-md-none">
+            <v-list>
+              <v-list-item v-for="item in selectedDaerahData" :key="item.id" class="py-3">
+                <template v-slot:prepend>
+                  <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-2"
+                    style="min-width: 32px; justify-content: center;">
+                    {{ item.ranking }}
+                  </v-chip>
+                </template>
+
+                <v-list-item-title class="font-weight-medium">
+                  {{ item.nama }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  <div class="text-caption">{{ item.code }}</div>
+                  <v-chip :color="getRoleColor(item.role)" dark size="x-small" class="mt-1">
+                    {{ getRoleLabel(item.role) }}
+                  </v-chip>
+                </v-list-item-subtitle>
+
+                <template v-slot:append>
+                  <v-chip color="amber" dark size="small">
+                    <v-icon left size="14">mdi-star</v-icon>
+                    {{ item.total_bintang }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+          </div>
+
+          <!-- Desktop Table -->
+          <div class="d-none d-md-block">
+            <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="daerahDetailHeaders"
+              :items="selectedDaerahData" :loading="isLoading" item-key="id" :items-per-page="10">
+              <template v-slot:item.ranking="{ item }">
+                <v-chip :color="getRankColor(item.ranking)" dark size="small">
+                  <v-icon v-if="item.ranking <= 3" left size="14">
+                    {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
+                  </v-icon>
+                  {{ item.ranking }}
+                </v-chip>
+              </template>
+
+              <template v-slot:item.nama="{ item }">
+                <div class="font-weight-medium">{{ item.nama }}</div>
+                <div class="text-caption text-grey">{{ item.code }}</div>
+              </template>
+
+              <template v-slot:item.role="{ item }">
+                <v-chip :color="getRoleColor(item.role)" dark size="small">
+                  {{ getRoleLabel(item.role) }}
+                </v-chip>
+              </template>
+
+              <!-- Dashboard Star - Ranking Semua Akun (Desktop) -->
+              <template v-slot:item.total_bintang="{ item }">
+                <div class="d-flex align-center justify-center">
+                  <v-icon v-for="n in parseInt(item.total_bintang)" :key="n" color="amber" size="small" class="mr-1">
+                    mdi-star
+                  </v-icon>
+                  <span v-if="!item.total_bintang || item.total_bintang == 0" class="text-grey">
+                    <v-icon color="grey lighten-2" size="small">mdi-star-outline</v-icon>
+                  </span>
+                </div>
+              </template>
+            </v-data-table>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <!-- Image Viewer Modal -->
     <v-dialog v-model="imageModal" max-width="90vw">
       <v-card>
@@ -1494,6 +2054,7 @@
 </template>
 
 <script>
+
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
@@ -1512,6 +2073,49 @@ export default {
         end: this.getDefaultEndDate()
       },
 
+
+      // Date range untuk Dashboard Star
+      starDateRange: {
+        start: this.getDefaultStarStartDate(),
+        end: this.getDefaultStarEndDate()
+      },
+
+      // Leaderboard per bulan
+      selectedLeaderboardMonth: null,
+
+      // Daerah detail modal
+      daerahDetailModal: false,
+      selectedDaerahKey: '',
+      selectedDaerahData: [],
+
+      // Headers
+      dashboardStarHeaders: [
+        { title: "Rank", key: "ranking", align: "center", width: "80px" },
+        { title: "Nama", key: "nama" },
+        { title: "Role", key: "role", align: "center" },
+        { title: "Bintang", key: "total_bintang", align: "center" },
+      ],
+
+      leaderboardPerBulanHeaders: [
+        { title: "Rank", key: "ranking", align: "center", width: "80px" },
+        { title: "Nama", key: "nama" },
+        { title: "Role", key: "role", align: "center" },
+        { title: "Bintang", key: "total_bintang", align: "center" },
+      ],
+
+      daerahDetailHeaders: [
+        { title: "Rank", key: "ranking", align: "center", width: "80px" },
+        { title: "Nama", key: "nama" },
+        { title: "Role", key: "role", align: "center" },
+        { title: "Bintang", key: "total_bintang", align: "center" },
+      ],
+      starSummary: {
+        totalBintang: 0,
+        totalAkun: 0,
+        totalDaerah: 0
+      },
+      selectedLeaderboardMonth: null,
+
       dashboardData: {
         summary: {
           akun: {
@@ -1528,7 +2132,7 @@ export default {
           },
           user_total: 0,
           akun_per_daerah: [],
-          top_5_bintang: [],
+          top_5_bintang2: [],
           grafik_pertumbuhan: [],
           grafik_pertumbuhan_per_mvo: [],
           akun_per_mvo: []
@@ -1548,10 +2152,14 @@ export default {
       selectedMVOData: null,
       selectedImageUrl: '',
 
+
+
+
       mvoWithSubordinatesHeaders: [
         { title: "Nama MVO", key: "mvo_nama" },
         { title: "Kode MVO", key: "mvo_code" },
         { title: "Total Downline", key: "total_bawahan", align: "center" },
+        { title: "Bintang Jaringan", key: "total_bintang_jaringan", align: "center" },
         { title: "Aksi", key: "actions", align: "center", sortable: false },
       ],
 
@@ -1560,6 +2168,7 @@ export default {
         { title: "No", key: "no" },
         { title: "Nama Downline", key: "nama" },
         { title: "Kode", key: "code" },
+        { title: "Bintang", key: "bintang", align: "center" },
         // { title: "ID", key: "id", align: "center" },
       ],
       // Headers for growth tables
@@ -1616,6 +2225,47 @@ export default {
   },
 
   computed: {
+    availableLeaderboardMonths() {
+      if (!this.dashboardData.summary?.leaderboard_per_bulan) return [];
+
+      // Ambil semua bulan dari data API
+      let months = Object.keys(this.dashboardData.summary.leaderboard_per_bulan);
+
+      // ✅ FILTER: Hanya tampilkan bulan dalam rentang yang dipilih
+      if (this.starDateRange.start && this.starDateRange.end) {
+        months = months.filter(month => {
+          return month >= this.starDateRange.start && month <= this.starDateRange.end;
+        });
+      }
+
+      return months.sort();
+    },
+    currentLeaderboardBulanData() {
+      if (!this.selectedLeaderboardMonth || !this.dashboardData.summary?.leaderboard_per_bulan) {
+        return [];
+      }
+      // Ambil data untuk bulan yang dipilih
+      return this.dashboardData.summary.leaderboard_per_bulan[this.selectedLeaderboardMonth] || [];
+    },
+
+    // Tambahkan ini juga untuk memastikan starSummary terupdate saat data berubah
+    starStats() {
+      const dashboardStar = this.dashboardData.summary?.dashboard_star || [];
+      const leaderboardDaerah = this.dashboardData.summary?.leaderboard_per_daerah || {};
+
+      return {
+        totalBintang: dashboardStar.reduce((sum, item) => sum + parseInt(item.total_bintang || 0), 0),
+        totalAkun: dashboardStar.length,
+        totalDaerah: Object.keys(leaderboardDaerah).length
+      };
+    },
+    bintangRoles() {
+      return [
+        { key: 'mvo', label: 'MVO', icon: 'mdi-account', iconColor: 'primary' },
+        { key: 'distributor', label: 'Distributor', icon: 'mdi-store', iconColor: 'cyan' },
+        { key: 'lainnya', label: 'Lainnya', icon: 'mdi-crown', iconColor: 'purple' }
+      ];
+    },
     hasAkunPerMVO() {
       return this.dashboardData.summary?.akun_per_mvo &&
         this.dashboardData.summary.akun_per_mvo.length > 0;
@@ -1650,6 +2300,22 @@ export default {
   created() {
     this.fetchDashboardData();
   },
+  watch: {
+    // Auto-select bulan pertama setelah data loaded
+    availableLeaderboardMonths: {
+      handler(months) {
+        if (months.length > 0) {
+          // Jika bulan yang dipilih tidak ada dalam range baru, pilih yang terbaru
+          if (!months.includes(this.selectedLeaderboardMonth)) {
+            this.selectedLeaderboardMonth = months[months.length - 1]; // Pilih bulan terakhir (terbaru)
+          }
+        } else {
+          this.selectedLeaderboardMonth = null;
+        }
+      },
+      immediate: true
+    }
+  },
 
   methods: {
     exportexcel() {
@@ -1662,6 +2328,84 @@ export default {
       );
     },
 
+    getStarIcons(count) {
+      const num = parseInt(count) || 0;
+      return Array(num).fill('mdi-star');
+    },
+
+    // Helper untuk render bintang dengan format "★ 5" atau icon berulang
+    getStarDisplay(count, mode = 'chip') {
+      if (mode === 'icons') {
+        // Tampilan multiple icon stars (seperti gambar)
+        return '★'.repeat(parseInt(count) || 0);
+      }
+      return parseInt(count) || 0;
+    },
+    // Star date range defaults
+    getDefaultStarStartDate() {
+      const date = new Date();
+      date.setMonth(date.getMonth() - 6);
+      return date.toISOString().slice(0, 7); // Format: YYYY-MM
+    },
+
+    getDefaultStarEndDate() {
+      return new Date().toISOString().slice(0, 7); // Format: YYYY-MM
+    },
+
+    onStarDateChange() {
+      // Auto-select bulan pertama yang tersedia setelah filter berubah
+      if (this.availableLeaderboardMonths.length > 0) {
+        this.selectedLeaderboardMonth = this.availableLeaderboardMonths[0];
+      }
+    },
+
+    // Role helpers
+    getRoleColor(role) {
+      switch (role) {
+        case 'MVO': return 'primary';
+        case 'DIST': return 'cyan';
+        case 'FO': return 'purple';
+        default: return 'grey';
+      }
+    },
+
+    getRoleLabel(role) {
+      switch (role) {
+        case 'MVO': return 'MVO';
+        case 'DIST': return 'Distributor';
+        case 'FO': return 'Founder';
+        default: return role || 'Unknown';
+      }
+    },
+
+    // Daerah helpers
+    getDaerahCardColor(daerahKey) {
+      const colors = ['primary', 'success', 'info', 'warning', 'purple', 'teal', 'cyan', 'error'];
+      // Hash the daerah key for consistent color
+      let hash = 0;
+      for (let i = 0; i < daerahKey.length; i++) {
+        hash = daerahKey.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return colors[Math.abs(hash) % colors.length];
+    },
+
+    getTotalBintangDaerah(daerahData) {
+      return daerahData.reduce((sum, item) => sum + parseInt(item.total_bintang || 0), 0);
+    },
+
+    showDaerahLeaderboardDetail(daerahKey, daerahData) {
+      this.selectedDaerahKey = daerahKey;
+      this.selectedDaerahData = daerahData;
+      this.daerahDetailModal = true;
+    },
+
+    getDaerahRoleCount(role) {
+      return this.selectedDaerahData.filter(item => item.role === role).length;
+    },
+    getStarIcons(count) {
+      const num = parseInt(count) || 0;
+      return num > 0 ? '★'.repeat(num) : '☆';
+    },
     getDefaultStartDate() {
       const date = new Date();
       date.setMonth(date.getMonth() - 6); // Default to 6 months ago
@@ -1694,6 +2438,8 @@ export default {
 
         if (dashboardResponse.data && dashboardResponse.data.status === "success") {
           this.dashboardData = dashboardResponse.data.data;
+          this.updateStarSummary();
+
           console.log("Dashboard data fetched:", this.dashboardData);
         }
 
@@ -1728,6 +2474,17 @@ export default {
       } finally {
         this.isLoading = false;
       }
+    },
+    updateStarSummary() {
+      const summary = this.dashboardData.summary || {};
+      const dashboardStar = summary.dashboard_star || [];
+      const leaderboardDaerah = summary.leaderboard_per_daerah || {};
+
+      this.starSummary = {
+        totalBintang: dashboardStar.reduce((sum, item) => sum + parseInt(item.total_bintang || 0), 0),
+        totalAkun: dashboardStar.length,
+        totalDaerah: Object.keys(leaderboardDaerah).length
+      };
     },
 
     // Growth data methods
@@ -1817,7 +2574,7 @@ export default {
     },
 
     findMVOData(mvoId) {
-      let mvoData = this.dashboardData.summary?.top_5_bintang?.find(item => item.mvo_id === mvoId);
+      let mvoData = this.dashboardData.summary?.top_5_bintang2?.find(item => item.mvo_id === mvoId);
 
       if (!mvoData) {
         const mvoInfo = this.mvoRawData.find(item => item.id == mvoId);
