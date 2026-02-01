@@ -981,6 +981,9 @@
             <div class="text-h6 font-weight-bold">{{ selectedDetailTitle }}</div>
             <div class="text-caption text-grey">{{ detailData.length }} items</div>
           </div>
+          <v-btn icon @click="exportexcel" variant="text" color="success">
+            <v-icon>mdi-file-export</v-icon> Export
+          </v-btn>
           <v-btn icon @click="detailModal = false" variant="text">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -1305,8 +1308,9 @@
               </template>
             </v-data-table>
 
-            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" v-else-if="selectedDetailType === 'mvo_growth'"
-              :headers="mvoGrowthHeaders" :items="detailData" :loading="isLoadingDetail" :items-per-page="10">
+            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap"
+              v-else-if="selectedDetailType === 'mvo_growth'" :headers="mvoGrowthHeaders" :items="detailData"
+              :loading="isLoadingDetail" :items-per-page="10">
               <template v-slot:item.mvo_nama="{ item }">
                 <div class="font-weight-medium">
                   {{ item.mvo_nama }}
@@ -1327,8 +1331,9 @@
             </v-data-table>
 
             <!-- Your existing tables for other types -->
-            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap" v-else-if="selectedDetailType === 'all_regions'"
-              :headers="regionSummaryHeaders" :items="detailData" :loading="isLoadingDetail" :items-per-page="10">
+            <v-data-table <v-data-table class="bg-grey-lighten-4 text-no-wrap"
+              v-else-if="selectedDetailType === 'all_regions'" :headers="regionSummaryHeaders" :items="detailData"
+              :loading="isLoadingDetail" :items-per-page="10">
               <template v-slot:item.region_name="{ item }">
                 <div class="d-flex align-center">
                   <v-icon class="mr-2" color="primary">mdi-map-marker</v-icon>
@@ -1491,6 +1496,8 @@
 <script>
 import axios from "axios";
 import Cookies from "js-cookie";
+import * as XLSX from "xlsx";
+
 export default {
   data() {
     return {
@@ -1645,6 +1652,16 @@ export default {
   },
 
   methods: {
+    exportexcel() {
+      const worksheet = XLSX.utils.json_to_sheet(this.detailData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data_export");
+      XLSX.writeFile(
+        workbook,
+        `Data_export.xlsx`
+      );
+    },
+
     getDefaultStartDate() {
       const date = new Date();
       date.setMonth(date.getMonth() - 6); // Default to 6 months ago
@@ -2004,6 +2021,7 @@ export default {
       return titles[type] || 'Detail';
     },
     showMVOSubordinatesDetail(mvoData) {
+      console.log('subordinate', mvoData);
       this.selectedDetailType = 'mvo_subordinates_detail';
       this.selectedDetailTitle = `Downline ${mvoData.mvo_nama}`;
       this.selectedMVOData = mvoData;

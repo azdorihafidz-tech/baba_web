@@ -6,6 +6,10 @@
       <v-icon start style="color: #FFD700;">mdi-pen-plus</v-icon>
       <span class="ml-2">Tambah Akun</span>
     </v-btn>
+    <v-btn class="text-white ml-2 font-semibold add-mvo-btn" @click="exportExcel" v-if="otoritas === 'superadmin'">
+      <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
+      <span class="ml-2">Excel</span>
+    </v-btn>
 
     <!-- Desktop View - Data Table -->
     <div class="d-none d-md-block">
@@ -199,25 +203,25 @@
                   <v-col cols="8" class="detail-value">{{ item.tempat_lahir || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Tgl Lahir:</v-col>
+                  <v-col cols="4" class="detail-label">Tgl Lahirx:</v-col>
                   <v-col cols="8" class="detail-value">{{ formatDate(item.tgl_lahir) }}</v-col>
                 </v-row>
-                <v-row class="mb-2">
+                <!-- <v-row class="mb-2">
                   <v-col cols="4" class="detail-label">Class:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.class_member || '-' }}</v-col>
-                </v-row>
+                </v-row> -->
               </div>
 
               <!-- Contact Info Section -->
               <div class="mobile-info-section mb-3">
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">No HP:</v-col>
+                  <v-col cols="4" class="detail-label">No HPx:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.nohp || '-' }}</v-col>
                 </v-row>
-                <v-row class="mb-2">
+                <!-- <v-row class="mb-2">
                   <v-col cols="4" class="detail-label">Sosmed:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.sosmed || '-' }}</v-col>
-                </v-row>
+                </v-row> -->
                 <v-row class="mb-2">
                   <v-col cols="4" class="detail-label">Alamat:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.alamat || '-' }}</v-col>
@@ -455,10 +459,10 @@
             </v-row>
 
             <v-row>
-              <v-col cols="12" md="6">
+              <!-- <v-col cols="12" md="6">
                 <v-text-field label="Sosial Media" v-model="currentModel.sosmed" class="mb-2" variant="outlined"
                   density="comfortable" prepend-inner-icon="mdi-instagram" hint="Isi manual" persistent-hint />
-              </v-col>
+              </v-col> -->
               <v-col cols="12" md="6">
                 <v-text-field label="Jaringan" v-model="currentModel.jaringan_mvo" class="mb-2" variant="outlined"
                   density="comfortable" prepend-inner-icon="mdi-network" hint="Isi manual" persistent-hint />
@@ -466,25 +470,25 @@
             </v-row>
 
             <v-row>
-              <v-col cols="12" md="6">
+              <!-- <v-col cols="12" md="6">
                 <v-select label="Class Member" v-model="currentModel.mvo_type_id" :items="mvoTypes" item-title="name"
                   item-value="id" class="mb-2" :loading="isLoadingMvoTypes" :rules="[requiredRule]" variant="outlined"
                   density="comfortable" prepend-inner-icon="mdi-shape" hint="Pilih manual (Level akan otomatis terisi)"
                   persistent-hint />
-              </v-col>
-              <v-col cols="12" md="6">
+              </v-col> -->
+              <!-- <v-col cols="12" md="6">
                 <v-select label="Level" v-model="currentModel.level" :items="levelOptions" class="mb-2"
                   variant="outlined" density="comfortable" prepend-inner-icon="mdi-chart-line"
                   hint="Otomatis terisi berdasarkan Tipe" persistent-hint readonly disabled />
-              </v-col>
+              </v-col> -->
             </v-row>
 
             <v-row>
-              <v-col cols="12" md="6">
+              <!-- <v-col cols="12" md="6">
                 <v-select label="Provinsi *" v-model="currentModel.province_id" :items="provinces" item-title="name"
                   item-value="id" class="mb-2" :loading="isLoadingProvinces" :rules="[requiredRule]" variant="outlined"
                   density="comfortable" prepend-inner-icon="mdi-map" hint="Pilih manual" persistent-hint />
-              </v-col>
+              </v-col> -->
               <v-col cols="12" md="6">
                 <v-select label="Upline" v-model="currentModel.parent_id" :items="parentMvoOptions" item-title="nama"
                   item-value="id" class="mb-2" clearable variant="outlined" density="comfortable"
@@ -998,26 +1002,26 @@
                             <v-col cols="8" class="text-body-2">{{ child.tempat_lahir || '-' }}</v-col>
                           </v-row>
                           <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Tgl Lahir:</v-col>
+                            <v-col cols="4" class="text-caption text-grey">Tgl Lahirx:</v-col>
                             <v-col cols="8" class="text-body-2">{{ formatDate(child.tgl_lahir) }}</v-col>
                           </v-row>
-                          <v-row class="mb-1" dense>
+                          <!-- <v-row class="mb-1" dense>
                             <v-col cols="4" class="text-caption text-grey">Class:</v-col>
                             <v-col cols="8" class="text-body-2">{{ child.class_member || '-' }}</v-col>
-                          </v-row>
+                          </v-row> -->
                         </div>
 
                         <!-- Contact Info -->
                         <div class="mobile-info-section mb-3">
                           <h4 class="text-subtitle-2 mb-2 text-primary">Kontak</h4>
                           <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">No HP:</v-col>
+                            <v-col cols="4" class="text-caption text-grey">No HPx:</v-col>
                             <v-col cols="8" class="text-body-2">{{ child.nohp || '-' }}</v-col>
                           </v-row>
-                          <v-row class="mb-1" dense>
+                          <!-- <v-row class="mb-1" dense>
                             <v-col cols="4" class="text-caption text-grey">Sosmed:</v-col>
                             <v-col cols="8" class="text-body-2">{{ child.sosmed || '-' }}</v-col>
-                          </v-row>
+                          </v-row> -->
                           <v-row class="mb-1" dense>
                             <v-col cols="4" class="text-caption text-grey">Alamat:</v-col>
                             <v-col cols="8" class="text-body-2">{{ child.alamat || '-' }}</v-col>
@@ -1144,6 +1148,8 @@ import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
+import * as XLSX from "xlsx";
+
 
 export default {
   name: "MvoManagement",
@@ -1207,11 +1213,11 @@ export default {
       relatedMvoData: [],
       detailViewMode: 'single',
 
-      classMemberOptions: [
-        { title: 'GOLD', value: 'GOLD' },
-        { title: 'SILVER', value: 'SILVER' },
-        { title: 'PLATINUM', value: 'PLATINUM' }
-      ],
+      // classMemberOptions: [
+      //   { title: 'GOLD', value: 'GOLD' },
+      //   { title: 'SILVER', value: 'SILVER' },
+      //   { title: 'PLATINUM', value: 'PLATINUM' }
+      // ],
       levelOptions: [
         { title: 'Level 1', value: '1' },
         { title: 'Level 2', value: '2' },
@@ -1242,7 +1248,7 @@ export default {
           // { key: "class_member", title: "Class Member" },
           { key: "alamat", title: "Alamat" },
           { key: "nohp", title: "No HP" },
-          { key: "sosmed", title: "Sosmed" },
+          // { key: "sosmed", title: "Sosmed" },
           { key: "jaringan_mvo", title: "Jaringan" },
           { key: "mvo_type", title: "Tipe" },
           { key: "province", title: "Provinsi" },
@@ -1270,10 +1276,10 @@ export default {
         { key: "no_id", title: "No ID" },
         { key: "tempat_lahir", title: "Tempat Lahir" },
         { key: "tgl_lahir", title: "Tanggal Lahir" },
-        { key: "class_member", title: "Class Member" },
+        // { key: "class_member", title: "Class Member" },
         { key: "alamat", title: "Alamat" },
         { key: "nohp", title: "No HP" },
-        { key: "sosmed", title: "Sosmed" },
+        // { key: "sosmed", title: "Sosmed" },
         { key: "jaringan_mvo", title: "Jaringan" },
         { key: "mvo_type", title: "Tipe" },
         { key: "province", title: "Provinsi" },
@@ -1311,15 +1317,15 @@ export default {
         no_id: "",
         tempat_lahir: "",
         tgl_lahir: "",
-        class_member: "",
+        // class_member: "",
         alamat: "",
         nohp: "",
-        sosmed: "",           // Manual
+        // sosmed: "",           // Manual
         jaringan_mvo: "",     // Manual
         mvo_type_id: "",      // Manual
-        province_id: "",      // Manual
+        // province_id: "",      // Manual
         parent_id: null,      // Manual
-        level: "",            // Manual
+        // level: "",            // Manual
       },
       // Detail model
       detailModel: {},
@@ -1426,7 +1432,7 @@ export default {
           (item.no_id && item.no_id.toLowerCase().includes(searchTerm)) ||
           (item.nohp && item.nohp.toLowerCase().includes(searchTerm)) ||
           (item.tempat_lahir && item.tempat_lahir.toLowerCase().includes(searchTerm)) ||
-          (item.class_member && item.class_member.toLowerCase().includes(searchTerm)) ||
+          // (item.class_member && item.class_member.toLowerCase().includes(searchTerm)) ||
           (item.jaringan_mvo && item.jaringan_mvo.toLowerCase().includes(searchTerm)) ||
           (this.getMvoTypeName(item.mvo_type_id) && this.getMvoTypeName(item.mvo_type_id).toLowerCase().includes(searchTerm)) ||
           (this.getProvinceName(item.province_id) && this.getProvinceName(item.province_id).toLowerCase().includes(searchTerm)) ||
@@ -1532,14 +1538,15 @@ export default {
 
     // Method untuk handle ketika user dipilih dari dropdown
     async onUserSelected(userId) {
+      console.log('user sleected', userId);
       if (!userId) {
         // Reset hanya field yang auto-fill, keep manual fields
         const manualFields = {
-          sosmed: this.currentModel.sosmed,
+          // sosmed: this.currentModel.sosmed,
           jaringan_mvo: this.currentModel.jaringan_mvo,
-          level: this.currentModel.level,
+          // level: this.currentModel.level,
           mvo_type_id: this.currentModel.mvo_type_id,
-          province_id: this.currentModel.province_id,
+          // province_id: this.currentModel.province_id,
           parent_id: this.currentModel.parent_id,
         };
 
@@ -1563,11 +1570,11 @@ export default {
 
           // Simpan manual fields yang sudah diisi
           const manualFields = {
-            sosmed: this.currentModel.sosmed || "",
+            // sosmed: this.currentModel.sosmed || "",
             jaringan_mvo: this.currentModel.jaringan_mvo || "",
-            level: this.currentModel.level || "",
+            // level: this.currentModel.level || "",
             mvo_type_id: this.currentModel.mvo_type_id || "",
-            province_id: this.currentModel.province_id || "",
+            // province_id: this.currentModel.province_id || "",
             parent_id: this.currentModel.parent_id || null,
           };
 
@@ -1580,7 +1587,7 @@ export default {
             no_id: userData.no_id || "",
             tempat_lahir: userData.tempat_lahir || "",
             tgl_lahir: userData.tgl_lahir ? new Date(userData.tgl_lahir).toISOString().split('T')[0] : "",
-            class_member: userData.class_member || "",
+            // class_member: userData.class_member || "",
             alamat: userData.alamat || "",
             nohp: userData.nohp || "",
             // Keep manual fields
@@ -1588,7 +1595,7 @@ export default {
           };
 
           this.selectedUserId = userId;
-          this.showSnackbar("Data user berhasil dimuat. Silakan isi Sosmed, Jaringan, Level, Tipe, Provinsi, dan Upline", "primary");
+          this.showSnackbar("Data user berhasil dimuat.", "primary");
         }
       } catch (error) {
         console.error("Error loading user detail:", error);
@@ -1779,15 +1786,15 @@ export default {
         no_id: "",
         tempat_lahir: "",
         tgl_lahir: "",
-        class_member: "",
+        // class_member: "",
         alamat: "",
         nohp: "",
-        sosmed: "",           // Manual
+        // sosmed: "",           // Manual
         jaringan_mvo: "",     // Manual
         mvo_type_id: "",      // Manual
-        province_id: "",      // Manual
+        // province_id: "",      // Manual
         parent_id: null,      // Manual
-        level: "",            // Manual
+        // level: "",            // Manual
       };
     },
 
@@ -1911,35 +1918,49 @@ export default {
         if (response.data.status === "success") {
           const allItems = response.data.data;
           this.allMvoData = allItems;
-          this.parentMvoOptions = allItems;
+          this.parentMvoOptions = response.data.data.map(item => ({
+            id: Number(item.id),
+            nama: item.nama,
+            parent_id: item.parent_id ? Number(item.parent_id) : null
+          }));
+          console.log('parent option dari yang sudah diinput', this.parentMvoOptions);
+          // let items = allItems;
 
-          let items = allItems;
+
+          // if (otoritas !== "superadmin" && no_idUser) {
+          //   items = allItems.filter(item => item.no_id === no_idUser);
+          // }
+
+          // const jabatanOrder = {
+          //   'MVO': 1,
+          //   'DIST': 2,
+          //   'FO': 3
+          // };
+
+          // items = items.sort((a, b) => {
+          //   const [jabA, wilayahA] = a.code.split('-');
+          //   const [jabB, wilayahB] = b.code.split('-');
+
+          //   // 1️⃣ Urutkan berdasarkan wilayah dulu
+          //   if (wilayahA < wilayahB) return -1;
+          //   if (wilayahA > wilayahB) return 1;
+
+          //   // 2️⃣ Kalau wilayah sama, urutkan jabatan
+          //   return (jabatanOrder[jabA] || 99) - (jabatanOrder[jabB] || 99);
+          // });
+
+          // filter jika otoritas buka superadmin jangan tampilkan semua data, hanya data cabang sesuai kode_cabang
           const otoritas = localStorage.getItem("otoritas");
-          const no_idUser = localStorage.getItem("no_id");
-
-          if (otoritas !== "superadmin" && no_idUser) {
-            items = allItems.filter(item => item.no_id === no_idUser);
-          }
-
-          const jabatanOrder = {
-            'MVO': 1,
-            'DIST': 2,
-            'FO': 3
-          };
-
-          items = items.sort((a, b) => {
-            const [jabA, wilayahA] = a.code.split('-');
-            const [jabB, wilayahB] = b.code.split('-');
-
-            // 1️⃣ Urutkan berdasarkan wilayah dulu
-            if (wilayahA < wilayahB) return -1;
-            if (wilayahA > wilayahB) return 1;
-
-            // 2️⃣ Kalau wilayah sama, urutkan jabatan
-            return (jabatanOrder[jabA] || 99) - (jabatanOrder[jabB] || 99);
+          const kode_cabang = localStorage.getItem("kode_cabang");
+          let items = response.data.data;
+          this.datatable.items = items.filter(item => {
+            if (otoritas === "superadmin") {
+              return true; // Tampilkan semua untuk superadmin
+            } else if (kode_cabang) {
+              return item.code.includes(kode_cabang);
+            }
+            return false; // Jika tidak ada kode_cabang, jangan tampilkan apa-apa
           });
-
-          this.datatable.items = items;
 
         } else {
           this.showSnackbar(response.data.message || "Error loading data", "error");
@@ -1949,6 +1970,16 @@ export default {
       } finally {
         this.isTableLoading = false;
       }
+    },
+
+    exportExcel() {
+      const worksheet = XLSX.utils.json_to_sheet(this.datatable.items);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data MVO dan Anggota");
+      XLSX.writeFile(
+        workbook,
+        `Data_MVO_dan_Anggota.xlsx`
+      );
     },
 
     async getMvoTypes() {
@@ -1977,6 +2008,7 @@ export default {
         const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", { headers });
         if (response.data.status === "success") {
           this.provinces = response.data.data;
+          console.log('provinsi', this.provinces);
         }
       } catch (error) {
         console.error("Error loading provinces:", error);
@@ -2423,6 +2455,7 @@ export default {
 
         if (response.data.status === "success") {
           const data = response.data.data;
+          console.log('Data MVO yang dimuat untuk edit:', data); // Debug log
 
           // KONVERSI TIPE DATA KE NUMBER untuk memastikan matching dengan item-value
           this.currentModel = {
@@ -2459,15 +2492,15 @@ export default {
         return;
       }
 
-      if (!this.currentModel.mvo_type_id) {
-        this.showSnackbar("Tipe harus dipilih", 'error');
-        return;
-      }
+      // if (!this.currentModel.mvo_type_id) {
+      //   this.showSnackbar("Tipe harus dipilih", 'error');
+      //   return;
+      // }
 
-      if (!this.currentModel.province_id) {
-        this.showSnackbar("Provinsi harus dipilih", 'error');
-        return;
-      }
+      // if (!this.currentModel.province_id) {
+      //   this.showSnackbar("Provinsi harus dipilih", 'error');
+      //   return;
+      // }
 
       const headers = this.getAuthHeaders();
       if (!headers) return;
@@ -2480,20 +2513,20 @@ export default {
           nama: this.currentModel.nama.trim(),
           no_id: this.currentModel.no_id.trim(),
           mvo_type_id: parseInt(this.currentModel.mvo_type_id),
-          province_id: parseInt(this.currentModel.province_id),
+          // province_id: parseInt(this.currentModel.province_id),
 
           // Optional fields - kirim hanya jika ada nilai
           ...(this.currentModel.nama_panggilan && { nama_panggilan: this.currentModel.nama_panggilan.trim() }),
           ...(this.currentModel.tempat_lahir && { tempat_lahir: this.currentModel.tempat_lahir.trim() }),
           ...(this.currentModel.tgl_lahir && { tgl_lahir: this.currentModel.tgl_lahir }),
-          ...(this.currentModel.class_member && { class_member: this.currentModel.class_member }),
+          // ...(this.currentModel.class_member && { class_member: this.currentModel.class_member }),
           ...(this.currentModel.alamat && { alamat: this.currentModel.alamat.trim() }),
           ...(this.currentModel.nohp && { nohp: this.currentModel.nohp.trim() }),
 
           // Manual fields
-          ...(this.currentModel.sosmed && { sosmed: this.currentModel.sosmed.trim() }),
+          // ...(this.currentModel.sosmed && { sosmed: this.currentModel.sosmed.trim() }),
           ...(this.currentModel.jaringan_mvo && { jaringan_mvo: this.currentModel.jaringan_mvo.trim() }),
-          ...(this.currentModel.level && { level: this.currentModel.level }),
+          // ...(this.currentModel.level && { level: this.currentModel.level }),
           ...(this.currentModel.parent_id && { parent_id: parseInt(this.currentModel.parent_id) }),
         };
 

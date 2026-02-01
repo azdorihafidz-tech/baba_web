@@ -40,10 +40,16 @@
               Daftar sekarang
             </v-btn>
           </div>
+          <div class="text-center">
+
+            <v-btn color="amber mt-2" @click="openDownloadLink" :size="linkButtonSize">
+              Download Aplikasi Android
+            </v-btn>
+          </div>
 
           <!-- Brand Footer -->
           <div :class="footerClass">
-            <p :class="footerTitleClass">Belum bisa login, gabung dulu di BABA PARFUME</p>
+            <p :class="footerTitleClass">Belum Bisa Login, Gabung Dulu di BABA PARFUME</p>
           </div>
         </v-card>
       </v-col>
@@ -677,6 +683,21 @@ const goToRegister = () => {
   } catch (error) {
     console.error('Exception in goToRegister:', error)
     showSnackbar('Terjadi kesalahan saat membuka registrasi', 'error')
+  }
+}
+const openDownloadLink = () => {
+  try {
+    if (isButtonLoading.value) return
+
+    const url = 'https://drive.usercontent.google.com/download?id=1q6fifF4ZHl7GZBzwm4JK_kqUXmQznX8b&export=download&authuser=0&confirm=t&uuid=ed5ce839-60cd-4e10-9d82-23bf60cc1e1c&at=APcXIO2R-nVJ81UlwcRNusdHEsnJ:1769850140393'
+
+    // buka di tab baru
+    window.open(url, '_blank')
+
+    console.log('Download link opened')
+  } catch (error) {
+    console.error('Exception in openDownloadLink:', error)
+    showSnackbar('Gagal membuka link download', 'error')
   }
 }
 
