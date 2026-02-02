@@ -17,7 +17,7 @@
                     <v-form @submit.prevent="handleRegister" :class="formClass">
                         <v-text-field v-model="inputRegister.no_id" label="Nomor ID" density="compact"
                             prepend-inner-icon="mdi-card-account-details" variant="outlined" :class="inputClass"
-                            color="amber" base-color="grey-lighten-1" maxlength="16" @input="validateno_id" />
+                            color="amber" base-color="grey-lighten-1" maxlength="16" />
 
                         <v-text-field v-model="inputRegister.nama" label="Nama Lengkap" density="compact"
                             prepend-inner-icon="mdi-account" variant="outlined" :class="inputClass" color="amber"

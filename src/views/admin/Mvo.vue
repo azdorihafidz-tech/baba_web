@@ -129,6 +129,16 @@
             <template v-slot:item.pointbintang="{ item }">
               {{ item.pointbintang || '-' }}
             </template>
+
+            <template v-slot:item.tanggal_repeat_order="{ item }">
+              {{ formatDate(item.tanggal_repeat_order) || '-' }}
+            </template>
+
+            <template v-slot:item.repeat_order="{ item }">
+              <v-chip color="primary" size="small" variant="outlined">
+                {{ item.repeat_order || '-' }}
+              </v-chip>
+            </template>
           </v-data-table>
         </template>
       </CardDataTable>
@@ -590,6 +600,22 @@
                   {{ getMvoCodeById(item.mvo_id) }}
                 </template>
 
+                <template v-slot:item.star_number="{ item }">
+                  <v-chip color="amber" text-color="white" size="small">
+                    <v-icon start size="small">mdi-star</v-icon>
+                    {{ item.pointbintang || 0 }}
+                  </v-chip>
+                </template>
+
+                <template v-slot:item.star_icon="{ item }">
+                  <div class="d-flex justify-center">
+                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                      size="small">
+                      mdi-star
+                    </v-icon>
+                  </div>
+                </template>
+
                 <template v-slot:item.file_path="{ item }">
                   <div class="d-flex align-center">
                     <div v-if="isImageFile(item.file_path)" class="mr-3">
@@ -726,9 +752,48 @@
 
                 <v-row>
                   <v-col cols="12">
-                    <v-text-field label="Poin Per Bintang" v-model.number="documentEditModel.pointbintang" type="number"
-                      min="0" max="5" step="1" class="mb-2" :rules="[requiredRule, pointbintangRule]"
-                      @input="validatePointbintang('edit')" />
+                    <v-select label="Rating Star" v-model="documentEditModel.pointbintang"
+                      :items="[1, 2, 3, 4, 5, 6, 7, 8]" class="mb-2" :rules="[requiredRule, pointbintangRule]" required>
+                      <template v-slot:selection="{ item }">
+                        <div class="d-flex align-center">
+                          <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                          <span>{{ item.value }} Bintang</span>
+                        </div>
+                      </template>
+                      <template v-slot:item="{ item, props }">
+                        <v-list-item v-bind="props" :title="`${item.value} Bintang`">
+                          <template v-slot:prepend>
+                            <div class="d-flex align-center">
+                              <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
+                                mdi-star
+                              </v-icon>
+                            </div>
+                          </template>
+                        </v-list-item>
+                      </template>
+                    </v-select>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <div class="text-caption text-grey">Range Point:</div>
+                    <v-chip color="primary" size="x-small" variant="outlined">
+                      {{ document.repeat_order || '-' }}
+                    </v-chip>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-text-field label="Tanggal Input Dokumen" type="date"
+                      v-model="documentEditModel.tanggal_repeat_order" class="mb-2" :rules="[requiredRule]"
+                      variant="outlined" density="comfortable" prepend-inner-icon="mdi-calendar" />
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field label="Range Point" v-model.number="documentEditModel.repeat_order" type="number"
+                      min="0" max="200" step="0.01" class="mb-2" hint="Masukkan range point 0-200" persistent-hint
+                      :rules="[requiredRule, rangePointRule]" @input="validateRangePoint('edit')" variant="outlined"
+                      density="comfortable" prepend-inner-icon="mdi-chart-line" />
+
                   </v-col>
                 </v-row>
 
@@ -862,6 +927,7 @@
 
                     <!-- Document Info dengan Status Approval -->
                     <v-row class="mb-2" no-gutters>
+
                       <v-col cols="6">
                         <div class="text-caption text-grey">Poin Per Bintang:</div>
                         <div class="font-weight-medium">{{ document.pointbintang || '-' }}</div>
@@ -881,7 +947,7 @@
                       </v-col>
                     </v-row>
 
-                    <v-row class="mb-3" no-gutters v-if="otoritas === 'superadmin'">
+                    <v-row class="mb-3" no-gutters>
                       <v-col cols="5">
                         <div class="text-caption text-grey">Status Admin:</div>
                       </v-col>
@@ -1114,9 +1180,39 @@
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-text-field label="Poin Per Bintang" v-model.number="documentAddModel.pointbintang" type="number"
-                min="0" max="5" step="1" class="mb-2" hint="Masukkan poin yang diberikan per bintang (maksimal 5)"
-                persistent-hint :rules="[requiredRule, pointbintangRule]" @input="validatePointbintang('add')" />
+              <v-select label="Rating Star" v-model="documentAddModel.pointbintang" :items="[1, 2, 3, 4, 5, 6, 7, 8]"
+                class="mb-2" :rules="[requiredRule, pointbintangRule]" required>
+                <template v-slot:selection="{ item }">
+                  <div class="d-flex align-center">
+                    <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                    <span>{{ item.value }} Bintang</span>
+                  </div>
+                </template>
+                <template v-slot:item="{ item, props }">
+                  <v-list-item v-bind="props" :title="`${item.value} Bintang`">
+                    <template v-slot:prepend>
+                      <div class="d-flex align-center">
+                        <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
+                          mdi-star
+                        </v-icon>
+                      </div>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field label="Tanggal Input Dokumen" type="date" v-model="documentAddModel.tanggal_repeat_order"
+                class="mb-2" :rules="[requiredRule]" variant="outlined" density="comfortable"
+                prepend-inner-icon="mdi-calendar" />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field label="Range Point" v-model.number="documentAddModel.repeat_order" type="number" min="0"
+                max="200" step="0.01" class="mb-2" hint="Masukkan range point 0-200" persistent-hint
+                :rules="[requiredRule, rangePointRule]" @input="validateRangePoint('add')" variant="outlined"
+                density="comfortable" prepend-inner-icon="mdi-chart-line" />
             </v-col>
           </v-row>
           <v-row>
@@ -1254,7 +1350,7 @@ export default {
           { key: "province", title: "Provinsi" },
           { key: "parent", title: "Upline" },
           { key: "level", title: "Level" },
-          { key: "status_inputan", title: "Status MVO", sortable: false, align: "center" }, // UBAH TITLE
+          // { key: "status_inputan", title: "Status MVO", sortable: false, align: "center" }, // UBAH TITLE
           { key: "status_inputan_2", title: "Status Admin", sortable: false, align: "center" }, // TAMBAH KOLOM BARU
           { key: "approve", title: "Approve", sortable: false, align: "center" },
           { key: "detail", title: "Detail", sortable: false, align: "center" },
@@ -1292,9 +1388,12 @@ export default {
       documentHeaders: [
         { key: "mvo_code", title: "Kode" },
         { key: "file_name", title: "Nama File" },
-        { key: "pointbintang", title: "Poin Per Bintang", align: "center" },
-        { key: "status_inputan", title: "Status MVO", align: "center" },      // UBAH TITLE
-        { key: "status_inputan_2", title: "Status Admin", align: "center" },  // TAMBAH KOLOM BARU
+        { key: "star_number", title: "Bintang", align: "center" }, // Kolom bintang + angka
+        { key: "star_icon", title: "Rating Star", sortable: false, align: "center" }, // Kolom icon bintang
+        { key: "tanggal_repeat_order", title: "Tanggal Input", align: "center" },
+        { key: "repeat_order", title: "Range Point", align: "center" },
+        { key: "status_inputan", title: "Status MVO", align: "center" },
+        { key: "status_inputan_2", title: "Status Admin", align: "center" },
         { key: "file_path", title: "File Preview", sortable: false, width: "200px" },
         { key: "action", title: "Actions", sortable: false, align: "center" },
       ],
@@ -1340,12 +1439,16 @@ export default {
         mvo_id: "",
         file_name: "",
         pointbintang: "",
+        tanggal_repeat_order: "", // Tambahkan ini
+        repeat_order: "", // Tambahkan ini
         file: null,
       },
       documentEditModel: {
         id: "",
         file_name: "",
         pointbintang: "",
+        tanggal_repeat_order: "", // Tambahkan ini
+        repeat_order: "", // Tambahkan ini
         file: null,
       },
       // File preview model
@@ -1358,6 +1461,25 @@ export default {
   },
 
   computed: {
+    rangePointRule() {
+      return value => {
+        if (value === null || value === undefined || value === '') {
+          return 'Range Point harus diisi';
+        }
+        const num = Number(value);
+        if (isNaN(num)) {
+          return 'Harus berupa angka';
+        }
+        if (num < 0) {
+          return 'Range Point tidak boleh kurang dari 0';
+        }
+        if (num > 200) {
+          return 'Range Point maksimal adalah 200';
+        }
+        return true;
+      };
+    },
+
     displayHeaders() {
       if (this.otoritas === 'superadmin') {
         return this.datatable.headers; // Tampilkan semua kolom untuk superadmin
@@ -1398,7 +1520,7 @@ export default {
     pointbintangRule() {
       return value => {
         if (value === null || value === undefined || value === '') {
-          return 'Poin per bintang harus diisi';
+          return 'Rising Star harus diisi';
         }
         const num = Number(value);
         if (isNaN(num)) {
@@ -1407,12 +1529,10 @@ export default {
         if (num < 0) {
           return 'Poin tidak boleh kurang dari 0';
         }
-        if (num > 5) {
-          return 'Poin maksimal adalah 5';
+        if (num > 8) {
+          return 'Poin maksimal adalah 8';
         }
-        if (!Number.isInteger(num)) {
-          return 'Poin harus berupa bilangan bulat';
-        }
+
         return true;
       };
     },
@@ -1443,34 +1563,37 @@ export default {
   },
 
   methods: {
-    validatePointbintang(mode) {
+
+    validateRangePoint(mode) {
       const model = mode === 'add' ? this.documentAddModel : this.documentEditModel;
 
       // Konversi ke number
-      let value = Number(model.pointbintang);
+      let value = Number(model.repeat_order);
 
-      // Jika NaN atau kosong, set ke 0
-      if (isNaN(value) || model.pointbintang === '') {
-        model.pointbintang = '';
+      // Jika NaN atau kosong, set ke ''
+      if (isNaN(value) || model.repeat_order === '') {
+        model.repeat_order = '';
         return;
       }
 
       // Batasi minimum 0
       if (value < 0) {
-        model.pointbintang = 0;
+        model.repeat_order = 0;
+        this.showSnackbar('Range Point tidak boleh kurang dari 0', 'warning');
         return;
       }
 
-      // Batasi maksimum 5
-      if (value > 5) {
-        model.pointbintang = 5;
-        this.showSnackbar('Poin maksimal adalah 5', 'warning');
+      // Batasi maksimum 200
+      if (value > 200) {
+        model.repeat_order = 200;
+        this.showSnackbar('Range Point maksimal adalah 200', 'warning');
         return;
       }
 
-      // Bulatkan ke integer (hilangkan desimal)
-      model.pointbintang = Math.floor(value);
+      // Terima semua angka (termasuk desimal), tidak perlu Math.floor
+      model.repeat_order = value;
     },
+
     setLevelByMvoType(mvoTypeId) {
       if (!mvoTypeId) {
         this.currentModel.level = "";
@@ -1956,10 +2079,8 @@ export default {
           this.datatable.items = items.filter(item => {
             if (otoritas === "superadmin") {
               return true; // Tampilkan semua untuk superadmin
-            } else if (kode_cabang) {
-              return item.code.includes(kode_cabang);
             }
-            return false; // Jika tidak ada kode_cabang, jangan tampilkan apa-apa
+            return true; // Jika tidak ada kode_cabang, jangan tampilkan apa-apa
           });
 
         } else {
@@ -2152,12 +2273,17 @@ export default {
         return;
       }
 
+      const today = new Date().toISOString().split('T')[0];
+
       this.documentAddModel = {
         mvo_id: mvoId,
         file_name: "",
         pointbintang: "",
+        tanggal_repeat_order: today, // Set default ke hari ini
+        repeat_order: "",
         file: null,
       };
+
       this.isShowDialogAddDocument = true;
     },
 
@@ -2171,15 +2297,26 @@ export default {
     },
 
     async addDocument() {
-      if (!this.documentAddModel.file_name || !this.documentAddModel.pointbintang || !this.documentAddModel.file) {
-        this.showSnackbar("Nama File, Poin, dan File harus diisi", 'error');
+      if (!this.documentAddModel.file_name ||
+        !this.documentAddModel.pointbintang ||
+        !this.documentAddModel.tanggal_repeat_order ||
+        !this.documentAddModel.repeat_order ||
+        !this.documentAddModel.file) {
+        this.showSnackbar("Semua field harus diisi", 'error');
         return;
       }
 
       // Validasi pointbintang
       const point = Number(this.documentAddModel.pointbintang);
-      if (isNaN(point) || point < 0 || point > 5) {
-        this.showSnackbar("Poin per bintang harus antara 0 sampai 5", 'error');
+      if (isNaN(point) || point < 0 || point > 8) {
+        this.showSnackbar("Poin per bintang harus antara 0 sampai 8", 'error');
+        return;
+      }
+
+      // Validasi repeat_order
+      const rangePoint = Number(this.documentAddModel.repeat_order);
+      if (isNaN(rangePoint) || rangePoint < 0 || rangePoint > 200) {
+        this.showSnackbar("Range Point harus antara 0 sampai 200", 'error');
         return;
       }
 
@@ -2192,7 +2329,9 @@ export default {
         const formData = new FormData();
         formData.append('mvo_id', this.documentAddModel.mvo_id);
         formData.append('file_name', this.documentAddModel.file_name);
-        formData.append('pointbintang', Math.floor(point)); // Pastikan integer
+        formData.append('pointbintang', Math.floor(point)); // Tetap integer untuk pointbintang
+        formData.append('tanggal_repeat_order', this.documentAddModel.tanggal_repeat_order);
+        formData.append('repeat_order', rangePoint); // HAPUS Math.floor - kirim angka asli (bisa desimal)
         formData.append('file_path', this.documentAddModel.file);
 
         const response = await axios.post(
@@ -2252,15 +2391,25 @@ export default {
       }
     },
     async updateDocument(id) {
-      if (!this.documentEditModel.file_name || !this.documentEditModel.pointbintang) {
-        this.showSnackbar("Nama File dan Poin harus diisi", "error");
+      if (!this.documentEditModel.file_name ||
+        !this.documentEditModel.pointbintang ||
+        !this.documentEditModel.tanggal_repeat_order ||
+        !this.documentEditModel.repeat_order) {
+        this.showSnackbar("Semua field harus diisi", "error");
         return;
       }
 
       // Validasi pointbintang
       const point = Number(this.documentEditModel.pointbintang);
-      if (isNaN(point) || point < 0 || point > 5) {
-        this.showSnackbar("Poin per bintang harus antara 0 sampai 5", 'error');
+      if (isNaN(point) || point < 0 || point > 8) {
+        this.showSnackbar("Poin per bintang harus antara 0 sampai 8", 'error');
+        return;
+      }
+
+      // Validasi repeat_order
+      const rangePoint = Number(this.documentEditModel.repeat_order);
+      if (isNaN(rangePoint) || rangePoint < 0 || rangePoint > 200) {
+        this.showSnackbar("Range Point harus antara 0 sampai 200", 'error');
         return;
       }
 
@@ -2273,7 +2422,9 @@ export default {
         const formData = new FormData();
         formData.append("mvo_id", this.documentEditModel.mvo_id);
         formData.append("file_name", this.documentEditModel.file_name);
-        formData.append("pointbintang", Math.floor(point)); // Pastikan integer
+        formData.append("pointbintang", Math.floor(point)); // Tetap integer untuk pointbintang
+        formData.append("tanggal_repeat_order", this.documentEditModel.tanggal_repeat_order);
+        formData.append("repeat_order", rangePoint); // HAPUS Math.floor - kirim angka asli (bisa desimal)
 
         if (this.documentEditModel.file) {
           formData.append("file_path", this.documentEditModel.file);
@@ -2681,6 +2832,27 @@ export default {
 </script>
 
 <style scoped>
+/* Star display styling */
+.star-display {
+  display: flex;
+  gap: 2px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+/* Desktop star column */
+:deep(.v-data-table) .v-icon.mdi-star {
+  font-size: 16px;
+  margin: 0 1px;
+}
+
+/* Mobile star styling */
+.mobile-card-details .star-display .v-icon {
+  font-size: 14px;
+}
+
 /* Mobile Detail Cards Styles */
 .detail-mobile-card {
   border-left: 4px solid #FFD700;

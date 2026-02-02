@@ -491,9 +491,16 @@ export default {
       previewFotoProfileAdd: null,
       previewFotoProfileEdit: null,
       otoritasOptions: [
-        { text: "Founder", value: "founder" },
-        { text: "Distributor", value: "distributor" },
-        { text: "MVO", value: "mvo" }
+        { text: "Founder", value: "FO" },
+        { text: "Distributor", value: "DIST" },
+        { text: "MVO", value: "MVO" },
+        { text: "SUPPLIER", value: "SUPPLIER" },
+        { text: "SELL", value: "SELL" },
+        { text: "REGIONAL", value: "REGIONAL" },
+        { text: "RESELLER", value: "RESELLER" },
+        { text: "GM", value: "GM" },
+
+
       ],
       jenisKelaminOptions: [
         { text: 'Laki-laki', value: 'L' },
