@@ -565,10 +565,15 @@
                 <v-icon class="mr-2" color="amber">mdi-star</v-icon>
                 Ranking Bintang Semua Akun
               </v-card-title>
+
+              <!-- FILTER ROLE -->
+              <v-card-text class="pb-0">
+                <v-select v-model="filterRoleStar" :items="roleFilterItems" label="Filter Role" variant="outlined"
+                  density="compact" hide-details class="mb-2" style="max-width: 300px;"></v-select>
+              </v-card-text>
               <v-card-text>
                 <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="dashboardStarHeaders"
-                  :items="dashboardData.summary?.dashboard_star || []" :loading="isLoading" item-key="id"
-                  :items-per-page="10">
+                  :items="filteredDashboardStar" :loading="isLoading" item-key="id" :items-per-page="10">
                   <template v-slot:item.ranking="{ item }">
                     <v-chip :color="getRankColor(item.ranking)" dark size="small">
                       <v-icon v-if="item.ranking <= 3" left size="14">
@@ -631,6 +636,11 @@
                 <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
                 Leaderboard Per Bulan
               </v-card-title>
+              <v-card-text class="pb-0">
+                <v-select v-model="filterRoleBulan" :items="roleFilterItems" label="Filter Role" variant="outlined"
+                  density="compact" hide-details class="mb-2" style="max-width: 300px;"></v-select>
+              </v-card-text>
+
               <v-card-text>
                 <!-- Bulan Selector Chips -->
                 <v-chip-group v-model="selectedLeaderboardMonth" mandatory color="primary" class="mb-3">
@@ -641,7 +651,7 @@
                 </v-chip-group>
 
                 <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="leaderboardPerBulanHeaders"
-                  :items="currentLeaderboardBulanData" :loading="isLoading" item-key="id" :items-per-page="10">
+                  :items="filteredLeaderboardBulanData" :loading="isLoading" item-key="id" :items-per-page="10">
                   <template v-slot:item.ranking="{ item }">
                     <v-chip :color="getRankColor(item.ranking)" dark size="small">
                       <v-icon v-if="item.ranking <= 3" left size="14">
@@ -2087,6 +2097,9 @@ export default {
       daerahDetailModal: false,
       selectedDaerahKey: '',
       selectedDaerahData: [],
+      filterRoleStar: 'ALL',        // untuk Ranking Semua Akun
+      filterRoleBulan: 'ALL',       // untuk Leaderboard Per Bulan  
+      filterRoleDaerah: 'ALL',
 
       // Headers
       dashboardStarHeaders: [
@@ -2225,6 +2238,35 @@ export default {
   },
 
   computed: {
+    roleFilterItems() {
+      return [
+        { title: 'Semua Role', value: 'ALL' },
+        { title: 'MVO', value: 'MVO' },
+        { title: 'Distributor', value: 'DIST' },
+        { title: 'Founder', value: 'FO' }
+      ];
+    },
+
+    // Filtered data untuk Dashboard Star (Ranking Semua Akun)
+    filteredDashboardStar() {
+      const data = this.dashboardData.summary?.dashboard_star || [];
+      if (this.filterRoleStar === 'ALL') return data;
+      return data.filter(item => item.role === this.filterRoleStar);
+    },
+
+    // Filtered data untuk Leaderboard Per Bulan
+    filteredLeaderboardBulanData() {
+      const data = this.currentLeaderboardBulanData;
+      if (this.filterRoleBulan === 'ALL') return data;
+      return data.filter(item => item.role === this.filterRoleBulan);
+    },
+
+    // Filtered data untuk Daerah Detail Modal
+    filteredDaerahDetailData() {
+      const data = this.selectedDaerahData || [];
+      if (this.filterRoleDaerah === 'ALL') return data;
+      return data.filter(item => item.role === this.filterRoleDaerah);
+    },
     availableLeaderboardMonths() {
       if (!this.dashboardData.summary?.leaderboard_per_bulan) return [];
 
