@@ -2062,8 +2062,8 @@ import * as XLSX from "xlsx";
 export default {
   data() {
     return {
-      tab: "dashboard-overview",
-      mobileActiveSection: "overview",
+      tab: "dashboard-accounts",
+      mobileActiveSection: "accounts",
       isLoading: false,
       isLoadingDetail: false,
 
