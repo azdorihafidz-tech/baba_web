@@ -15,7 +15,7 @@
 
                     <!-- Form -->
                     <v-form @submit.prevent="handleRegister" :class="formClass">
-                        <v-text-field v-model="inputRegister.no_id" label="Nomor ID" density="compact"
+                        <v-text-field v-model="inputRegister.no_id" label="No ID" density="compact"
                             prepend-inner-icon="mdi-card-account-details" variant="outlined" :class="inputClass"
                             color="amber" base-color="grey-lighten-1" maxlength="16" @input="validateno_id" />
 
@@ -43,10 +43,10 @@
                             prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" rows="2" auto-grow />
 
-                        <v-combobox v-model="inputRegister.class_member" :items="classMemberOptions" item-title="text"
-                            item-value="value" :return-object="false" density="compact"
-                            prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" clearable />
+                        <v-combobox v-model="inputRegister.class_member" label="Class Member"
+                            :items="classMemberOptions" item-title="text" item-value="value" :return-object="false"
+                            density="compact" prepend-inner-icon="mdi-account-group" variant="outlined"
+                            :class="inputClass" color="amber" base-color="grey-lighten-1" clearable />
 
 
                         <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
@@ -74,6 +74,7 @@
                         <v-file-input v-model="inputRegister.path_gambar_profile" label="Foto Profil"
                             prepend-inner-icon="mdi-camera" accept="image/png, image/jpeg, image/jpg" variant="outlined"
                             :class="inputClass" color="amber" base-color="grey-lighten-1" density="compact"
+                            hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint
                             @change="handleFotoProfileChange" />
 
                         <!-- Preview Foto Profil -->
@@ -404,9 +405,9 @@ export default {
                     return
                 }
 
-                const maxSize = 5 * 1024 * 1024
+                const maxSize = 2 * 1024 * 1024
                 if (file.size > maxSize) {
-                    this.showSnackbar('Ukuran file maksimal 5MB', 'error')
+                    this.showSnackbar('Ukuran file maksimal 2MB', 'error')
                     this.inputRegister.path_gambar_profile = null
                     this.previewFotoProfile = null
                     return

@@ -1,25 +1,5 @@
 <template>
     <v-container fluid class="pa-4">
-        <!-- Header Section -->
-        <!-- <v-row>
-            <v-col cols="12">
-                <v-card class="mb-4" color="grey-darken-4" elevation="8">
-                    <v-card-title class="d-flex align-center justify-space-between pa-4">
-                        <div class="d-flex align-center">
-                            <v-icon size="32" color="amber" class="mr-3">mdi-account-circle</v-icon>
-                            <div>
-                                <h2 class="text-h5 font-weight-bold text-amber">Profil Saya</h2>
-                                <p class="text-caption text-grey-lighten-1 mb-0">Kelola informasi profil Anda</p>
-                            </div>
-                        </div>
-                        <v-chip color="amber" variant="flat" class="text-black font-weight-bold">
-                            {{ userData?.class_member?.toUpperCase() || 'MEMBER' }}
-                        </v-chip>
-                    </v-card-title>
-                </v-card>
-            </v-col>
-        </v-row> -->
-
         <!-- Loading State -->
         <v-row v-if="isLoading" justify="center">
             <v-col cols="12" class="text-center py-12">
@@ -45,25 +25,6 @@
                                     </template>
                                 </v-img>
                             </v-avatar>
-
-                            <!-- Upload Button Overlay -->
-                            <!-- COMMENTED: Upload button untuk ganti foto profil -->
-                            <!-- <v-btn
-                                icon
-                                size="small"
-                                color="amber"
-                                class="position-absolute"
-                                style="bottom: 0; right: 0;"
-                                @click="triggerFileInput"
-                                :loading="isUploadingImage"
-                            >
-                                <v-icon>mdi-camera</v-icon>
-                            </v-btn> -->
-
-                            <!-- Hidden File Input -->
-                            <!-- COMMENTED: Input file untuk upload gambar -->
-                            <!-- <input ref="fileInput" type="file" accept="image/*" style="display: none;"
-                                @change="handleImageUpload" /> -->
                         </div>
 
                         <!-- User Info -->
@@ -114,15 +75,28 @@
                     <!-- Header -->
                     <v-card-title
                         class="profile-header d-flex align-center justify-space-between pa-4 bg-grey-darken-3">
+
                         <div class="d-flex align-center">
                             <v-icon icon="mdi-account-circle" color="amber" size="28" class="mr-3"></v-icon>
-                            <span class="text-h5 font-weight-bold text-amber">Informasi Detail Profil</span>
+                            <span class="text-h5 font-weight-bold text-amber">
+                                Informasi Detail Profil
+                            </span>
                         </div>
-                        <v-chip variant="flat" color="green" text-color="grey-darken-4" class="status-chip">
-                            <v-icon icon="mdi-check-circle" size="16" class="mr-1"></v-icon>
-                            {{ userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif' }}
-                        </v-chip>
+
+                        <div class="d-flex align-center ga-2">
+                            <!-- Tombol Ganti Password -->
+                            <v-btn color="amber" variant="flat" size="small" @click="dialogPassword = true">
+                                <v-icon start>mdi-lock-reset</v-icon>
+                                Ganti Password
+                            </v-btn>
+
+                            <v-chip variant="flat" color="green" text-color="grey-darken-4">
+                                <v-icon icon="mdi-check-circle" size="16" class="mr-1"></v-icon>
+                                {{ userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif' }}
+                            </v-chip>
+                        </div>
                     </v-card-title>
+
 
                     <v-card-text class="pa-6">
                         <v-form ref="profileForm" v-model="formValid">
@@ -237,7 +211,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="6">
-                                                <v-text-field v-model="userData.otoritas" label="Otoritas / Role"
+                                                <v-text-field v-model="userData.otoritas" label="Otoritas"
                                                     prepend-inner-icon="mdi-shield-key" variant="outlined" color="amber"
                                                     readonly bg-color="grey-darken-4" class="profile-field"
                                                     disabled></v-text-field>
@@ -272,6 +246,41 @@
                 </v-btn>
             </template>
         </v-snackbar>
+        <!-- Dialog Ganti Password -->
+        <v-dialog v-model="dialogPassword" max-width="500">
+            <v-card color="grey-darken-4">
+                <v-card-title class="bg-grey-darken-3 text-amber">
+                    <v-icon start>mdi-lock-reset</v-icon>
+                    Ganti Password
+                </v-card-title>
+
+                <v-card-text class="pa-4">
+                    <v-form ref="formPassword" v-model="formPasswordValid">
+
+                        <v-text-field v-model="passwordForm.current_password" label="Password Lama" type="password"
+                            prepend-inner-icon="mdi-lock" variant="outlined" color="amber" :rules="[rules.required]" />
+
+                        <v-text-field v-model="passwordForm.password" label="Password Baru" type="password"
+                            prepend-inner-icon="mdi-lock-plus" variant="outlined" color="amber"
+                            :rules="[rules.required, rules.minPassword]" />
+
+                    </v-form>
+                </v-card-text>
+
+                <v-card-actions class="pa-4">
+                    <v-spacer></v-spacer>
+
+                    <v-btn variant="text" color="grey" @click="dialogPassword = false">
+                        Batal
+                    </v-btn>
+
+                    <v-btn color="amber" :loading="isChangePasswordLoading" @click="changePassword">
+                        Ganti Password
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
     </v-container>
 </template>
 <script>
@@ -283,25 +292,20 @@ export default {
 
     data() {
         return {
+            dialogPassword: false,
+            formPasswordValid: false,
+            isChangePasswordLoading: false,
+
+            passwordForm: {
+                current_password: '',
+                password: ''
+            },
+
             isLoading: true,
-            // COMMENTED: Data untuk edit mode (bisa diaktifkan kembali kapan saja)
-            // isEditMode: false,
-            // isUpdating: false,
-            // isChangingPassword: false,
-            // isUploadingImage: false,
-            // formValid: false,
-            // passwordFormValid: false,
+
             userData: null,
             editedData: {},
-            // COMMENTED: Data untuk change password (bisa diaktifkan kembali kapan saja)
-            // passwordData: {
-            //     current_password: '',
-            //     new_password: '',
-            //     confirm_password: ''
-            // },
-            // showCurrentPassword: false,
-            // showNewPassword: false,
-            // showConfirmPassword: false,
+
             genderOptions: [
                 { title: 'Laki-laki', value: 'L' },
                 { title: 'Perempuan', value: 'P' }
@@ -310,10 +314,9 @@ export default {
                 required: v => !!v || 'Field ini wajib diisi',
                 nik: v => !v || v.length >= 10 || 'NIK minimal 10 karakter',
                 phone: v => !v || /^[0-9+\-() ]+$/.test(v) || 'Format nomor telepon tidak valid',
-                // COMMENTED: Rules untuk password
-                // minLength: v => !v || v.length >= 6 || 'Password minimal 6 karakter',
-                // passwordMatch: v => v === this.passwordData.new_password || 'Password tidak cocok'
+                minPassword: v => !v || v.length >= 3 || 'Password minimal 3 karakter',
             },
+
             snackbar: {
                 show: false,
                 text: '',
@@ -331,6 +334,49 @@ export default {
     },
 
     methods: {
+        async changePassword() {
+            if (!this.$refs.formPassword.validate()) return;
+
+            this.isChangePasswordLoading = true;
+
+            try {
+                const token = Cookies.get('token');
+
+                const response = await axios.put(
+                    'https://babaapi.babaparfume.id/api/me/password',
+                    {
+                        current_password: this.passwordForm.current_password,
+                        password: this.passwordForm.password
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (response.data) {
+                    this.showSnackbar('Password berhasil diganti', 'success');
+
+                    // Reset form
+                    this.passwordForm.current_password = '';
+                    this.passwordForm.password = '';
+
+                    this.dialogPassword = false;
+                }
+
+            } catch (error) {
+                console.error(error);
+
+                const msg =
+                    error.response?.data?.message ||
+                    'Gagal mengganti password';
+
+                this.showSnackbar(msg, 'error');
+            } finally {
+                this.isChangePasswordLoading = false;
+            }
+        },
         async loadUserData() {
             this.isLoading = true;
 
@@ -415,180 +461,6 @@ export default {
 
             return age;
         },
-
-        // ==================== FUNGSI EDIT MODE ====================
-        // Uncomment fungsi-fungsi di bawah untuk mengaktifkan fitur edit
-
-        // toggleEditMode() {
-        //     this.isEditMode = !this.isEditMode;
-        //     if (!this.isEditMode) {
-        //         this.editedData = { ...this.userData };
-        //     }
-        // },
-
-        // cancelEdit() {
-        //     this.isEditMode = false;
-        //     this.editedData = { ...this.userData };
-        // },
-
-        // async saveProfile() {
-        //     if (!this.$refs.profileForm.validate()) {
-        //         this.showSnackbar('Mohon lengkapi semua field yang wajib diisi', 'error');
-        //         return;
-        //     }
-
-        //     this.isUpdating = true;
-
-        //     try {
-        //         const token = Cookies.get('token');
-
-        //         const response = await axios.put(
-        //             'https://babaapi.babaparfume.id/api/user/profile',
-        //             this.editedData,
-        //             {
-        //                 headers: {
-        //                     'Authorization': `Bearer ${token}`,
-        //                     'Content-Type': 'application/json'
-        //                 }
-        //             }
-        //         );
-
-        //         if (response.data && response.data.status === 'success') {
-        //             this.userData = { ...this.editedData };
-        //             localStorage.setItem('user', JSON.stringify(this.userData));
-        //             this.isEditMode = false;
-        //             this.showSnackbar('Profil berhasil diperbarui', 'success');
-        //         }
-        //     } catch (error) {
-        //         console.error('Error updating profile:', error);
-
-        //         let errorMessage = 'Gagal memperbarui profil';
-
-        //         if (error.response?.data?.message) {
-        //             errorMessage = error.response.data.message;
-        //         }
-
-        //         this.showSnackbar(errorMessage, 'error');
-        //     } finally {
-        //         this.isUpdating = false;
-        //     }
-        // },
-
-        // ==================== FUNGSI CHANGE PASSWORD ====================
-        // Uncomment fungsi di bawah untuk mengaktifkan fitur ganti password
-
-        // async changePassword() {
-        //     if (!this.$refs.passwordForm.validate()) {
-        //         this.showSnackbar('Mohon lengkapi semua field password', 'error');
-        //         return;
-        //     }
-
-        //     this.isChangingPassword = true;
-
-        //     try {
-        //         const token = Cookies.get('token');
-
-        //         const response = await axios.post(
-        //             'https://babaapi.babaparfume.id/api/user/change-password',
-        //             {
-        //                 current_password: this.passwordData.current_password,
-        //                 new_password: this.passwordData.new_password,
-        //                 new_password_confirmation: this.passwordData.confirm_password
-        //             },
-        //             {
-        //                 headers: {
-        //                     'Authorization': `Bearer ${token}`,
-        //                     'Content-Type': 'application/json'
-        //                 }
-        //             }
-        //         );
-
-        //         if (response.data && response.data.status === 'success') {
-        //             this.passwordData = {
-        //                 current_password: '',
-        //                 new_password: '',
-        //                 confirm_password: ''
-        //             };
-        //             this.$refs.passwordForm.reset();
-        //             this.showSnackbar('Password berhasil diubah', 'success');
-        //         }
-        //     } catch (error) {
-        //         console.error('Error changing password:', error);
-
-        //         let errorMessage = 'Gagal mengubah password';
-
-        //         if (error.response?.data?.message) {
-        //             errorMessage = error.response.data.message;
-        //         } else if (error.response?.status === 401) {
-        //             errorMessage = 'Password lama tidak sesuai';
-        //         }
-
-        //         this.showSnackbar(errorMessage, 'error');
-        //     } finally {
-        //         this.isChangingPassword = false;
-        //     }
-        // },
-
-        // ==================== FUNGSI UPLOAD IMAGE ====================
-        // Uncomment fungsi-fungsi di bawah untuk mengaktifkan fitur upload foto
-
-        // triggerFileInput() {
-        //     this.$refs.fileInput.click();
-        // },
-
-        // async handleImageUpload(event) {
-        //     const file = event.target.files[0];
-
-        //     if (!file) return;
-
-        //     if (!file.type.startsWith('image/')) {
-        //         this.showSnackbar('File harus berupa gambar', 'error');
-        //         return;
-        //     }
-
-        //     if (file.size > 5 * 1024 * 1024) {
-        //         this.showSnackbar('Ukuran file maksimal 5MB', 'error');
-        //         return;
-        //     }
-
-        //     this.isUploadingImage = true;
-
-        //     try {
-        //         const token = Cookies.get('token');
-        //         const formData = new FormData();
-        //         formData.append('profile_image', file);
-
-        //         const response = await axios.post(
-        //             'https://babaapi.babaparfume.id/api/user/upload-profile-image',
-        //             formData,
-        //             {
-        //                 headers: {
-        //                     'Authorization': `Bearer ${token}`,
-        //                     'Content-Type': 'multipart/form-data'
-        //                 }
-        //             }
-        //         );
-
-        //         if (response.data && response.data.status === 'success') {
-        //             this.userData.path_gambar_profile = response.data.data.path_gambar_profile;
-        //             localStorage.setItem('user', JSON.stringify(this.userData));
-        //             this.showSnackbar('Foto profil berhasil diperbarui', 'success');
-        //         }
-        //     } catch (error) {
-        //         console.error('Error uploading image:', error);
-
-        //         let errorMessage = 'Gagal mengupload foto profil';
-
-        //         if (error.response?.data?.message) {
-        //             errorMessage = error.response.data.message;
-        //         }
-
-        //         this.showSnackbar(errorMessage, 'error');
-        //     } finally {
-        //         this.isUploadingImage = false;
-        //         event.target.value = '';
-        //     }
-        // },
 
         showSnackbar(text, color = 'success') {
             this.snackbar.text = text;
