@@ -641,7 +641,6 @@ const handleLogin = async () => {
     isButtonLoading.value = false
   }
 }
-
 const showSnackbar = (text, color = 'success') => {
   contentSnackbar.value.text = text
   contentSnackbar.value.color = color

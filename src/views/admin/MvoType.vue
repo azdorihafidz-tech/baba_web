@@ -28,6 +28,20 @@
           <template v-slot:item.no="{ index }">
             {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
           </template>
+          <template v-slot:item.star_number="{ item }">
+            <v-chip color="amber" text-color="white" small>
+              <v-icon left small>mdi-star</v-icon>
+              {{ item.jlh_bintang || 0 }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.star_icon="{ item }">
+            <div class="d-flex justify-center">
+              <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#FFD700' : '#e0e0e0'" small>
+                mdi-star
+              </v-icon>
+            </div>
+          </template>
           <template v-slot:item.action="{ item }">
             <v-tooltip text="Edit" color="#125C13" location="top start">
               <template v-slot:activator="{ props }">
@@ -115,6 +129,25 @@
 
             <v-row class="mb-3">
               <v-col cols="12" class="detail-label">
+                <strong>Rating Bintang:</strong>
+              </v-col>
+              <v-col cols="12" class="detail-value">
+                <div class="d-flex align-center gap-2">
+                  <v-chip color="amber" text-color="white" small>
+                    <v-icon left small>mdi-star</v-icon>
+                    {{ item.jlh_bintang || 0 }} Bintang
+                  </v-chip>
+                  <div class="star-display">
+                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#FFD700' : '#e0e0e0'" small>
+                      mdi-star
+                    </v-icon>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+
+            <v-row class="mb-3">
+              <v-col cols="12" class="detail-label">
                 <strong>Deskripsi:</strong>
               </v-col>
               <v-col cols="12" class="detail-value description-text">
@@ -145,7 +178,7 @@
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
         <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
-        <span class="dialog-title">TAMBAH DATA Tipe Akun</span>
+        <span class="dialog-title">TAMBAH DATA TIPE AKUN</span>
       </v-card-title>
       <v-card-text class="dialog-content">
         <v-row>
@@ -154,6 +187,28 @@
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field label="Level" v-model="modelAdd.level" class="mb-2 mt-4" :rules="[rules.required]" required />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-select label="Rating Bintang" v-model="modelAdd.jlh_bintang" :items="[1, 2, 3, 4, 5, 6, 7, 8]"
+              class="mb-2 mt-4" :rules="[rules.required]" required item-title="text" item-value="value">
+              <template v-slot:selection="{ item }">
+                <div class="d-flex align-center">
+                  <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                  <span>{{ item.value }} Bintang</span>
+                </div>
+              </template>
+              <template v-slot:item="{ item, props }">
+                <v-list-item v-bind="props" :title="`${item.value} Bintang`">
+                  <template v-slot:prepend>
+                    <div class="d-flex align-center">
+                      <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
+                        mdi-star
+                      </v-icon>
+                    </div>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -179,7 +234,7 @@
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
         <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
-        <span class="dialog-title">EDIT DATA Tipe Akun</span>
+        <span class="dialog-title">EDIT DATA TIPE AKUN</span>
       </v-card-title>
       <v-card-text class="dialog-content">
         <v-row>
@@ -189,6 +244,28 @@
           <v-col cols="12" md="6">
             <v-text-field label="Level" v-model="modelEdit.level" class="mb-2 mt-4" :rules="[rules.required]"
               required />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-select label="Rating Bintang" v-model="modelEdit.jlh_bintang" :items="[1, 2, 3, 4, 5, 6, 7, 8]"
+              class="mb-2 mt-4" :rules="[rules.required]" required item-title="text" item-value="value">
+              <template v-slot:selection="{ item }">
+                <div class="d-flex align-center">
+                  <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                  <span>{{ item.value }} Bintang</span>
+                </div>
+              </template>
+              <template v-slot:item="{ item, props }">
+                <v-list-item v-bind="props" :title="`${item.value} Bintang`">
+                  <template v-slot:prepend>
+                    <div class="d-flex align-center">
+                      <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
+                        mdi-star
+                      </v-icon>
+                    </div>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
           </v-col>
         </v-row>
         <v-row>
@@ -292,6 +369,8 @@ export default {
           { key: "no", title: "No", sortable: false },
           { key: "name", title: "Name" },
           { key: "level", title: "Level" },
+          { key: "star_number", title: "Bintang", align: "center" }, // Kolom bintang + angka
+          { key: "star_icon", title: "Rating", sortable: false, align: "center" }, // Kolom icon bintang
           { key: "description", title: "Description" },
           { key: "action", title: "Actions", sortable: false, align: "center" },
         ],
@@ -301,12 +380,14 @@ export default {
         name: "",
         level: "",
         description: "",
+        jlh_bintang: 1, // Tambahkan ini
       },
       modelEdit: {
         id: "",
         name: "",
         level: "",
         description: "",
+        jlh_bintang: 1, // Tambahkan ini
       },
       modelDelete: {
         id: "",
@@ -327,7 +408,8 @@ export default {
         return (
           (item.name && item.name.toLowerCase().includes(searchTerm)) ||
           (item.level && item.level.toLowerCase().includes(searchTerm)) ||
-          (item.description && item.description.toLowerCase().includes(searchTerm))
+          (item.description && item.description.toLowerCase().includes(searchTerm)) ||
+          (item.jlh_bintang && item.jlh_bintang.toString().includes(searchTerm))
         );
       });
     }
@@ -413,6 +495,7 @@ export default {
       this.modelAdd.name = "";
       this.modelAdd.level = "";
       this.modelAdd.description = "";
+      this.modelAdd.jlh_bintang = 1;
     },
 
     clearEditForm() {
@@ -420,6 +503,7 @@ export default {
       this.modelEdit.name = "";
       this.modelEdit.level = "";
       this.modelEdit.description = "";
+      this.modelEdit.jlh_bintang = 1;
     },
 
     getAllMvoType() {
@@ -468,9 +552,10 @@ export default {
       this.isButtonLoading = true;
 
       const payload = {
-        name: this.modelAdd.name,
+        name: this.modelAdd.name, // atau modelEdit untuk update
         level: this.modelAdd.level,
         description: this.modelAdd.description,
+        jlh_bintang: this.modelAdd.jlh_bintang, // Ganti ke jlh_bintang
       };
 
       axios.post("https://babaapi.babaparfume.id/api/mvo-type", payload, {
@@ -525,6 +610,7 @@ export default {
             this.modelEdit.name = data.name;
             this.modelEdit.level = data.level;
             this.modelEdit.description = data.description;
+            this.modelEdit.jlh_bintang = data.jlh_bintang || 1;
           } else {
             this.showSnackbar(response, true);
             this.isShowDialogEdit = false;
@@ -554,6 +640,7 @@ export default {
         name: this.modelEdit.name,
         level: this.modelEdit.level,
         description: this.modelEdit.description,
+        jlh_bintang: this.modelEdit.jlh_bintang,
       };
 
       console.log('Data yang akan dikirim untuk update Tipe Akun:', payload);
@@ -641,6 +728,27 @@ export default {
 </script>
 
 <style scoped>
+/* Star display styling */
+.star-display {
+  display: flex;
+  gap: 2px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+/* Desktop star column */
+:deep(.v-data-table) .v-icon.mdi-star {
+  font-size: 16px;
+  margin: 0 1px;
+}
+
+/* Mobile star styling */
+.mobile-card-details .star-display .v-icon {
+  font-size: 14px;
+}
+
 /* Desktop Table Styling */
 :deep(.v-data-table) {
   border: 1px solid #000000;

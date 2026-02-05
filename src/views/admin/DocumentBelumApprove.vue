@@ -549,7 +549,7 @@ export default {
           { key: "mvo_nama", title: "Nama Akun" },
           { key: "file_name", title: "Nama File" },
           { key: "pointbintang", title: "Poin Per Bintang", align: "center" },
-          { key: "status_inputan", title: "Status MVO", align: "center" },
+          // { key: "status_inputan", title: "Status MVO", align: "center" },
           { key: "status_inputan_2", title: "Status Admin", align: "center" },
           { key: "file_path", title: "File Preview", sortable: false, width: "250px" },
           { key: "actions", title: "Actions", sortable: false, align: "center", width: "200px" },
@@ -574,18 +574,18 @@ export default {
     filteredItems() {
       let filtered = this.datatable.items;
 
-      if (this.otoritas === 'mvo') {
-        filtered = filtered.filter(item => {
-          const status = item.status_inputan?.toLowerCase();
-          return status !== 'approved';
-        });
-      } else if (this.otoritas === 'superadmin') {
-        filtered = filtered.filter(item => {
-          const status1 = item.status_inputan?.toLowerCase();
-          const status2 = item.status_inputan_2?.toLowerCase();
-          return status1 === 'approved' && (!status2 || status2 !== 'approved');
-        });
-      }
+      // if (this.otoritas === 'mvo') {
+      //   filtered = filtered.filter(item => {
+      //     const status = item.status_inputan?.toLowerCase();
+      //     return status !== 'approved';
+      //   });
+      // } else if (this.otoritas === 'superadmin') {
+      //   filtered = filtered.filter(item => {
+      //     const status1 = item.status_inputan?.toLowerCase();
+      //     const status2 = item.status_inputan_2?.toLowerCase();
+      //     return status1 === 'approved' && (!status2 || status2 !== 'approved');
+      //   });
+      // }
 
       if (this.datatable.search) {
         const searchTerm = this.datatable.search.toLowerCase();
