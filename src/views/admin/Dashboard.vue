@@ -2472,7 +2472,7 @@ export default {
       this.isLoading = true;
       try {
         const dashboardResponse = await axios.get(
-          "https://babaapi.babaparfume.id/api/dashboard",
+          "https://babaapi.teknosof.com/api/dashboard",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -2486,7 +2486,7 @@ export default {
         }
 
         const mvoResponse = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo",
+          "https://babaapi.teknosof.com/api/mvo",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -2497,7 +2497,7 @@ export default {
         }
 
         const documentResponse = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo-document",
+          "https://babaapi.teknosof.com/api/mvo-document",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

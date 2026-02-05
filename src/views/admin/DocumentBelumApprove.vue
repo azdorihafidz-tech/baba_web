@@ -682,7 +682,7 @@ export default {
 
       try {
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/mvo-document/${this.editModel.id}`,
+          `https://babaapi.teknosof.com/api/mvo-document/${this.editModel.id}`,
           formData,
           {
             headers: {
@@ -764,7 +764,7 @@ export default {
 
     getFullFileUrl(filePath) {
       if (!filePath) return '';
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      return `https://babaapi.teknosof.com/project/public/${filePath}`;
     },
 
     handleImageError(event) {
@@ -829,13 +829,13 @@ export default {
       let requestData = {};
 
       if (this.otoritas === 'mvo') {
-        endpoint = `https://babaapi.babaparfume.id/api/mvo-documents/${model.id}/approve`;
+        endpoint = `https://babaapi.teknosof.com/api/mvo-documents/${model.id}/approve`;
         successMessage = "Dokumen berhasil disetujui oleh MVO";
         if (model.pointbintang) {
           requestData.pointbintang = model.pointbintang;
         }
       } else if (this.otoritas === 'superadmin') {
-        endpoint = `https://babaapi.babaparfume.id/api/superadmin/${model.id}/approvedoc`;
+        endpoint = `https://babaapi.teknosof.com/api/superadmin/${model.id}/approvedoc`;
         successMessage = "Dokumen berhasil disetujui oleh Superadmin";
       } else {
         this.showSnackbar("Anda tidak memiliki akses untuk approve", 'error');
@@ -915,7 +915,7 @@ export default {
       }
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", {
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -941,7 +941,7 @@ export default {
       this.isTableLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", {
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo-document", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

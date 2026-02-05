@@ -472,7 +472,7 @@ export default {
 
             this.isTableLoading = true;
             axios
-                .get("https://babaapi.babaparfume.id/api/toko-internal", {
+                .get("https://babaapi.teknosof.com/api/toko-internal", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -507,7 +507,7 @@ export default {
             this.isButtonLoading = true;
             axios
                 .post(
-                    "https://babaapi.babaparfume.id/api/toko-internal",
+                    "https://babaapi.teknosof.com/api/toko-internal",
                     {
                         nama_toko: this.modelAdd.nama_toko,
                         cabang: this.modelAdd.cabang,
@@ -548,7 +548,7 @@ export default {
             this.isShowDialogEdit = true;
 
             axios
-                .get(`https://babaapi.babaparfume.id/api/toko-internal/${id}`, {
+                .get(`https://babaapi.teknosof.com/api/toko-internal/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -594,7 +594,7 @@ export default {
             this.isButtonLoading = true;
             axios
                 .put(
-                    `https://babaapi.babaparfume.id/api/toko-internal/${this.modelEdit.id}`,
+                    `https://babaapi.teknosof.com/api/toko-internal/${this.modelEdit.id}`,
                     updateData,
                     {
                         headers: {
@@ -633,7 +633,7 @@ export default {
 
             this.isButtonLoading = true;
             axios
-                .delete(`https://babaapi.babaparfume.id/api/toko-internal/${id}`, {
+                .delete(`https://babaapi.teknosof.com/api/toko-internal/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: "application/json",

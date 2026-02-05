@@ -106,13 +106,13 @@ export default {
             isLoading.value = true;
             try {
                 const [dashboardResponse, mvoResponse, documentResponse] = await Promise.all([
-                    axios.get("https://babaapi.babaparfume.id/api/dashboard", {
+                    axios.get("https://babaapi.teknosof.com/api/dashboard", {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                    axios.get("https://babaapi.babaparfume.id/api/mvo", {
+                    axios.get("https://babaapi.teknosof.com/api/mvo", {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                    axios.get("https://babaapi.babaparfume.id/api/mvo-document", {
+                    axios.get("https://babaapi.teknosof.com/api/mvo-document", {
                         headers: { Authorization: `Bearer ${token}` },
                     })
                 ]);
@@ -156,7 +156,7 @@ export default {
         }
 
         const showImage = (filePath) => {
-            selectedImageUrl.value = `https://babaapi.babaparfume.id/storage/${filePath}`;
+            selectedImageUrl.value = `https://babaapi.teknosof.com/storage/${filePath}`;
             imageModal.value = true;
         }
 

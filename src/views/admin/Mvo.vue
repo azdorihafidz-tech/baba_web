@@ -1637,7 +1637,7 @@ export default {
 
       this.isLoadingUsers = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/user", { headers });
+        const response = await axios.get("https://babaapi.teknosof.com/api/user", { headers });
 
         if (response.data.status === "success") {
           const allUsers = response.data.data;
@@ -1685,7 +1685,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.get(`https://babaapi.babaparfume.id/api/user/${userId}`, { headers });
+        const response = await axios.get(`https://babaapi.teknosof.com/api/user/${userId}`, { headers });
         console.log('User detail loaded:', response.data); // Debug
 
         if (response.data.status === "success") {
@@ -1814,10 +1814,10 @@ export default {
       let successMessage = '';
 
       if (this.otoritas === 'mvo') {
-        endpoint = `https://babaapi.babaparfume.id/api/mvo-documents/${id}/approve`;
+        endpoint = `https://babaapi.teknosof.com/api/mvo-documents/${id}/approve`;
         successMessage = "Dokumen berhasil disetujui oleh MVO";
       } else if (this.otoritas === 'superadmin') {
-        endpoint = `https://babaapi.babaparfume.id/api/superadmin/${id}/approvedoc`;
+        endpoint = `https://babaapi.teknosof.com/api/superadmin/${id}/approvedoc`;
         successMessage = "Dokumen berhasil disetujui oleh Superadmin";
       } else {
         this.showSnackbar("Anda tidak memiliki akses untuk approve", 'error');
@@ -1933,10 +1933,10 @@ export default {
       let successMessage = '';
 
       if (this.otoritas === 'mvo') {
-        endpoint = `https://babaapi.babaparfume.id/api/mvo/${id}/approve`;
+        endpoint = `https://babaapi.teknosof.com/api/mvo/${id}/approve`;
         successMessage = "Data berhasil disetujui oleh MVO";
       } else if (this.otoritas === 'superadmin') {
-        endpoint = `https://babaapi.babaparfume.id/api/superadmin/${id}/approve`;
+        endpoint = `https://babaapi.teknosof.com/api/superadmin/${id}/approve`;
         successMessage = "Data berhasil disetujui oleh Superadmin";
       } else {
         this.showSnackbar("Anda tidak memiliki akses untuk approve", 'error');
@@ -2036,7 +2036,7 @@ export default {
 
       this.isTableLoading = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", { headers });
 
         if (response.data.status === "success") {
           const allItems = response.data.data;
@@ -2109,7 +2109,7 @@ export default {
 
       this.isLoadingMvoTypes = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-type", { headers });
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo-type", { headers });
         if (response.data.status === "success") {
           this.mvoTypes = response.data.data;
         }
@@ -2126,7 +2126,7 @@ export default {
 
       this.isLoadingProvinces = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", { headers });
+        const response = await axios.get("https://babaapi.teknosof.com/api/provinsi", { headers });
         if (response.data.status === "success") {
           this.provinces = response.data.data;
           console.log('provinsi', this.provinces);
@@ -2175,7 +2175,7 @@ export default {
     },
 
     getFullFileUrl(filePath) {
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      return `https://babaapi.teknosof.com/project/public/${filePath}`;
     },
 
     // Debug method untuk getMvoCodeById
@@ -2214,7 +2214,7 @@ export default {
       try {
         // Get document data
         const response = await axios.get(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
+          `https://babaapi.teknosof.com/api/mvo-document/${id}`,
           { headers }
         );
 
@@ -2252,7 +2252,7 @@ export default {
 
       this.isLoadingDocuments = true;
       try {
-        const response = await axios.get(`https://babaapi.babaparfume.id/api/mvo-document`, { headers });
+        const response = await axios.get(`https://babaapi.teknosof.com/api/mvo-document`, { headers });
         if (response.data.status === "success") {
           this.documentItems = response.data.data.filter(doc => doc.mvo_id == mvoId) || [];
         } else {
@@ -2335,7 +2335,7 @@ export default {
         formData.append('file_path', this.documentAddModel.file);
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/mvo-document",
+          "https://babaapi.teknosof.com/api/mvo-document",
           formData,
           {
             headers: {
@@ -2361,7 +2361,7 @@ export default {
       try {
         // Get document data
         const response = await axios.get(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
+          `https://babaapi.teknosof.com/api/mvo-document/${id}`,
           { headers }
         );
 
@@ -2431,7 +2431,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
+          `https://babaapi.teknosof.com/api/mvo-document/${id}`,
           formData,
           {
             headers: {
@@ -2463,7 +2463,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.delete(`https://babaapi.babaparfume.id/api/mvo-document/${id}`, { headers });
+        const response = await axios.delete(`https://babaapi.teknosof.com/api/mvo-document/${id}`, { headers });
 
         if (response.data.status === "success") {
           this.showSnackbar(response.data.message || "Dokumen berhasil dihapus");
@@ -2602,7 +2602,7 @@ export default {
         if (this.provinces.length === 0) await this.getProvinces();
         if (this.parentMvoOptions.length === 0) await this.getAllMvo();
 
-        const response = await axios.get(`https://babaapi.babaparfume.id/api/mvo/${id}`, { headers });
+        const response = await axios.get(`https://babaapi.teknosof.com/api/mvo/${id}`, { headers });
 
         if (response.data.status === "success") {
           const data = response.data.data;
@@ -2684,7 +2684,7 @@ export default {
         console.log('Data yang akan dikirim:', dataToSend); // Debug
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/mvo",
+          "https://babaapi.teknosof.com/api/mvo",
           dataToSend,
           { headers }
         );
@@ -2731,7 +2731,7 @@ export default {
 
       try {
         const response = await axios.put(
-          `https://babaapi.babaparfume.id/api/mvo/${this.currentModel.id}`,
+          `https://babaapi.teknosof.com/api/mvo/${this.currentModel.id}`,
           this.currentModel,
           { headers }
         );
@@ -2758,7 +2758,7 @@ export default {
 
       try {
         const response = await axios.delete(
-          `https://babaapi.babaparfume.id/api/mvo/${id}`,
+          `https://babaapi.teknosof.com/api/mvo/${id}`,
           { headers }
         );
 
@@ -2776,7 +2776,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
 
-      const printUrl = `https://babaapi.babaparfume.id/api/mvo/${id}/print`;
+      const printUrl = `https://babaapi.teknosof.com/api/mvo/${id}/print`;
 
       try {
         const response = await axios.get(printUrl, {

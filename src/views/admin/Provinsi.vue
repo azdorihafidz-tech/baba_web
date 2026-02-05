@@ -379,7 +379,7 @@ export default {
 
             this.isTableLoading = true;
             axios
-                .get("https://babaapi.babaparfume.id/api/provinsi", {
+                .get("https://babaapi.teknosof.com/api/provinsi", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -420,7 +420,7 @@ export default {
             this.isButtonLoading = true;
             axios
                 .post(
-                    "https://babaapi.babaparfume.id/api/provinsi",
+                    "https://babaapi.teknosof.com/api/provinsi",
                     {
                         code: this.modelAdd.code,
                         name: this.modelAdd.name,
@@ -463,7 +463,7 @@ export default {
             this.isShowDialogEdit = true;
 
             axios
-                .get(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .get(`https://babaapi.teknosof.com/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -510,7 +510,7 @@ export default {
             this.isButtonLoading = true;
             axios
                 .put(
-                    `https://babaapi.babaparfume.id/api/provinsi/${this.modelEdit.id}`,
+                    `https://babaapi.teknosof.com/api/provinsi/${this.modelEdit.id}`,
                     updateData,
                     {
                         headers: {
@@ -553,7 +553,7 @@ export default {
 
             this.isButtonLoading = true;
             axios
-                .delete(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .delete(`https://babaapi.teknosof.com/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: "application/json",

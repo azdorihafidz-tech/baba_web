@@ -290,7 +290,7 @@ export default {
 
     mounted() {
         console.log('BABA Parfum Register Form mounted with API Provinsi and Otoritas')
-        console.log('Provinsi API Endpoint:', 'https://babaapi.babaparfume.id/api/provinsi')
+        console.log('Provinsi API Endpoint:', 'https://babaapi.teknosof.com/api/provinsi')
         this.debugRouteInfo()
         this.fetchProvinsiData()
         this.getAllMvoType()
@@ -303,7 +303,7 @@ export default {
             try {
                 console.log('Fetching provinsi data from API...')
 
-                const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
+                const response = await axios.get('https://babaapi.teknosof.com/api/provinsi', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -351,7 +351,7 @@ export default {
             try {
                 console.log('Fetching mvotype data from API...')
 
-                const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
+                const response = await axios.get('https://babaapi.teknosof.com/api/mvo-type', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -449,8 +449,8 @@ export default {
             }
 
             const apiUrls = [
-                'https://babaapi.babaparfume.id/api/user',
-                'https://babaapi.babaparfume.id/api/user'
+                'https://babaapi.teknosof.com/api/user',
+                'https://babaapi.teknosof.com/api/user'
             ]
 
             const requestConfig = {

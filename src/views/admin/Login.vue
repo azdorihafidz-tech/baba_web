@@ -426,7 +426,7 @@ const fetchHeaderData = async (token, userCabang = null) => {
     let headerResponse
 
     try {
-      headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
+      headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header')
     } catch (httpsError) {
       console.warn('Login - HTTPS header request failed, trying HTTP:', httpsError.message)
 
@@ -434,7 +434,7 @@ const fetchHeaderData = async (token, userCabang = null) => {
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
+        headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header')
       } else {
         throw httpsError
       }
@@ -525,7 +525,7 @@ const handleLogin = async () => {
     let response
 
     try {
-      response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
+      response = await apiClient.post('https://babaapi.teknosof.com/api/login', loginData)
     } catch (httpsError) {
       console.warn('HTTPS failed, trying HTTP:', httpsError.message)
 
@@ -533,7 +533,7 @@ const handleLogin = async () => {
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
+        response = await apiClient.post('https://babaapi.teknosof.com/api/login', loginData)
       } else {
         throw httpsError
       }

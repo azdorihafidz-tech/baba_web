@@ -343,7 +343,7 @@ export default {
                 const token = Cookies.get('token');
 
                 const response = await axios.put(
-                    'https://babaapi.babaparfume.id/api/me/password',
+                    'https://babaapi.teknosof.com/api/me/password',
                     {
                         current_password: this.passwordForm.current_password,
                         password: this.passwordForm.password
@@ -407,7 +407,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('https://babaapi.babaparfume.id/api/user/profile', {
+                const response = await axios.get('https://babaapi.teknosof.com/api/user/profile', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -436,7 +436,7 @@ export default {
                 }
 
                 const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-                return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+                return `https://babaapi.teknosof.com/project/public/${cleanPath}`;
             }
 
             return this.defaultProfileImage;

@@ -592,7 +592,7 @@ export default {
         return;
       }
 
-      axios.get("https://babaapi.babaparfume.id/api/mvo-type", {
+      axios.get("https://babaapi.teknosof.com/api/mvo-type", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -814,7 +814,7 @@ export default {
 
       this.isProvinsiLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/provinsi", {
+        .get("https://babaapi.teknosof.com/api/provinsi", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -845,7 +845,7 @@ export default {
 
       this.isJabatanLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/jabatan", {
+        .get("https://babaapi.teknosof.com/api/jabatan", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -933,7 +933,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/user", {
+        .get("https://babaapi.teknosof.com/api/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -999,7 +999,7 @@ export default {
       this.isButtonLoading = true;
       axios
         .post(
-          "https://babaapi.babaparfume.id/api/user",
+          "https://babaapi.teknosof.com/api/user",
           formData,
           {
             headers: {
@@ -1046,7 +1046,7 @@ export default {
       console.log('Mengambil data user dengan ID:', id);
 
       axios
-        .get(`https://babaapi.babaparfume.id/api/user/${id}`, {
+        .get(`https://babaapi.teknosof.com/api/user/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -1140,7 +1140,7 @@ export default {
       this.isButtonLoading = true;
       axios
         .post(
-          `https://babaapi.babaparfume.id/api/user/${this.modelEdit.id}`,
+          `https://babaapi.teknosof.com/api/user/${this.modelEdit.id}`,
           formData,
           {
             headers: {
@@ -1181,7 +1181,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.babaparfume.id/api/user/${id}`, {
+        .delete(`https://babaapi.teknosof.com/api/user/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1213,7 +1213,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .post(`https://babaapi.babaparfume.id/api/user/aktivasi/${id}`, {}, {
+        .post(`https://babaapi.teknosof.com/api/user/aktivasi/${id}`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

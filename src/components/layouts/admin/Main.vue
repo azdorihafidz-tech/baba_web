@@ -244,7 +244,7 @@ export default {
       }
 
       const cleanPath = pathGambarHeader.startsWith('/') ? pathGambarHeader.substring(1) : pathGambarHeader;
-      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      const httpsUrl = `https://babaapi.teknosof.com/project/public/${cleanPath}`;
 
       return httpsUrl;
     },
@@ -273,7 +273,7 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header');
+          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header');
         } catch (httpsError) {
           console.warn('Main - HTTPS failed, trying HTTP:', httpsError.message);
 
@@ -281,7 +281,7 @@ export default {
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header');
+            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header');
           } else {
             throw httpsError;
           }

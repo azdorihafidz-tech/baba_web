@@ -456,7 +456,7 @@ export default {
       this.isTableLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", {
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
