@@ -218,9 +218,9 @@ export default {
   },
 
   created() {
-    const otoritas = localStorage.getItem("otoritas");
+    const mvo_type_id = localStorage.getItem("mvo_type_id");
 
-    if (otoritas === "superadmin") {
+    if (mvo_type_id === "superadmin") {
       this.linkMenu = this.allMenus.DIREKSI;
     } else {
       this.linkMenu = this.allMenus.DIREKSI.filter((item) =>

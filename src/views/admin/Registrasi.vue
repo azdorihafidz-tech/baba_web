@@ -43,22 +43,53 @@
                             prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" rows="2" auto-grow />
 
-                        <v-combobox v-model="inputRegister.class_member" label="Class Member"
-                            :items="classMemberOptions" item-title="text" item-value="value" :return-object="false"
-                            density="compact" prepend-inner-icon="mdi-account-group" variant="outlined"
-                            :class="inputClass" color="amber" base-color="grey-lighten-1" clearable />
-
-
                         <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
                             prepend-inner-icon="mdi-gender-male-female" variant="outlined" :items="jenisKelaminOptions"
                             item-title="text" item-value="value" :class="inputClass" color="amber"
                             base-color="grey-lighten-1" clearable />
 
+
+                        <v-combobox v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
+                            item-title="text" item-value="value" :return-object="false" density="compact"
+                            prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass" color="amber"
+                            base-color="grey-lighten-1" clearable />
+
+
                         <v-select v-model="inputRegister.cabang" label="Cabang (Provinsi)" density="compact"
                             prepend-inner-icon="mdi-map-marker" variant="outlined" :items="cabangOptions"
                             item-title="text" item-value="value" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
-                            :disabled="loadingProvinsi" />
+                            base-color="grey-lighten-1" clearable :loading="loadingProvinsi" :disabled="loadingProvinsi"
+                            @update:modelValue="onCabangChange" />
+                        <!-- MVO -->
+                        <v-select v-model="inputRegister.upline_1" label="Pilih MVO" :items="mvoOptions"
+                            item-title="text" item-value="value" :loading="loadingMvo" :disabled="!inputRegister.cabang"
+                            @update:modelValue="onMvoChange" />
+
+                        <!-- REGIONAL -->
+                        <v-select v-model="inputRegister.upline_2" label="Pilih Regional" :items="regionalOptions"
+                            item-title="text" item-value="value" :loading="loadingRegional"
+                            :disabled="!inputRegister.upline_1" @update:modelValue="onRegionalChange" />
+
+                        <!-- FOUNDER -->
+                        <v-select v-model="inputRegister.upline_3" label="Pilih Founder" :items="founderOptions"
+                            item-title="text" item-value="value" :loading="loadingFounder"
+                            :disabled="!inputRegister.upline_2" @update:modelValue="onFounderChange" />
+
+                        <!-- GM -->
+                        <v-select v-model="inputRegister.upline_4" label="Pilih GM" :items="gmOptions" item-title="text"
+                            item-value="value" :loading="loadingGm" :disabled="!inputRegister.upline_3"
+                            @update:modelValue="onGmChange" />
+
+                        <!-- SUPPLIER -->
+                        <v-select v-model="inputRegister.upline_5" label="Pilih Supplier" :items="supplierOptions"
+                            item-title="text" item-value="value" :loading="loadingSupplier"
+                            :disabled="!inputRegister.upline_4" @update:modelValue="onSupplierChange" />
+
+                        <!-- DISTRIBUTOR -->
+                        <v-select v-model="inputRegister.upline_6" label="Pilih Distributor" :items="distributorOptions"
+                            item-title="text" item-value="value" :loading="loadingDistributor"
+                            :disabled="!inputRegister.upline_5" />
+
 
                         <v-text-field v-model="inputRegister.username" label="Username" density="compact"
                             prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="amber"
@@ -124,7 +155,7 @@
 import axios from 'axios'
 
 export default {
-    name: 'RegisterForm',
+    code: 'RegisterForm',
 
     data() {
         return {
@@ -133,6 +164,19 @@ export default {
             loadingProvinsi: false,
             previewFotoProfile: null,
 
+            mvoOptions: [],
+            regionalOptions: [],
+            founderOptions: [],
+            gmOptions: [],
+            supplierOptions: [],
+            distributorOptions: [],
+
+            loadingMvo: false,
+            loadingRegional: false,
+            loadingFounder: false,
+            loadingGm: false,
+            loadingSupplier: false,
+            loadingDistributor: false,
 
             inputRegister: {
                 no_id: '',
@@ -143,12 +187,19 @@ export default {
                 jenis_kelamin: '',
                 nohp: '',
                 alamat: '',
-                class_member: '',
+                mvo_type_id: '',
                 username: '',
                 password: '',
-                cabang: '',
                 path_gambar_profile: '',
-                otoritas: ''
+                cabang: '',
+
+                upline_1: '',
+                upline_2: '',
+                upline_3: '',
+                upline_4: '',
+                upline_5: '',
+                upline_6: '',
+                upline_7: '-'
             },
 
             contentSnackbar: {
@@ -163,13 +214,7 @@ export default {
                 { text: 'Founder', value: 'founder' }
             ],
 
-            otoritasOptions: [
-                { text: 'MVO', value: 'mvo' },
-                { text: 'Distributor', value: 'distributor' },
-                { text: 'Founder', value: 'founder' }
-            ],
-
-            classMemberOptions: [],
+            jabatanOptions: [],
 
             jenisKelaminOptions: [
                 { text: 'Laki-laki', value: 'L' },
@@ -289,7 +334,6 @@ export default {
     },
 
     mounted() {
-        console.log('BABA Parfum Register Form mounted with API Provinsi and Otoritas')
         console.log('Provinsi API Endpoint:', 'https://babaapi.teknosof.com/api/provinsi')
         this.debugRouteInfo()
         this.fetchProvinsiData()
@@ -297,6 +341,193 @@ export default {
     },
 
     methods: {
+        onCabangChange(val) {
+
+            this.inputRegister.upline_1 = ''
+            this.inputRegister.upline_2 = ''
+            this.inputRegister.upline_3 = ''
+            this.inputRegister.upline_4 = ''
+            this.inputRegister.upline_5 = ''
+            this.inputRegister.upline_6 = ''
+
+            this.getMvo(val)
+        },
+        onMvoChange(val) {
+
+            this.inputRegister.upline_2 = ''
+            this.inputRegister.upline_3 = ''
+            this.inputRegister.upline_4 = ''
+            this.inputRegister.upline_5 = ''
+            this.inputRegister.upline_6 = ''
+
+            this.getRegional(val)
+        },
+        onRegionalChange(val) {
+
+            this.inputRegister.upline_3 = ''
+            this.inputRegister.upline_4 = ''
+            this.inputRegister.upline_5 = ''
+            this.inputRegister.upline_6 = ''
+
+            this.getFounder(val)
+        },
+        onFounderChange(val) {
+
+            this.inputRegister.upline_4 = ''
+            this.inputRegister.upline_5 = ''
+            this.inputRegister.upline_6 = ''
+
+            this.getGm(val)
+        },
+        onGmChange(val) {
+
+            this.inputRegister.upline_5 = ''
+            this.inputRegister.upline_6 = ''
+
+            this.getSupplier(val)
+        },
+        onSupplierChange(val) {
+
+            this.inputRegister.upline_6 = ''
+
+            this.getDistributor(val)
+        }
+        ,
+        async getDistributor(code) {
+
+            this.loadingDistributor = true
+
+            const res = await axios.post(
+                'https://babaapi.teknosof.com/api/get/distributor',
+                {
+                    cabang: this.inputRegister.cabang,
+                    upline_1: this.inputRegister.upline_1, // ✅ MVO
+                    upline_2: this.inputRegister.upline_2, // ✅ Regional
+                    upline_3: this.inputRegister.upline_3, // ✅ Regional                         // ✅ Founder
+                    upline_4: this.inputRegister.upline_4,
+                    upline_5: code
+                }
+            )
+
+            this.distributorOptions = res.data.data.map(i => ({
+                text: `${i.code} - ${i.nama}`,
+                value: i.code
+            }))
+
+            this.loadingDistributor = false
+        },
+        async getSupplier(code) {
+
+            this.loadingSupplier = true
+
+            const res = await axios.post(
+                'https://babaapi.teknosof.com/api/get/supplier',
+                {
+                    cabang: this.inputRegister.cabang,
+                    upline_1: this.inputRegister.upline_1, // ✅ MVO
+                    upline_2: this.inputRegister.upline_2, // ✅ Regional
+                    upline_3: this.inputRegister.upline_3, // ✅ Regional                         // ✅ Founder
+                    upline_4: code
+                }
+            )
+
+            this.supplierOptions = res.data.data.map(i => ({
+                text: `${i.code} - ${i.nama}`,
+                value: i.code
+            }))
+
+            this.loadingSupplier = false
+        },
+        async getGm(code) {
+
+            this.loadingGm = true
+
+            try {
+
+                const res = await axios.post(
+                    'https://babaapi.teknosof.com/api/get/gm',
+                    {
+                        cabang: this.inputRegister.cabang,
+                        upline_1: this.inputRegister.upline_1, // ✅ MVO
+                        upline_2: this.inputRegister.upline_2, // ✅ Regional
+                        upline_3: code                         // ✅ Founder
+                    }
+                )
+
+                this.gmOptions = res.data.data.map(i => ({
+                    text: `${i.code} - ${i.nama}`,
+                    value: i.code
+                }))
+
+            } catch (err) {
+                console.error(err)
+                this.showSnackbar('Gagal memuat data GM', 'error')
+            }
+
+            this.loadingGm = false
+        },
+        async getFounder(code) {
+
+            this.loadingFounder = true
+
+            try {
+
+                const res = await axios.post(
+                    'https://babaapi.teknosof.com/api/get/founder',
+                    {
+                        cabang: this.inputRegister.cabang,
+                        upline_1: this.inputRegister.upline_1, // ✅ tambahkan ini
+                        upline_2: code
+                    }
+                )
+
+                this.founderOptions = res.data.data.map(i => ({
+                    text: `${i.code} - ${i.nama}`,
+                    value: i.code
+                }))
+
+            } catch (err) {
+                console.error(err)
+                this.showSnackbar('Gagal memuat data Founder', 'error')
+            }
+
+            this.loadingFounder = false
+        },
+        async getRegional(code) {
+
+            this.loadingRegional = true
+
+            const res = await axios.post(
+                'https://babaapi.teknosof.com/api/get/regional',
+                {
+                    cabang: this.inputRegister.cabang,
+                    upline_1: code
+                }
+            )
+
+            this.regionalOptions = res.data.data.map(i => ({
+                text: `${i.code} - ${i.nama}`,
+                value: i.code
+            }))
+
+            this.loadingRegional = false
+        },
+        async getMvo(cabang) {
+
+            this.loadingMvo = true
+
+            const res = await axios.post(
+                'https://babaapi.teknosof.com/api/get/mvo',
+                { cabang }
+            )
+
+            this.mvoOptions = res.data.data.map(i => ({
+                text: `${i.code} - ${i.nama}`,
+                value: i.code
+            }))
+
+            this.loadingMvo = false
+        },
         async fetchProvinsiData() {
             this.loadingProvinsi = true
 
@@ -316,7 +547,7 @@ export default {
                 if (response.data.status === 'success' && response.data.data) {
                     this.cabangOptions = response.data.data.map(provinsi => ({
                         text: provinsi.code,
-                        value: provinsi.id
+                        value: provinsi.code,
                     }))
 
                     console.log('Provinsi options loaded:', this.cabangOptions.length, 'items')
@@ -363,11 +594,11 @@ export default {
 
                 if (response.data.status === 'success' && response.data.data) {
                     // 🔥 mapping ke format select
-                    this.classMemberOptions = response.data.data.map(item => ({
-                        text: item.description,    // tampil
-                        value: item.description    // dikirim ke backend (huruf)
+                    this.jabatanOptions = response.data.data.map(item => ({
+                        text: item.jabatan,
+                        value: item.id
                     }));
-                    console.log('mvotype options loaded:', this.classMemberOptions.length, 'items')
+                    console.log('mvotype options loaded:', this.jabatanOptions.length, 'items')
                 } else {
                     console.error('Invalid mvotype API response structure')
                     this.showSnackbar('Gagal memuat data mvotype', 'error')
@@ -482,12 +713,11 @@ export default {
                             tgl_lahir: '',
                             nohp: '',
                             alamat: '',
-                            class_member: '',
+                            mvo_type_id: '',
                             username: '',
                             password: '',
                             cabang: '',
                             path_gambar_profile: null,
-                            otoritas: '',
                             jenis_kelamin: ''
                         }
                         this.previewFotoProfile = null

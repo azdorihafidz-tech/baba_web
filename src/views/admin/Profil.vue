@@ -36,7 +36,7 @@
                         </p>
                         <v-chip size="small" color="amber" variant="tonal" class="mt-2">
                             <v-icon start size="small">mdi-briefcase</v-icon>
-                            {{ userData?.otoritas?.toUpperCase() || 'USER' }}
+                            {{ userData?.mvo_type_id?.toUpperCase() || 'USER' }}
                         </v-chip>
                         <v-chip size="small" color="amber" variant="tonal" class="mt-2">
                             {{ userData?.class_member?.toUpperCase() || 'MEMBER' }}
@@ -211,7 +211,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="6">
-                                                <v-text-field v-model="userData.otoritas" label="Otoritas"
+                                                <v-text-field v-model="userData.mvo_type_id" label="mvo_type_id"
                                                     prepend-inner-icon="mdi-shield-key" variant="outlined" color="amber"
                                                     readonly bg-color="grey-darken-4" class="profile-field"
                                                     disabled></v-text-field>

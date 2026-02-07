@@ -551,7 +551,7 @@ const handleLogin = async () => {
       if (response.data.data.user.nik) {
         localStorage.setItem('nik', response.data.data.user.nik)
       }
-      localStorage.setItem('otoritas', response.data.data.user.otoritas)
+      localStorage.setItem('mvo_type_id', response.data.data.user.mvo_type_id)
 
       const userData = response.data.data.user
       localStorage.setItem('user', JSON.stringify(userData))
@@ -609,7 +609,7 @@ const handleLogin = async () => {
         headerData: headerData
       })
 
-      if (userData.otoritas && userData.otoritas.toLowerCase() === 'superadmin') {
+      if (userData.mvo_type_id && userData.mvo_type_id.toLowerCase() === 'superadmin') {
         router.push('/admin/dashboard')
       } else {
         router.push('/admin/mvo')
