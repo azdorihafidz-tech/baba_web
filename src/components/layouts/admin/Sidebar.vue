@@ -111,10 +111,10 @@ export default {
           ["mdi-view-dashboard", "Live Performance", "/admin/dashboard"],
           ["mdi-clipboard-text-outline", "Input Data", "/admin/mvo"],
           ["mdi-account", "Verifikasi ID", "/admin/user"],
-          ["mdi-city", "Ruang Kota", "/admin/masterheaders"], // spasi depan sudah dibuang
+          // ["mdi-city", "Ruang Kota", "/admin/masterheaders"], // spasi depan sudah dibuang
           ["mdi-format-list-bulleted-type", "Tipe Akun", "/admin/mvotype"],
           ["mdi-account-alert", "Akun Belum Approve", "/admin/mvobelumapprove"],
-          ["mdi-badge-account", "Master Jabatan", "/admin/jabatan"],
+          // ["mdi-badge-account", "Master Jabatan", "/admin/jabatan"],
           ["mdi-domain", "Data Cabang", "/admin/provinsi"],
           // ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
@@ -128,7 +128,8 @@ export default {
         "Live Performance",
         "Input Data",
         "Document Belum Approve",
-        "Chat"
+        "Chat",
+        "Tutorial",
 
       ],
       linkMenu: [],
