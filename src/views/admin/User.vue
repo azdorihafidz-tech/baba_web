@@ -1,5 +1,6 @@
 <template>
   <Breadcrumb :items="itemsBreadcrumb" />
+
   <!-- Tombol Tambah User -->
   <div class="mb-4">
     <v-btn class="text-dark font-semibold" @click="showDialogFormAddUser()" style="
@@ -12,7 +13,6 @@
       <v-icon start style="color: #FFD700;">mdi-account-plus</v-icon>
       <span class="ml-2">Tambah User</span>
     </v-btn>
-
   </div>
 
   <!-- Desktop View - Data Table -->
@@ -29,22 +29,23 @@
         <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="datatable.items"
           :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
           @update:options="updateCurrentpageInfo">
+
           <!-- Kolom Nomor Urut -->
           <template v-slot:item.no="{ index }">
             {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
           </template>
 
-          <!-- Kolom Otoritas -->
-          <template v-slot:item.otoritas="{ item }">
-            <v-chip :color="getAuthorityColor(item.otoritas)" :text-color="getAuthorityTextColor(item.otoritas)"
+          <!-- Kolom mvo_type_id -->
+          <template v-slot:item.mvo_type_id="{ item }">
+            <v-chip :color="getAuthorityColor(item.mvo_type_id)" :text-color="getAuthorityTextColor(item.mvo_type_id)"
               size="small" variant="flat">
-              {{ item.otoritas ? item.otoritas.toUpperCase() : '-' }}
+              {{ item.mvo_type_id ? item.mvo_type_id.toUpperCase() : '-' }}
             </v-chip>
           </template>
 
           <!-- Kolom Cabang -->
           <template v-slot:item.cabang="{ item }">
-            {{ getProvinceCodeById(item.cabang) || item.cabang || '-' }}
+            {{ item.cabang || '-' }}
           </template>
 
           <!-- Kolom Aktivasi -->
@@ -56,12 +57,11 @@
 
           <!-- Kolom Jabatan -->
           <template v-slot:item.jabatan="{ item }">
-            {{ getJabatanNameById(item.jabatan_id) || item.jabatan_id || '-' }}
+            {{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-' }}
           </template>
 
           <!-- Kolom Aksi -->
           <template v-slot:item.action="{ item }">
-            <!-- Tombol Edit -->
             <v-tooltip text="Edit" color="#125C13" location="top start">
               <template v-slot:activator="{ props }">
                 <v-btn size="small" :color="app.colors.primary" @click="editUser(item.id)" class="mr-2 mb-2"
@@ -71,7 +71,6 @@
               </template>
             </v-tooltip>
 
-            <!-- Tombol Hapus -->
             <v-tooltip text="Hapus" color="#125C13" location="top start">
               <template v-slot:activator="{ props }">
                 <v-btn size="small" :color="app.colors.secondary" @click="deleteUser(item.id)" class="mr-2 mb-2"
@@ -81,7 +80,6 @@
               </template>
             </v-tooltip>
 
-            <!-- Tombol Aktivasi -->
             <v-tooltip text="Aktivasi" color="#125C13" location="top start">
               <template v-slot:activator="{ props }">
                 <v-btn size="small" color="success" @click="aktivasiUser(item.id)" class="mr-2 mb-2" v-bind="props"
@@ -95,7 +93,6 @@
       </template>
     </CardDataTable>
   </div>
-
 
   <!-- Mobile View - Cards -->
   <div class="d-block d-md-none">
@@ -115,7 +112,7 @@
 
     <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-user-card mb-3"
       @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-      <!-- Header Card - Always Visible -->
+
       <v-card-text class="mobile-card-header">
         <v-row no-gutters align="center">
           <v-col cols="1" class="text-center">
@@ -139,33 +136,30 @@
         </v-row>
       </v-card-text>
 
-
-
-      <!-- Detail Card - Expandable -->
       <v-expand-transition>
         <div v-show="expandedMobileCard === item.id">
           <v-divider></v-divider>
           <v-card-text class="mobile-card-details">
             <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Nomer ID:</v-col>
+              <v-col cols="4" class="detail-label">NO ID:</v-col>
               <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
             </v-row>
             <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Cabang:</v-col>
-              <v-col cols="8" class="detail-value">{{ getProvinceCodeById(item.cabang) || item.cabang || '-' }}</v-col>
+              <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
             </v-row>
-            <v-row class="mb-2">
+            <!-- <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Otoritas:</v-col>
               <v-col cols="8">
-                <v-chip :color="getAuthorityColor(item.otoritas)" :text-color="getAuthorityTextColor(item.otoritas)"
-                  size="small" variant="flat">
-                  {{ item.otoritas ? item.otoritas.toUpperCase() : '-' }}
+                <v-chip :color="getAuthorityColor(item.mvo_type_id)"
+                  :text-color="getAuthorityTextColor(item.mvo_type_id)" size="small" variant="flat">
+                  {{ item.mvo_type_id ? item.mvo_type_id.toUpperCase() : '-' }}
                 </v-chip>
               </v-col>
-            </v-row>
+            </v-row> -->
             <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Jabatan:</v-col>
-              <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.jabatan_id) || item.jabatan_id || '-'
+              <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-'
               }}</v-col>
             </v-row>
             <v-row class="mb-3">
@@ -177,21 +171,14 @@
               </v-col>
             </v-row>
 
-            <!-- Action Buttons -->
             <v-divider class="mb-3"></v-divider>
             <div class="mobile-actions">
               <v-btn size="small" :color="app.colors.primary" @click.stop="editUser(item.id)" class="mr-2 mb-2"
-                prepend-icon="mdi-pencil">
-                Edit
-              </v-btn>
+                prepend-icon="mdi-pencil">Edit</v-btn>
               <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteUser(item.id)" class="mr-2 mb-2"
-                prepend-icon="mdi-delete">
-                Hapus
-              </v-btn>
+                prepend-icon="mdi-delete">Hapus</v-btn>
               <v-btn size="small" color="success" @click.stop="aktivasiUser(item.id)" class="mb-2"
-                prepend-icon="mdi-account-check">
-                Aktivasi
-              </v-btn>
+                prepend-icon="mdi-account-check">Aktivasi</v-btn>
             </div>
           </v-card-text>
         </div>
@@ -209,93 +196,137 @@
       <v-card-text class="dialog-content">
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nomer ID" v-model="modelAdd.no_id" class="mb-2 mt-4" type="text"
-              :rules="[rules.required, rules.no_id]" required maxlength="16" @input="validateNoIdAdd" />
+            <v-text-field label="No ID" v-model="modelAdd.no_id" class="mb-2 mt-4" type="text" density="compact"
+              prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber" base-color="grey-lighten-1"
+              maxlength="16" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Lengkap" v-model="modelAdd.nama" class="mb-2 mt-4" :rules="[rules.required]"
-              required />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Panggilan" v-model="modelAdd.nama_panggilan" class="mb-2" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tempat Lahir" v-model="modelAdd.tempat_lahir" class="mb-2" />
+            <v-text-field label="Nama Lengkap" v-model="modelAdd.nama" class="mb-2 mt-4" density="compact"
+              prepend-inner-icon="mdi-account" variant="outlined" color="amber" base-color="grey-lighten-1" />
           </v-col>
         </v-row>
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tanggal Lahir" v-model="modelAdd.tgl_lahir" class="mb-2" type="date" />
+            <v-text-field label="Nama Panggilan" v-model="modelAdd.nama_panggilan" class="mb-2" density="compact"
+              prepend-inner-icon="mdi-account-outline" variant="outlined" color="amber" base-color="grey-lighten-1" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nomor HP" v-model="modelAdd.nohp" class="mb-2" @input="validatePhoneAdd" />
+            <v-text-field label="Tempat Lahir" v-model="modelAdd.tempat_lahir" class="mb-2" density="compact"
+              prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber" base-color="grey-lighten-1" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field label="Tanggal Lahir" v-model="modelAdd.tgl_lahir" class="mb-2" type="date" density="compact"
+              prepend-inner-icon="mdi-calendar" variant="outlined" color="amber" base-color="grey-lighten-1" />
+          </v-col>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field label="Nomor HP" v-model="modelAdd.nohp" class="mb-2" @input="validatePhoneAdd"
+              density="compact" prepend-inner-icon="mdi-phone" variant="outlined" color="amber"
+              base-color="grey-lighten-1" />
           </v-col>
         </v-row>
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-select label="Jenis Kelamin" v-model="modelAdd.jenis_kelamin" :items="jenisKelaminOptions"
-              item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
+              item-title="text" item-value="value" density="compact" prepend-inner-icon="mdi-gender-male-female"
+              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-combobox label="Class Member" v-model="modelAdd.class_member" :items="classMemberOptions"
-              item-title="text" item-value="value" :return-object="false" class="mb-2" variant="outlined" clearable />
-
+            <v-combobox label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
+              item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
+              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12">
-            <v-textarea label="Alamat Lengkap" v-model="modelAdd.alamat" class="mb-2" rows="2" auto-grow />
+            <v-textarea label="Alamat Lengkap" v-model="modelAdd.alamat" rows="2" auto-grow density="compact"
+              prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Username" v-model="modelAdd.username" class="mb-2" type="text"
-              :rules="[rules.required]" required />
+            <v-select label="Cabang (Provinsi)" v-model="modelAdd.cabang" :items="cabangOptions" item-title="text"
+              item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable :loading="loadingProvinsi" :disabled="loadingProvinsi"
+              @update:modelValue="onCabangChangeAdd" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Password" v-model="modelAdd.password" class="mb-2" type="password"
-              :rules="[rules.required, rules.minPassword]" required />
+            <v-select label="Pilih MVO" v-model="modelAdd.upline_1" :items="mvoOptionsAdd" item-title="text"
+              item-value="value" :loading="loadingMvoAdd" :disabled="!modelAdd.cabang"
+              @update:modelValue="onMvoChangeAdd" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-autocomplete label="Cabang (Provinsi)" v-model="modelAdd.cabang" :items="provinsiOptions"
-              item-title="code" item-value="id" class="mb-2" variant="outlined" :loading="isProvinsiLoading"
-              no-data-text="Tidak ada data provinsi" :rules="[rules.required]" required />
+            <v-select label="Pilih Regional" v-model="modelAdd.upline_2" :items="regionalOptionsAdd" item-title="text"
+              item-value="value" :loading="loadingRegionalAdd" :disabled="!modelAdd.upline_1"
+              @update:modelValue="onRegionalChangeAdd" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-autocomplete label="Otoritas" v-model="modelAdd.otoritas" :items="otoritasOptions" item-title="text"
-              item-value="value" class="mb-2" variant="outlined" :rules="[rules.required]" required />
+            <v-select label="Pilih Founder" v-model="modelAdd.upline_3" :items="founderOptionsAdd" item-title="text"
+              item-value="value" :loading="loadingFounderAdd" :disabled="!modelAdd.upline_2"
+              @update:modelValue="onFounderChangeAdd" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-autocomplete label="Jabatan" v-model="modelAdd.jabatan_id" :items="jabatanOptions" item-title="nama"
-              item-value="id" class="mb-2" variant="outlined" :loading="isJabatanLoading"
-              no-data-text="Tidak ada data jabatan" />
+            <v-select label="Pilih GM" v-model="modelAdd.upline_4" :items="gmOptionsAdd" item-title="text"
+              item-value="value" :loading="loadingGmAdd" :disabled="!modelAdd.upline_3"
+              @update:modelValue="onGmChangeAdd" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
+          </v-col>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-select label="Pilih Supplier" v-model="modelAdd.upline_5" :items="supplierOptionsAdd" item-title="text"
+              item-value="value" :loading="loadingSupplierAdd" :disabled="!modelAdd.upline_4"
+              @update:modelValue="onSupplierChangeAdd" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-select label="Pilih Distributor" v-model="modelAdd.upline_6" :items="distributorOptionsAdd"
+              item-title="text" item-value="value" :loading="loadingDistributorAdd" :disabled="!modelAdd.upline_5"
+              density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+          </v-col>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field label="Username" v-model="modelAdd.username" type="text" density="compact"
+              prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field v-model="modelAdd.password" :type="visibleAdd ? 'text' : 'password'" density="compact"
+              label="Password" prepend-inner-icon="mdi-lock" :append-inner-icon="visibleAdd ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append-inner="visibleAdd = !visibleAdd" variant="outlined" color="amber"
+              base-color="grey-lighten-1" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-file-input label="Foto Profil" v-model="modelAdd.path_gambar_profile"
-              accept="image/png, image/jpeg, image/jpg" variant="outlined" class="mb-2" prepend-icon=""
-              prepend-inner-icon="mdi-camera" @change="handleFotoProfileAddChange" />
+              accept="image/png, image/jpeg, image/jpg" variant="outlined" density="compact"
+              prepend-inner-icon="mdi-camera" color="amber" base-color="grey-lighten-1"
+              @change="handleFotoProfileAddChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
           </v-col>
         </v-row>
+
         <v-row v-if="previewFotoProfileAdd">
           <v-col cols="12" class="text-center">
-            <v-img :src="previewFotoProfileAdd" max-width="150" height="150" class="mx-auto rounded-xl" contain />
+            <v-img :src="previewFotoProfileAdd" max-width="150" height="150" class="mx-auto my-2 rounded-xl" contain />
           </v-col>
         </v-row>
       </v-card-text>
       <v-card-actions class="dialog-actions">
         <v-spacer></v-spacer>
-        <v-btn :color="app.colors.secondary" @click="isShowDialogAdd = false" class="ml-2">
-          Batal
-        </v-btn>
-        <v-btn :color="app.colors.primary" @click="addUser()" :loading="isButtonLoading" class="ml-2">
-          Simpan
-        </v-btn>
+        <v-btn :color="app.colors.secondary" @click="isShowDialogAdd = false" class="ml-2">Batal</v-btn>
+        <v-btn :color="app.colors.primary" @click="addUser()" :loading="isButtonLoading" class="ml-2">Simpan</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -310,92 +341,138 @@
       <v-card-text class="dialog-content">
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nomer ID" v-model="modelEdit.no_id" class="mb-2 mt-4" type="text"
-              :rules="[rules.required, rules.no_id]" required maxlength="16" @input="validateNoIdEdit" />
+            <v-text-field label="No ID" v-model="modelEdit.no_id" class="mb-2 mt-4" type="text" density="compact"
+              prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber" base-color="grey-lighten-1"
+              maxlength="16" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Lengkap" v-model="modelEdit.nama" class="mb-2 mt-4" :rules="[rules.required]"
-              required />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Panggilan" v-model="modelEdit.nama_panggilan" class="mb-2" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tempat Lahir" v-model="modelEdit.tempat_lahir" class="mb-2" />
+            <v-text-field label="Nama Lengkap" v-model="modelEdit.nama" class="mb-2 mt-4" density="compact"
+              prepend-inner-icon="mdi-account" variant="outlined" color="amber" base-color="grey-lighten-1" />
           </v-col>
         </v-row>
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tanggal Lahir" v-model="modelEdit.tgl_lahir" class="mb-2" type="date" />
+            <v-text-field label="Nama Panggilan" v-model="modelEdit.nama_panggilan" class="mb-2" density="compact"
+              prepend-inner-icon="mdi-account-outline" variant="outlined" color="amber" base-color="grey-lighten-1" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nomor HP" v-model="modelEdit.nohp" class="mb-2" @input="validatePhoneEdit" />
+            <v-text-field label="Tempat Lahir" v-model="modelEdit.tempat_lahir" class="mb-2" density="compact"
+              prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber" base-color="grey-lighten-1" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field label="Tanggal Lahir" v-model="modelEdit.tgl_lahir" class="mb-2" type="date" density="compact"
+              prepend-inner-icon="mdi-calendar" variant="outlined" color="amber" base-color="grey-lighten-1" />
+          </v-col>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field label="Nomor HP" v-model="modelEdit.nohp" class="mb-2" @input="validatePhoneEdit"
+              density="compact" prepend-inner-icon="mdi-phone" variant="outlined" color="amber"
+              base-color="grey-lighten-1" />
           </v-col>
         </v-row>
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-select label="Jenis Kelamin" v-model="modelEdit.jenis_kelamin" :items="jenisKelaminOptions"
-              item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
+              item-title="text" item-value="value" density="compact" prepend-inner-icon="mdi-gender-male-female"
+              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Class Member" v-model="modelEdit.class_member" :items="classMemberOptions"
-              item-title="text" item-value="value" class="mb-2" variant="outlined" clearable />
+            <v-combobox label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
+              item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
+              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12">
-            <v-textarea label="Alamat Lengkap" v-model="modelEdit.alamat" class="mb-2" rows="2" auto-grow />
+            <v-textarea label="Alamat Lengkap" v-model="modelEdit.alamat" rows="2" auto-grow density="compact"
+              prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Username" v-model="modelEdit.username" class="mb-2" type="text"
-              :rules="[rules.required]" required />
+            <v-select label="Cabang (Provinsi)" v-model="modelEdit.cabang" :items="cabangOptions" item-title="text"
+              item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable :loading="loadingProvinsi" :disabled="loadingProvinsi"
+              @update:modelValue="onCabangChangeEdit" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Password (kosongkan jika tidak ingin diubah)" v-model="modelEdit.password" class="mb-2"
-              type="password" :rules="[rules.minPasswordOptional]" />
+            <v-select label="Pilih MVO" v-model="modelEdit.upline_1" :items="mvoOptionsEdit" item-title="text"
+              item-value="value" :loading="loadingMvoEdit" :disabled="!modelEdit.cabang"
+              @update:modelValue="onMvoChangeEdit" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Cabang (Provinsi)" v-model="modelEdit.cabang" :items="provinsiOptions" item-title="code"
-              item-value="id" class="mb-2" variant="outlined" :loading="isProvinsiLoading"
-              no-data-text="Tidak ada data provinsi" :rules="[rules.required]" required />
+            <v-select label="Pilih Regional" v-model="modelEdit.upline_2" :items="regionalOptionsEdit" item-title="text"
+              item-value="value" :loading="loadingRegionalEdit" :disabled="!modelEdit.upline_1"
+              @update:modelValue="onRegionalChangeEdit" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Otoritas" v-model="modelEdit.otoritas" :items="otoritasOptions" item-title="text"
-              item-value="value" class="mb-2" variant="outlined" :rules="[rules.required]" required />
+            <v-select label="Pilih Founder" v-model="modelEdit.upline_3" :items="founderOptionsEdit" item-title="text"
+              item-value="value" :loading="loadingFounderEdit" :disabled="!modelEdit.upline_2"
+              @update:modelValue="onFounderChangeEdit" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Jabatan" v-model="modelEdit.jabatan_id" :items="jabatanOptions" item-title="nama"
-              item-value="id" class="mb-2" variant="outlined" :loading="isJabatanLoading"
-              no-data-text="Tidak ada data jabatan" />
+            <v-select label="Pilih GM" v-model="modelEdit.upline_4" :items="gmOptionsEdit" item-title="text"
+              item-value="value" :loading="loadingGmEdit" :disabled="!modelEdit.upline_3"
+              @update:modelValue="onGmChangeEdit" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
+          </v-col>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-select label="Pilih Supplier" v-model="modelEdit.upline_5" :items="supplierOptionsEdit" item-title="text"
+              item-value="value" :loading="loadingSupplierEdit" :disabled="!modelEdit.upline_4"
+              @update:modelValue="onSupplierChangeEdit" density="compact" variant="outlined" color="amber"
+              base-color="grey-lighten-1" clearable />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-select label="Pilih Distributor" v-model="modelEdit.upline_6" :items="distributorOptionsEdit"
+              item-title="text" item-value="value" :loading="loadingDistributorEdit" :disabled="!modelEdit.upline_5"
+              density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+          </v-col>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field label="Username" v-model="modelEdit.username" type="text" density="compact"
+              prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-text-field v-model="modelEdit.password" :type="visibleEdit ? 'text' : 'password'" density="compact"
+              label="Password (kosongkan jika tidak ingin diubah)" prepend-inner-icon="mdi-lock"
+              :append-inner-icon="visibleEdit ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append-inner="visibleEdit = !visibleEdit" variant="outlined" color="amber"
+              base-color="grey-lighten-1" />
           </v-col>
           <v-col :cols="$vuetify.display.mobile ? 12 : 6">
             <v-file-input label="Foto Profil (kosongkan jika tidak ingin diubah)"
               v-model="modelEdit.path_gambar_profile" accept="image/png, image/jpeg, image/jpg" variant="outlined"
-              class="mb-2" prepend-icon="" prepend-inner-icon="mdi-camera" @change="handleFotoProfileEditChange" />
+              density="compact" prepend-inner-icon="mdi-camera" color="amber" base-color="grey-lighten-1"
+              @change="handleFotoProfileEditChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
           </v-col>
         </v-row>
+
         <v-row v-if="previewFotoProfileEdit">
           <v-col cols="12" class="text-center">
-            <v-img :src="previewFotoProfileEdit" max-width="150" height="150" class="mx-auto rounded-xl" contain />
+            <v-img :src="previewFotoProfileEdit" max-width="150" height="150" class="mx-auto my-2 rounded-xl" contain />
           </v-col>
         </v-row>
       </v-card-text>
       <v-card-actions class="dialog-actions">
         <v-spacer></v-spacer>
-        <v-btn :color="app.colors.secondary" @click="isShowDialogEdit = false" class="ml-2">
-          Batal
-        </v-btn>
-        <v-btn :color="app.colors.primary" @click="updateUser()" :loading="isButtonLoading" class="ml-2">
-          Update
-        </v-btn>
+        <v-btn :color="app.colors.secondary" @click="isShowDialogEdit = false" class="ml-2">Batal</v-btn>
+        <v-btn :color="app.colors.primary" @click="updateUser()" :loading="isButtonLoading" class="ml-2">Update</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -406,12 +483,9 @@
       <v-card-title class="text-h5">Apakah anda yakin ingin menghapus data user ini?</v-card-title>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">
-          Cancel
-        </v-btn>
-        <v-btn :color="app.colors.secondary" @click="confirmDeleteUser(modelDelete.id)" :loading="isButtonLoading">
-          OK
-        </v-btn>
+        <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">Cancel</v-btn>
+        <v-btn :color="app.colors.secondary" @click="confirmDeleteUser(modelDelete.id)"
+          :loading="isButtonLoading">OK</v-btn>
         <v-spacer></v-spacer>
       </v-card-actions>
     </v-card>
@@ -430,7 +504,6 @@ import CardForm from "@/components/ui/CardForm.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
-
 export default {
   components: {
     Breadcrumb,
@@ -440,10 +513,7 @@ export default {
 
   setup() {
     const app = useAppStore();
-
-    return {
-      app,
-    };
+    return { app };
   },
 
   data() {
@@ -457,120 +527,96 @@ export default {
         color: "",
       },
 
-      rules: {
-        required: value => !!value || 'Field ini wajib diisi',
-        minPassword: value => (value && value.length >= 6) || 'Password minimal 6 karakter',
-        minPasswordOptional: value => (!value || value.length >= 6) || 'Password minimal 6 karakter',
-        // no_id: value => {
-        //   if (!value) return 'Nomer ID wajib diisi';
-        //   if (!/^\d+$/.test(value)) return 'Nomer ID harus berupa angka';
-        //   if (value.length !== 5) return 'Nomer ID Maksimal 16 digit';
-        //   return true;
-        // }
-      },
+      visibleAdd: false,
+      visibleEdit: false,
 
       title: "DATA USER",
       itemsBreadcrumb: [
-        {
-          title: "Dashboard",
-          disabled: false,
-          href: "/admin/dashboard",
-        },
-        {
-          title: "User",
-          disabled: false,
-          href: "/admin/user",
-        },
+        { title: "Dashboard", disabled: false, href: "/admin/dashboard" },
+        { title: "User", disabled: false, href: "/admin/user" },
       ],
+
       isShowDialogAdd: false,
       isShowDialogEdit: false,
       isButtonLoading: false,
       isShowDialogDelete: false,
-      isProvinsiLoading: false,
-      isJabatanLoading: false,
       previewFotoProfileAdd: null,
       previewFotoProfileEdit: null,
-      otoritasOptions: [
-        { text: "Founder", value: "FO" },
-        { text: "Distributor", value: "DIST" },
-        { text: "MVO", value: "MVO" },
-        { text: "SUPPLIER", value: "SUPPLIER" },
-        { text: "SELL", value: "SELL" },
-        { text: "REGIONAL", value: "REGIONAL" },
-        { text: "RESELLER", value: "RESELLER" },
-        { text: "GM", value: "GM" },
 
+      loadingProvinsi: false,
+      loadingMvoAdd: false,
+      loadingRegionalAdd: false,
+      loadingFounderAdd: false,
+      loadingGmAdd: false,
+      loadingSupplierAdd: false,
+      loadingDistributorAdd: false,
 
-      ],
+      loadingMvoEdit: false,
+      loadingRegionalEdit: false,
+      loadingFounderEdit: false,
+      loadingGmEdit: false,
+      loadingSupplierEdit: false,
+      loadingDistributorEdit: false,
+
+      mvoOptionsAdd: [],
+      regionalOptionsAdd: [],
+      founderOptionsAdd: [],
+      gmOptionsAdd: [],
+      supplierOptionsAdd: [],
+      distributorOptionsAdd: [],
+
+      mvoOptionsEdit: [],
+      regionalOptionsEdit: [],
+      founderOptionsEdit: [],
+      gmOptionsEdit: [],
+      supplierOptionsEdit: [],
+      distributorOptionsEdit: [],
+
       jenisKelaminOptions: [
         { text: 'Laki-laki', value: 'L' },
         { text: 'Perempuan', value: 'P' }
       ],
-      classMemberOptions: [],
-      provinsiOptions: [],
+      cabangOptions: [],
       jabatanOptions: [],
+
       datatable: {
         search: "",
         headers: [
           { key: "no", title: "No", sortable: false },
+          { key: "no_id", title: "NO ID" },
           { key: "username", title: "Username" },
           { key: "nama", title: "Nama Lengkap" },
-          { key: "no_id", title: "Nomer ID" },
+          { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
-          { key: "otoritas", title: "Otoritas", align: "center" },
-          { key: "jabatan", title: "Jabatan", align: "center" },
+          // { key: "mvo_type_id", title: "Otoritas", align: "center" },
           { key: "aktivasi", title: "Aktivasi", align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" }
         ],
         items: [],
       },
+
       modelAdd: {
-        username: "",
-        password: "",
-        nama: "",
-        nama_panggilan: "",
-        no_id: "",
-        tempat_lahir: "",
-        tgl_lahir: "",
-        jenis_kelamin: "",
-        nohp: "",
-        alamat: "",
-        class_member: "",
-        cabang: "",
-        otoritas: "",
-        jabatan_id: "",
-        path_gambar_profile: null,
+        no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
+        jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
+        password: '', path_gambar_profile: null, cabang: '', upline_1: '',
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
       },
+
       modelEdit: {
-        id: "",
-        username: "",
-        password: "",
-        nama: "",
-        nama_panggilan: "",
-        no_id: "",
-        tempat_lahir: "",
-        tgl_lahir: "",
-        jenis_kelamin: "",
-        nohp: "",
-        alamat: "",
-        class_member: "",
-        cabang: "",
-        otoritas: "",
-        jabatan_id: "",
-        path_gambar_profile: null,
+        id: "", no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
+        jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
+        password: '', path_gambar_profile: null, cabang: '', upline_1: '',
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
       },
-      modelDelete: {
-        id: "",
-      },
+
+      modelDelete: { id: "" },
       isTableLoading: true,
     };
   },
 
   computed: {
     filteredItems() {
-      if (!this.datatable.search) {
-        return this.datatable.items;
-      }
+      if (!this.datatable.search) return this.datatable.items;
 
       const searchTerm = this.datatable.search.toLowerCase();
       return this.datatable.items.filter(item => {
@@ -578,104 +624,335 @@ export default {
           (item.username && item.username.toLowerCase().includes(searchTerm)) ||
           (item.nama && item.nama.toLowerCase().includes(searchTerm)) ||
           (item.no_id && item.no_id.toLowerCase().includes(searchTerm)) ||
-          (item.otoritas && item.otoritas.toLowerCase().includes(searchTerm))
+          (item.mvo_type_id && item.mvo_type_id.toLowerCase().includes(searchTerm))
         );
       });
     }
   },
 
   methods: {
-    getAllMvoType() {
-      const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
+    // ========== ADD FORM CASCADE ==========
+    onCabangChangeAdd(val) {
+      this.modelAdd.upline_1 = this.modelAdd.upline_2 = this.modelAdd.upline_3 = '';
+      this.modelAdd.upline_4 = this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
+      this.getMvoAdd(val);
+    },
 
-      axios.get("https://babaapi.teknosof.com/api/mvo-type", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => {
-          console.log('list mvo type', response.data);
+    onMvoChangeAdd(val) {
+      this.modelAdd.upline_2 = this.modelAdd.upline_3 = this.modelAdd.upline_4 = '';
+      this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
+      this.getRegionalAdd(val);
+    },
 
-          if (response.data.status === "success") {
-            const apiData = response.data.data;
+    onRegionalChangeAdd(val) {
+      this.modelAdd.upline_3 = this.modelAdd.upline_4 = '';
+      this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
+      this.getFounderAdd(val);
+    },
 
-            // 🔥 mapping ke format select
-            this.classMemberOptions = apiData.map(item => ({
-              text: item.description,   // tampil di dropdown
-              value: item.description   // yang dikirim ke backend (huruf)
-            }));
+    onFounderChangeAdd(val) {
+      this.modelAdd.upline_4 = this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
+      this.getGmAdd(val);
+    },
 
-            console.log('Options loaded:', this.classMemberOptions);
-          } else {
-            this.showSnackbar(response, true);
-          }
-        })
-        .catch((error) => {
-          console.error('Error loading MVO Type:', error);
-          this.showSnackbar(error.response || error, true);
+    onGmChangeAdd(val) {
+      this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
+      this.getSupplierAdd(val);
+    },
+
+    onSupplierChangeAdd(val) {
+      this.modelAdd.upline_6 = '';
+      this.getDistributorAdd(val);
+    },
+
+    async getDistributorAdd(code) {
+      this.loadingDistributorAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/distributor', {
+          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
+          upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3,
+          upline_4: this.modelAdd.upline_4, upline_5: code
         });
+        this.distributorOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Distributor', 'error');
+      }
+      this.loadingDistributorAdd = false;
     },
 
-    toggleMobileDetail(itemId) {
-      if (this.expandedMobileCard === itemId) {
-        this.expandedMobileCard = null;
-      } else {
-        this.expandedMobileCard = itemId;
+    async getSupplierAdd(code) {
+      this.loadingSupplierAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/supplier', {
+          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
+          upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3, upline_4: code
+        });
+        this.supplierOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Supplier', 'error');
+      }
+      this.loadingSupplierAdd = false;
+    },
+
+    async getGmAdd(code) {
+      this.loadingGmAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/gm', {
+          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
+          upline_2: this.modelAdd.upline_2, upline_3: code
+        });
+        this.gmOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data GM', 'error');
+      }
+      this.loadingGmAdd = false;
+    },
+
+    async getFounderAdd(code) {
+      this.loadingFounderAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/founder', {
+          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: code
+        });
+        this.founderOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Founder', 'error');
+      }
+      this.loadingFounderAdd = false;
+    },
+
+    async getRegionalAdd(code) {
+      this.loadingRegionalAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/regional', {
+          cabang: this.modelAdd.cabang, upline_1: code
+        });
+        this.regionalOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Regional', 'error');
+      }
+      this.loadingRegionalAdd = false;
+    },
+
+    async getMvoAdd(cabang) {
+      this.loadingMvoAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/mvo', { cabang });
+        this.mvoOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data MVO', 'error');
+      }
+      this.loadingMvoAdd = false;
+    },
+
+    // ========== EDIT FORM CASCADE ==========
+    onCabangChangeEdit(val) {
+      this.modelEdit.upline_1 = this.modelEdit.upline_2 = this.modelEdit.upline_3 = '';
+      this.modelEdit.upline_4 = this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
+      this.getMvoEdit(val);
+    },
+
+    onMvoChangeEdit(val) {
+      this.modelEdit.upline_2 = this.modelEdit.upline_3 = this.modelEdit.upline_4 = '';
+      this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
+      this.getRegionalEdit(val);
+    },
+
+    onRegionalChangeEdit(val) {
+      this.modelEdit.upline_3 = this.modelEdit.upline_4 = '';
+      this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
+      this.getFounderEdit(val);
+    },
+
+    onFounderChangeEdit(val) {
+      this.modelEdit.upline_4 = this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
+      this.getGmEdit(val);
+    },
+
+    onGmChangeEdit(val) {
+      this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
+      this.getSupplierEdit(val);
+    },
+
+    onSupplierChangeEdit(val) {
+      this.modelEdit.upline_6 = '';
+      this.getDistributorEdit(val);
+    },
+
+    async getDistributorEdit(code) {
+      this.loadingDistributorEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/distributor', {
+          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
+          upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3,
+          upline_4: this.modelEdit.upline_4, upline_5: code
+        });
+        this.distributorOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Distributor', 'error');
+      }
+      this.loadingDistributorEdit = false;
+    },
+
+    async getSupplierEdit(code) {
+      this.loadingSupplierEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/supplier', {
+          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
+          upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: code
+        });
+        this.supplierOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Supplier', 'error');
+      }
+      this.loadingSupplierEdit = false;
+    },
+
+    async getGmEdit(code) {
+      this.loadingGmEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/gm', {
+          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
+          upline_2: this.modelEdit.upline_2, upline_3: code
+        });
+        this.gmOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data GM', 'error');
+      }
+      this.loadingGmEdit = false;
+    },
+
+    async getFounderEdit(code) {
+      this.loadingFounderEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/founder', {
+          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: code
+        });
+        this.founderOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Founder', 'error');
+      }
+      this.loadingFounderEdit = false;
+    },
+
+    async getRegionalEdit(code) {
+      this.loadingRegionalEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/regional', {
+          cabang: this.modelEdit.cabang, upline_1: code
+        });
+        this.regionalOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data Regional', 'error');
+      }
+      this.loadingRegionalEdit = false;
+    },
+
+    async getMvoEdit(cabang) {
+      this.loadingMvoEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.teknosof.com/api/get/mvo', { cabang });
+        this.mvoOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+      } catch (err) {
+        this.showSnackbar('Gagal memuat data MVO', 'error');
+      }
+      this.loadingMvoEdit = false;
+    },
+
+    // ========== DATA FETCHING ==========
+    async fetchProvinsiData() {
+      this.loadingProvinsi = true;
+      try {
+        const response = await axios.get('https://babaapi.teknosof.com/api/provinsi', {
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          timeout: 10000
+        });
+
+        if (response.data.status === 'success' && response.data.data) {
+          this.cabangOptions = response.data.data.map(provinsi => ({
+            text: provinsi.code,
+            value: provinsi.code,
+          }));
+        } else {
+          this.showSnackbar('Gagal memuat data provinsi', 'error');
+        }
+      } catch (error) {
+        let message = 'Gagal memuat data provinsi';
+        if (error.response) {
+          message = `Error ${error.response.status}: ${error.response.data?.message || 'Server error'}`;
+        } else if (error.code === 'ECONNABORTED') {
+          message = 'Timeout saat memuat data provinsi';
+        } else if (error.code === 'ERR_NETWORK') {
+          message = 'Tidak dapat terhubung ke server provinsi';
+        }
+        this.showSnackbar(message, 'error');
+      } finally {
+        this.loadingProvinsi = false;
       }
     },
 
-    validateNoIdAdd(event) {
-      const value = event.target.value;
-      this.modelAdd.no_id = value.replace(/[^0-9]/g, '');
+    async getAllMvoType() {
+      try {
+        const response = await axios.get('https://babaapi.teknosof.com/api/mvo-type', {
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          timeout: 10000
+        });
+
+        if (response.data.status === 'success' && response.data.data) {
+          this.jabatanOptions = response.data.data.map(item => ({
+            text: item.jabatan,
+            value: item.id
+          }));
+        } else {
+          this.showSnackbar('Gagal memuat data jabatan', 'error');
+        }
+      } catch (error) {
+        let message = 'Gagal memuat data jabatan';
+        if (error.response) {
+          message = `Error ${error.response.status}: ${error.response.data?.message || 'Server error'}`;
+        } else if (error.code === 'ECONNABORTED') {
+          message = 'Timeout saat memuat data jabatan';
+        } else if (error.code === 'ERR_NETWORK') {
+          message = 'Tidak dapat terhubung ke server jabatan';
+        }
+        this.showSnackbar(message, 'error');
+      }
     },
 
-    validateNoIdEdit(event) {
-      const value = event.target.value;
-      this.modelEdit.no_id = value.replace(/[^0-9]/g, '');
+    // ========== HELPERS ==========
+    toggleMobileDetail(itemId) {
+      this.expandedMobileCard = this.expandedMobileCard === itemId ? null : itemId;
     },
 
     validatePhoneAdd(event) {
-      const value = event.target.value;
-      this.modelAdd.nohp = value.replace(/[^0-9]/g, '');
+      this.modelAdd.nohp = event.target.value.replace(/[^0-9]/g, '');
     },
 
     validatePhoneEdit(event) {
-      const value = event.target.value;
-      this.modelEdit.nohp = value.replace(/[^0-9]/g, '');
+      this.modelEdit.nohp = event.target.value.replace(/[^0-9]/g, '');
     },
 
     handleFotoProfileAddChange(event) {
       const file = this.modelAdd.path_gambar_profile;
-
       if (file) {
         const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         if (!allowedTypes.includes(file.type)) {
-          this.contentSnackbar.snackbar = true;
-          this.contentSnackbar.text = 'Format file harus PNG, JPG, atau JPEG';
-          this.contentSnackbar.color = this.app.colors.secondary;
+          this.showSnackbar('Format file harus PNG, JPG, atau JPEG', 'error');
           this.modelAdd.path_gambar_profile = null;
           this.previewFotoProfileAdd = null;
           return;
         }
 
-        const maxSize = 5 * 1024 * 1024;
+        const maxSize = 2 * 1024 * 1024;
         if (file.size > maxSize) {
-          this.contentSnackbar.snackbar = true;
-          this.contentSnackbar.text = 'Ukuran file maksimal 5MB';
-          this.contentSnackbar.color = this.app.colors.secondary;
+          this.showSnackbar('Ukuran file maksimal 2MB', 'error');
           this.modelAdd.path_gambar_profile = null;
           this.previewFotoProfileAdd = null;
           return;
         }
 
         const reader = new FileReader();
-        reader.onload = (e) => {
-          this.previewFotoProfileAdd = e.target.result;
-        };
+        reader.onload = (e) => { this.previewFotoProfileAdd = e.target.result; };
         reader.readAsDataURL(file);
       } else {
         this.previewFotoProfileAdd = null;
@@ -684,70 +961,35 @@ export default {
 
     handleFotoProfileEditChange(event) {
       const file = this.modelEdit.path_gambar_profile;
-
       if (file) {
         const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         if (!allowedTypes.includes(file.type)) {
-          this.contentSnackbar.snackbar = true;
-          this.contentSnackbar.text = 'Format file harus PNG, JPG, atau JPEG';
-          this.contentSnackbar.color = this.app.colors.secondary;
+          this.showSnackbar('Format file harus PNG, JPG, atau JPEG', 'error');
           this.modelEdit.path_gambar_profile = null;
           this.previewFotoProfileEdit = null;
           return;
         }
 
-        const maxSize = 5 * 1024 * 1024;
+        const maxSize = 2 * 1024 * 1024;
         if (file.size > maxSize) {
-          this.contentSnackbar.snackbar = true;
-          this.contentSnackbar.text = 'Ukuran file maksimal 5MB';
-          this.contentSnackbar.color = this.app.colors.secondary;
+          this.showSnackbar('Ukuran file maksimal 2MB', 'error');
           this.modelEdit.path_gambar_profile = null;
           this.previewFotoProfileEdit = null;
           return;
         }
 
         const reader = new FileReader();
-        reader.onload = (e) => {
-          this.previewFotoProfileEdit = e.target.result;
-        };
+        reader.onload = (e) => { this.previewFotoProfileEdit = e.target.result; };
         reader.readAsDataURL(file);
       } else {
         this.previewFotoProfileEdit = null;
       }
     },
 
-    showSnackbar(response, isError = false) {
+    showSnackbar(text, color = 'success') {
+      this.contentSnackbar.text = text;
+      this.contentSnackbar.color = color;
       this.contentSnackbar.snackbar = true;
-
-      let message = '';
-      if (response && response.data) {
-        message = response.data.message || response.data.error || '';
-
-        if (response.data.errors && Array.isArray(response.data.errors)) {
-          message = response.data.errors.join(', ');
-        } else if (response.data.errors && typeof response.data.errors === 'object') {
-          const errorMessages = [];
-          for (const field in response.data.errors) {
-            if (Array.isArray(response.data.errors[field])) {
-              errorMessages.push(...response.data.errors[field]);
-            } else {
-              errorMessages.push(response.data.errors[field]);
-            }
-          }
-          message = errorMessages.join(', ');
-        }
-      }
-
-      if (!message && response && response.message) {
-        message = response.message;
-      }
-
-      if (!message) {
-        message = isError ? 'Terjadi kesalahan tidak terduga' : 'Operasi berhasil';
-      }
-
-      this.contentSnackbar.text = message;
-      this.contentSnackbar.color = isError ? this.app.colors.secondary : this.app.colors.primary;
     },
 
     updateCurrentpageInfo(options) {
@@ -755,173 +997,52 @@ export default {
       this.itemsPerPage = options.itemsPerPage;
     },
 
-    getAuthorityColor(otoritas) {
-      switch (otoritas) {
-        case 'founder':
-          return '#9C27B0';
-        case 'superadmin':
-          return '#FF5722';
-        case 'admin':
-          return '#FF9800';
-        case 'distributor':
-          return '#2196F3';
-        case 'mvo':
-          return '#4CAF50';
-        default:
-          return '#9E9E9E';
-      }
+    getAuthorityColor(mvo_type_id) {
+      const colors = {
+
+      };
+      return colors[mvo_type_id] || '#FFD700';
     },
 
-    getAuthorityTextColor(otoritas) {
+    getAuthorityTextColor(mvo_type_id) {
       return 'white';
-    },
-
-    getProvinceCodeById(id) {
-      if (!id) return '';
-      const province = this.provinsiOptions.find(p => p.id == id);
-      return province ? province.code : '';
     },
 
     getJabatanNameById(id) {
       if (!id) return '';
-      const jabatan = this.jabatanOptions.find(j => j.id == id);
-      return jabatan ? jabatan.nama : '';
-    },
-
-    validateForm(model, isEdit = false) {
-      const errors = [];
-
-      if (!model.username) errors.push('Username wajib diisi');
-      if (!isEdit && !model.password) errors.push('Password wajib diisi');
-      if (model.password && model.password.length < 6) errors.push('Password minimal 6 karakter');
-      if (!model.nama) errors.push('Nama lengkap wajib diisi');
-      if (!model.no_id) errors.push('Nomer ID wajib diisi');
-      // if (model.no_id && (!/^\d+$/.test(model.no_id) || model.no_id.length !== 5)) {
-      //   errors.push('Nomer ID Maksimal 16 digit angka');
-      // }
-      if (!model.cabang) errors.push('Cabang wajib dipilih');
-      if (!model.otoritas) errors.push('Otoritas wajib dipilih');
-
-      return errors;
-    },
-
-    getAllProvinsi() {
-      const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
-
-      this.isProvinsiLoading = true;
-      axios
-        .get("https://babaapi.teknosof.com/api/provinsi", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          if (response.data.status === "success") {
-            this.provinsiOptions = response.data.data;
-            console.log('Data provinsi berhasil dimuat:', this.provinsiOptions.length, 'provinsi');
-          } else {
-            this.showSnackbar(response, true);
-          }
-        })
-        .catch((error) => {
-          console.error('Error loading provinsi:', error);
-          this.showSnackbar(error.response || error, true);
-        })
-        .finally(() => {
-          this.isProvinsiLoading = false;
-        });
-    },
-
-    getAllJabatan() {
-      const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
-
-      this.isJabatanLoading = true;
-      axios
-        .get("https://babaapi.teknosof.com/api/jabatan", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          if (response.data.status === "success") {
-            this.jabatanOptions = response.data.data.map(jabatan => ({
-              id: jabatan.id,
-              nama: jabatan.nama || jabatan.nama || 'Nama Jabatan Tidak Tersedia'
-            }));
-            console.log('Data jabatan berhasil dimuat:', this.jabatanOptions.length, 'jabatan');
-          } else {
-            this.showSnackbar(response, true);
-          }
-        })
-        .catch((error) => {
-          console.error('Error loading jabatan:', error);
-          this.showSnackbar(error.response || error, true);
-        })
-        .finally(() => {
-          this.isJabatanLoading = false;
-        });
+      const jabatan = this.jabatanOptions.find(j => j.value == id);
+      return jabatan ? jabatan.text : '';
     },
 
     showDialogFormAddUser() {
       this.isShowDialogAdd = true;
       this.clearAddForm();
-      if (this.provinsiOptions.length === 0) {
-        this.getAllProvinsi();
-      }
-      if (this.jabatanOptions.length === 0) {
-        this.getAllJabatan();
-      }
+      if (this.cabangOptions.length === 0) this.fetchProvinsiData();
+      if (this.jabatanOptions.length === 0) this.getAllMvoType();
     },
 
     clearAddForm() {
       this.modelAdd = {
-        username: "",
-        password: "",
-        nama: "",
-        nama_panggilan: "",
-        no_id: "",
-        tempat_lahir: "",
-        tgl_lahir: "",
-        jenis_kelamin: "",
-        nohp: "",
-        alamat: "",
-        class_member: "",
-        cabang: "",
-        otoritas: "",
-        jabatan_id: "",
-        path_gambar_profile: null,
+        no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
+        jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
+        password: '', path_gambar_profile: null, cabang: '', upline_1: '',
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
       };
       this.previewFotoProfileAdd = null;
+      this.mvoOptionsAdd = this.regionalOptionsAdd = this.founderOptionsAdd = [];
+      this.gmOptionsAdd = this.supplierOptionsAdd = this.distributorOptionsAdd = [];
     },
 
     clearEditForm() {
       this.modelEdit = {
-        id: "",
-        username: "",
-        password: "",
-        nama: "",
-        nama_panggilan: "",
-        no_id: "",
-        tempat_lahir: "",
-        tgl_lahir: "",
-        jenis_kelamin: "",
-        nohp: "",
-        alamat: "",
-        class_member: "",
-        cabang: "",
-        otoritas: "",
-        jabatan_id: "",
-        path_gambar_profile: null,
+        id: "", no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
+        jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
+        password: '', path_gambar_profile: null, cabang: '', upline_1: '',
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
       };
       this.previewFotoProfileEdit = null;
+      this.mvoOptionsEdit = this.regionalOptionsEdit = this.founderOptionsEdit = [];
+      this.gmOptionsEdit = this.supplierOptionsEdit = this.distributorOptionsEdit = [];
     },
 
     getAllUser() {
@@ -932,97 +1053,91 @@ export default {
       }
 
       this.isTableLoading = true;
-      axios
-        .get("https://babaapi.teknosof.com/api/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      axios.get("https://babaapi.teknosof.com/api/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then((response) => {
           if (response.data.status === "success") {
-            this.datatable.items = response.data.data.filter(user =>
-              user.otoritas !== 'superadmin'
-            );
-
-            console.log('Data user berhasil dimuat:', this.datatable.items.length, 'users');
+            this.datatable.items = response.data.data.filter(user => user.mvo_type_id !== 'superadmin');
           } else {
-            this.showSnackbar(response, true);
+            this.showSnackbar(response.data.message || 'Gagal memuat data user', 'error');
           }
         })
         .catch((error) => {
-          console.error('Error loading users:', error);
-          this.showSnackbar(error.response || error, true);
+          this.showSnackbar('Gagal memuat data user', 'error');
         })
         .finally(() => {
           this.isTableLoading = false;
         });
     },
 
-    addUser() {
-      const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
-
-      const errors = this.validateForm(this.modelAdd);
-      if (errors.length > 0) {
-        this.contentSnackbar.snackbar = true;
-        this.contentSnackbar.text = errors.join(', ');
-        this.contentSnackbar.color = this.app.colors.secondary;
-        return;
-      }
+    async addUser() {
+      this.isButtonLoading = true;
 
       const formData = new FormData();
-
-      formData.append('username', this.modelAdd.username);
-      formData.append('password', this.modelAdd.password);
-      formData.append('nama', this.modelAdd.nama);
-      formData.append('nama_panggilan', this.modelAdd.nama_panggilan || '');
-      formData.append('no_id', this.modelAdd.no_id);
-      formData.append('tempat_lahir', this.modelAdd.tempat_lahir || '');
-      formData.append('tgl_lahir', this.modelAdd.tgl_lahir || '');
-      formData.append('jenis_kelamin', this.modelAdd.jenis_kelamin || '');
-      formData.append('nohp', this.modelAdd.nohp || '');
-      formData.append('alamat', this.modelAdd.alamat || '');
-      formData.append('class_member', this.modelAdd.class_member || '');
-      formData.append('cabang', String(this.modelAdd.cabang));
-      formData.append('otoritas', this.modelAdd.otoritas);
-      formData.append('jabatan_id', String(this.modelAdd.jabatan_id || ''));
-
-      if (this.modelAdd.path_gambar_profile) {
-        formData.append('path_gambar_profile', this.modelAdd.path_gambar_profile);
+      for (const [key, value] of Object.entries(this.modelAdd)) {
+        formData.append(key, value ?? '');
       }
 
-      console.log('Data yang akan dikirim untuk menambah user (FormData)');
+      const apiUrls = [
+        'https://babaapi.teknosof.com/api/user',
+        'https://babaapi.teknosof.com/api/user'
+      ];
 
-      this.isButtonLoading = true;
-      axios
-        .post(
-          "https://babaapi.teknosof.com/api/user",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
-              Accept: "application/json",
-            },
+      const requestConfig = {
+        headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' },
+        timeout: 30000
+      };
+
+      let lastError = null;
+      let success = false;
+
+      for (const apiUrl of apiUrls) {
+        try {
+          const response = await axios.post(apiUrl, formData, requestConfig);
+
+          if (response.status === 200 || response.status === 201) {
+            this.showSnackbar('User berhasil ditambahkan!', 'success');
+            this.getAllUser();
+            this.isShowDialogAdd = false;
+            this.clearAddForm();
+            success = true;
+            break;
           }
-        )
-        .then((response) => {
-          console.log('Response add user:', response.data);
-          this.getAllUser();
-          this.isShowDialogAdd = false;
-          this.showSnackbar(response, false);
-          this.clearAddForm();
-        })
-        .catch((error) => {
-          console.error('Error add user:', error.response);
-          this.showSnackbar(error.response || error, true);
-        })
-        .finally(() => {
-          this.isButtonLoading = false;
-        });
+        } catch (error) {
+          lastError = error;
+          if (error.response) break;
+
+          if (error.code === 'ERR_CERT_DATE_INVALID' || error.code === 'ERR_NETWORK' ||
+            error.message?.includes('ERR_CERT') || error.message?.includes('SSL') ||
+            error.message?.includes('Network Error')) {
+            continue;
+          }
+          break;
+        }
+      }
+
+      if (!success && lastError) {
+        let message = 'Tambah user gagal';
+        if (lastError.response) {
+          const status = lastError.response.status;
+          const data = lastError.response.data;
+          const errorMap = {
+            400: data?.message || 'Bad Request',
+            409: data?.message || 'Data sudah ada',
+            422: JSON.stringify(data?.errors) || 'Data tidak valid',
+            500: 'Server error'
+          };
+          message = errorMap[status] || data?.message || `Error: ${status}`;
+        } else if (lastError.code === 'ECONNABORTED') {
+          message = 'Timeout';
+        } else if (lastError.code === 'ERR_NETWORK') {
+          message = 'Network error';
+        }
+        this.showSnackbar(message, 'error');
+      }
+
+      this.isButtonLoading = false;
     },
 
     editUser(id) {
@@ -1036,134 +1151,130 @@ export default {
       this.clearEditForm();
       this.isShowDialogEdit = true;
 
-      if (this.provinsiOptions.length === 0) {
-        this.getAllProvinsi();
-      }
-      if (this.jabatanOptions.length === 0) {
-        this.getAllJabatan();
-      }
+      if (this.cabangOptions.length === 0) this.fetchProvinsiData();
+      if (this.jabatanOptions.length === 0) this.getAllMvoType();
 
-      console.log('Mengambil data user dengan ID:', id);
-
-      axios
-        .get(`https://babaapi.teknosof.com/api/user/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      axios.get(`https://babaapi.teknosof.com/api/user/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then((response) => {
           if (response.data.status === "success") {
             const userData = response.data.data;
-            console.log('Data user yang diterima:', userData);
 
             this.modelEdit.id = userData.id;
-            this.modelEdit.username = userData.username || "";
+            this.modelEdit.no_id = userData.no_id || "";
             this.modelEdit.nama = userData.nama || "";
             this.modelEdit.nama_panggilan = userData.nama_panggilan || "";
-            this.modelEdit.no_id = userData.no_id || "";
             this.modelEdit.tempat_lahir = userData.tempat_lahir || "";
             this.modelEdit.tgl_lahir = userData.tgl_lahir || "";
             this.modelEdit.jenis_kelamin = userData.jenis_kelamin || "";
             this.modelEdit.nohp = userData.nohp || "";
             this.modelEdit.alamat = userData.alamat || "";
-            this.modelEdit.class_member = userData.class_member || "";
-            this.modelEdit.cabang = userData.cabang || "";
-            this.modelEdit.otoritas = userData.otoritas || "";
-            this.modelEdit.jabatan_id = userData.jabatan_id ? parseInt(userData.jabatan_id) : "";
+            this.modelEdit.mvo_type_id = userData.mvo_type_id ? parseInt(userData.mvo_type_id) : "";
+            this.modelEdit.username = userData.username || "";
             this.modelEdit.password = "";
+            this.modelEdit.cabang = userData.cabang || "";
+            this.modelEdit.upline_1 = userData.upline_1 || "";
+            this.modelEdit.upline_2 = userData.upline_2 || "";
+            this.modelEdit.upline_3 = userData.upline_3 || "";
+            this.modelEdit.upline_4 = userData.upline_4 || "";
+            this.modelEdit.upline_5 = userData.upline_5 || "";
+            this.modelEdit.upline_6 = userData.upline_6 || "";
+            this.modelEdit.upline_7 = userData.upline_7 || "-";
             this.modelEdit.path_gambar_profile = null;
 
             if (userData.path_gambar_profile) {
               this.previewFotoProfileEdit = userData.path_gambar_profile;
             }
 
-            console.log('Model edit setelah diisi:', {
-              cabang: this.modelEdit.cabang,
-              jabatan_id: this.modelEdit.jabatan_id,
-              otoritas: this.modelEdit.otoritas
-            });
+            if (this.modelEdit.cabang) this.getMvoEdit(this.modelEdit.cabang);
+            if (this.modelEdit.upline_1) this.getRegionalEdit(this.modelEdit.upline_1);
+            if (this.modelEdit.upline_2) this.getFounderEdit(this.modelEdit.upline_2);
+            if (this.modelEdit.upline_3) this.getGmEdit(this.modelEdit.upline_3);
+            if (this.modelEdit.upline_4) this.getSupplierEdit(this.modelEdit.upline_4);
+            if (this.modelEdit.upline_5) this.getDistributorEdit(this.modelEdit.upline_5);
+
           } else {
-            this.showSnackbar(response, true);
+            this.showSnackbar(response.data.message || 'Gagal mengambil data user', 'error');
             this.isShowDialogEdit = false;
           }
         })
         .catch((error) => {
-          console.error('Error saat mengambil data user:', error);
-          this.showSnackbar(error.response || error, true);
+          this.showSnackbar('Gagal mengambil data user', 'error');
           this.isShowDialogEdit = false;
         });
     },
 
-    updateUser() {
-      const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
-
-      const errors = this.validateForm(this.modelEdit, true);
-      if (errors.length > 0) {
-        this.contentSnackbar.snackbar = true;
-        this.contentSnackbar.text = errors.join(', ');
-        this.contentSnackbar.color = this.app.colors.secondary;
-        return;
-      }
+    async updateUser() {
+      this.isButtonLoading = true;
 
       const formData = new FormData();
-
-      formData.append('username', this.modelEdit.username);
-      formData.append('nama', this.modelEdit.nama);
-      formData.append('nama_panggilan', this.modelEdit.nama_panggilan || '');
-      formData.append('no_id', this.modelEdit.no_id);
-      formData.append('tempat_lahir', this.modelEdit.tempat_lahir || '');
-      formData.append('tgl_lahir', this.modelEdit.tgl_lahir || '');
-      formData.append('jenis_kelamin', this.modelEdit.jenis_kelamin || '');
-      formData.append('nohp', this.modelEdit.nohp || '');
-      formData.append('alamat', this.modelEdit.alamat || '');
-      formData.append('class_member', this.modelEdit.class_member || '');
-      formData.append('cabang', String(this.modelEdit.cabang));
-      formData.append('otoritas', this.modelEdit.otoritas);
-      formData.append('jabatan_id', String(this.modelEdit.jabatan_id || ''));
-
-      if (this.modelEdit.password && this.modelEdit.password.trim() !== "") {
-        formData.append('password', this.modelEdit.password);
+      for (const [key, value] of Object.entries(this.modelEdit)) {
+        if (key !== 'id') {
+          formData.append(key, value ?? '');
+        }
       }
-
-      if (this.modelEdit.path_gambar_profile) {
-        formData.append('path_gambar_profile', this.modelEdit.path_gambar_profile);
-      }
-
       formData.append('_method', 'PUT');
 
-      console.log('Data yang akan dikirim untuk update user (FormData)');
+      const apiUrls = [
+        `https://babaapi.teknosof.com/api/user/${this.modelEdit.id}`,
+        `https://babaapi.teknosof.com/api/user/${this.modelEdit.id}`
+      ];
 
-      this.isButtonLoading = true;
-      axios
-        .post(
-          `https://babaapi.teknosof.com/api/user/${this.modelEdit.id}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
-              Accept: "application/json",
-            },
+      const requestConfig = {
+        headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' },
+        timeout: 30000
+      };
+
+      let lastError = null;
+      let success = false;
+
+      for (const apiUrl of apiUrls) {
+        try {
+          const response = await axios.post(apiUrl, formData, requestConfig);
+
+          if (response.status === 200 || response.status === 201) {
+            this.showSnackbar('User berhasil diupdate!', 'success');
+            this.getAllUser();
+            this.isShowDialogEdit = false;
+            this.clearEditForm();
+            success = true;
+            break;
           }
-        )
-        .then((response) => {
-          console.log('Response update user:', response.data);
-          this.getAllUser();
-          this.showSnackbar(response, false);
-          this.isShowDialogEdit = false;
-          this.clearEditForm();
-        })
-        .catch((error) => {
-          console.error('Error update user:', error.response);
-          this.showSnackbar(error.response || error, true);
-        })
-        .finally(() => {
-          this.isButtonLoading = false;
-        });
+        } catch (error) {
+          lastError = error;
+          if (error.response) break;
+
+          if (error.code === 'ERR_CERT_DATE_INVALID' || error.code === 'ERR_NETWORK' ||
+            error.message?.includes('ERR_CERT') || error.message?.includes('SSL') ||
+            error.message?.includes('Network Error')) {
+            continue;
+          }
+          break;
+        }
+      }
+
+      if (!success && lastError) {
+        let message = 'Update user gagal';
+        if (lastError.response) {
+          const status = lastError.response.status;
+          const data = lastError.response.data;
+          const errorMap = {
+            400: data?.message || 'Bad Request',
+            409: data?.message || 'Data sudah ada',
+            422: JSON.stringify(data?.errors) || 'Data tidak valid',
+            500: 'Server error'
+          };
+          message = errorMap[status] || data?.message || `Error: ${status}`;
+        } else if (lastError.code === 'ECONNABORTED') {
+          message = 'Timeout';
+        } else if (lastError.code === 'ERR_NETWORK') {
+          message = 'Network error';
+        }
+        this.showSnackbar(message, 'error');
+      }
+
+      this.isButtonLoading = false;
     },
 
     deleteUser(id) {
@@ -1180,21 +1291,15 @@ export default {
       }
 
       this.isButtonLoading = true;
-      axios
-        .delete(`https://babaapi.teknosof.com/api/user/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        })
+      axios.delete(`https://babaapi.teknosof.com/api/user/${id}`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      })
         .then((response) => {
-          console.log('Response delete user:', response.data);
           this.getAllUser();
-          this.showSnackbar(response, false);
+          this.showSnackbar('User berhasil dihapus', 'success');
         })
         .catch((error) => {
-          console.error('Error delete user:', error.response);
-          this.showSnackbar(error.response || error, true);
+          this.showSnackbar('Gagal menghapus user', 'error');
         })
         .finally(() => {
           this.isButtonLoading = false;
@@ -1210,23 +1315,17 @@ export default {
       }
 
       this.expandedMobileCard = null;
-
       this.isButtonLoading = true;
-      axios
-        .post(`https://babaapi.teknosof.com/api/user/aktivasi/${id}`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        })
+
+      axios.post(`https://babaapi.teknosof.com/api/user/aktivasi/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      })
         .then((response) => {
-          console.log('Response aktivasi user:', response.data);
           this.getAllUser();
-          this.showSnackbar(response, false);
+          this.showSnackbar('Status aktivasi berhasil diubah', 'success');
         })
         .catch((error) => {
-          console.error('Error aktivasi user:', error.response);
-          this.showSnackbar(error.response || error, true);
+          this.showSnackbar('Gagal mengubah status aktivasi', 'error');
         })
         .finally(() => {
           this.isButtonLoading = false;
@@ -1235,10 +1334,8 @@ export default {
   },
 
   created() {
-    console.log('Component created, loading initial data...');
     this.getAllUser();
-    this.getAllProvinsi();
-    this.getAllJabatan();
+    this.fetchProvinsiData();
     this.getAllMvoType();
   },
 
@@ -1251,7 +1348,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 /* Desktop Table Styling */
 :deep(.v-data-table) {
