@@ -34,6 +34,14 @@
           <template v-slot:item.no="{ index }">
             {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
           </template>
+          <!-- KOLOM BINTANG -->
+          <template v-slot:item.jlh_bintang="{ item }">
+            <div>
+              <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
+                mdi-star
+              </v-icon>
+            </div>
+          </template>
 
           <!-- Kolom mvo_type_id -->
           <template v-slot:item.mvo_type_id="{ item }">
@@ -193,136 +201,146 @@
         <v-icon class="mr-2" style="color: #FFD700;">mdi-account-plus</v-icon>
         <span class="dialog-title">TAMBAH DATA USER</span>
       </v-card-title>
+
       <v-card-text class="dialog-content">
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="No ID" v-model="modelAdd.no_id" class="mb-2 mt-4" type="text" density="compact"
-              prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber" base-color="grey-lighten-1"
-              maxlength="16" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Lengkap" v-model="modelAdd.nama" class="mb-2 mt-4" density="compact"
-              prepend-inner-icon="mdi-account" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Panggilan" v-model="modelAdd.nama_panggilan" class="mb-2" density="compact"
-              prepend-inner-icon="mdi-account-outline" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tempat Lahir" v-model="modelAdd.tempat_lahir" class="mb-2" density="compact"
-              prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tanggal Lahir" v-model="modelAdd.tgl_lahir" class="mb-2" type="date" density="compact"
-              prepend-inner-icon="mdi-calendar" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nomor HP" v-model="modelAdd.nohp" class="mb-2" @input="validatePhoneAdd"
-              density="compact" prepend-inner-icon="mdi-phone" variant="outlined" color="amber"
-              base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Jenis Kelamin" v-model="modelAdd.jenis_kelamin" :items="jenisKelaminOptions"
-              item-title="text" item-value="value" density="compact" prepend-inner-icon="mdi-gender-male-female"
-              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-combobox label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
-              item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
-              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12">
-            <v-textarea label="Alamat Lengkap" v-model="modelAdd.alamat" rows="2" auto-grow density="compact"
-              prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
+        <div class="input-box">
+          <div class="input-box-title">DATA PRIBADI</div>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="No ID" v-model="modelAdd.no_id" class="mb-2 mt-4" type="text" density="compact"
+                prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber"
+                base-color="grey-lighten-1" maxlength="16" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Nama Lengkap" v-model="modelAdd.nama" class="mb-2 mt-4" density="compact"
+                prepend-inner-icon="mdi-account" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Nama Panggilan" v-model="modelAdd.nama_panggilan" class="mb-2" density="compact"
+                prepend-inner-icon="mdi-account-outline" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Tempat Lahir" v-model="modelAdd.tempat_lahir" class="mb-2" density="compact"
+                prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Tanggal Lahir" v-model="modelAdd.tgl_lahir" class="mb-2" type="date"
+                density="compact" prepend-inner-icon="mdi-calendar" variant="outlined" color="amber"
+                base-color="grey-lighten-1" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Nomor HP" v-model="modelAdd.nohp" class="mb-2" @input="validatePhoneAdd"
+                density="compact" prepend-inner-icon="mdi-phone" variant="outlined" color="amber"
+                base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Jenis Kelamin" v-model="modelAdd.jenis_kelamin" :items="jenisKelaminOptions"
+                item-title="text" item-value="value" density="compact" prepend-inner-icon="mdi-gender-male-female"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-combobox label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
+                item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-textarea label="Alamat Lengkap" v-model="modelAdd.alamat" rows="2" auto-grow density="compact"
+                prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+        </div>
+        <div class="box-glass">
+          <div class="input-box-title">STRUKTUR UPLINE</div>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Cabang (Provinsi)" v-model="modelAdd.cabang" :items="cabangOptions" item-title="text"
+                item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
+                color="amber" base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
+                :disabled="loadingProvinsi" @update:modelValue="onCabangChangeAdd" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih MVO" v-model="modelAdd.upline_1" :items="mvoOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingMvoAdd" :disabled="!modelAdd.cabang"
+                @update:modelValue="onMvoChangeAdd" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Cabang (Provinsi)" v-model="modelAdd.cabang" :items="cabangOptions" item-title="text"
-              item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable :loading="loadingProvinsi" :disabled="loadingProvinsi"
-              @update:modelValue="onCabangChangeAdd" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih MVO" v-model="modelAdd.upline_1" :items="mvoOptionsAdd" item-title="text"
-              item-value="value" :loading="loadingMvoAdd" :disabled="!modelAdd.cabang"
-              @update:modelValue="onMvoChangeAdd" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Regional" v-model="modelAdd.upline_2" :items="regionalOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingRegionalAdd" :disabled="!modelAdd.upline_1"
+                @update:modelValue="onRegionalChangeAdd" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Founder" v-model="modelAdd.upline_3" :items="founderOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingFounderAdd" :disabled="!modelAdd.upline_2"
+                @update:modelValue="onFounderChangeAdd" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Regional" v-model="modelAdd.upline_2" :items="regionalOptionsAdd" item-title="text"
-              item-value="value" :loading="loadingRegionalAdd" :disabled="!modelAdd.upline_1"
-              @update:modelValue="onRegionalChangeAdd" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Founder" v-model="modelAdd.upline_3" :items="founderOptionsAdd" item-title="text"
-              item-value="value" :loading="loadingFounderAdd" :disabled="!modelAdd.upline_2"
-              @update:modelValue="onFounderChangeAdd" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih GM" v-model="modelAdd.upline_4" :items="gmOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingGmAdd" :disabled="!modelAdd.upline_3"
+                @update:modelValue="onGmChangeAdd" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Supplier" v-model="modelAdd.upline_5" :items="supplierOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingSupplierAdd" :disabled="!modelAdd.upline_4"
+                @update:modelValue="onSupplierChangeAdd" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih GM" v-model="modelAdd.upline_4" :items="gmOptionsAdd" item-title="text"
-              item-value="value" :loading="loadingGmAdd" :disabled="!modelAdd.upline_3"
-              @update:modelValue="onGmChangeAdd" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Supplier" v-model="modelAdd.upline_5" :items="supplierOptionsAdd" item-title="text"
-              item-value="value" :loading="loadingSupplierAdd" :disabled="!modelAdd.upline_4"
-              @update:modelValue="onSupplierChangeAdd" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Distributor" v-model="modelAdd.upline_6" :items="distributorOptionsAdd"
+                item-title="text" item-value="value" :loading="loadingDistributorAdd" :disabled="!modelAdd.upline_5"
+                density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Username" v-model="modelAdd.username" type="text" density="compact"
+                prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Distributor" v-model="modelAdd.upline_6" :items="distributorOptionsAdd"
-              item-title="text" item-value="value" :loading="loadingDistributorAdd" :disabled="!modelAdd.upline_5"
-              density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Username" v-model="modelAdd.username" type="text" density="compact"
-              prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field v-model="modelAdd.password" :type="visibleAdd ? 'text' : 'password'" density="compact"
+                label="Password" prepend-inner-icon="mdi-lock"
+                :append-inner-icon="visibleAdd ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="visibleAdd = !visibleAdd" variant="outlined" color="amber"
+                base-color="grey-lighten-1" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-file-input label="Foto Profil" v-model="modelAdd.path_gambar_profile"
+                accept="image/png, image/jpeg, image/jpg" variant="outlined" density="compact"
+                prepend-inner-icon="mdi-camera" color="amber" base-color="grey-lighten-1"
+                @change="handleFotoProfileAddChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field v-model="modelAdd.password" :type="visibleAdd ? 'text' : 'password'" density="compact"
-              label="Password" prepend-inner-icon="mdi-lock" :append-inner-icon="visibleAdd ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append-inner="visibleAdd = !visibleAdd" variant="outlined" color="amber"
-              base-color="grey-lighten-1" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-file-input label="Foto Profil" v-model="modelAdd.path_gambar_profile"
-              accept="image/png, image/jpeg, image/jpg" variant="outlined" density="compact"
-              prepend-inner-icon="mdi-camera" color="amber" base-color="grey-lighten-1"
-              @change="handleFotoProfileAddChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
-          </v-col>
-        </v-row>
-
-        <v-row v-if="previewFotoProfileAdd">
-          <v-col cols="12" class="text-center">
-            <v-img :src="previewFotoProfileAdd" max-width="150" height="150" class="mx-auto my-2 rounded-xl" contain />
-          </v-col>
-        </v-row>
+          <v-row v-if="previewFotoProfileAdd">
+            <v-col cols="12" class="text-center">
+              <v-img :src="previewFotoProfileAdd" max-width="100" height="100" class="mx-auto my-2 rounded-xl"
+                contain />
+            </v-col>
+          </v-row>
+        </div>
       </v-card-text>
+
       <v-card-actions class="dialog-actions">
         <v-spacer></v-spacer>
         <v-btn :color="app.colors.secondary" @click="isShowDialogAdd = false" class="ml-2">Batal</v-btn>
@@ -339,129 +357,135 @@
         <span class="dialog-title">EDIT DATA USER</span>
       </v-card-title>
       <v-card-text class="dialog-content">
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="No ID" v-model="modelEdit.no_id" class="mb-2 mt-4" type="text" density="compact"
-              prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber" base-color="grey-lighten-1"
-              maxlength="16" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Lengkap" v-model="modelEdit.nama" class="mb-2 mt-4" density="compact"
-              prepend-inner-icon="mdi-account" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nama Panggilan" v-model="modelEdit.nama_panggilan" class="mb-2" density="compact"
-              prepend-inner-icon="mdi-account-outline" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tempat Lahir" v-model="modelEdit.tempat_lahir" class="mb-2" density="compact"
-              prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Tanggal Lahir" v-model="modelEdit.tgl_lahir" class="mb-2" type="date" density="compact"
-              prepend-inner-icon="mdi-calendar" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Nomor HP" v-model="modelEdit.nohp" class="mb-2" @input="validatePhoneEdit"
-              density="compact" prepend-inner-icon="mdi-phone" variant="outlined" color="amber"
-              base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Jenis Kelamin" v-model="modelEdit.jenis_kelamin" :items="jenisKelaminOptions"
-              item-title="text" item-value="value" density="compact" prepend-inner-icon="mdi-gender-male-female"
-              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-combobox label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
-              item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
-              variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12">
-            <v-textarea label="Alamat Lengkap" v-model="modelEdit.alamat" rows="2" auto-grow density="compact"
-              prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
+        <div class="input-box">
+          <div class="input-box-title">DATA PRIBADI</div>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="No ID" v-model="modelEdit.no_id" class="mb-2 mt-4" type="text" density="compact"
+                prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber"
+                base-color="grey-lighten-1" maxlength="16" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Nama Lengkap" v-model="modelEdit.nama" class="mb-2 mt-4" density="compact"
+                prepend-inner-icon="mdi-account" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Nama Panggilan" v-model="modelEdit.nama_panggilan" class="mb-2" density="compact"
+                prepend-inner-icon="mdi-account-outline" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Tempat Lahir" v-model="modelEdit.tempat_lahir" class="mb-2" density="compact"
+                prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Tanggal Lahir" v-model="modelEdit.tgl_lahir" class="mb-2" type="date"
+                density="compact" prepend-inner-icon="mdi-calendar" variant="outlined" color="amber"
+                base-color="grey-lighten-1" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Nomor HP" v-model="modelEdit.nohp" class="mb-2" @input="validatePhoneEdit"
+                density="compact" prepend-inner-icon="mdi-phone" variant="outlined" color="amber"
+                base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Jenis Kelamin" v-model="modelEdit.jenis_kelamin" :items="jenisKelaminOptions"
+                item-title="text" item-value="value" density="compact" prepend-inner-icon="mdi-gender-male-female"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-combobox label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
+                item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-textarea label="Alamat Lengkap" v-model="modelEdit.alamat" rows="2" auto-grow density="compact"
+                prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
+        </div>
+        <div class="box-glass">
+          <div class="input-box-title">STRUKTUR UPLINE</div>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Cabang (Provinsi)" v-model="modelEdit.cabang" :items="cabangOptions" item-title="text"
+                item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
+                color="amber" base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
+                :disabled="loadingProvinsi" @update:modelValue="onCabangChangeEdit" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih MVO" v-model="modelEdit.upline_1" :items="mvoOptionsEdit" item-title="text"
+                item-value="value" :loading="loadingMvoEdit" :disabled="!modelEdit.cabang"
+                @update:modelValue="onMvoChangeEdit" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Cabang (Provinsi)" v-model="modelEdit.cabang" :items="cabangOptions" item-title="text"
-              item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable :loading="loadingProvinsi" :disabled="loadingProvinsi"
-              @update:modelValue="onCabangChangeEdit" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih MVO" v-model="modelEdit.upline_1" :items="mvoOptionsEdit" item-title="text"
-              item-value="value" :loading="loadingMvoEdit" :disabled="!modelEdit.cabang"
-              @update:modelValue="onMvoChangeEdit" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Regional" v-model="modelEdit.upline_2" :items="regionalOptionsEdit"
+                item-title="text" item-value="value" :loading="loadingRegionalEdit" :disabled="!modelEdit.upline_1"
+                @update:modelValue="onRegionalChangeEdit" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Founder" v-model="modelEdit.upline_3" :items="founderOptionsEdit" item-title="text"
+                item-value="value" :loading="loadingFounderEdit" :disabled="!modelEdit.upline_2"
+                @update:modelValue="onFounderChangeEdit" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Regional" v-model="modelEdit.upline_2" :items="regionalOptionsEdit" item-title="text"
-              item-value="value" :loading="loadingRegionalEdit" :disabled="!modelEdit.upline_1"
-              @update:modelValue="onRegionalChangeEdit" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Founder" v-model="modelEdit.upline_3" :items="founderOptionsEdit" item-title="text"
-              item-value="value" :loading="loadingFounderEdit" :disabled="!modelEdit.upline_2"
-              @update:modelValue="onFounderChangeEdit" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih GM" v-model="modelEdit.upline_4" :items="gmOptionsEdit" item-title="text"
+                item-value="value" :loading="loadingGmEdit" :disabled="!modelEdit.upline_3"
+                @update:modelValue="onGmChangeEdit" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Supplier" v-model="modelEdit.upline_5" :items="supplierOptionsEdit"
+                item-title="text" item-value="value" :loading="loadingSupplierEdit" :disabled="!modelEdit.upline_4"
+                @update:modelValue="onSupplierChangeEdit" density="compact" variant="outlined" color="amber"
+                base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih GM" v-model="modelEdit.upline_4" :items="gmOptionsEdit" item-title="text"
-              item-value="value" :loading="loadingGmEdit" :disabled="!modelEdit.upline_3"
-              @update:modelValue="onGmChangeEdit" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Supplier" v-model="modelEdit.upline_5" :items="supplierOptionsEdit" item-title="text"
-              item-value="value" :loading="loadingSupplierEdit" :disabled="!modelEdit.upline_4"
-              @update:modelValue="onSupplierChangeEdit" density="compact" variant="outlined" color="amber"
-              base-color="grey-lighten-1" clearable />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Distributor" v-model="modelEdit.upline_6" :items="distributorOptionsEdit"
+                item-title="text" item-value="value" :loading="loadingDistributorEdit" :disabled="!modelEdit.upline_5"
+                density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field label="Username" v-model="modelEdit.username" type="text" density="compact"
+                prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-select label="Pilih Distributor" v-model="modelEdit.upline_6" :items="distributorOptionsEdit"
-              item-title="text" item-value="value" :loading="loadingDistributorEdit" :disabled="!modelEdit.upline_5"
-              density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field label="Username" v-model="modelEdit.username" type="text" density="compact"
-              prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-text-field v-model="modelEdit.password" :type="visibleEdit ? 'text' : 'password'" density="compact"
-              label="Password (kosongkan jika tidak ingin diubah)" prepend-inner-icon="mdi-lock"
-              :append-inner-icon="visibleEdit ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append-inner="visibleEdit = !visibleEdit" variant="outlined" color="amber"
-              base-color="grey-lighten-1" />
-          </v-col>
-          <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-            <v-file-input label="Foto Profil (kosongkan jika tidak ingin diubah)"
-              v-model="modelEdit.path_gambar_profile" accept="image/png, image/jpeg, image/jpg" variant="outlined"
-              density="compact" prepend-inner-icon="mdi-camera" color="amber" base-color="grey-lighten-1"
-              @change="handleFotoProfileEditChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-text-field v-model="modelEdit.password" :type="visibleEdit ? 'text' : 'password'" density="compact"
+                label="Password (kosongkan jika tidak ingin diubah)" prepend-inner-icon="mdi-lock"
+                :append-inner-icon="visibleEdit ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="visibleEdit = !visibleEdit" variant="outlined" color="amber"
+                base-color="grey-lighten-1" />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-file-input label="Foto Profil (kosongkan jika tidak ingin diubah)"
+                v-model="modelEdit.path_gambar_profile" accept="image/png, image/jpeg, image/jpg" variant="outlined"
+                density="compact" prepend-inner-icon="mdi-camera" color="amber" base-color="grey-lighten-1"
+                @change="handleFotoProfileEditChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
+            </v-col>
+          </v-row>
+        </div>
 
         <v-row v-if="previewFotoProfileEdit">
           <v-col cols="12" class="text-center">
@@ -578,6 +602,7 @@ export default {
       ],
       cabangOptions: [],
       jabatanOptions: [],
+      mvoTypeList: [],
 
       datatable: {
         search: "",
@@ -588,7 +613,14 @@ export default {
           { key: "nama", title: "Nama Lengkap" },
           { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
-          // { key: "mvo_type_id", title: "Otoritas", align: "center" },
+          { key: "jlh_bintang", title: "Bintang" },
+          { key: "upline_1", title: "LEVEL 1" },
+          { key: "upline_2", title: "LEVEL 2" },
+          { key: "upline_3", title: "LEVEL 3" },
+          { key: "upline_4", title: "LEVEL 4" },
+          { key: "upline_5", title: "LEVEL 5" },
+          { key: "upline_6", title: "LEVEL 6" },
+          // { key: "upline_7", title: "LEVEL 7" },
           { key: "aktivasi", title: "Aktivasi", align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" }
         ],
@@ -631,6 +663,19 @@ export default {
   },
 
   methods: {
+    mapUserWithBintang(users) {
+      return users.map(u => {
+
+        const mvo = this.mvoTypeList.find(
+          m => m.id == u.mvo_type_id
+        );
+
+        return {
+          ...u,
+          jlh_bintang: mvo ? mvo.jlh_bintang : 0
+        };
+      });
+    },
     // ========== ADD FORM CASCADE ==========
     onCabangChangeAdd(val) {
       this.modelAdd.upline_1 = this.modelAdd.upline_2 = this.modelAdd.upline_3 = '';
@@ -893,29 +938,40 @@ export default {
 
     async getAllMvoType() {
       try {
-        const response = await axios.get('https://babaapi.teknosof.com/api/mvo-type', {
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          timeout: 10000
-        });
+        const response = await axios.get(
+          'https://babaapi.teknosof.com/api/mvo-type',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            timeout: 10000
+          }
+        );
 
         if (response.data.status === 'success' && response.data.data) {
+
+          // ✅ Simpan full data (untuk bintang)
+          this.mvoTypeList = response.data.data;
+
+          // ✅ Tetap buat dropdown jabatan
           this.jabatanOptions = response.data.data.map(item => ({
             text: item.jabatan,
             value: item.id
           }));
+
+          // 🔥 Kalau user sudah ada → mapping ulang
+          if (this.datatable.items.length > 0) {
+            this.datatable.items =
+              this.mapUserWithBintang(this.datatable.items);
+          }
+
         } else {
           this.showSnackbar('Gagal memuat data jabatan', 'error');
         }
+
       } catch (error) {
-        let message = 'Gagal memuat data jabatan';
-        if (error.response) {
-          message = `Error ${error.response.status}: ${error.response.data?.message || 'Server error'}`;
-        } else if (error.code === 'ECONNABORTED') {
-          message = 'Timeout saat memuat data jabatan';
-        } else if (error.code === 'ERR_NETWORK') {
-          message = 'Tidak dapat terhubung ke server jabatan';
-        }
-        this.showSnackbar(message, 'error');
+        this.showSnackbar('Gagal memuat data jabatan', 'error');
       }
     },
 
@@ -1044,7 +1100,22 @@ export default {
       this.mvoOptionsEdit = this.regionalOptionsEdit = this.founderOptionsEdit = [];
       this.gmOptionsEdit = this.supplierOptionsEdit = this.distributorOptionsEdit = [];
     },
+    getUserCabang() {
+      try {
+        const headerData = JSON.parse(localStorage.getItem('headerData'))
+        return headerData?.cabang || null
+      } catch (e) {
+        return null
+      }
+    },
 
+    getUserLogin() {
+      try {
+        return JSON.parse(localStorage.getItem('user'))
+      } catch (e) {
+        return null
+      }
+    },
     getAllUser() {
       const token = Cookies.get("token");
       if (!token) {
@@ -1053,17 +1124,76 @@ export default {
       }
 
       this.isTableLoading = true;
+
+      const userCabang = this.getUserCabang();
+      const userLogin = this.getUserLogin();
+
+      const isSuperadmin =
+        userLogin?.mvo_type_id?.toString().toLowerCase() === 'superadmin';
+
       axios.get("https://babaapi.teknosof.com/api/user", {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
           if (response.data.status === "success") {
-            this.datatable.items = response.data.data.filter(user => user.mvo_type_id !== 'superadmin');
+
+            let users = response.data.data;
+
+            // ❌ Buang superadmin lain (opsional)
+            users = users.filter(u => u.mvo_type_id !== 'superadmin');
+
+            // ================================
+            // FILTER JIKA BUKAN SUPERADMIN
+            // ================================
+            if (!isSuperadmin) {
+
+              // 1️⃣ Filter Cabang
+              if (userCabang) {
+                users = users.filter(u =>
+                  u.cabang &&
+                  u.cabang.toUpperCase().trim() === userCabang.toUpperCase().trim()
+                );
+              }
+
+              // 2️⃣ Filter Berdasarkan Upline Login
+              users = users.filter(u => {
+
+                return (
+
+                  // Kalau login MVO
+                  u.upline_1 === userLogin?.upline_1 ||
+
+                  // Regional
+                  u.upline_2 === userLogin?.upline_2 ||
+
+                  // Founder
+                  u.upline_3 === userLogin?.upline_3 ||
+
+                  // GM
+                  u.upline_4 === userLogin?.upline_4 ||
+
+                  // Supplier
+                  u.upline_5 === userLogin?.upline_5 ||
+
+                  // Distributor
+                  u.upline_6 === userLogin?.upline_6 ||
+
+                  // Atau dirinya sendiri
+                  u.id === userLogin?.id
+                );
+
+              });
+
+            }
+
+            this.datatable.items =
+              this.mapUserWithBintang(users);
+
           } else {
             this.showSnackbar(response.data.message || 'Gagal memuat data user', 'error');
           }
         })
-        .catch((error) => {
+        .catch(() => {
           this.showSnackbar('Gagal memuat data user', 'error');
         })
         .finally(() => {
@@ -1349,6 +1479,49 @@ export default {
 };
 </script>
 <style scoped>
+.box-glass {
+  position: relative;
+  padding: 22px 18px;
+  margin-bottom: 26px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.box-glass-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFD700;
+  margin-bottom: 14px;
+}
+
+.input-box {
+  border: 2px solid #FFD700;
+  /* Garis kotak emas */
+  border-radius: 14px;
+  /* Sudut membulat */
+  padding: 20px 16px 16px 16px;
+  /* Jarak isi ke garis */
+  margin-top: 16px;
+  margin-bottom: 24px;
+  position: relative;
+  /* Background tipis */
+}
+
+/* Judul di atas garis */
+.input-box-title {
+  position: absolute;
+  top: -12px;
+  left: 18px;
+  background: #1e1e1e;
+  /* Samakan background dialog */
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFD700;
+  letter-spacing: 1px;
+}
+
 /* Desktop Table Styling */
 :deep(.v-data-table) {
   border: 1px solid #000000;
