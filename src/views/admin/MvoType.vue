@@ -148,10 +148,10 @@
 
             <v-row class="mb-3">
               <v-col cols="12" class="detail-label">
-                <strong>Deskripsi:</strong>
+                <strong>Jabatan:</strong>
               </v-col>
-              <v-col cols="12" class="detail-value description-text">
-                {{ item.description || 'Tidak ada deskripsi' }}
+              <v-col cols="12" class="detail-value jabatan-text">
+                {{ item.jabatan || 'Tidak ada Jabatan' }}
               </v-col>
             </v-row>
 
@@ -213,7 +213,7 @@
         </v-row>
         <v-row>
           <v-col cols="12">
-            <v-textarea label="Description" v-model="modelAdd.description" class="mb-2" rows="3" />
+            <v-textarea label="Jabatan" v-model="modelAdd.jabatan" class="mb-2" rows="3" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -270,7 +270,7 @@
         </v-row>
         <v-row>
           <v-col cols="12">
-            <v-textarea label="Description" v-model="modelEdit.description" class="mb-2" rows="3" />
+            <v-textarea label="Jabatan" v-model="modelEdit.jabatan" class="mb-2" rows="3" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -371,7 +371,7 @@ export default {
           { key: "level", title: "Level" },
           { key: "star_number", title: "Bintang", align: "center" }, // Kolom bintang + angka
           { key: "star_icon", title: "Rating", sortable: false, align: "center" }, // Kolom icon bintang
-          { key: "description", title: "Description" },
+          { key: "jabatan", title: "Jabatan" },
           { key: "action", title: "Actions", sortable: false, align: "center" },
         ],
         items: [],
@@ -379,14 +379,14 @@ export default {
       modelAdd: {
         name: "",
         level: "",
-        description: "",
+        jabatan: "",
         jlh_bintang: 1, // Tambahkan ini
       },
       modelEdit: {
         id: "",
         name: "",
         level: "",
-        description: "",
+        jabatan: "",
         jlh_bintang: 1, // Tambahkan ini
       },
       modelDelete: {
@@ -408,7 +408,7 @@ export default {
         return (
           (item.name && item.name.toLowerCase().includes(searchTerm)) ||
           (item.level && item.level.toLowerCase().includes(searchTerm)) ||
-          (item.description && item.description.toLowerCase().includes(searchTerm)) ||
+          (item.jabatan && item.jabatan.toLowerCase().includes(searchTerm)) ||
           (item.jlh_bintang && item.jlh_bintang.toString().includes(searchTerm))
         );
       });
@@ -425,10 +425,10 @@ export default {
       }
     },
 
-    // Get description preview for mobile cards
-    getDescriptionPreview(description) {
-      if (!description) return 'Tidak ada deskripsi';
-      return description.length > 30 ? description.substring(0, 30) + '...' : description;
+    // Get jabatan preview for mobile cards
+    getjabatanPreview(jabatan) {
+      if (!jabatan) return 'Tidak ada Jabatan';
+      return jabatan.length > 30 ? jabatan.substring(0, 30) + '...' : jabatan;
     },
 
     // Get level color for chips
@@ -494,7 +494,7 @@ export default {
     clearAddForm() {
       this.modelAdd.name = "";
       this.modelAdd.level = "";
-      this.modelAdd.description = "";
+      this.modelAdd.jabatan = "";
       this.modelAdd.jlh_bintang = 1;
     },
 
@@ -502,7 +502,7 @@ export default {
       this.modelEdit.id = "";
       this.modelEdit.name = "";
       this.modelEdit.level = "";
-      this.modelEdit.description = "";
+      this.modelEdit.jabatan = "";
       this.modelEdit.jlh_bintang = 1;
     },
 
@@ -554,7 +554,7 @@ export default {
       const payload = {
         name: this.modelAdd.name, // atau modelEdit untuk update
         level: this.modelAdd.level,
-        description: this.modelAdd.description,
+        jabatan: this.modelAdd.jabatan,
         jlh_bintang: this.modelAdd.jlh_bintang, // Ganti ke jlh_bintang
       };
 
@@ -609,7 +609,7 @@ export default {
             this.modelEdit.id = data.id;
             this.modelEdit.name = data.name;
             this.modelEdit.level = data.level;
-            this.modelEdit.description = data.description;
+            this.modelEdit.jabatan = data.jabatan;
             this.modelEdit.jlh_bintang = data.jlh_bintang || 1;
           } else {
             this.showSnackbar(response, true);
@@ -639,7 +639,7 @@ export default {
       const payload = {
         name: this.modelEdit.name,
         level: this.modelEdit.level,
-        description: this.modelEdit.description,
+        jabatan: this.modelEdit.jabatan,
         jlh_bintang: this.modelEdit.jlh_bintang,
       };
 
@@ -822,7 +822,7 @@ export default {
   width: fit-content;
 }
 
-.description-preview {
+.jabatan-preview {
   font-style: italic;
   font-size: 13px;
 }
@@ -845,7 +845,7 @@ export default {
   line-height: 1.4;
 }
 
-.description-text {
+.jabatan-text {
   text-align: justify;
   max-height: 120px;
   overflow-y: auto;
@@ -974,22 +974,22 @@ export default {
   }
 }
 
-/* Custom scrollbar untuk description text */
-.description-text::-webkit-scrollbar {
+/* Custom scrollbar untuk jabatan text */
+.jabatan-text::-webkit-scrollbar {
   width: 4px;
 }
 
-.description-text::-webkit-scrollbar-track {
+.jabatan-text::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-.description-text::-webkit-scrollbar-thumb {
+.jabatan-text::-webkit-scrollbar-thumb {
   background: #FFD700;
   border-radius: 4px;
 }
 
-.description-text::-webkit-scrollbar-thumb:hover {
+.jabatan-text::-webkit-scrollbar-thumb:hover {
   background: #b8941f;
 }
 
