@@ -1335,10 +1335,9 @@ export default {
         headers: [
           { key: "no", title: "No", sortable: false },
           { key: "code", title: "Kode", fixed: 'start', width: '80px' },
+          { key: "no_id", title: "No ID" },
           { key: "nama", title: "Nama", fixed: 'start', width: '80px' },
           { key: "nama_panggilan", title: "Nama Panggilan" },
-          { key: "nomor_id", title: "Nomer ID" },
-          { key: "no_id", title: "No ID" },
           { key: "tempat_lahir", title: "Tempat Lahir" },
           { key: "tgl_lahir", title: "Tanggal Lahir" },
           // { key: "class_member", title: "Class Member" },
@@ -1366,10 +1365,9 @@ export default {
 
       detailHeaders: [
         { key: "code", title: "Kode" },
+        { key: "no_id", title: "No ID" },
         { key: "nama", title: "Nama" },
         { key: "nama_panggilan", title: "Nama Panggilan" },
-        { key: "nomor_id", title: "Nomer ID" },
-        { key: "no_id", title: "No ID" },
         { key: "tempat_lahir", title: "Tempat Lahir" },
         { key: "tgl_lahir", title: "Tanggal Lahir" },
         // { key: "class_member", title: "Class Member" },
