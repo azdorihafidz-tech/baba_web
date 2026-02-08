@@ -1,45 +1,114 @@
 <template>
   <Breadcrumb :items="itemsBreadcrumb" />
 
-  <CardDataTable title="DATA BAWAHAN - MENUNGGU APPROVE">
-    <!-- SEARCH -->
-    <template #search>
-      <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
-        variant="outlined" />
-    </template>
+  <!-- Desktop View -->
+  <div class="d-none d-md-block">
+    <CardDataTable title="DATA Bawahan - MENUNGGU APPROVE">
+      <!-- SEARCH -->
+      <template #search>
+        <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
+          variant="outlined" />
+      </template>
 
-    <!-- TABLE -->
-    <template #datatable>
-      <v-data-table :headers="headers" :items="filteredItems" :loading="loading">
-        <!-- TGL -->
-        <template #item.tgl_lahir="{ item }">
-          {{ formatDate(item.tgl_lahir) }}
-        </template>
+      <!-- TABLE -->
+      <template #datatable>
+        <v-data-table :headers="headers" :items="filteredItems" :loading="loading">
+          <!-- TGL -->
+          <template #item.tgl_lahir="{ item }">
+            {{ formatDate(item.tgl_lahir) }}
+          </template>
 
-        <!-- BINTANG -->
-        <template #item.jlh_bintang="{ item }">
-          <div>
-            <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
-              mdi-star
+          <!-- BINTANG -->
+          <template #item.jlh_bintang="{ item }">
+            <div>
+              <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
+                mdi-star
+              </v-icon>
+            </div>
+          </template>
+
+          <!-- ACTION -->
+          <template #item.action="{ item }">
+            <v-btn color="success" size="small" @click="showApproveDialog(item.id)">
+              Approve
+            </v-btn>
+          </template>
+        </v-data-table>
+      </template>
+    </CardDataTable>
+  </div>
+
+  <!-- Mobile View -->
+  <div class="d-block d-md-none">
+    <v-card class="mobile-header-card mb-4">
+      <v-card-text>
+        <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Cari Bawahan..." single-line hide-details
+          variant="outlined" class="search-field-mobile" />
+      </v-card-text>
+    </v-card>
+
+    <v-progress-linear v-if="loading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+
+    <div v-if="filteredItems.length === 0 && !loading" class="text-center pa-4">
+      <v-icon size="64" color="grey">mdi-account-search</v-icon>
+      <p class="text-grey mt-2">Tidak ada data Bawahan ditemukan</p>
+    </div>
+
+    <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
+      @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+
+      <!-- Header -->
+      <v-card-text class="mobile-card-header">
+        <v-row no-gutters align="center">
+          <v-col cols="2" class="text-center">
+            <span class="font-weight-bold">{{ index + 1 }}</span>
+          </v-col>
+          <v-col cols="8" class="pl-3">
+            <div class="mobile-mvo-name">{{ item.nama }}</div>
+            <div class="text-caption text-grey">{{ item.no_id }}</div>
+            <div class="d-flex align-center mt-1">
+              <v-chip size="x-small" color="primary" class="mr-1">{{ item.cabang }}</v-chip>
+              <div class="d-flex">
+                <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="14">mdi-star</v-icon>
+              </div>
+            </div>
+          </v-col>
+          <v-col cols="2" class="text-center">
+            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+              mdi-chevron-down
             </v-icon>
-          </div>
-        </template>
+          </v-col>
+        </v-row>
+      </v-card-text>
 
-        <!-- ACTION -->
-        <template #item.action="{ item }">
-          <v-btn color="success" size="small" @click="showApproveDialog(item.id)">
-            Approve
-          </v-btn>
-        </template>
-      </v-data-table>
-    </template>
-  </CardDataTable>
+      <!-- Details -->
+      <v-expand-transition>
+        <div v-show="expandedMobileCard === item.id">
+          <v-divider></v-divider>
+          <v-card-text class="mobile-card-details">
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Alamat:</v-col>
+              <v-col cols="8" class="detail-value">{{ item.alamat || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2" v-if="item.upline_1">
+              <v-col cols="4" class="detail-label">Upline 1:</v-col>
+              <v-col cols="8" class="detail-value">{{ item.upline_1 }}</v-col>
+            </v-row>
+            <v-divider class="my-3"></v-divider>
+            <v-btn block color="success" @click.stop="showApproveDialog(item.id)">
+              Approve
+            </v-btn>
+          </v-card-text>
+        </div>
+      </v-expand-transition>
+    </v-card>
+  </div>
 
   <!-- Dialog Konfirmasi Approve -->
   <v-dialog v-model="isShowDialogApprove" max-width="500">
     <v-card>
       <v-card-title class="text-h5">Konfirmasi Approve</v-card-title>
-      <v-card-text>Apakah anda yakin ingin menyetujui data bawahan ini?</v-card-text>
+      <v-card-text>Apakah anda yakin ingin menyetujui data Bawahan ini?</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="grey-darken-1" variant="text" @click="isShowDialogApprove = false">Batal</v-btn>
@@ -66,6 +135,7 @@ export default {
     return {
       search: "",
       loading: true,
+      expandedMobileCard: null,
       isShowDialogApprove: false,
       idToApprove: null,
       isButtonLoading: false,
@@ -144,6 +214,9 @@ export default {
       this.contentSnackbar.text = text;
       this.contentSnackbar.color = color;
       this.contentSnackbar.snackbar = true;
+    },
+    toggleMobileDetail(itemId) {
+      this.expandedMobileCard = this.expandedMobileCard === itemId ? null : itemId;
     },
     mapUserWithBintang(users) {
       return users.map((u) => {
