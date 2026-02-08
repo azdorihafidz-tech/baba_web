@@ -245,62 +245,62 @@
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-combobox label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
-                item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
-                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
               <v-textarea label="Alamat Lengkap" v-model="modelAdd.alamat" rows="2" auto-grow density="compact"
                 prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
             </v-col>
+
           </v-row>
+
         </div>
         <div class="box-glass">
           <div class="input-box-title">STRUKTUR UPLINE</div>
           <v-row>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-combobox label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
+                item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Cabang (Provinsi)" v-model="modelAdd.cabang" :items="cabangOptions" item-title="text"
                 item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
                 color="amber" base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
-                :disabled="loadingProvinsi" @update:modelValue="onCabangChangeAdd" />
+                :disabled="loadingProvinsi || !modelAdd.mvo_type_id" @update:modelValue="onCabangChangeAdd" />
             </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select label="Pilih MVO" v-model="modelAdd.upline_1" :items="mvoOptionsAdd" item-title="text"
-                item-value="value" :loading="loadingMvoAdd" :disabled="!modelAdd.cabang"
-                @update:modelValue="onMvoChangeAdd" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select label="Pilih Regional" v-model="modelAdd.upline_2" :items="regionalOptionsAdd" item-title="text"
-                item-value="value" :loading="loadingRegionalAdd" :disabled="!modelAdd.upline_1"
-                @update:modelValue="onRegionalChangeAdd" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
-            </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select label="Pilih Founder" v-model="modelAdd.upline_3" :items="founderOptionsAdd" item-title="text"
-                item-value="value" :loading="loadingFounderAdd" :disabled="!modelAdd.upline_2"
-                @update:modelValue="onFounderChangeAdd" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
+              <v-select v-if="hideUplineAdd !== 'upline_1'" label="Pilih MVO" v-model="modelAdd.upline_1"
+                :items="mvoOptionsAdd" item-title="text" item-value="value" :loading="loadingMvoAdd"
+                :disabled="!modelAdd.cabang" @update:modelValue="onMvoChangeAdd" density="compact" variant="outlined"
+                color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
           </v-row>
 
           <v-row>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select label="Pilih GM" v-model="modelAdd.upline_4" :items="gmOptionsAdd" item-title="text"
-                item-value="value" :loading="loadingGmAdd" :disabled="!modelAdd.upline_3"
-                @update:modelValue="onGmChangeAdd" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
+              <v-select v-if="hideUplineAdd !== 'upline_2'" label="Pilih Regional" v-model="modelAdd.upline_2"
+                :items="regionalOptionsAdd" item-title="text" item-value="value" :loading="loadingRegionalAdd"
+                :disabled="!modelAdd.upline_1" @update:modelValue="onRegionalChangeAdd" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select label="Pilih Supplier" v-model="modelAdd.upline_5" :items="supplierOptionsAdd" item-title="text"
-                item-value="value" :loading="loadingSupplierAdd" :disabled="!modelAdd.upline_4"
-                @update:modelValue="onSupplierChangeAdd" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
+              <v-select v-if="hideUplineAdd !== 'upline_3'" label="Pilih Founder" v-model="modelAdd.upline_3"
+                :items="founderOptionsAdd" item-title="text" item-value="value" :loading="loadingFounderAdd"
+                :disabled="!modelAdd.upline_2" @update:modelValue="onFounderChangeAdd" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select v-if="hideUplineAdd !== 'upline_4'" label="Pilih GM" v-model="modelAdd.upline_4"
+                :items="gmOptionsAdd" item-title="text" item-value="value" :loading="loadingGmAdd"
+                :disabled="!modelAdd.upline_3" @update:modelValue="onGmChangeAdd" density="compact" variant="outlined"
+                color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select v-if="hideUplineAdd !== 'upline_6'" label="Pilih Supplier" v-model="modelAdd.upline_5"
+                :items="supplierOptionsAdd" item-title="text" item-value="value" :loading="loadingSupplierAdd"
+                :disabled="!modelAdd.upline_4" @update:modelValue="onSupplierChangeAdd" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
           </v-row>
 
@@ -399,21 +399,21 @@
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-combobox label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
-                item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
-                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
               <v-textarea label="Alamat Lengkap" v-model="modelEdit.alamat" rows="2" auto-grow density="compact"
                 prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
             </v-col>
+
           </v-row>
+
         </div>
         <div class="box-glass">
           <div class="input-box-title">STRUKTUR UPLINE</div>
           <v-row>
+            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-combobox label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
+                item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Cabang (Provinsi)" v-model="modelEdit.cabang" :items="cabangOptions" item-title="text"
                 item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
@@ -647,6 +647,16 @@ export default {
   },
 
   computed: {
+    hideUplineAdd() {
+
+      const jabatan = this.jabatanOptions.find(
+        j => j.value == this.modelAdd.mvo_type_id
+      )
+
+      if (!jabatan) return null
+
+      return `upline_${jabatan.level}`
+    },
     filteredItems() {
       if (!this.datatable.search) return this.datatable.items;
 
@@ -957,7 +967,8 @@ export default {
           // ✅ Tetap buat dropdown jabatan
           this.jabatanOptions = response.data.data.map(item => ({
             text: item.jabatan,
-            value: item.id
+            value: item.id,
+            level: Number(item.level)   // 🔥 simpan level
           }));
 
           // 🔥 Kalau user sudah ada → mapping ulang
@@ -1470,6 +1481,15 @@ export default {
   },
 
   watch: {
+    'modelAdd.mvo_type_id'() {
+
+      this.modelAdd.upline_1 = ''
+      this.modelAdd.upline_2 = ''
+      this.modelAdd.upline_3 = ''
+      this.modelAdd.upline_4 = ''
+      this.modelAdd.upline_5 = ''
+      this.modelAdd.upline_6 = ''
+    },
     'datatable.search': {
       handler() {
         this.expandedMobileCard = null;

@@ -15,99 +15,107 @@
 
                     <!-- Form -->
                     <v-form @submit.prevent="handleRegister" :class="formClass">
-                        <v-text-field v-model="inputRegister.no_id" label="No ID" density="compact"
-                            prepend-inner-icon="mdi-card-account-details" variant="outlined" :class="inputClass"
-                            color="amber" base-color="grey-lighten-1" maxlength="16" />
+                        <div class="input-box">
+                            <div class="input-box-title">DATA PRIBADI</div>
+                            <v-text-field v-model="inputRegister.no_id" label="No ID" density="compact"
+                                prepend-inner-icon="mdi-card-account-details" variant="outlined" :class="inputClass"
+                                color="amber" base-color="grey-lighten-1" maxlength="16" />
 
-                        <v-text-field v-model="inputRegister.nama" label="Nama Lengkap" density="compact"
-                            prepend-inner-icon="mdi-account" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" />
+                            <v-text-field v-model="inputRegister.nama" label="Nama Lengkap" density="compact"
+                                prepend-inner-icon="mdi-account" variant="outlined" :class="inputClass" color="amber"
+                                base-color="grey-lighten-1" />
 
-                        <v-text-field v-model="inputRegister.nama_panggilan" label="Nama Panggilan" density="compact"
-                            prepend-inner-icon="mdi-account-outline" variant="outlined" :class="inputClass"
-                            color="amber" base-color="grey-lighten-1" />
+                            <v-text-field v-model="inputRegister.nama_panggilan" label="Nama Panggilan"
+                                density="compact" prepend-inner-icon="mdi-account-outline" variant="outlined"
+                                :class="inputClass" color="amber" base-color="grey-lighten-1" />
 
-                        <v-text-field v-model="inputRegister.tempat_lahir" label="Tempat Lahir" density="compact"
-                            prepend-inner-icon="mdi-map-marker" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" />
+                            <v-text-field v-model="inputRegister.tempat_lahir" label="Tempat Lahir" density="compact"
+                                prepend-inner-icon="mdi-map-marker" variant="outlined" :class="inputClass" color="amber"
+                                base-color="grey-lighten-1" />
 
-                        <v-text-field v-model="inputRegister.tgl_lahir" label="Tanggal Lahir" density="compact"
-                            prepend-inner-icon="mdi-calendar" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" type="date" />
+                            <v-text-field v-model="inputRegister.tgl_lahir" label="Tanggal Lahir" density="compact"
+                                prepend-inner-icon="mdi-calendar" variant="outlined" :class="inputClass" color="amber"
+                                base-color="grey-lighten-1" type="date" />
 
-                        <v-text-field v-model="inputRegister.nohp" label="Nomor HP" density="compact"
-                            prepend-inner-icon="mdi-phone" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" @input="validatePhone" />
+                            <v-text-field v-model="inputRegister.nohp" label="Nomor HP" density="compact"
+                                prepend-inner-icon="mdi-phone" variant="outlined" :class="inputClass" color="amber"
+                                base-color="grey-lighten-1" @input="validatePhone" />
 
-                        <v-textarea v-model="inputRegister.alamat" label="Alamat Lengkap" density="compact"
-                            prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" rows="2" auto-grow />
+                            <v-textarea v-model="inputRegister.alamat" label="Alamat Lengkap" density="compact"
+                                prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
+                                base-color="grey-lighten-1" rows="2" auto-grow />
 
-                        <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
-                            prepend-inner-icon="mdi-gender-male-female" variant="outlined" :items="jenisKelaminOptions"
-                            item-title="text" item-value="value" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" clearable />
-
-
-                        <v-combobox v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
-                            item-title="text" item-value="value" :return-object="false" density="compact"
-                            prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" clearable />
-
-
-                        <v-select v-model="inputRegister.cabang" label="Cabang (Provinsi)" density="compact"
-                            prepend-inner-icon="mdi-map-marker" variant="outlined" :items="cabangOptions"
-                            item-title="text" item-value="value" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" clearable :loading="loadingProvinsi" :disabled="loadingProvinsi"
-                            @update:modelValue="onCabangChange" />
-                        <!-- MVO -->
-                        <v-select v-model="inputRegister.upline_1" label="Pilih MVO" :items="mvoOptions"
-                            item-title="text" item-value="value" :loading="loadingMvo" :disabled="!inputRegister.cabang"
-                            @update:modelValue="onMvoChange" />
-
-                        <!-- REGIONAL -->
-                        <v-select v-model="inputRegister.upline_2" label="Pilih Regional" :items="regionalOptions"
-                            item-title="text" item-value="value" :loading="loadingRegional"
-                            :disabled="!inputRegister.upline_1" @update:modelValue="onRegionalChange" />
-
-                        <!-- FOUNDER -->
-                        <v-select v-model="inputRegister.upline_3" label="Pilih Founder" :items="founderOptions"
-                            item-title="text" item-value="value" :loading="loadingFounder"
-                            :disabled="!inputRegister.upline_2" @update:modelValue="onFounderChange" />
-
-                        <!-- GM -->
-                        <v-select v-model="inputRegister.upline_4" label="Pilih GM" :items="gmOptions" item-title="text"
-                            item-value="value" :loading="loadingGm" :disabled="!inputRegister.upline_3"
-                            @update:modelValue="onGmChange" />
-
-                        <!-- SUPPLIER -->
-                        <v-select v-model="inputRegister.upline_5" label="Pilih Supplier" :items="supplierOptions"
-                            item-title="text" item-value="value" :loading="loadingSupplier"
-                            :disabled="!inputRegister.upline_4" @update:modelValue="onSupplierChange" />
-
-                        <!-- DISTRIBUTOR -->
-                        <v-select v-model="inputRegister.upline_6" label="Pilih Distributor" :items="distributorOptions"
-                            item-title="text" item-value="value" :loading="loadingDistributor"
-                            :disabled="!inputRegister.upline_5" />
+                            <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
+                                prepend-inner-icon="mdi-gender-male-female" variant="outlined"
+                                :items="jenisKelaminOptions" item-title="text" item-value="value" :class="inputClass"
+                                color="amber" base-color="grey-lighten-1" clearable />
+                        </div>
+                        <div class="box-glass">
+                            <div class="input-box-title">STRUKTUR UPLINE</div>
+                            <v-combobox v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
+                                item-title="text" item-value="value" :return-object="false" density="compact"
+                                prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass"
+                                color="amber" base-color="grey-lighten-1" clearable />
 
 
-                        <v-text-field v-model="inputRegister.username" label="Username" density="compact"
-                            prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="amber"
-                            base-color="grey-lighten-1" />
+                            <!-- CABANG -->
+                            <!-- CABANG -->
+                            <v-select v-if="inputRegister.mvo_type_id" v-model="inputRegister.cabang"
+                                label="Cabang (Provinsi)" density="compact" prepend-inner-icon="mdi-map-marker"
+                                variant="outlined" :items="cabangOptions" item-title="text" item-value="value"
+                                :class="inputClass" color="amber" base-color="grey-lighten-1" clearable
+                                :loading="loadingProvinsi" @update:modelValue="onCabangChange" />
 
-                        <v-text-field v-model="inputRegister.password" :type="visible ? 'text' : 'password'"
-                            density="compact" label="Password" prepend-inner-icon="mdi-lock"
-                            :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-                            @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass"
-                            color="amber" base-color="grey-lighten-1" />
 
-                        <!-- Upload Foto Profil -->
-                        <v-file-input v-model="inputRegister.path_gambar_profile" label="Foto Profil"
-                            prepend-inner-icon="mdi-camera" accept="image/png, image/jpeg, image/jpg" variant="outlined"
-                            :class="inputClass" color="amber" base-color="grey-lighten-1" density="compact"
-                            hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint
-                            @change="handleFotoProfileChange" />
+                            <!-- MVO -->
+                            <v-select v-if="inputRegister.cabang && !isJabatanMvo" v-model="inputRegister.upline_1"
+                                label="Pilih MVO" :items="mvoOptions" item-title="text" item-value="value"
+                                @update:modelValue="onMvoChange" />
 
+                            <!-- REGIONAL -->
+                            <v-select v-if="inputRegister.upline_1 && hideUplineLevel !== 'upline_2'"
+                                v-model="inputRegister.upline_2" label="Pilih Regional" :items="regionalOptions"
+                                item-title="text" item-value="value" @update:modelValue="onRegionalChange" />
+
+                            <!-- FOUNDER -->
+                            <v-select v-if="inputRegister.upline_2 && hideUplineLevel !== 'upline_3'"
+                                v-model="inputRegister.upline_3" label="Pilih Founder" :items="founderOptions"
+                                item-title="text" item-value="value" @update:modelValue="onFounderChange" />
+
+                            <!-- GM -->
+                            <v-select v-if="inputRegister.upline_3 && hideUplineLevel !== 'upline_4'"
+                                v-model="inputRegister.upline_4" label="Pilih GM" :items="gmOptions" item-title="text"
+                                item-value="value" @update:modelValue="onGmChange" />
+
+                            <!-- SUPPLIER -->
+                            <v-select v-if="inputRegister.upline_4 && hideUplineLevel !== 'upline_5'"
+                                v-model="inputRegister.upline_5" label="Pilih Supplier" :items="supplierOptions"
+                                item-title="text" item-value="value" @update:modelValue="onSupplierChange" />
+
+                            <!-- DISTRIBUTOR -->
+                            <v-select v-if="inputRegister.upline_5 && hideUplineLevel !== 'upline_6'"
+                                v-model="inputRegister.upline_6" label="Pilih Distributor" :items="distributorOptions"
+                                item-title="text" item-value="value" />
+
+
+
+                            <v-text-field v-model="inputRegister.username" label="Username" density="compact"
+                                prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="amber"
+                                base-color="grey-lighten-1" />
+
+                            <v-text-field v-model="inputRegister.password" :type="visible ? 'text' : 'password'"
+                                density="compact" label="Password" prepend-inner-icon="mdi-lock"
+                                :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
+                                @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass"
+                                color="amber" base-color="grey-lighten-1" />
+
+                            <!-- Upload Foto Profil -->
+                            <v-file-input v-model="inputRegister.path_gambar_profile" label="Foto Profil"
+                                prepend-inner-icon="mdi-camera" accept="image/png, image/jpeg, image/jpg"
+                                variant="outlined" :class="inputClass" color="amber" base-color="grey-lighten-1"
+                                density="compact" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint
+                                @change="handleFotoProfileChange" />
+                        </div>
                         <!-- Preview Foto Profil -->
                         <v-img v-if="previewFotoProfile" :src="previewFotoProfile" max-width="150" height="150"
                             class="mx-auto my-2 rounded-xl" contain />
@@ -224,6 +232,19 @@ export default {
     },
 
     computed: {
+        hideUplineLevel() {
+
+            const jabatan = this.jabatanOptions.find(
+                j => j.value == this.inputRegister.mvo_type_id
+            )
+
+            if (!jabatan) return null
+
+            return `upline_${jabatan.level}`
+        },
+        isJabatanMvo() {
+            return this.inputRegister.mvo_type_id == 19
+        },
         mobile() {
             return this.$vuetify.display.mobile
         },
@@ -339,7 +360,21 @@ export default {
         this.fetchProvinsiData()
         this.getAllMvoType()
     },
+    watch: {
+        watch: {
+            'inputRegister.mvo_type_id'() {
 
+                this.inputRegister.upline_1 = ''
+                this.inputRegister.upline_2 = ''
+                this.inputRegister.upline_3 = ''
+                this.inputRegister.upline_4 = ''
+                this.inputRegister.upline_5 = ''
+                this.inputRegister.upline_6 = ''
+                this.inputRegister.upline_7 = ''
+            }
+        }
+
+    },
     methods: {
         onCabangChange(val) {
 
@@ -596,8 +631,10 @@ export default {
                     // 🔥 mapping ke format select
                     this.jabatanOptions = response.data.data.map(item => ({
                         text: item.jabatan,
-                        value: item.id
+                        value: item.id,
+                        level: Number(item.level)   // 🔥 simpan level
                     }));
+
                     console.log('mvotype options loaded:', this.jabatanOptions.length, 'items')
                 } else {
                     console.error('Invalid mvotype API response structure')
@@ -818,6 +855,49 @@ export default {
 </script>
 
 <style scoped>
+.box-glass {
+    position: relative;
+    padding: 22px 18px;
+    margin-bottom: 26px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.box-glass-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 14px;
+}
+
+.input-box {
+    border: 2px solid #FFD700;
+    /* Garis kotak emas */
+    border-radius: 14px;
+    /* Sudut membulat */
+    padding: 20px 16px 16px 16px;
+    /* Jarak isi ke garis */
+    margin-top: 16px;
+    margin-bottom: 24px;
+    position: relative;
+    /* Background tipis */
+}
+
+/* Judul di atas garis */
+.input-box-title {
+    position: absolute;
+    top: -12px;
+    left: 18px;
+    background: #FFD700;
+    /* Samakan background dialog */
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e1e1e;
+    letter-spacing: 1px;
+}
+
 /* Pastikan container benar-benar fullscreen */
 .register-container {
     position: fixed;
