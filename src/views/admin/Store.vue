@@ -29,6 +29,9 @@
                     <template v-slot:item.no="{ index }">
                         {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
                     </template>
+                    <template v-slot:item.cabang="{ item }">
+                        {{ item.provinsi ? item.provinsi.name : '-' }}
+                    </template>
                     <template v-slot:item.alamat="{ item }">
                         <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ item.alamat }}
@@ -95,7 +98,7 @@
                             <strong>{{ item.nama_toko || 'Nama Toko Tidak Tersedia' }}</strong>
                         </div>
                         <div class="mobile-toko-preview">
-                            {{ item.cabang || 'Tidak ada cabang' }}
+                            {{ item.provinsi ? item.provinsi.name : 'Tidak ada cabang' }}
                         </div>
                     </v-col>
 
@@ -126,7 +129,7 @@
                                 <strong>Cabang:</strong>
                             </v-col>
                             <v-col cols="12" class="detail-value">
-                                {{ item.cabang || '-' }}
+                                {{ item.provinsi ? item.provinsi.name : '-' }}
                             </v-col>
                         </v-row>
 
@@ -180,8 +183,9 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12">
-                        <v-text-field label="Cabang" v-model="modelAdd.cabang" class="mb-2" :rules="[rules.required]"
-                            required />
+                        <v-autocomplete label="Cabang" v-model="modelAdd.cabang" :items="provinsiList" item-title="name"
+                            item-value="id" class="mb-2" :rules="[rules.required]" :loading="isProvinsiLoading"
+                            clearable required />
                     </v-col>
                 </v-row>
                 <v-row>
@@ -225,8 +229,9 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12">
-                        <v-text-field label="Cabang" v-model="modelEdit.cabang" class="mb-2" :rules="[rules.required]"
-                            required />
+                        <v-autocomplete label="Cabang" v-model="modelEdit.cabang" :items="provinsiList"
+                            item-title="name" item-value="id" class="mb-2" :rules="[rules.required]"
+                            :loading="isProvinsiLoading" clearable required />
                     </v-col>
                 </v-row>
                 <v-row>
@@ -329,6 +334,8 @@ export default {
             isShowDialogEdit: false,
             isButtonLoading: false,
             isShowDialogDelete: false,
+            isProvinsiLoading: false,
+            provinsiList: [],
             datatable: {
                 search: "",
                 headers: [
@@ -342,14 +349,14 @@ export default {
             },
             modelAdd: {
                 nama_toko: "",
-                cabang: "",
+                cabang: null,
                 alamat: "",
                 link_maps: "",
             },
             modelEdit: {
                 id: "",
                 nama_toko: "",
-                cabang: "",
+                cabang: null,
                 alamat: "",
                 link_maps: "",
             },
@@ -370,7 +377,7 @@ export default {
             return this.datatable.items.filter(item => {
                 return (
                     (item.nama_toko && item.nama_toko.toLowerCase().includes(searchTerm)) ||
-                    (item.cabang && item.cabang.toLowerCase().includes(searchTerm)) ||
+                    (item.provinsi && item.provinsi.name && item.provinsi.name.toLowerCase().includes(searchTerm)) ||
                     (item.alamat && item.alamat.toLowerCase().includes(searchTerm))
                 );
             });
@@ -450,7 +457,7 @@ export default {
 
         clearAddForm() {
             this.modelAdd.nama_toko = "";
-            this.modelAdd.cabang = "";
+            this.modelAdd.cabang = null;
             this.modelAdd.alamat = "";
             this.modelAdd.link_maps = "";
         },
@@ -458,9 +465,38 @@ export default {
         clearEditForm() {
             this.modelEdit.id = "";
             this.modelEdit.nama_toko = "";
-            this.modelEdit.cabang = "";
+            this.modelEdit.cabang = null;
             this.modelEdit.alamat = "";
             this.modelEdit.link_maps = "";
+        },
+
+        getAllProvinsi() {
+            const token = Cookies.get("token");
+            if (!token) {
+                this.$router.push({ name: "Login" });
+                return;
+            }
+
+            this.isProvinsiLoading = true;
+            axios
+                .get("https://babaapi.teknosof.com/api/provinsi", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    if (response.data.status === "success") {
+                        this.provinsiList = response.data.data;
+                    } else {
+                        this.showSnackbar(response, true);
+                    }
+                })
+                .catch((error) => {
+                    this.showSnackbar(error.response || error, true);
+                })
+                .finally(() => {
+                    this.isProvinsiLoading = false;
+                });
         },
 
         getAllToko() {
@@ -510,7 +546,7 @@ export default {
                     "https://babaapi.teknosof.com/api/toko-internal",
                     {
                         nama_toko: this.modelAdd.nama_toko,
-                        cabang: this.modelAdd.cabang,
+                        cabang: String(this.modelAdd.cabang),
                         alamat: this.modelAdd.alamat,
                         link_maps: this.modelAdd.link_maps,
                     },
@@ -558,7 +594,7 @@ export default {
                         const tokoData = response.data.data;
                         this.modelEdit.id = tokoData.id;
                         this.modelEdit.nama_toko = tokoData.nama_toko || "";
-                        this.modelEdit.cabang = tokoData.cabang || "";
+                        this.modelEdit.cabang = tokoData.cabang ? Number(tokoData.cabang) : null;
                         this.modelEdit.alamat = tokoData.alamat || "";
                         this.modelEdit.link_maps = tokoData.link_maps || "";
                     } else {
@@ -586,7 +622,7 @@ export default {
 
             const updateData = {
                 nama_toko: this.modelEdit.nama_toko,
-                cabang: this.modelEdit.cabang,
+                cabang: String(this.modelEdit.cabang),
                 alamat: this.modelEdit.alamat,
                 link_maps: this.modelEdit.link_maps,
             };
@@ -654,6 +690,7 @@ export default {
     },
 
     created() {
+        this.getAllProvinsi();
         this.getAllToko();
     },
 
