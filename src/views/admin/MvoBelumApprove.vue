@@ -1,238 +1,52 @@
 <template>
   <Breadcrumb :items="itemsBreadcrumb" />
 
-  <!-- Desktop View - Data Table -->
-  <div class="d-none d-md-block">
-    <CardDataTable :title="title">
-      <template v-slot:search>
-        <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Search" single-line
-          hide-details variant="outlined" class="search-field" />
-      </template>
-      <template v-slot:datatable>
-        <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="filteredItems"
-          :search="datatable.search" :loading="isTableLoading">
+  <CardDataTable title="DATA BAWAHAN - MENUNGGU APPROVE">
+    <!-- SEARCH -->
+    <template #search>
+      <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
+        variant="outlined" />
+    </template>
 
-          <!-- Template for code with color coding based on level -->
-          <template v-slot:item.code="{ item }">
-            <v-chip :color="getCodeColor(item.code)" size="small" variant="flat">
-              {{ item.code }}
-            </v-chip>
-          </template>
+    <!-- TABLE -->
+    <template #datatable>
+      <v-data-table :headers="headers" :items="filteredItems" :loading="loading">
+        <!-- TGL -->
+        <template #item.tgl_lahir="{ item }">
+          {{ formatDate(item.tgl_lahir) }}
+        </template>
 
-          <!-- Template for class_member -->
-          <template v-slot:item.class_member="{ item }">
-            <v-chip :color="getClassColor(item.class_member)" size="small" variant="flat">
-              {{ item.class_member || '-' }}
-            </v-chip>
-          </template>
-
-          <!-- Template for status_inputan -->
-          <template v-slot:item.status_inputan="{ item }">
-            <v-chip :color="getStatusColor(item.status_inputan)" size="small" variant="flat">
-              {{ getStatusText(item.status_inputan) }}
-            </v-chip>
-          </template>
-
-          <!-- Template for level -->
-          <template v-slot:item.level="{ item }">
-            <v-chip color="info" size="small" variant="flat">
-              Level {{ item.level }}
-            </v-chip>
-          </template>
-
-          <!-- Template for formatted date -->
-          <template v-slot:item.tgl_lahir="{ item }">
-            {{ formatDate(item.tgl_lahir) }}
-          </template>
-
-          <!-- Template for parent info -->
-          <template v-slot:item.parent_info="{ item }">
-            {{ getParentInfo(item.parent_id) }}
-          </template>
-
-        </v-data-table>
-      </template>
-    </CardDataTable>
-  </div>
-
-  <!-- Mobile View - Cards -->
-  <div class="d-block d-md-none">
-    <v-card class="mobile-header-card mb-4">
-      <v-card-text>
-        <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Cari data akun..." single-line
-          hide-details variant="outlined" class="search-field-mobile" />
-      </v-card-text>
-    </v-card>
-
-    <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
-
-    <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
-      <v-icon size="64" color="grey">mdi-account-search</v-icon>
-      <p class="text-grey mt-2">Tidak ada data akun belum approve ditemukan</p>
-    </div>
-
-    <v-card v-for="(item, index) in paginatedMobileItems" :key="item.id" class="mobile-mvo-card mb-3"
-      @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-      <!-- Header Card - Always Visible -->
-      <v-card-text class="mobile-card-header">
-        <v-row no-gutters align="center">
-          <v-col cols="1" class="text-center">
-            <span class="mobile-number">{{ ((currentMobilePage - 1) * itemsPerMobilePage) + index + 1 }}</span>
-          </v-col>
-
-          <v-col cols="9" class="pl-3">
-            <div class="mobile-mvo-name">
-              <strong>{{ item.nama || 'Nama Tidak Tersedia' }}</strong>
-            </div>
-            <div class="mobile-mvo-preview">
-              <v-chip :color="getCodeColor(item.code)" size="x-small" variant="flat" class="mr-1 mb-1">
-                {{ item.code }}
-              </v-chip>
-              <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" variant="flat" class="mr-1 mb-1">
-                {{ getStatusText(item.status_inputan) }}
-              </v-chip>
-            </div>
-          </v-col>
-
-          <v-col cols="2" class="text-center">
-            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-              mdi-chevron-down
+        <!-- BINTANG -->
+        <template #item.jlh_bintang="{ item }">
+          <div>
+            <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
+              mdi-star
             </v-icon>
-          </v-col>
-        </v-row>
-      </v-card-text>
+          </div>
+        </template>
 
-      <!-- Detail Card - Expandable -->
-      <v-expand-transition>
-        <div v-show="expandedMobileCard === item.id">
-          <v-divider></v-divider>
-          <v-card-text class="mobile-card-details">
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Kode:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                <v-chip :color="getCodeColor(item.code)" size="small" variant="flat">
-                  {{ item.code }}
-                </v-chip>
-              </v-col>
-            </v-row>
+        <!-- ACTION -->
+        <template #item.action="{ item }">
+          <v-btn color="success" size="small" @click="showApproveDialog(item.id)">
+            Approve
+          </v-btn>
+        </template>
+      </v-data-table>
+    </template>
+  </CardDataTable>
 
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Nama Lengkap:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ item.nama || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Nama Panggilan:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ item.nama_panggilan || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>No. ID:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ item.nomor_id || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Tempat Lahir:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ item.tempat_lahir || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Tanggal Lahir:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ formatDate(item.tgl_lahir) }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Class:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                <v-chip :color="getClassColor(item.class_member)" size="small" variant="flat">
-                  {{ item.class_member || '-' }}
-                </v-chip>
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>No. HP:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ item.nohp || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Jaringan:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ item.jaringan_mvo || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Level:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                <v-chip color="info" size="small" variant="flat">
-                  Level {{ item.level }}
-                </v-chip>
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Parent:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                {{ getParentInfo(item.parent_id) }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="6" class="detail-label">
-                <strong>Status:</strong>
-              </v-col>
-              <v-col cols="6" class="detail-value">
-                <v-chip :color="getStatusColor(item.status_inputan)" size="small" variant="flat">
-                  {{ getStatusText(item.status_inputan) }}
-                </v-chip>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
+  <!-- Dialog Konfirmasi Approve -->
+  <v-dialog v-model="isShowDialogApprove" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">Konfirmasi Approve</v-card-title>
+      <v-card-text>Apakah anda yakin ingin menyetujui data bawahan ini?</v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="grey-darken-1" variant="text" @click="isShowDialogApprove = false">Batal</v-btn>
+        <v-btn color="success" variant="text" @click="processApproveUser" :loading="isButtonLoading">Ya, Approve</v-btn>
+      </v-card-actions>
     </v-card>
-
-    <!-- Mobile Pagination -->
-    <div v-if="filteredMobileItems.length > itemsPerMobilePage" class="mobile-pagination mt-4">
-      <v-pagination v-model="currentMobilePage" :length="totalMobilePages" :total-visible="5" color="#FFD700"
-        class="custom-pagination"></v-pagination>
-    </div>
-  </div>
+  </v-dialog>
 
   <v-snackbar v-model="contentSnackbar.snackbar" :color="contentSnackbar.color">
     {{ contentSnackbar.text }}
@@ -242,35 +56,26 @@
 <script>
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
-import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 export default {
-  name: 'MvoDataPage',
-  components: {
-    Breadcrumb,
-    CardDataTable,
-  },
-
-  setup() {
-    const app = useAppStore();
-    return { app };
-  },
+  components: { Breadcrumb, CardDataTable },
 
   data() {
     return {
-      expandedMobileCard: null, // For mobile card expansion
-      currentMobilePage: 1, // Mobile pagination
-      itemsPerMobilePage: 5, // Items per mobile page
-
+      search: "",
+      loading: true,
+      isShowDialogApprove: false,
+      idToApprove: null,
+      isButtonLoading: false,
       contentSnackbar: {
         snackbar: false,
         text: "",
         color: "",
       },
-
-      title: "DATA AKUN - BELUM DISETUJUI",
+      items: [],
+      mvoTypeList: [],
       itemsBreadcrumb: [
         {
           title: "Dashboard",
@@ -278,220 +83,162 @@ export default {
           href: "/admin/dashboard",
         },
         {
-          title: "Akun Belum Approve",
-          disabled: false,
-          href: "/admin/mvo-data",
+          title: "Approval Bawahan",
+          disabled: true,
+          href: "#",
         },
       ],
 
-      datatable: {
-        search: "",
-        headers: [
-          { key: "code", title: "Kode", width: "150px" },
-          { key: "nama", title: "Nama Lengkap" },
-          { key: "nama_panggilan", title: "Nama Panggilan" },
-          { key: "nomor_id", title: "No. ID" },
-          { key: "tempat_lahir", title: "Tempat Lahir" },
-          { key: "tgl_lahir", title: "Tanggal Lahir" },
-          { key: "class_member", title: "Class", align: "center" },
-          { key: "nohp", title: "No. HP" },
-          { key: "jaringan_mvo", title: "Jaringan" },
-          { key: "level", title: "Level", align: "center" },
-          { key: "parent_info", title: "Parent" },
-          { key: "status_inputan", title: "Status", align: "center" },
-        ],
-        items: [],
-      },
-
-      isTableLoading: true,
-      allMvoData: [], // Store all MVO data for parent lookup
+      headers: [
+        // { key: "username", title: "Username" },
+        // { key: "aktivasi", title: "Aktivasi" },
+        { key: "nama", title: "Nama" },
+        { key: "no_id", title: "No ID" },
+        { key: "cabang", title: "Cabang" },
+        // { key: "jlh_bintang", title: "Bintang" },
+        // { key: "mvo_type_id", title: "Tipe MVO" },
+        // { key: "nohp", title: "No HP" },
+        { key: "alamat", title: "Alamat" },
+        // { key: "tgl_lahir", title: "Tanggal Lahir" },
+        // { key: "jenis_kelamin", title: "Jenis Kelamin" },
+        // { key: "nama_panggilan", title: "Nama Panggilan" },
+        // { key: "tempat_lahir", title: "Tempat Lahir" },
+        // { key: "path_gambar_profile", title: "Gambar Profile" },
+        { key: "upline_1", title: "Upline 1" },
+        { key: "upline_2", title: "Upline 2" },
+        { key: "upline_3", title: "Upline 3" },
+        { key: "upline_4", title: "Upline 4" },
+        { key: "upline_5", title: "Upline 5" },
+        { key: "upline_6", title: "Upline 6" },
+        { key: "upline_7", title: "Upline 7" },
+        { key: "approval_upline_1", title: "Approval Upline 1" },
+        { key: "approval_upline_2", title: "Approval Upline 2" },
+        { key: "approval_upline_3", title: "Approval Upline 3" },
+        { key: "approval_upline_4", title: "Approval Upline 4" },
+        { key: "approval_upline_5", title: "Approval Upline 5" },
+        { key: "approval_upline_6", title: "Approval Upline 6" },
+        { key: "approval_upline_7", title: "Approval Upline 7" },
+        { key: "action", title: "Action", sortable: false },
+      ],
     };
   },
 
   computed: {
-    // Filter untuk menampilkan hanya data yang belum di-approve atau status null
     filteredItems() {
-      let filtered = this.datatable.items.filter(item => {
-        const status = item.status_inputan?.toLowerCase();
-        return !status || status !== 'approved';
+      return this.items.filter(i => {
+        const s = this.search.toLowerCase();
+        return (
+          i.nama?.toLowerCase().includes(s) ||
+          i.username?.toLowerCase().includes(s)
+        );
       });
-
-      // Apply search filter
-      if (this.datatable.search) {
-        const searchTerm = this.datatable.search.toLowerCase();
-        filtered = filtered.filter(item => {
-          return (
-            (item.nama && item.nama.toLowerCase().includes(searchTerm)) ||
-            (item.nama_panggilan && item.nama_panggilan.toLowerCase().includes(searchTerm)) ||
-            (item.code && item.code.toLowerCase().includes(searchTerm)) ||
-            (item.nomor_id && item.nomor_id.toLowerCase().includes(searchTerm)) ||
-            (item.tempat_lahir && item.tempat_lahir.toLowerCase().includes(searchTerm)) ||
-            (item.nohp && item.nohp.toLowerCase().includes(searchTerm)) ||
-            (item.jaringan_mvo && item.jaringan_mvo.toLowerCase().includes(searchTerm))
-          );
-        });
-      }
-
-      return filtered;
     },
-
-    // Mobile specific computed properties
-    filteredMobileItems() {
-      return this.filteredItems;
-    },
-
-    totalMobilePages() {
-      return Math.ceil(this.filteredMobileItems.length / this.itemsPerMobilePage);
-    },
-
-    paginatedMobileItems() {
-      const start = (this.currentMobilePage - 1) * this.itemsPerMobilePage;
-      const end = start + this.itemsPerMobilePage;
-      return this.filteredMobileItems.slice(start, end);
-    }
   },
 
   methods: {
-    // Mobile card toggle method
-    toggleMobileDetail(itemId) {
-      if (this.expandedMobileCard === itemId) {
-        this.expandedMobileCard = null;
-      } else {
-        this.expandedMobileCard = itemId;
-      }
+    formatDate(date) {
+      if (!date) return "-";
+      return new Date(date).toLocaleDateString("id-ID");
     },
-
-    // Status color and text methods
-    getStatusColor(status) {
-      if (!status) return 'grey';
-      switch (status.toLowerCase()) {
-        case 'approved':
-          return 'success';
-        case 'pending':
-          return 'warning';
-        case 'rejected':
-          return 'error';
-        default:
-          return 'grey';
-      }
-    },
-
-    getStatusText(status) {
-      if (!status) return 'Belum Disetujui';
-      switch (status.toLowerCase()) {
-        case 'approved':
-          return 'Disetujui';
-        case 'pending':
-          return 'Menunggu';
-        case 'rejected':
-          return 'Ditolak';
-        default:
-          return status;
-      }
-    },
-
-    // Code color based on prefix
-    getCodeColor(code) {
-      if (!code) return 'grey';
-      if (code.startsWith('FND')) return 'primary';
-      if (code.startsWith('MVO')) return 'success';
-      if (code.startsWith('DIST')) return 'warning';
-      return 'info';
-    },
-
-    // Class member color
-    getClassColor(classType) {
-      if (!classType) return 'grey';
-      switch (classType.toUpperCase()) {
-        case 'GOLD':
-          return 'amber';
-        case 'SILVER':
-          return 'blue-grey';
-        case 'BRONZE':
-          return 'brown';
-        case 'PLATINUM':
-          return 'purple';
-        default:
-          return 'blue';
-      }
-    },
-
-    // Format date
-    formatDate(dateString) {
-      if (!dateString) return '-';
-      try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-      } catch (error) {
-        return '-';
-      }
-    },
-
-    // Get parent information
-    getParentInfo(parentId) {
-      if (!parentId) return 'Root';
-      const parent = this.allMvoData.find(item => item.id == parentId);
-      return parent ? parent.code : `ID: ${parentId}`;
-    },
-
-    // Utility methods
-    showSnackbar(message, type = 'success') {
+    showSnackbar(text, color = "success") {
+      this.contentSnackbar.text = text;
+      this.contentSnackbar.color = color;
       this.contentSnackbar.snackbar = true;
-      this.contentSnackbar.text = message;
-      this.contentSnackbar.color = type === 'success' ? this.app.colors.primary : this.app.colors.secondary;
     },
-
-    // API methods
-    async getAllMvoData() {
-      const token = Cookies.get("token");
-      if (!token) {
-        await this.$router.push({ name: "Login" });
-        return;
-      }
-
-      this.isTableLoading = true;
-
+    mapUserWithBintang(users) {
+      return users.map((u) => {
+        const mvo = this.mvoTypeList.find((m) => m.id == u.mvo_type_id);
+        return {
+          ...u,
+          jlh_bintang: mvo ? mvo.jlh_bintang : 0,
+        };
+      });
+    },
+    async getAllMvoType() {
       try {
-        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://babaapi.teknosof.com/api/mvo-type"
+        );
 
-        if (response.data.status === "success") {
-          this.allMvoData = response.data.data; // Store all data for parent lookup
-          this.datatable.items = response.data.data;
-        } else {
-          this.showSnackbar(response.data.message || "Error loading MVO data", 'error');
+        if (response.data.status === "success" && response.data.data) {
+          this.mvoTypeList = response.data.data;
+
+          // 🔥 Kalau user sudah ada → mapping ulang
+          if (this.items.length > 0) {
+            this.items = this.mapUserWithBintang(this.items);
+          }
         }
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error loading MVO data", 'error');
-        console.error("Error fetching MVO data:", error);
+        console.error("Gagal memuat data jabatan", error);
+      }
+    },
+    async loadData() {
+      try {
+        const token = Cookies.get("token");
+        const codeLogin = localStorage.getItem("mvo_id");
+
+        const res = await axios.post(
+          "https://babaapi.teknosof.com/api/cekApprovalBawahan",
+          { code: codeLogin },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const fetchedItems = res.data.data || [];
+        this.items = this.mapUserWithBintang(fetchedItems);
+      } catch (err) {
+        console.error(err);
       } finally {
-        this.isTableLoading = false;
+        this.loading = false;
+      }
+    },
+    showApproveDialog(id) {
+      this.idToApprove = id;
+      this.isShowDialogApprove = true;
+    },
+    async processApproveUser() {
+      if (!this.idToApprove) return;
+      this.isButtonLoading = true;
+      try {
+        const token = Cookies.get("token");
+        const codeLogin = localStorage.getItem("mvo_id");
+
+        const response = await axios.post(
+          "https://babaapi.teknosof.com/api/approve",
+          {
+            code: codeLogin,
+            id: this.idToApprove,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        this.showSnackbar(response.data.message, "success");
+        this.isShowDialogApprove = false;
+        this.loadData();
+      } catch (err) {
+        console.error(err);
+        this.showSnackbar(err.response?.data?.message || "Gagal approve", "error");
+      } finally {
+        this.isButtonLoading = false;
       }
     },
   },
 
-  async created() {
-    await this.getAllMvoData();
+  created() {
+    this.getAllMvoType();
+    this.loadData();
   },
-
-  watch: {
-    // Watch untuk close mobile expansion ketika search berubah
-    'datatable.search': {
-      handler() {
-        this.expandedMobileCard = null;
-        this.currentMobilePage = 1; // Reset pagination when searching
-      }
-    }
-  }
 };
 </script>
+
+
 
 <style scoped>
 /* Desktop Table Styling */

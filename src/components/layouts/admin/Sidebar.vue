@@ -128,6 +128,7 @@ export default {
         "Live Performance",
         "Input Data",
         "Document Belum Approve",
+        "Akun Belum Approve",
         "Chat",
         "Tutorial",
 
