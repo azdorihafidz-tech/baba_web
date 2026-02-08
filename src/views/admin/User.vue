@@ -260,55 +260,50 @@
                 item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <v-col v-if="modelAdd.mvo_type_id" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Cabang (Provinsi)" v-model="modelAdd.cabang" :items="cabangOptions" item-title="text"
                 item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
                 color="amber" base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
-                :disabled="loadingProvinsi || !modelAdd.mvo_type_id" @update:modelValue="onCabangChangeAdd" />
+                @update:modelValue="onCabangChangeAdd" />
             </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select v-if="hideUplineAdd !== 'upline_1'" label="Pilih MVO" v-model="modelAdd.upline_1"
-                :items="mvoOptionsAdd" item-title="text" item-value="value" :loading="loadingMvoAdd"
-                :disabled="!modelAdd.cabang" @update:modelValue="onMvoChangeAdd" density="compact" variant="outlined"
-                color="amber" base-color="grey-lighten-1" clearable />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select v-if="hideUplineAdd !== 'upline_2'" label="Pilih Regional" v-model="modelAdd.upline_2"
-                :items="regionalOptionsAdd" item-title="text" item-value="value" :loading="loadingRegionalAdd"
-                :disabled="!modelAdd.upline_1" @update:modelValue="onRegionalChangeAdd" density="compact"
-                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-            </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select v-if="hideUplineAdd !== 'upline_3'" label="Pilih Founder" v-model="modelAdd.upline_3"
-                :items="founderOptionsAdd" item-title="text" item-value="value" :loading="loadingFounderAdd"
-                :disabled="!modelAdd.upline_2" @update:modelValue="onFounderChangeAdd" density="compact"
+            <v-col v-if="modelAdd.cabang && hideUplineAdd !== 'upline_1'" :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih MVO" v-model="modelAdd.upline_1" :items="mvoOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingMvoAdd" @update:modelValue="onMvoChangeAdd" density="compact"
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
           </v-row>
 
           <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select v-if="hideUplineAdd !== 'upline_4'" label="Pilih GM" v-model="modelAdd.upline_4"
-                :items="gmOptionsAdd" item-title="text" item-value="value" :loading="loadingGmAdd"
-                :disabled="!modelAdd.upline_3" @update:modelValue="onGmChangeAdd" density="compact" variant="outlined"
-                color="amber" base-color="grey-lighten-1" clearable />
-            </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select v-if="hideUplineAdd !== 'upline_6'" label="Pilih Supplier" v-model="modelAdd.upline_5"
-                :items="supplierOptionsAdd" item-title="text" item-value="value" :loading="loadingSupplierAdd"
-                :disabled="!modelAdd.upline_4" @update:modelValue="onSupplierChangeAdd" density="compact"
-                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-select label="Pilih Distributor" v-model="modelAdd.upline_6" :items="distributorOptionsAdd"
-                item-title="text" item-value="value" :loading="loadingDistributorAdd" :disabled="!modelAdd.upline_5"
+            <v-col v-if="modelAdd.upline_1 && hideUplineAdd !== 'upline_2'" :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Regional" v-model="modelAdd.upline_2" :items="regionalOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingRegionalAdd" @update:modelValue="onRegionalChangeAdd"
                 density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col v-if="modelAdd.upline_2 && hideUplineAdd !== 'upline_3'" :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Founder" v-model="modelAdd.upline_3" :items="founderOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingFounderAdd" @update:modelValue="onFounderChangeAdd"
+                density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col v-if="modelAdd.upline_3 && hideUplineAdd !== 'upline_4'" :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih GM" v-model="modelAdd.upline_4" :items="gmOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingGmAdd" @update:modelValue="onGmChangeAdd" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+            <v-col v-if="modelAdd.upline_4 && hideUplineAdd !== 'upline_5'" :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Supplier" v-model="modelAdd.upline_5" :items="supplierOptionsAdd" item-title="text"
+                item-value="value" :loading="loadingSupplierAdd" @update:modelValue="onSupplierChangeAdd"
+                density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col v-if="modelAdd.upline_5 && hideUplineAdd !== 'upline_6'" :cols="$vuetify.display.mobile ? 12 : 6">
+              <v-select label="Pilih Distributor" v-model="modelAdd.upline_6" :items="distributorOptionsAdd"
+                item-title="text" item-value="value" :loading="loadingDistributorAdd" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-text-field label="Username" v-model="modelAdd.username" type="text" density="compact"
