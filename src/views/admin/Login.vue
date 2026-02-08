@@ -552,7 +552,9 @@ const handleLogin = async () => {
         localStorage.setItem('nik', response.data.data.user.nik)
       }
       localStorage.setItem('mvo_type_id', response.data.data.user.mvo_type_id)
-      localStorage.setItem('mvo_code', response.data.data.user.mvo.code)
+      if (response.data.data.user.mvo) {
+        localStorage.setItem('mvo_id', response.data.data.user.mvo.code)
+      }
 
       const userData = response.data.data.user
       localStorage.setItem('user', JSON.stringify(userData))
