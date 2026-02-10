@@ -393,7 +393,7 @@ export default {
     async fetchSongs() {
       this.loadingSongs = true;
       try {
-        const response = await axios.get('https://babaparfume.id/api/lagu');
+        const response = await axios.get('https://babaapi.teknosof.com/api/lagu');
 
         if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
           this.songs = response.data.data;
@@ -428,10 +428,10 @@ export default {
       if (!song || !this.$refs.audioPlayer) return;
 
       const urlPatterns = [
-        `https://babaparfume.id/${song.file_lagu}`,
-        `https://babaparfume.id/project/public/${song.file_lagu}`,
-        `https://babaparfume.id/storage/${song.file_lagu}`,
-        `https://babaparfume.id/public/${song.file_lagu}`,
+        `https://babaapi.teknosof.com/${song.file_lagu}`,
+        `https://babaapi.teknosof.com/project/public/${song.file_lagu}`,
+        `https://babaapi.teknosof.com/storage/${song.file_lagu}`,
+        `https://babaapi.teknosof.com/public/${song.file_lagu}`,
       ];
 
       const audioUrl = urlPatterns[patternIndex];

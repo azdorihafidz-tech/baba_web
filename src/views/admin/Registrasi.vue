@@ -706,14 +706,37 @@ export default {
         },
 
         async handleRegister() {
-            console.log('Register attempt with new API (NO FRONTEND VALIDATION)')
+            console.log('Register attempt with new API')
 
             this.isButtonLoading = true
 
+            // Helper function untuk mendapatkan text dari options
+            const getUplineText = (uplineValue, optionsArray) => {
+                if (!uplineValue) return ''
+                const option = optionsArray.find(opt => opt.value === uplineValue)
+                return option ? option.text : uplineValue
+            }
+
+            // Mapping upline dengan format "code - nama"
+            const uplineMapping = {
+                upline_1: getUplineText(this.inputRegister.upline_1, this.mvoOptions),
+                upline_2: getUplineText(this.inputRegister.upline_2, this.regionalOptions),
+                upline_3: getUplineText(this.inputRegister.upline_3, this.founderOptions),
+                upline_4: getUplineText(this.inputRegister.upline_4, this.gmOptions),
+                upline_5: getUplineText(this.inputRegister.upline_5, this.supplierOptions),
+                upline_6: getUplineText(this.inputRegister.upline_6, this.distributorOptions),
+            }
+
             const formData = new FormData()
 
+            // Append data ke FormData
             for (const [key, value] of Object.entries(this.inputRegister)) {
-                formData.append(key, value ?? '')
+                if (key.startsWith('upline_') && key !== 'upline_7') {
+                    // Gunakan format "code - nama"
+                    formData.append(key, uplineMapping[key] || '')
+                } else {
+                    formData.append(key, value ?? '')
+                }
             }
 
             const apiUrls = [
@@ -740,8 +763,9 @@ export default {
                     console.log('Register success:', response.data)
 
                     if (response.status === 200 || response.status === 201) {
-                        this.showSnackbar(`Registrasi berhasil!`, 'success')
+                        this.showSnackbar('Registrasi berhasil!', 'success')
 
+                        // Reset form
                         this.inputRegister = {
                             no_id: '',
                             nama: '',
@@ -755,10 +779,18 @@ export default {
                             password: '',
                             cabang: '',
                             path_gambar_profile: null,
-                            jenis_kelamin: ''
+                            jenis_kelamin: '',
+                            upline_1: '',
+                            upline_2: '',
+                            upline_3: '',
+                            upline_4: '',
+                            upline_5: '',
+                            upline_6: '',
+                            upline_7: '-'
                         }
                         this.previewFotoProfile = null
 
+                        // Redirect ke login
                         setTimeout(() => {
                             this.$router.push('/admin/login')
                         }, 2000)
@@ -780,7 +812,7 @@ export default {
                         error.message?.includes('SSL') ||
                         error.message?.includes('Network Error')
                     ) {
-                        console.log(`SSL/Network error, trying next URL...`)
+                        console.log('SSL/Network error, trying next URL...')
                         continue
                     }
 

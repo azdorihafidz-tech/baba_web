@@ -12,7 +12,8 @@
 
       <!-- TABLE -->
       <template #datatable>
-        <v-data-table :headers="headers" :items="filteredItems" :loading="loading">
+        <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" :headers="headers" :items="filteredItems"
+          :loading="loading">
           <!-- TGL -->
           <template #item.tgl_lahir="{ item }">
             {{ formatDate(item.tgl_lahir) }}
@@ -174,20 +175,20 @@ export default {
         // { key: "nama_panggilan", title: "Nama Panggilan" },
         // { key: "tempat_lahir", title: "Tempat Lahir" },
         // { key: "path_gambar_profile", title: "Gambar Profile" },
-        { key: "upline_1", title: "Upline 1" },
-        { key: "upline_2", title: "Upline 2" },
-        { key: "upline_3", title: "Upline 3" },
-        { key: "upline_4", title: "Upline 4" },
-        { key: "upline_5", title: "Upline 5" },
-        { key: "upline_6", title: "Upline 6" },
-        { key: "upline_7", title: "Upline 7" },
-        { key: "approval_upline_1", title: "Approval Upline 1" },
-        { key: "approval_upline_2", title: "Approval Upline 2" },
-        { key: "approval_upline_3", title: "Approval Upline 3" },
-        { key: "approval_upline_4", title: "Approval Upline 4" },
-        { key: "approval_upline_5", title: "Approval Upline 5" },
-        { key: "approval_upline_6", title: "Approval Upline 6" },
-        { key: "approval_upline_7", title: "Approval Upline 7" },
+        { key: "upline_7", title: "SELLER" },
+        { key: "upline_6", title: "DISTRIBUTOR" },
+        { key: "upline_5", title: "SUPPILER" },
+        { key: "upline_4", title: "GENERAL MANAGER" },
+        { key: "upline_3", title: "FOUNDER" },
+        { key: "upline_2", title: "REGIONAL" },
+        { key: "upline_1", title: "MVO" },
+        { key: "approval_upline_7", title: "Approval SELLER" },
+        { key: "approval_upline_6", title: "Approval DISTRIBUTOR" },
+        { key: "approval_upline_5", title: "Approval SUPPILER" },
+        { key: "approval_upline_4", title: "Approval GENERAL MANAGER" },
+        { key: "approval_upline_3", title: "Approval FOUNDER" },
+        { key: "approval_upline_2", title: "Approval REGIONAL" },
+        { key: "approval_upline_1", title: "Approval MVO" },
         { key: "action", title: "Action", sortable: false },
       ],
     };
