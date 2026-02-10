@@ -46,7 +46,9 @@
                                 </v-btn>
                             </template>
                         </v-tooltip>
-                        <v-tooltip text="Edit" color="#125C13" location="top start">
+
+                        <!-- Tambahkan v-if="isSuperAdmin" -->
+                        <v-tooltip v-if="isSuperAdmin" text="Edit" color="#125C13" location="top start">
                             <template v-slot:activator="{ props }">
                                 <v-btn size="small" :color="app.colors.primary" @click="editToko(item.id)"
                                     class="mr-2 mb-2" v-bind="props" icon>
@@ -54,7 +56,9 @@
                                 </v-btn>
                             </template>
                         </v-tooltip>
-                        <v-tooltip text="Hapus" color="#125C13" location="top start">
+
+                        <!-- Tambahkan v-if="isSuperAdmin" -->
+                        <v-tooltip v-if="isSuperAdmin" text="Hapus" color="#125C13" location="top start">
                             <template v-slot:activator="{ props }">
                                 <v-btn size="small" :color="app.colors.secondary" @click="deleteToko(item.id)"
                                     class="mr-2 mb-2" v-bind="props" icon>
@@ -143,6 +147,7 @@
                         </v-row>
 
                         <!-- Action Buttons -->
+                        <!-- Action Buttons -->
                         <v-divider class="mb-3"></v-divider>
                         <div class="mobile-actions">
                             <v-btn size="small" color="info" @click.stop="openMaps(item.link_maps, item.alamat)"
@@ -150,13 +155,17 @@
                                 Rute
                             </v-btn>
 
-                            <v-btn size="small" :color="app.colors.primary" @click.stop="editToko(item.id)"
-                                class="mr-2 mb-2" prepend-icon="mdi-pencil" style="min-width: 120px;">
+                            <!-- Tambahkan v-if="isSuperAdmin" -->
+                            <v-btn v-if="isSuperAdmin" size="small" :color="app.colors.primary"
+                                @click.stop="editToko(item.id)" class="mr-2 mb-2" prepend-icon="mdi-pencil"
+                                style="min-width: 120px;">
                                 Edit
                             </v-btn>
 
-                            <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteToko(item.id)"
-                                class="mb-2" prepend-icon="mdi-delete" style="min-width: 120px;">
+                            <!-- Tambahkan v-if="isSuperAdmin" -->
+                            <v-btn v-if="isSuperAdmin" size="small" :color="app.colors.secondary"
+                                @click.stop="deleteToko(item.id)" class="mb-2" prepend-icon="mdi-delete"
+                                style="min-width: 120px;">
                                 Hapus
                             </v-btn>
                         </div>
@@ -381,6 +390,12 @@ export default {
                     (item.alamat && item.alamat.toLowerCase().includes(searchTerm))
                 );
             });
+        },
+
+        // Tambahkan computed property ini
+        isSuperAdmin() {
+            const mvoTypeId = localStorage.getItem('mvo_type_id');
+            return mvoTypeId === 'superadmin';
         }
     },
 
