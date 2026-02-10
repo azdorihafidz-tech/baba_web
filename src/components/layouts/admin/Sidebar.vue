@@ -129,6 +129,7 @@ export default {
         "Input Data",
         "Document Belum Approve",
         "Akun Belum Approve",
+        "Store",
         "Chat",
         "Tutorial",
 
