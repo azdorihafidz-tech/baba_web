@@ -244,7 +244,7 @@ const volumeIcon = computed(() => {
 const fetchSongs = async () => {
   loadingSongs.value = true
   try {
-    const response = await axios.get('https://babaparfume.id/api/lagu')
+    const response = await axios.get('https://babaapi.teknosof.com/api/lagu')
 
     if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
       songs.value = response.data.data
@@ -253,7 +253,7 @@ const fetchSongs = async () => {
         const firstSong = songs.value[0]
         currentSong.value = firstSong
 
-        const audioUrl = `https://babaparfume.id/${firstSong.file_lagu}`
+        const audioUrl = `https://babaapi.teknosof.com/${firstSong.file_lagu}`
 
         setTimeout(() => {
           if (audioPlayer.value) {
@@ -283,10 +283,10 @@ const selectSong = (song) => {
     audioPlayer.value.src = ''
 
     const urlPatterns = [
-      `https://babaparfume.id/${song.file_lagu}`,
-      `https://babaparfume.id/project/public/${song.file_lagu}`,
-      `https://babaparfume.id/storage/${song.file_lagu}`,
-      `https://babaparfume.id/public/${song.file_lagu}`,
+      `https://babaapi.teknosof.com/${song.file_lagu}`,
+      `https://babaapi.teknosof.com/project/public/${song.file_lagu}`,
+      `https://babaapi.teknosof.com/storage/${song.file_lagu}`,
+      `https://babaapi.teknosof.com/public/${song.file_lagu}`,
     ]
 
     const audioUrl = urlPatterns[parseInt(workingPattern)] || urlPatterns[0]
@@ -312,10 +312,10 @@ const togglePlay = async () => {
     if (!audioPlayer.value.src || audioPlayer.value.error) {
       const workingPattern = localStorage.getItem('workingAudioPattern') || '0'
       const urlPatterns = [
-        `https://babaparfume.id/${currentSong.value.file_lagu}`,
-        `https://babaparfume.id/project/public/${currentSong.value.file_lagu}`,
-        `https://babaparfume.id/storage/${currentSong.value.file_lagu}`,
-        `https://babaparfume.id/public/${currentSong.value.file_lagu}`,
+        `https://babaapi.teknosof.com/${currentSong.value.file_lagu}`,
+        `https://babaapi.teknosof.com/project/public/${currentSong.value.file_lagu}`,
+        `https://babaapi.teknosof.com/storage/${currentSong.value.file_lagu}`,
+        `https://babaapi.teknosof.com/public/${currentSong.value.file_lagu}`,
       ]
 
       const audioUrl = urlPatterns[parseInt(workingPattern)]

@@ -29,6 +29,35 @@
         <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="datatable.items"
           :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
           @update:options="updateCurrentpageInfo">
+          <!-- DISTRIBUTOR -->
+          <template v-slot:item.upline_6="{ item }">
+            {{ getNamaAfterStrip(item.upline_6) || '-' }}
+          </template>
+
+          <!-- SUPPLIER -->
+          <template v-slot:item.upline_5="{ item }">
+            {{ getNamaAfterStrip(item.upline_5) || '-' }}
+          </template>
+
+          <!-- GM -->
+          <template v-slot:item.upline_4="{ item }">
+            {{ getNamaAfterStrip(item.upline_4) || '-' }}
+          </template>
+
+          <!-- FOUNDER -->
+          <template v-slot:item.upline_3="{ item }">
+            {{ getNamaAfterStrip(item.upline_3) || '-' }}
+          </template>
+
+          <!-- REGIONAL -->
+          <template v-slot:item.upline_2="{ item }">
+            {{ getNamaAfterStrip(item.upline_2) || '-' }}
+          </template>
+
+          <!-- MVO -->
+          <template v-slot:item.upline_1="{ item }">
+            {{ getNamaAfterStrip(item.upline_1) || '-' }}
+          </template>
 
           <!-- Kolom Nomor Urut -->
           <template v-slot:item.no="{ index }">
@@ -609,13 +638,13 @@ export default {
           { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
           { key: "jlh_bintang", title: "Bintang" },
-          { key: "upline_1", title: "UPLINE 1" },
-          { key: "upline_2", title: "UPLINE 2" },
-          { key: "upline_3", title: "UPLINE 3" },
-          { key: "upline_4", title: "UPLINE 4" },
-          { key: "upline_5", title: "UPLINE 5" },
-          { key: "upline_6", title: "UPLINE 6" },
-          // { key: "upline_7", title: "UPLINE 7" },
+          { key: "upline_7", title: "SELLER" },
+          { key: "upline_6", title: "DISTRIBUTOR" },
+          { key: "upline_5", title: "SUPPLIER" },
+          { key: "upline_4", title: "GENERAL MANAGER" },
+          { key: "upline_3", title: "FOUNDER" },
+          { key: "upline_2", title: "REGIONAL" },
+          { key: "upline_1", title: "MVO" },
           { key: "aktivasi", title: "Aktivasi", align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" }
         ],
@@ -668,6 +697,15 @@ export default {
   },
 
   methods: {
+    getNamaAfterStrip(value) {
+      if (!value) return '';
+
+      // Pecah berdasarkan " - "
+      const parts = value.split(' - ');
+
+      // Ambil bagian belakang
+      return parts.length > 1 ? parts[1] : value;
+    },
     mapUserWithBintang(users) {
       return users.map(u => {
 
@@ -1210,9 +1248,33 @@ export default {
     async addUser() {
       this.isButtonLoading = true;
 
+      // Helper function untuk mendapatkan text dari options
+      const getUplineText = (uplineValue, optionsArray) => {
+        if (!uplineValue) return '';
+        const option = optionsArray.find(opt => opt.value === uplineValue);
+        return option ? option.text : uplineValue;
+      };
+
+      // Mapping upline dengan format "code - nama"
+      const uplineMapping = {
+        upline_1: getUplineText(this.modelAdd.upline_1, this.mvoOptionsAdd),
+        upline_2: getUplineText(this.modelAdd.upline_2, this.regionalOptionsAdd),
+        upline_3: getUplineText(this.modelAdd.upline_3, this.founderOptionsAdd),
+        upline_4: getUplineText(this.modelAdd.upline_4, this.gmOptionsAdd),
+        upline_5: getUplineText(this.modelAdd.upline_5, this.supplierOptionsAdd),
+        upline_6: getUplineText(this.modelAdd.upline_6, this.distributorOptionsAdd),
+      };
+
       const formData = new FormData();
+
+      // Append data ke FormData
       for (const [key, value] of Object.entries(this.modelAdd)) {
-        formData.append(key, value ?? '');
+        if (key.startsWith('upline_') && key !== 'upline_7') {
+          // Gunakan format "code - nama"
+          formData.append(key, uplineMapping[key] || '');
+        } else {
+          formData.append(key, value ?? '');
+        }
       }
 
       const apiUrls = [
@@ -1290,6 +1352,14 @@ export default {
       if (this.cabangOptions.length === 0) this.fetchProvinsiData();
       if (this.jabatanOptions.length === 0) this.getAllMvoType();
 
+      // Helper function untuk extract code dari "code - nama"
+      const extractCode = (uplineValue) => {
+        if (!uplineValue) return '';
+        // Jika formatnya "code - nama", ambil code-nya saja
+        const parts = uplineValue.split(' - ');
+        return parts[0].trim();
+      };
+
       axios.get(`https://babaapi.teknosof.com/api/user/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -1310,19 +1380,23 @@ export default {
             this.modelEdit.username = userData.username || "";
             this.modelEdit.password = "";
             this.modelEdit.cabang = userData.cabang || "";
-            this.modelEdit.upline_1 = userData.upline_1 || "";
-            this.modelEdit.upline_2 = userData.upline_2 || "";
-            this.modelEdit.upline_3 = userData.upline_3 || "";
-            this.modelEdit.upline_4 = userData.upline_4 || "";
-            this.modelEdit.upline_5 = userData.upline_5 || "";
-            this.modelEdit.upline_6 = userData.upline_6 || "";
+
+            // Parse upline (extract code dari "code - nama")
+            this.modelEdit.upline_1 = extractCode(userData.upline_1);
+            this.modelEdit.upline_2 = extractCode(userData.upline_2);
+            this.modelEdit.upline_3 = extractCode(userData.upline_3);
+            this.modelEdit.upline_4 = extractCode(userData.upline_4);
+            this.modelEdit.upline_5 = extractCode(userData.upline_5);
+            this.modelEdit.upline_6 = extractCode(userData.upline_6);
             this.modelEdit.upline_7 = userData.upline_7 || "-";
+
             this.modelEdit.path_gambar_profile = null;
 
             if (userData.path_gambar_profile) {
               this.previewFotoProfileEdit = userData.path_gambar_profile;
             }
 
+            // Load cascade data untuk edit
             if (this.modelEdit.cabang) this.getMvoEdit(this.modelEdit.cabang);
             if (this.modelEdit.upline_1) this.getRegionalEdit(this.modelEdit.upline_1);
             if (this.modelEdit.upline_2) this.getFounderEdit(this.modelEdit.upline_2);
@@ -1344,10 +1418,34 @@ export default {
     async updateUser() {
       this.isButtonLoading = true;
 
+      // Helper function untuk mendapatkan text dari options
+      const getUplineText = (uplineValue, optionsArray) => {
+        if (!uplineValue) return '';
+        const option = optionsArray.find(opt => opt.value === uplineValue);
+        return option ? option.text : uplineValue;
+      };
+
+      // Mapping upline dengan format "code - nama"
+      const uplineMapping = {
+        upline_1: getUplineText(this.modelEdit.upline_1, this.mvoOptionsEdit),
+        upline_2: getUplineText(this.modelEdit.upline_2, this.regionalOptionsEdit),
+        upline_3: getUplineText(this.modelEdit.upline_3, this.founderOptionsEdit),
+        upline_4: getUplineText(this.modelEdit.upline_4, this.gmOptionsEdit),
+        upline_5: getUplineText(this.modelEdit.upline_5, this.supplierOptionsEdit),
+        upline_6: getUplineText(this.modelEdit.upline_6, this.distributorOptionsEdit),
+      };
+
       const formData = new FormData();
+
+      // Append data ke FormData
       for (const [key, value] of Object.entries(this.modelEdit)) {
         if (key !== 'id') {
-          formData.append(key, value ?? '');
+          if (key.startsWith('upline_') && key !== 'upline_7') {
+            // Gunakan format "code - nama"
+            formData.append(key, uplineMapping[key] || '');
+          } else {
+            formData.append(key, value ?? '');
+          }
         }
       }
       formData.append('_method', 'PUT');

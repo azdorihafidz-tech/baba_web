@@ -34,13 +34,6 @@
                         <p class="text-body-2 text-grey-lighten-1 mb-1">
                             @{{ userData?.username || 'username' }}
                         </p>
-                        <v-chip size="small" color="amber" variant="tonal" class="mt-2">
-                            <v-icon start size="small">mdi-briefcase</v-icon>
-                            {{ userData?.mvo_type_id?.toUpperCase() || 'USER' }}
-                        </v-chip>
-                        <v-chip size="small" color="amber" variant="tonal" class="mt-2">
-                            {{ userData?.class_member?.toUpperCase() || 'MEMBER' }}
-                        </v-chip>
 
                         <v-divider class="my-4 border-opacity-25"></v-divider>
 
@@ -73,30 +66,36 @@
             <v-col cols="12" md="8">
                 <v-card color="grey-darken-4" elevation="8" class="profile-card">
                     <!-- Header -->
-                    <v-card-title
-                        class="profile-header d-flex align-center justify-space-between pa-4 bg-grey-darken-3">
+                    <v-card-title class="profile-header d-flex align-center justify-space-between"
+                        :class="$vuetify.display.smAndDown ? 'pa-2' : 'pa-4 bg-grey-darken-3'">
 
                         <div class="d-flex align-center">
-                            <v-icon icon="mdi-account-circle" color="amber" size="28" class="mr-3"></v-icon>
-                            <span class="text-h5 font-weight-bold text-amber">
+                            <v-icon icon="mdi-account-circle" color="amber" :size="$vuetify.display.smAndDown ? 16 : 20"
+                                class="mr-2"></v-icon>
+
+                            <span :class="$vuetify.display.smAndDown ? 'text-caption' : 'text-h6'"
+                                class="font-weight-bold text-amber">
                                 Informasi Detail Profil
                             </span>
                         </div>
 
-                        <div class="d-flex align-center ga-2">
+                        <div class="d-flex align-center ga-1">
+
                             <!-- Tombol Ganti Password -->
-                            <v-btn color="amber" variant="flat" size="small" @click="dialogPassword = true">
-                                <v-icon start>mdi-lock-reset</v-icon>
-                                Ganti Password
+                            <v-btn color="amber" variant="flat" :size="$vuetify.display.smAndDown ? 'x-small' : 'small'"
+                                @click="dialogPassword = true">
+                                <v-icon start size="16">mdi-lock-reset</v-icon>
+                                <span v-if="!$vuetify.display.smAndDown">Ganti Password</span>
                             </v-btn>
 
-                            <v-chip variant="flat" color="green" text-color="grey-darken-4">
-                                <v-icon icon="mdi-check-circle" size="16" class="mr-1"></v-icon>
+                            <v-chip variant="flat" color="green" text-color="grey-darken-4"
+                                :size="$vuetify.display.smAndDown ? 'x-small' : 'small'">
+                                <v-icon icon="mdi-check-circle" size="14" class="mr-1"></v-icon>
                                 {{ userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif' }}
                             </v-chip>
+
                         </div>
                     </v-card-title>
-
 
                     <v-card-text class="pa-6">
                         <v-form ref="profileForm" v-model="formValid">
@@ -124,7 +123,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.no_id" label="NIK / No. Identitas"
+                                                <v-text-field v-model="editedData.no_id" label="NO ID"
                                                     prepend-inner-icon="mdi-card-account-details" variant="outlined"
                                                     color="amber" readonly :rules="[rules.required, rules.nik]"
                                                     bg-color="grey-darken-4" class="profile-field"
@@ -204,20 +203,6 @@
                                             </v-col>
 
                                             <v-col cols="12" md="6">
-                                                <v-text-field v-model="userData.class_member" label="Kelas Member"
-                                                    prepend-inner-icon="mdi-star" variant="outlined" color="amber"
-                                                    readonly bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
-
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="userData.mvo_type_id" label="mvo_type_id"
-                                                    prepend-inner-icon="mdi-shield-key" variant="outlined" color="amber"
-                                                    readonly bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
-
-                                            <v-col cols="12" md="6">
                                                 <v-text-field
                                                     :value="userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif'"
                                                     label="Status Akun" prepend-inner-icon="mdi-check-circle"
@@ -246,6 +231,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
+
         <!-- Dialog Ganti Password -->
         <v-dialog v-model="dialogPassword" max-width="500">
             <v-card color="grey-darken-4">
@@ -257,12 +243,37 @@
                 <v-card-text class="pa-4">
                     <v-form ref="formPassword" v-model="formPasswordValid">
 
-                        <v-text-field v-model="passwordForm.current_password" label="Password Lama" type="password"
-                            prepend-inner-icon="mdi-lock" variant="outlined" color="amber" :rules="[rules.required]" />
+                        <v-text-field 
+                            v-model="passwordForm.current_password" 
+                            label="Password Lama" 
+                            type="password"
+                            prepend-inner-icon="mdi-lock" 
+                            variant="outlined" 
+                            color="amber" 
+                            :rules="[rules.required]"
+                            class="mb-2"
+                        />
 
-                        <v-text-field v-model="passwordForm.password" label="Password Baru" type="password"
-                            prepend-inner-icon="mdi-lock-plus" variant="outlined" color="amber"
-                            :rules="[rules.required, rules.minPassword]" />
+                        <v-text-field 
+                            v-model="passwordForm.password" 
+                            label="Password Baru" 
+                            type="password"
+                            prepend-inner-icon="mdi-lock-plus" 
+                            variant="outlined" 
+                            color="amber"
+                            :rules="[rules.required, rules.minPassword]"
+                            class="mb-2"
+                        />
+
+                        <v-text-field 
+                            v-model="passwordForm.password_confirmation" 
+                            label="Konfirmasi Password Baru"
+                            type="password" 
+                            prepend-inner-icon="mdi-lock-check" 
+                            variant="outlined" 
+                            color="amber"
+                            :rules="[rules.required, rules.matchPassword]"
+                        />
 
                     </v-form>
                 </v-card-text>
@@ -270,7 +281,7 @@
                 <v-card-actions class="pa-4">
                     <v-spacer></v-spacer>
 
-                    <v-btn variant="text" color="grey" @click="dialogPassword = false">
+                    <v-btn variant="text" color="grey" @click="closePasswordDialog">
                         Batal
                     </v-btn>
 
@@ -283,6 +294,7 @@
 
     </v-container>
 </template>
+
 <script>
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -298,10 +310,12 @@ export default {
 
             passwordForm: {
                 current_password: '',
-                password: ''
+                password: '',
+                password_confirmation: ''
             },
 
             isLoading: true,
+            formValid: false,
 
             userData: null,
             editedData: {},
@@ -310,11 +324,20 @@ export default {
                 { title: 'Laki-laki', value: 'L' },
                 { title: 'Perempuan', value: 'P' }
             ],
+
             rules: {
                 required: v => !!v || 'Field ini wajib diisi',
-                nik: v => !v || v.length >= 10 || 'NIK minimal 10 karakter',
-                phone: v => !v || /^[0-9+\-() ]+$/.test(v) || 'Format nomor telepon tidak valid',
+                
+                nik: v => !v || v.length === 16 || 'NIK harus 16 digit',
+                
+                phone: v => !v || /^[0-9]{10,13}$/.test(v) || 'No. HP tidak valid',
+                
                 minPassword: v => !v || v.length >= 3 || 'Password minimal 3 karakter',
+
+                matchPassword: v => {
+                    if (!v) return 'Field ini wajib diisi';
+                    return v === this.passwordForm.password || 'Konfirmasi password tidak sama';
+                }
             },
 
             snackbar: {
@@ -335,7 +358,13 @@ export default {
 
     methods: {
         async changePassword() {
-            if (!this.$refs.formPassword.validate()) return;
+            // Validasi form
+            const { valid } = await this.$refs.formPassword.validate();
+            
+            if (!valid) {
+                this.showSnackbar('Mohon lengkapi semua field dengan benar', 'error');
+                return;
+            }
 
             this.isChangePasswordLoading = true;
 
@@ -346,7 +375,8 @@ export default {
                     'https://babaapi.teknosof.com/api/me/password',
                     {
                         current_password: this.passwordForm.current_password,
-                        password: this.passwordForm.password
+                        password: this.passwordForm.password,
+                        password_confirmation: this.passwordForm.password_confirmation
                     },
                     {
                         headers: {
@@ -361,6 +391,11 @@ export default {
                     // Reset form
                     this.passwordForm.current_password = '';
                     this.passwordForm.password = '';
+                    this.passwordForm.password_confirmation = '';
+                    
+                    // Reset validasi form
+                    this.$refs.formPassword.reset();
+                    this.$refs.formPassword.resetValidation();
 
                     this.dialogPassword = false;
                 }
@@ -377,6 +412,21 @@ export default {
                 this.isChangePasswordLoading = false;
             }
         },
+
+        closePasswordDialog() {
+            // Reset form saat dialog ditutup
+            this.passwordForm.current_password = '';
+            this.passwordForm.password = '';
+            this.passwordForm.password_confirmation = '';
+            
+            if (this.$refs.formPassword) {
+                this.$refs.formPassword.reset();
+                this.$refs.formPassword.resetValidation();
+            }
+            
+            this.dialogPassword = false;
+        },
+        
         async loadUserData() {
             this.isLoading = true;
 
@@ -407,7 +457,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('https://babaapi.teknosof.com/api/user/profile', {
+                const response = await axios.get('https://babaapi.babaparfume.id/api/user/profile', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -436,7 +486,7 @@ export default {
                 }
 
                 const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-                return `https://babaapi.teknosof.com/project/public/${cleanPath}`;
+                return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
             }
 
             return this.defaultProfileImage;

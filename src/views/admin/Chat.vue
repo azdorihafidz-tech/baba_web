@@ -9,12 +9,7 @@
         Chat
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn
-        icon
-        @click="getChatList"
-        class="header-btn me-2"
-        title="Refresh daftar chat"
-      >
+      <v-btn icon @click="getChatList" class="header-btn me-2" title="Refresh daftar chat">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
       <v-btn icon @click="dialogAddGroup = true" class="header-btn">
@@ -23,12 +18,7 @@
     </v-toolbar>
 
     <v-row no-gutters class="chat-content">
-      <v-col
-        :cols="12"
-        :md="4"
-        :class="['sidebar-col']"
-        v-show="!selectedRoom || !isMobile"
-      >
+      <v-col :cols="12" :md="4" :class="['sidebar-col']" v-show="!selectedRoom || !isMobile">
         <div class="sidebar-gradient">
           <v-list class="sidebar-list">
             <v-subheader class="sidebar-header">
@@ -36,20 +26,12 @@
               Daftar Chat
             </v-subheader>
 
-            <v-list-item
-              v-for="(chat, index) in chatList"
-              :key="chat.id ?? index"
-              @click="selectRoom(chat)"
-              :class="[
-                'chat-item',
-                { 'chat-item-active': selectedRoom?.id == chat.id },
-              ]"
-            >
+            <v-list-item v-for="(chat, index) in chatList" :key="chat.id ?? index" @click="selectRoom(chat)" :class="[
+              'chat-item',
+              { 'chat-item-active': selectedRoom?.id == chat.id },
+            ]">
               <template v-slot:prepend>
-                <v-avatar
-                  :class="chat.is_group ? 'avatar-group' : 'avatar-private'"
-                  size="40"
-                >
+                <v-avatar :class="chat.is_group ? 'avatar-group' : 'avatar-private'" size="40">
                   <v-icon v-if="chat.is_group" small>mdi-account-group</v-icon>
                   <span v-else class="text-white text-body-2 font-weight-bold">
                     {{ chat.room_name ? chat.room_name[0].toUpperCase() : "U" }}
@@ -60,13 +42,8 @@
               <v-list-item-title class="chat-name">{{
                 chat.room_name || "Private Chat"
               }}</v-list-item-title>
-              <v-list-item-subtitle
-                v-if="chat.last_message"
-                class="chat-preview"
-              >
-                <span class="preview-sender"
-                  >{{ getLastMessageSender(chat) }}:</span
-                >
+              <v-list-item-subtitle v-if="chat.last_message" class="chat-preview">
+                <span class="preview-sender">{{ getLastMessageSender(chat) }}:</span>
                 {{ chat.last_message.message }}
               </v-list-item-subtitle>
 
@@ -84,12 +61,7 @@
         </div>
       </v-col>
 
-      <v-col
-        :cols="12"
-        :md="8"
-        :class="['chat-col']"
-        v-show="selectedRoom || !isMobile"
-      >
+      <v-col :cols="12" :md="8" :class="['chat-col']" v-show="selectedRoom || !isMobile">
         <div class="chat-wrapper">
           <div v-if="!selectedRoom" class="empty-state">
             <div class="empty-state-content">
@@ -105,16 +77,9 @@
                 <v-icon>mdi-arrow-left</v-icon>
               </v-btn>
 
-              <v-avatar
-                :class="
-                  selectedRoom.is_group ? 'avatar-group' : 'avatar-private'
-                "
-                size="36"
-                class="me-3"
-              >
-                <v-icon v-if="selectedRoom.is_group" small
-                  >mdi-account-group</v-icon
-                >
+              <v-avatar :class="selectedRoom.is_group ? 'avatar-group' : 'avatar-private'
+                " size="36" class="me-3">
+                <v-icon v-if="selectedRoom.is_group" small>mdi-account-group</v-icon>
                 <span v-else class="text-white text-sm font-weight-bold">
                   {{
                     selectedRoom.room_name
@@ -133,40 +98,28 @@
             <div class="chat-body flex-grow-1" ref="chatBody">
               <!-- ganti blok v-for messages dengan kode ini -->
               <div class="pa-4">
-                <div
-                  v-for="(msg, index) in messages"
-                  :key="msg.id ?? index"
-                  class="message-block"
-                >
+                <div v-for="(msg, index) in messages" :key="msg.id ?? index" class="message-block">
                   <!-- tanggal / group separator -->
                   <div v-if="isNewDay(index)" class="date-separator">
                     {{ formatDateGroup(msg.created_at) }}
                   </div>
 
-                  <v-row
-                    class="mb-3"
-                    :justify="msg.sender_id == user.id ? 'end' : 'start'"
-                  >
+                  <v-row class="mb-3" :justify="msg.sender_id == user.id ? 'end' : 'start'">
                     <v-col cols="auto" class="max-width-70">
                       <!-- tampilkan nama pengirim untuk pesan dari orang lain, atau di grup tampilkan juga nama -->
-                      <div
-                        v-if="
-                          msg.sender &&
-                          (selectedRoom.is_group || msg.sender_id !== user.id)
-                        "
-                        class="sender-name"
-                      >
+                      <div v-if="
+                        msg.sender &&
+                        (selectedRoom.is_group || msg.sender_id !== user.id)
+                      " class="sender-name">
                         {{ senderName(msg) }}
                       </div>
 
-                      <v-sheet
-                        :class="[
-                          'message-bubble',
-                          msg.sender_id == user.id
-                            ? 'message-sent'
-                            : 'message-received',
-                        ]"
-                      >
+                      <v-sheet :class="[
+                        'message-bubble',
+                        msg.sender_id == user.id
+                          ? 'message-sent'
+                          : 'message-received',
+                      ]">
                         <div class="text-body-2 message-content">
                           {{ msg.message }}
                         </div>
@@ -182,11 +135,7 @@
 
             <v-divider></v-divider>
             <v-card-actions class="pa-3 chat-input-actions">
-              <v-menu
-                v-model="showEmojiPicker"
-                :close-on-content-click="false"
-                location="top"
-              >
+              <v-menu v-model="showEmojiPicker" :close-on-content-click="false" location="top">
                 <template v-slot:activator="{ props }">
                   <v-btn icon v-bind="props" size="small" class="emoji-btn">
                     <v-icon>mdi-emoticon-happy-outline</v-icon>
@@ -195,35 +144,18 @@
                 <v-card class="emoji-picker-card pa-2" max-width="320">
                   <v-card-text class="pa-2">
                     <div class="emoji-grid">
-                      <span
-                        v-for="emoji in emojiList"
-                        :key="emoji"
-                        @click="addEmoji(emoji)"
-                        class="emoji-item"
-                        >{{ emoji }}</span
-                      >
+                      <span v-for="emoji in emojiList" :key="emoji" @click="addEmoji(emoji)" class="emoji-item">{{ emoji
+                      }}</span>
                     </div>
                   </v-card-text>
                 </v-card>
               </v-menu>
 
-              <v-text-field
-                v-model="newMessage"
-                placeholder="Tulis pesan..."
-                variant="outlined"
-                hide-details
-                dense
-                class="flex-grow-1 mx-2 mb-5 message-input"
-                @keyup.enter="sendMessage"
-              ></v-text-field>
+              <v-text-field v-model="newMessage" placeholder="Tulis pesan..." variant="outlined" hide-details dense
+                class="flex-grow-1 mx-2 mb-5 message-input" @keyup.enter="sendMessage"></v-text-field>
 
-              <v-btn
-                icon
-                color="primary"
-                class="send-btn mb-5"
-                @click="sendMessage"
-                :disabled="newMessage.trim() == ''"
-              >
+              <v-btn icon color="primary" class="send-btn mb-5" @click="sendMessage"
+                :disabled="newMessage.trim() == ''">
                 <v-icon>mdi-send</v-icon>
               </v-btn>
             </v-card-actions>
@@ -239,17 +171,8 @@
           Buat Grup Baru
         </v-card-title>
         <v-card-text class="pt-4">
-          <v-select
-            v-model="groupForm.room_name"
-            :items="provinsiList"
-            item-title="name"
-            item-value="code"
-            label="Pilih Provinsi"
-            outlined
-            dense
-            :loading="loadingProvinsi"
-            required
-          >
+          <v-select v-model="groupForm.room_name" :items="provinsiList" item-title="name" item-value="code"
+            label="Pilih Provinsi" outlined dense :loading="loadingProvinsi" required>
             <template v-slot:prepend-inner>
               <v-icon small>mdi-map-marker</v-icon>
             </template>
@@ -259,9 +182,7 @@
         <v-card-actions class="pa-4">
           <v-spacer></v-spacer>
           <v-btn text @click="dialogAddGroup = false">Batal</v-btn>
-          <v-btn color="primary" class="gradient-btn" @click="createGroup"
-            >Simpan</v-btn
-          >
+          <v-btn color="primary" class="gradient-btn" @click="createGroup">Simpan</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -424,7 +345,7 @@ export default {
   methods: {
     createApiInstance() {
       const token = localStorage.getItem("token") || Cookies.get("token") || "";
-      const base = "https://babaparfume.id/chat-rooms/api";
+      const base = "https://babaapi.teknosof.com/chat-rooms/api";
       this.api = axios.create({
         baseURL: base,
         headers: { Authorization: token ? `Bearer ${token}` : "" },
@@ -495,7 +416,7 @@ export default {
       if (this.socket) return;
       const rawToken =
         localStorage.getItem("token") || Cookies.get("token") || null;
-      const host = "https://babaparfume.id";
+      const host = "https://babaapi.teknosof.com";
       const path = "/chat-rooms/socket.io";
       this.socket = io(host, {
         path,
@@ -546,7 +467,7 @@ export default {
               if (this.api) {
                 this.api
                   .post(`/chat/mark-read/${this.selectedRoom.id}`, {})
-                  .catch(() => {});
+                  .catch(() => { });
               }
               // pastikan badge local di sidebar di-clear
               const idxSel = this.chatList.findIndex(
@@ -980,37 +901,46 @@ export default {
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
+
 .gradient-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
 }
+
 .header-title {
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
+
 .header-btn {
   transition: all 0.3s ease;
 }
+
 .header-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
   transform: scale(1.1);
 }
+
 .chat-content {
   height: calc(600px - 48px);
 }
+
 .sidebar-col {
   transition: all 0.3s ease;
   overflow-y: auto;
 }
+
 .sidebar-gradient {
   height: 100%;
   background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
   overflow-y: auto;
 }
+
 .sidebar-list {
   background: transparent !important;
 }
+
 .sidebar-header {
   font-weight: 600;
   color: #495057;
@@ -1019,6 +949,7 @@ export default {
   letter-spacing: 1px;
   padding: 16px;
 }
+
 .chat-item {
   margin: 4px 12px;
   border-radius: 12px;
@@ -1028,29 +959,33 @@ export default {
   display: flex;
   align-items: center;
 }
+
 .chat-item:hover {
   background: rgba(102, 126, 234, 0.06) !important;
   transform: translateX(4px);
 }
+
 .chat-item-active {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.12),
-    rgba(118, 75, 162, 0.06)
-  ) !important;
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.12),
+      rgba(118, 75, 162, 0.06)) !important;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.08);
 }
+
 .avatar-group {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
+
 .avatar-private {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
 }
+
 .chat-name {
   font-weight: 600;
   color: #212529;
   font-size: 0.95rem;
 }
+
 .chat-preview {
   color: #6c757d;
   font-size: 0.85rem;
@@ -1060,15 +995,18 @@ export default {
   display: block;
   min-width: 0;
 }
+
 .chat-col {
   transition: all 0.3s ease;
 }
+
 .chat-wrapper {
   height: 100%;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
 }
+
 .empty-state {
   height: 100%;
   display: flex;
@@ -1076,38 +1014,43 @@ export default {
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
+
 .empty-state-content {
   text-align: center;
   color: white;
 }
+
 .empty-icon {
   opacity: 0.3;
   margin-bottom: 20px;
 }
+
 .empty-title {
   font-size: 1.75rem;
   font-weight: 600;
   margin-bottom: 8px;
 }
+
 .empty-subtitle {
   font-size: 1rem;
   opacity: 0.8;
 }
+
 .chat-room-header {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.05),
-    rgba(118, 75, 162, 0.05)
-  ) !important;
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.05),
+      rgba(118, 75, 162, 0.05)) !important;
   border-bottom: 1px solid rgba(102, 126, 234, 0.1);
   display: flex;
   align-items: center;
 }
+
 .room-title {
   font-weight: 600;
   color: #212529;
   font-size: 1rem;
 }
+
 .selected-room-badge {
   background: #e53935;
   color: white;
@@ -1117,6 +1060,7 @@ export default {
   font-size: 0.85rem;
   margin-right: 12px;
 }
+
 .chat-body {
   height: 400px;
   overflow-y: auto;
@@ -1133,6 +1077,7 @@ export default {
   margin-bottom: 4px;
   padding-left: 12px;
 }
+
 .message-bubble {
   padding: 12px 16px;
   border-radius: 18px;
@@ -1141,63 +1086,78 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
+
 .message-bubble:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
+
 .message-sent {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
   border-bottom-right-radius: 4px;
 }
+
 .message-received {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
   color: #212529 !important;
   border-bottom-left-radius: 4px;
 }
+
 .message-content {
   line-height: 1.5;
   word-wrap: break-word;
   white-space: pre-wrap;
 }
+
 .message-time {
   font-size: 0.7rem;
   margin-top: 4px;
   opacity: 0.7;
   text-align: right;
 }
+
 .max-width-70 {
   max-width: 70%;
 }
+
 .chat-input-actions {
   gap: 8px;
   background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
 }
+
 .emoji-btn {
   transition: all 0.3s ease;
 }
+
 .emoji-btn:hover {
   background-color: rgba(102, 126, 234, 0.1);
   transform: scale(1.1);
 }
+
 .message-input {
   flex: 1;
 }
+
 .send-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
   transition: all 0.3s ease;
 }
+
 .send-btn:hover:not(:disabled) {
   transform: scale(1.1) rotate(15deg);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
+
 .send-btn:disabled {
   opacity: 0.5;
 }
+
 .emoji-picker-card {
   border-radius: 12px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
+
 .emoji-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -1205,6 +1165,7 @@ export default {
   max-height: 200px;
   overflow-y: auto;
 }
+
 .emoji-item {
   font-size: 24px;
   cursor: pointer;
@@ -1213,24 +1174,26 @@ export default {
   border-radius: 8px;
   transition: all 0.2s ease;
 }
+
 .emoji-item:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.1),
-    rgba(118, 75, 162, 0.1)
-  );
+  background: linear-gradient(135deg,
+      rgba(102, 126, 234, 0.1),
+      rgba(118, 75, 162, 0.1));
   transform: scale(1.2);
 }
+
 .dialog-card {
   border-radius: 16px !important;
   overflow: hidden;
 }
+
 .dialog-title {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-weight: 600;
   padding: 20px 24px;
 }
+
 .gradient-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
@@ -1238,6 +1201,7 @@ export default {
   text-transform: none;
   letter-spacing: 0.5px;
 }
+
 .chat-badge {
   background: #e53935;
   color: white;
@@ -1256,17 +1220,20 @@ export default {
   display: flex;
   align-items: center;
 }
+
 :v-deep .v-list-item__avatar,
 :v-deep .v-list-item-avatar,
 .list-avatar-left {
   order: 0;
   margin-right: 12px;
 }
+
 .list-content-center {
   order: 1;
   flex: 1 1 auto;
   min-width: 0;
 }
+
 .list-action-right,
 :v-deep .v-list-item__action {
   order: 2;
@@ -1288,18 +1255,21 @@ export default {
 .emoji-grid::-webkit-scrollbar {
   width: 6px;
 }
+
 .chat-body::-webkit-scrollbar-track,
 .sidebar-gradient::-webkit-scrollbar-track,
 .emoji-grid::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 10px;
 }
+
 .chat-body::-webkit-scrollbar-thumb,
 .sidebar-gradient::-webkit-scrollbar-thumb,
 .emoji-grid::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
   border-radius: 10px;
 }
+
 .chat-body::-webkit-scrollbar-thumb:hover,
 .sidebar-gradient::-webkit-scrollbar-thumb:hover,
 .emoji-grid::-webkit-scrollbar-thumb:hover {
@@ -1309,45 +1279,58 @@ export default {
 .mobile-only {
   display: none;
 }
+
 @media (max-width: 959px) {
   .mobile-only {
     display: inline-flex;
   }
+
   .max-width-70 {
     max-width: 85%;
   }
+
   .emoji-grid {
     grid-template-columns: repeat(8, 1fr);
   }
+
   .message-bubble {
     padding: 10px 14px;
   }
+
   .chat-name {
     font-size: 0.9rem;
   }
+
   .chat-preview {
     font-size: 0.8rem;
   }
+
   .list-action-right {
     margin-left: 8px;
   }
 }
+
 @media (max-width: 600px) {
   .chat-container {
     border-radius: 0 !important;
   }
+
   .header-title {
     font-size: 1.1rem;
   }
+
   .empty-title {
     font-size: 1.5rem;
   }
+
   .empty-subtitle {
     font-size: 0.9rem;
   }
+
   .emoji-grid {
     grid-template-columns: repeat(6, 1fr);
   }
+
   .emoji-item {
     font-size: 20px;
     padding: 6px;
@@ -1363,6 +1346,7 @@ export default {
   font-size: 0.85rem;
   font-weight: 600;
 }
+
 .date-separator::before,
 .date-separator::after {
   content: "";
@@ -1372,6 +1356,7 @@ export default {
   margin: auto 12px;
   border-radius: 2px;
 }
+
 .message-block {
   /* small spacing to separate groups better */
   margin-bottom: 6px;
