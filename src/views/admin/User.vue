@@ -761,7 +761,7 @@ export default {
           upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3,
           upline_4: this.modelAdd.upline_4, upline_5: code
         });
-        this.distributorOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+        this.distributorOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data Distributor', 'error');
       }
@@ -775,7 +775,7 @@ export default {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
           upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3, upline_4: code
         });
-        this.supplierOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+        this.supplierOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data Supplier', 'error');
       }
@@ -789,7 +789,7 @@ export default {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
           upline_2: this.modelAdd.upline_2, upline_3: code
         });
-        this.gmOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+        this.gmOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data GM', 'error');
       }
@@ -802,7 +802,7 @@ export default {
         const res = await axios.post('https://babaapi.teknosof.com/api/get/founder', {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: code
         });
-        this.founderOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+        this.founderOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data Founder', 'error');
       }
@@ -815,7 +815,7 @@ export default {
         const res = await axios.post('https://babaapi.teknosof.com/api/get/regional', {
           cabang: this.modelAdd.cabang, upline_1: code
         });
-        this.regionalOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+        this.regionalOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data Regional', 'error');
       }
@@ -826,7 +826,7 @@ export default {
       this.loadingMvoAdd = true;
       try {
         const res = await axios.post('https://babaapi.teknosof.com/api/get/mvo', { cabang });
-        this.mvoOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
+        this.mvoOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data MVO', 'error');
       }
