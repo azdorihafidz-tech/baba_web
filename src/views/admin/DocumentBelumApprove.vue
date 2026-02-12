@@ -116,14 +116,19 @@
 
             <!-- NEW: Actions column untuk tombol Approve -->
             <template v-slot:item.actions="{ item }">
-              <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click="approveDocument(item)"
+              <!-- <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click="approveDocument(item)"
                 :loading="approvingId === item.id" :disabled="approvingId === item.id">
                 <v-icon start size="small">mdi-check-circle</v-icon>
                 Approve
               </v-btn>
               <v-chip v-else size="small" color="grey" variant="flat">
                 No Action
-              </v-chip>
+              </v-chip> -->
+              <v-btn size="small" color="success" @click="approveDocument(item)" :loading="approvingId === item.id"
+                :disabled="approvingId === item.id">
+                <v-icon start size="small">mdi-check-circle</v-icon>
+                Approve
+              </v-btn>
             </template>
           </v-data-table>
         </template>
