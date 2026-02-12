@@ -1725,6 +1725,15 @@ export default {
       };
     },
 
+    getUserCabang() {
+      try {
+        const headerData = JSON.parse(localStorage.getItem('headerData'))
+        return headerData?.cabang || null
+      } catch (e) {
+        return null
+      }
+    },
+
     async getAllMvo() {
       const headers = this.getAuthHeaders();
       if (!headers) return;
@@ -1739,11 +1748,17 @@ export default {
 
           const mvo_type_id = localStorage.getItem("mvo_type_id");
           let items = response.data.data;
+          const userCabang = this.getUserCabang();
 
           this.datatable.items = items.filter(item => {
             if (mvo_type_id === "superadmin") {
               return true;
             }
+
+            if (userCabang) {
+              return item.province_code && item.province_code.toUpperCase().trim() === userCabang.toUpperCase().trim();
+            }
+
             return true;
           });
         } else {
