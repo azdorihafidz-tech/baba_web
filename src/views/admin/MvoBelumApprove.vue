@@ -175,7 +175,7 @@ export default {
         // { key: "nama_panggilan", title: "Nama Panggilan" },
         // { key: "tempat_lahir", title: "Tempat Lahir" },
         // { key: "path_gambar_profile", title: "Gambar Profile" },
-        { key: "upline_7", title: "SELLER" },
+        // { key: "upline_7", title: "SELLER" },
         { key: "upline_6", title: "DISTRIBUTOR" },
         { key: "upline_5", title: "SUPPILER" },
         { key: "upline_4", title: "GENERAL MANAGER" },

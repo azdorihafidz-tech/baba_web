@@ -638,7 +638,7 @@ export default {
           { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
           { key: "jlh_bintang", title: "Bintang" },
-          { key: "upline_7", title: "SELLER" },
+          // { key: "upline_7", title: "SELLER" },
           { key: "upline_6", title: "DISTRIBUTOR" },
           { key: "upline_5", title: "SUPPLIER" },
           { key: "upline_4", title: "GENERAL MANAGER" },
