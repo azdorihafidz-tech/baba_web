@@ -446,7 +446,7 @@ export default {
 
             this.distributorOptions = res.data.data.map(i => ({
                 text: `${i.code} - ${i.nama}`,
-                value: i.code
+                value: `${i.code} - ${i.nama}`
             }))
 
             this.loadingDistributor = false
@@ -468,7 +468,7 @@ export default {
 
             this.supplierOptions = res.data.data.map(i => ({
                 text: `${i.code} - ${i.nama}`,
-                value: i.code
+                value: `${i.code} - ${i.nama}`
             }))
 
             this.loadingSupplier = false
@@ -491,7 +491,7 @@ export default {
 
                 this.gmOptions = res.data.data.map(i => ({
                     text: `${i.code} - ${i.nama}`,
-                    value: i.code
+                    value: `${i.code} - ${i.nama}`
                 }))
 
             } catch (err) {
@@ -518,7 +518,7 @@ export default {
 
                 this.founderOptions = res.data.data.map(i => ({
                     text: `${i.code} - ${i.nama}`,
-                    value: i.code
+                    value: `${i.code} - ${i.nama}`
                 }))
 
             } catch (err) {
@@ -542,7 +542,7 @@ export default {
 
             this.regionalOptions = res.data.data.map(i => ({
                 text: `${i.code} - ${i.nama}`,
-                value: i.code
+                value: `${i.code} - ${i.nama}`
             }))
 
             this.loadingRegional = false
@@ -558,7 +558,7 @@ export default {
 
             this.mvoOptions = res.data.data.map(i => ({
                 text: `${i.code} - ${i.nama}`,
-                value: i.code
+                value: `${i.code} - ${i.nama}`
             }))
 
             this.loadingMvo = false
