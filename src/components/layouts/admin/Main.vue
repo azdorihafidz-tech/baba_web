@@ -2,13 +2,13 @@
   <v-app>
     <Sidebar />
     <Header />
-    <v-main class="main-background" :class="{ 'has-background-image': headerData?.path_gambar_header }"
+    <v-main class="main-background" :class="{ 'has-background-image': headerData?.foto_ruang_kota }"
       :loading="isLoadingHeader">
       <!-- Background Image Container -->
       <div class="main-background-container">
-        <!-- Background Image berdasarkan cabang -->
-        <div v-if="headerData?.path_gambar_header" class="main-background-image"
-          :style="`background-image: url(${getHeaderImageUrl(headerData.path_gambar_header)})`">
+        <!-- Background Image berdasarkan provinsi -->
+        <div v-if="headerData?.foto_ruang_kota" class="main-background-image"
+          :style="`background-image: url(${getHeaderImageUrl(headerData.foto_ruang_kota)})`">
           <!-- Overlay transparan untuk better readability -->
           <div class="main-background-overlay"></div>
         </div>
@@ -221,29 +221,29 @@ export default {
 
   methods: {
     // ==================== HEADER METHODS ====================
-    getUserCabang() {
+    getUserCode() {
       try {
         const userData = localStorage.getItem('user');
         if (userData) {
           const user = JSON.parse(userData);
-          return user.cabang || null;
+          return user.code || null;
         }
       } catch (error) {
-        console.error('Error getting user cabang:', error);
+        console.error('Error getting user code:', error);
       }
       return null;
     },
 
-    getHeaderImageUrl(pathGambarHeader) {
-      if (!pathGambarHeader) {
+    getHeaderImageUrl(fotoRuangKota) {
+      if (!fotoRuangKota) {
         return '';
       }
 
-      if (pathGambarHeader.startsWith('http://') || pathGambarHeader.startsWith('https://')) {
-        return pathGambarHeader;
+      if (fotoRuangKota.startsWith('http://') || fotoRuangKota.startsWith('https://')) {
+        return fotoRuangKota;
       }
 
-      const cleanPath = pathGambarHeader.startsWith('/') ? pathGambarHeader.substring(1) : pathGambarHeader;
+      const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
       const httpsUrl = `https://babaapi.teknosof.com/project/public/${cleanPath}`;
 
       return httpsUrl;
@@ -259,7 +259,7 @@ export default {
           return null;
         }
 
-        const userCabang = this.getUserCabang();
+        const userCode = this.getUserCode();
 
         const apiClient = axios.create({
           timeout: 20000,
@@ -273,7 +273,7 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header');
+          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
         } catch (httpsError) {
           console.warn('Main - HTTPS failed, trying HTTP:', httpsError.message);
 
@@ -281,7 +281,7 @@ export default {
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header');
+            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
           } else {
             throw httpsError;
           }
@@ -293,10 +293,10 @@ export default {
           if (Array.isArray(headerResponse.data.data) && headerResponse.data.data.length > 0) {
             let matchedHeader = null;
 
-            if (userCabang) {
+            if (userCode) {
               matchedHeader = headerResponse.data.data.find(header =>
-                header.cabang &&
-                header.cabang.toUpperCase().trim() === userCabang.toUpperCase().trim()
+                header.code &&
+                header.code.toUpperCase().trim() === userCode.toUpperCase().trim()
               );
             }
 
@@ -306,15 +306,15 @@ export default {
 
             if (matchedHeader) {
               headerData = {
-                cabang: matchedHeader.cabang || userCabang || 'Cabang Tidak Ditemukan',
-                path_gambar_header: matchedHeader.path_gambar_header || null
+                code: matchedHeader.code || userCode || 'Code Tidak Ditemukan',
+                foto_ruang_kota: matchedHeader.foto_ruang_kota || null
               };
             }
           }
           else if (headerResponse.data.data && typeof headerResponse.data.data === 'object') {
             headerData = {
-              cabang: headerResponse.data.data.cabang || userCabang || 'Cabang Tidak Ditemukan',
-              path_gambar_header: headerResponse.data.data.path_gambar_header || null
+              code: headerResponse.data.data.code || userCode || 'Code Tidak Ditemukan',
+              foto_ruang_kota: headerResponse.data.data.foto_ruang_kota || null
             };
           }
         }
@@ -324,10 +324,10 @@ export default {
           this.headerData = headerData;
           return headerData;
         } else {
-          if (userCabang) {
+          if (userCode) {
             const fallbackHeaderData = {
-              cabang: userCabang,
-              path_gambar_header: null
+              code: userCode,
+              foto_ruang_kota: null
             };
             localStorage.setItem('headerData', JSON.stringify(fallbackHeaderData));
             this.headerData = fallbackHeaderData;
@@ -340,11 +340,11 @@ export default {
       } catch (error) {
         console.error('Main - Error fetching header data:', error);
 
-        const userCabang = this.getUserCabang();
-        if (userCabang) {
+        const userCode = this.getUserCode();
+        if (userCode) {
           const errorFallbackData = {
-            cabang: userCabang,
-            path_gambar_header: null
+            code: userCode,
+            foto_ruang_kota: null
           };
           localStorage.setItem('headerData', JSON.stringify(errorFallbackData));
           this.headerData = errorFallbackData;
