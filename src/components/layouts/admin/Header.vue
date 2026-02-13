@@ -320,7 +320,10 @@ export default {
         const userData = localStorage.getItem('user');
         if (userData) {
           const user = JSON.parse(userData);
-          return user.code || null;
+          // User menyimpan "cabang", kita gunakan itu untuk matching dengan "code" di API
+          console.log('👤 User data:', user);
+          console.log('📍 User cabang/code:', user.cabang || user.code);
+          return user.cabang || user.code || null;
         }
       } catch (error) {
         console.error('Error getting user code:', error);
@@ -388,11 +391,13 @@ export default {
             console.log('📚 Processing array data, all items:', headerResponse.data.data);
 
             const availableCode = headerResponse.data.data.map(item => item.code).filter(Boolean);
-            console.log('🏢 Available code in API:', availableCode);
+            console.log('🏢 Available codes in API:', availableCode);
 
             let matchedHeader = null;
 
             if (userCode) {
+              console.log('🔍 Mencari match untuk user code:', userCode);
+
               matchedHeader = headerResponse.data.data.find(header =>
                 header.code &&
                 header.code.toUpperCase().trim() === userCode.toUpperCase().trim()
