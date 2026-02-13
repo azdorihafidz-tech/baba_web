@@ -151,9 +151,6 @@
               {{ item.upline_6 && item.upline_6 !== '-' ? item.upline_6 : '-' }}
             </template>
 
-            <template v-slot:item.upline_7="{ item }">
-              {{ item.upline_7 && item.upline_7 !== '-' ? item.upline_7 : '-' }}
-            </template>
           </v-data-table>
         </template>
       </CardDataTable>
@@ -286,10 +283,6 @@
                 <v-row class="mb-2">
                   <v-col cols="4" class="detail-label">Upline 6:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_6 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 7:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_7 || '-' }}</v-col>
                 </v-row>
               </div>
 
@@ -1142,7 +1135,6 @@ export default {
           { key: "jaringan_mvo", title: "Jaringan" },
           { key: "mvo_type", title: "Tipe" },
           { key: "province", title: "Provinsi" },
-          { key: "upline_7", title: "Seller" },
           { key: "upline_6", title: "Distributor" },
           { key: "upline_5", title: "Supplier" },
           { key: "upline_4", title: "General Manager" },
@@ -1172,7 +1164,6 @@ export default {
         { key: "jaringan_mvo", title: "Jaringan" },
         { key: "mvo_type", title: "Tipe" },
         { key: "province", title: "Provinsi" },
-        { key: "upline_7", title: "Seller" },
         { key: "upline_6", title: "Distributor" },
         { key: "upline_5", title: "Supplier" },
         { key: "upline_4", title: "General Manager" },
@@ -1728,7 +1719,7 @@ export default {
     getUserCabang() {
       try {
         const headerData = JSON.parse(localStorage.getItem('headerData'))
-        return headerData?.cabang || null
+        return headerData?.code || null
       } catch (e) {
         return null
       }
@@ -1749,18 +1740,26 @@ export default {
           const mvo_type_id = localStorage.getItem("mvo_type_id");
           let items = response.data.data;
           const userCabang = this.getUserCabang();
-
+          console.log('user cabanng x', userCabang);
           this.datatable.items = items.filter(item => {
+            // Jika superadmin → tampilkan semua
             if (mvo_type_id === "superadmin") {
               return true;
             }
 
+            // Jika bukan superadmin → wajib match cabang
             if (userCabang) {
-              return item.province_code && item.province_code.toUpperCase().trim() === userCabang.toUpperCase().trim();
+              return (
+                item.province_code &&
+                item.province_code.toUpperCase().trim() ===
+                userCabang.toUpperCase().trim()
+              );
             }
 
-            return true;
+            // Jika bukan superadmin dan tidak punya cabang → jangan tampilkan apa-apa
+            return false;
           });
+
         } else {
           this.showSnackbar(response.data.message || "Error loading data", "error");
         }

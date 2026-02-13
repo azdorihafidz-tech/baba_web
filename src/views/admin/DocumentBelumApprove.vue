@@ -94,25 +94,6 @@
               {{ item.upline_2 || '-' }}
             </template>
 
-            <template v-slot:item.upline_3="{ item }">
-              {{ item.upline_3 || '-' }}
-            </template>
-
-            <template v-slot:item.upline_4="{ item }">
-              {{ item.upline_4 || '-' }}
-            </template>
-
-            <template v-slot:item.upline_5="{ item }">
-              {{ item.upline_5 || '-' }}
-            </template>
-
-            <template v-slot:item.upline_6="{ item }">
-              {{ item.upline_6 || '-' }}
-            </template>
-
-            <template v-slot:item.upline_7="{ item }">
-              {{ item.upline_7 || '-' }}
-            </template>
 
             <!-- NEW: Actions column untuk tombol Approve -->
             <template v-slot:item.actions="{ item }">
@@ -262,26 +243,6 @@
                 <v-row class="mb-2">
                   <v-col cols="5" class="detail-label">Regional:</v-col>
                   <v-col cols="7" class="detail-value">{{ item.upline_2 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Founder:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_3 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">General Manager:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_4 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Supplier:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_5 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Distributor:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_6 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Seller:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_7 || '-' }}</v-col>
                 </v-row>
               </div>
 
@@ -444,11 +405,6 @@ export default {
           { key: "approval_status", title: "Status Approval", align: "center", width: "200px" },
           { key: "upline_1", title: "MVO" },
           { key: "upline_2", title: "Regional" },
-          { key: "upline_3", title: "Founder" },
-          { key: "upline_4", title: "General Manager" },
-          { key: "upline_5", title: "Supplier" },
-          { key: "upline_6", title: "Distributor" },
-          { key: "upline_7", title: "Seller" },
           { key: "file_path", title: "File Preview", sortable: false, width: "200px" },
           { key: "actions", title: "Actions", sortable: false, align: "center", width: "150px" },
         ],
@@ -566,11 +522,6 @@ export default {
         'Status': this.getStatusText(item.status_inputan),
         'MVO': item.upline_1 || '-',
         'Regional': item.upline_2 || '-',
-        'Founder': item.upline_3 || '-',
-        'General Manager': item.upline_4 || '-',
-        'Supplier': item.upline_5 || '-',
-        'Distributor': item.upline_6 || '-',
-        'Seller': item.upline_7 || '-',
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -608,11 +559,6 @@ export default {
       const labels = {
         'mvo': 'MVO',
         'regional': 'Regional',
-        'founder': 'Founder',
-        'gm': 'General Manager',
-        'supplier': 'Supplier',
-        'dist': 'Distributor',
-        'seller': 'Seller',
       };
       return labels[mvoType?.toLowerCase()] || mvoType;
     },
@@ -649,11 +595,6 @@ export default {
       const labels = {
         1: 'MVO',
         2: 'Regional',
-        3: 'Founder',
-        4: 'General Manager',
-        5: 'Supplier',
-        6: 'Distributor',
-        7: 'Seller'
       };
       return labels[level] || `Level ${level}`;
     },
@@ -715,8 +656,6 @@ export default {
 
         if (item[uplineField] && item[approvalField] === null) {
           // Warna berbeda berdasarkan level
-          if (level >= 5) return 'orange'; // Supplier, Dist, Seller
-          if (level >= 3) return 'warning'; // Founder, GM
           return 'info'; // MVO, Regional
         }
       }

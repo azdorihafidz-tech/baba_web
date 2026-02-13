@@ -243,37 +243,17 @@
                 <v-card-text class="pa-4">
                     <v-form ref="formPassword" v-model="formPasswordValid">
 
-                        <v-text-field 
-                            v-model="passwordForm.current_password" 
-                            label="Password Lama" 
-                            type="password"
-                            prepend-inner-icon="mdi-lock" 
-                            variant="outlined" 
-                            color="amber" 
-                            :rules="[rules.required]"
-                            class="mb-2"
-                        />
+                        <v-text-field v-model="passwordForm.current_password" label="Password Lama" type="password"
+                            prepend-inner-icon="mdi-lock" variant="outlined" color="amber" :rules="[rules.required]"
+                            class="mb-2" />
 
-                        <v-text-field 
-                            v-model="passwordForm.password" 
-                            label="Password Baru" 
-                            type="password"
-                            prepend-inner-icon="mdi-lock-plus" 
-                            variant="outlined" 
-                            color="amber"
-                            :rules="[rules.required, rules.minPassword]"
-                            class="mb-2"
-                        />
+                        <v-text-field v-model="passwordForm.password" label="Password Baru" type="password"
+                            prepend-inner-icon="mdi-lock-plus" variant="outlined" color="amber"
+                            :rules="[rules.required, rules.minPassword]" class="mb-2" />
 
-                        <v-text-field 
-                            v-model="passwordForm.password_confirmation" 
-                            label="Konfirmasi Password Baru"
-                            type="password" 
-                            prepend-inner-icon="mdi-lock-check" 
-                            variant="outlined" 
-                            color="amber"
-                            :rules="[rules.required, rules.matchPassword]"
-                        />
+                        <v-text-field v-model="passwordForm.password_confirmation" label="Konfirmasi Password Baru"
+                            type="password" prepend-inner-icon="mdi-lock-check" variant="outlined" color="amber"
+                            :rules="[rules.required, rules.matchPassword]" />
 
                     </v-form>
                 </v-card-text>
@@ -327,11 +307,11 @@ export default {
 
             rules: {
                 required: v => !!v || 'Field ini wajib diisi',
-                
+
                 nik: v => !v || v.length === 16 || 'NIK harus 16 digit',
-                
+
                 phone: v => !v || /^[0-9]{10,13}$/.test(v) || 'No. HP tidak valid',
-                
+
                 minPassword: v => !v || v.length >= 3 || 'Password minimal 3 karakter',
 
                 matchPassword: v => {
@@ -360,7 +340,7 @@ export default {
         async changePassword() {
             // Validasi form
             const { valid } = await this.$refs.formPassword.validate();
-            
+
             if (!valid) {
                 this.showSnackbar('Mohon lengkapi semua field dengan benar', 'error');
                 return;
@@ -392,7 +372,7 @@ export default {
                     this.passwordForm.current_password = '';
                     this.passwordForm.password = '';
                     this.passwordForm.password_confirmation = '';
-                    
+
                     // Reset validasi form
                     this.$refs.formPassword.reset();
                     this.$refs.formPassword.resetValidation();
@@ -418,15 +398,15 @@ export default {
             this.passwordForm.current_password = '';
             this.passwordForm.password = '';
             this.passwordForm.password_confirmation = '';
-            
+
             if (this.$refs.formPassword) {
                 this.$refs.formPassword.reset();
                 this.$refs.formPassword.resetValidation();
             }
-            
+
             this.dialogPassword = false;
         },
-        
+
         async loadUserData() {
             this.isLoading = true;
 

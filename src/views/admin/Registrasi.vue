@@ -207,7 +207,6 @@ export default {
                 upline_4: '',
                 upline_5: '',
                 upline_6: '',
-                upline_7: '-'
             },
 
             contentSnackbar: {
@@ -370,7 +369,6 @@ export default {
                 this.inputRegister.upline_4 = ''
                 this.inputRegister.upline_5 = ''
                 this.inputRegister.upline_6 = ''
-                this.inputRegister.upline_7 = ''
             }
         }
 
@@ -629,11 +627,17 @@ export default {
 
                 if (response.data.status === 'success' && response.data.data) {
                     // 🔥 mapping ke format select
-                    this.jabatanOptions = response.data.data.map(item => ({
-                        text: item.jabatan,
-                        value: item.id,
-                        level: Number(item.level)   // 🔥 simpan level
-                    }));
+                    this.jabatanOptions = response.data.data
+                        .filter(item =>
+                            item.jabatan !== 'MVO' &&
+                            item.jabatan !== '-'
+                        )
+                        .map(item => ({
+                            text: item.jabatan,
+                            value: item.id,
+                            level: Number(item.level)
+                        }));
+
 
                     console.log('mvotype options loaded:', this.jabatanOptions.length, 'items')
                 } else {
@@ -786,7 +790,6 @@ export default {
                             upline_4: '',
                             upline_5: '',
                             upline_6: '',
-                            upline_7: '-'
                         }
                         this.previewFotoProfile = null
 
