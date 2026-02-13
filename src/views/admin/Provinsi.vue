@@ -101,7 +101,7 @@
                 <v-row no-gutters align="center">
                     <v-col cols="1" class="text-center">
                         <span class="mobile-number">{{ ((currentMobilePage - 1) * itemsPerMobilePage) + index + 1
-                            }}</span>
+                        }}</span>
                     </v-col>
 
                     <v-col cols="9" class="pl-3">
@@ -505,9 +505,9 @@ export default {
                     href: "/admin/dashboard",
                 },
                 {
-                    title: "Code Cabang",
+                    title: "Data Cabang",
                     disabled: false,
-                    href: "/admin/code-cabang",
+                    href: "/admin/provinsi",
                 },
             ],
             isShowDialogAdd: false,
