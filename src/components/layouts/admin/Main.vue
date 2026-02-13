@@ -226,7 +226,8 @@ export default {
         const userData = localStorage.getItem('user');
         if (userData) {
           const user = JSON.parse(userData);
-          return user.code || null;
+          // User menyimpan "cabang", kita gunakan itu untuk matching dengan "code" di API
+          return user.cabang || user.code || null;
         }
       } catch (error) {
         console.error('Error getting user code:', error);
@@ -294,14 +295,25 @@ export default {
             let matchedHeader = null;
 
             if (userCode) {
+              console.log('🔍 Mencari match untuk user code:', userCode);
+              console.log('📋 Available data:', headerResponse.data.data.map(h => ({ code: h.code, name: h.name })));
+
               matchedHeader = headerResponse.data.data.find(header =>
                 header.code &&
                 header.code.toUpperCase().trim() === userCode.toUpperCase().trim()
               );
+
+              if (matchedHeader) {
+                console.log('✅ MATCH FOUND! User:', userCode, '-> API Code:', matchedHeader.code);
+              } else {
+                console.log('❌ NO MATCH! User code:', userCode, 'not found in API codes:',
+                  headerResponse.data.data.map(h => h.code).join(', '));
+              }
             }
 
             if (!matchedHeader && headerResponse.data.data.length > 0) {
               matchedHeader = headerResponse.data.data[0];
+              console.log('⚠️ Using FALLBACK (first item):', matchedHeader.code);
             }
 
             if (matchedHeader) {
