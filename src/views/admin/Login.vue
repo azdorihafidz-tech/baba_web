@@ -552,11 +552,27 @@ const handleLogin = async () => {
         localStorage.setItem('nik', response.data.data.user.nik)
       }
       localStorage.setItem('mvo_type_id', response.data.data.user.mvo_type_id)
-      if (response.data.data.user.mvo) {
-        localStorage.setItem('mvo_id', response.data.data.user.mvo.code)
-      }
 
+      // LOGIKA CLEAR MVO_ID HANYA UNTUK SUPERADMIN
       const userData = response.data.data.user
+
+      // Cek apakah user adalah superadmin
+      const isSuperadmin = userData.mvo_type_id &&
+        userData.mvo_type_id.toLowerCase() === 'superadmin'
+
+      if (isSuperadmin) {
+        // Jika superadmin, hapus mvo_id dari localStorage
+        localStorage.removeItem('mvo_id')
+        console.log('Superadmin login: mvo_id cleared')
+      } else {
+        // Jika bukan superadmin, simpan mvo_id seperti biasa
+        if (response.data.data.user.mvo) {
+          localStorage.setItem('mvo_id', response.data.data.user.mvo.code)
+          console.log('Non-superadmin login: mvo_id saved')
+        }
+      }
+      // END LOGIKA CLEAR MVO_ID
+
       localStorage.setItem('user', JSON.stringify(userData))
 
       let peran = 'admin'
@@ -612,7 +628,7 @@ const handleLogin = async () => {
         headerData: headerData
       })
 
-      if (userData.mvo_type_id && userData.mvo_type_id.toLowerCase() === 'superadmin') {
+      if (isSuperadmin) {
         router.push('/admin/dashboard')
       } else {
         router.push('/admin/mvo')

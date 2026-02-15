@@ -89,7 +89,7 @@
                                         <div>
                                             <span class="text-body-2 font-weight-medium">{{ item.mvo_nama }}</span>
                                             <span class="text-caption text-grey ml-2">{{ formatMonth(item.bulan)
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <span class="text-h6 font-weight-bold">{{ item.total_bawahan_baru }}</span>
                                     </div>

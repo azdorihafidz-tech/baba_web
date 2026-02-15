@@ -4,7 +4,7 @@
         <div class="d-none d-md-block">
             <v-row class="mb-4">
                 <v-col cols="12" md="12">
-                    <v-card color="info" dark @click="$emit('show-detail', 'all_regions')" style="cursor: pointer;">
+                    <v-card color="info" dark @click="handleShowDetail('all_regions')" style="cursor: pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="64" class="mb-3">mdi-map-marker-multiple</v-icon>
                             <div class="text-h3">{{ dashboardData.summary?.akun_per_daerah?.length || 0 }}</div>
@@ -71,8 +71,7 @@
 
         <!-- Mobile View -->
         <div class="d-block d-md-none">
-            <v-card class="mb-3" color="info" dark @click="$emit('show-detail', 'all_regions')"
-                style="cursor: pointer;">
+            <v-card class="mb-3" color="info" dark @click="handleShowDetail('all_regions')" style="cursor: pointer;">
                 <v-card-text class="text-center pa-4">
                     <v-icon size="48">mdi-map-marker-multiple</v-icon>
                     <div class="text-h4 mt-2">{{ dashboardData.summary?.akun_per_daerah?.length || 0 }}</div>
@@ -115,22 +114,17 @@
 </template>
 
 <script>
+import axios from "axios";
+import Cookies from "js-cookie";
+
 export default {
     name: 'DashboardRegions',
-    props: {
-        dashboardData: {
-            type: Object,
-            required: true,
-            default: () => ({ summary: {} })
-        },
-        isLoading: {
-            type: Boolean,
-            default: false
-        }
-    },
     emits: ['show-detail', 'show-region-detail'],
     data() {
         return {
+            dashboardData: { summary: { akun_per_daerah: [] } },
+            mvoRawData: [],
+            isLoading: false,
             regionHeaders: [
                 { title: "Region", key: "daerah" },
                 { title: "Total Accounts", key: "total", align: "center" },
@@ -138,7 +132,76 @@ export default {
             ],
         };
     },
+    created() {
+        this.fetchData();
+    },
     methods: {
+        async fetchData() {
+            this.isLoading = true;
+            const token = Cookies.get("token");
+            if (!token) return;
+
+            try {
+                const [dashboardResponse, mvoResponse] = await Promise.all([
+                    axios.get("https://babaapi.teknosof.com/api/dashboard", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
+                    axios.get("https://babaapi.teknosof.com/api/mvo", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    })
+                ]);
+
+                if (dashboardResponse.data && dashboardResponse.data.status === "success") {
+                    this.dashboardData = dashboardResponse.data.data;
+                }
+
+                if (mvoResponse.data && mvoResponse.data.status === "success") {
+                    this.mvoRawData = mvoResponse.data.data;
+                }
+            } catch (error) {
+                console.error("Error fetching regions data:", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        handleShowDetail(type) {
+            if (type === 'all_regions') {
+                const data = this.getRegionSummaryData();
+                this.$emit('show-detail', { type, data });
+            }
+        },
+
+        getRegionSummaryData() {
+            const regionSummary = [];
+            const regions = this.dashboardData.summary?.akun_per_daerah || [];
+
+            regions.forEach(region => {
+                const accountsInRegion = this.mvoRawData.filter(account => {
+                    return account.daerah === region.daerah ||
+                        account.region === region.daerah ||
+                        account.province === region.daerah ||
+                        account.alamat?.includes(region.daerah);
+                });
+
+                regionSummary.push({
+                    id: region.daerah,
+                    region_name: region.daerah,
+                    total_accounts: region.total,
+                    actual_accounts: accountsInRegion.length,
+                    accounts: accountsInRegion,
+                    approved_accounts: accountsInRegion.filter(acc => acc.status_inputan === "approved").length,
+                    pending_accounts: accountsInRegion.filter(acc =>
+                        acc.status_inputan === null ||
+                        acc.status_inputan === "pending" ||
+                        acc.status_inputan === undefined
+                    ).length
+                });
+            });
+
+            return regionSummary;
+        },
+
         getRegionPercentage(regionTotal) {
             const totalAccounts = this.dashboardData.summary?.akun?.total || 0;
             if (totalAccounts === 0) return 0;

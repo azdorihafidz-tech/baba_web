@@ -80,7 +80,7 @@
                                 </v-progress-linear>
                                 <span class="text-body-1 font-weight-medium">Approved ({{
                                     dashboardData.summary?.akun?.approved || 0
-                                    }})</span>
+                                }})</span>
                             </div>
                             <div class="d-flex align-center">
                                 <v-progress-linear :model-value="getAccountPercentage('pending')" color="orange"
@@ -90,7 +90,7 @@
                                 </v-progress-linear>
                                 <span class="text-body-1 font-weight-medium">Pending ({{
                                     dashboardData.summary?.akun?.pending || 0
-                                    }})</span>
+                                }})</span>
                             </div>
                         </v-col>
                         <v-col cols="12" md="4">
@@ -99,7 +99,7 @@
                                 <div class="d-flex justify-space-between mb-1">
                                     <span>MVO:</span>
                                     <span class="font-weight-bold text-cyan">{{ dashboardData.summary?.akun?.mvo || 0
-                                        }}</span>
+                                    }}</span>
                                 </div>
                                 <div class="d-flex justify-space-between mb-1">
                                     <span>Distributors:</span>
@@ -138,7 +138,7 @@
                         <v-card-text class="pa-2">
                             <v-icon color="success" size="20">mdi-account-check</v-icon>
                             <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.approved || 0
-                                }}</div>
+                            }}</div>
                             <div class="text-caption">Approved</div>
                         </v-card-text>
                     </v-card>
@@ -148,7 +148,7 @@
                         <v-card-text class="pa-2">
                             <v-icon color="orange" size="20">mdi-account-clock</v-icon>
                             <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.pending || 0
-                                }}</div>
+                            }}</div>
                             <div class="text-caption">Pending</div>
                         </v-card-text>
                     </v-card>
@@ -172,7 +172,7 @@
                         <v-card-text class="pa-2">
                             <v-icon color="purple" size="20">mdi-crown</v-icon>
                             <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.founder || 0
-                                }}</div>
+                            }}</div>
                             <div class="text-caption">Founders</div>
                         </v-card-text>
                     </v-card>

@@ -1,138 +1,110 @@
 <template>
     <div>
-        <!-- ================= DESKTOP VIEW ================= -->
+
+        <!-- ================= SUMMARY CARD - TAMPIL DI SEMUA LAYAR ================= -->
+        <v-row class="mb-4">
+            <v-col cols="6" sm="6" md="3">
+                <v-card color="purple" dark @click="navigateToTab('accounts')" style="cursor:pointer;">
+                    <v-card-text class="text-center">
+                        <v-icon size="36" class="mb-2">mdi-account-group</v-icon>
+                        <div class="text-h6 text-md-h4">
+                            {{ summary.jumlahakun ?? 0 }}
+                        </div>
+                        <div class="text-caption text-md-subtitle-1">
+                            Total Akun
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <v-col cols="6" sm="6" md="3">
+                <v-card color="primary" dark @click="navigateToTab('documents')" style="cursor:pointer;">
+                    <v-card-text class="text-center">
+                        <v-icon size="36" class="mb-2">mdi-file-document-multiple</v-icon>
+                        <div class="text-h6 text-md-h4">
+                            {{ summary.jumlahdokumen ?? 0 }}
+                        </div>
+                        <div class="text-caption text-md-subtitle-1">
+                            Total Dokumen
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <v-col cols="6" sm="6" md="3">
+                <v-card color="info" dark @click="navigateToTab('regions')" style="cursor:pointer;">
+                    <v-card-text class="text-center">
+                        <v-icon size="36" class="mb-2">mdi-map-marker-multiple</v-icon>
+                        <div class="text-h6 text-md-h4">
+                            {{ summary.akun_per_province?.length ?? 0 }}
+                        </div>
+                        <div class="text-caption text-md-subtitle-1">
+                            Total Provinsi
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <v-col cols="6" sm="6" md="3">
+                <v-card color="amber" dark @click="navigateToTab('star')" style="cursor:pointer;">
+                    <v-card-text class="text-center">
+                        <v-icon size="36" class="mb-2">mdi-star</v-icon>
+                        <div class="text-h6 text-md-h4">
+                            {{ summary.total_bintang_approved ?? 0 }}
+                        </div>
+                        <div class="text-caption text-md-subtitle-1">
+                            Total Bintang
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+
         <div class="d-none d-md-block">
-            <v-row class="mb-4">
-
-                <!-- Total Akun -->
-                <v-col cols="12" md="3">
-                    <v-card color="purple" dark @click="handleShowDetail('all_users')" class="cursor-pointer">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-account-group</v-icon>
-                            <div class="text-h4">
-                                {{ summary.user_total ?? 0 }}
-                            </div>
-                            <div class="text-subtitle-1">Total Akun</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Total Dokumen -->
-                <v-col cols="12" md="3">
-                    <v-card color="primary" dark @click="handleShowDetail('all_documents')" class="cursor-pointer">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">
-                                mdi-file-document-multiple
-                            </v-icon>
-                            <div class="text-h4">
-                                {{ summary.documents?.total ?? 0 }}
-                            </div>
-                            <div class="text-subtitle-1">Total Dokumen</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Total Daerah -->
-                <v-col cols="12" md="3">
-                    <v-card color="info" dark @click="handleShowDetail('all_regions')" class="cursor-pointer">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">
-                                mdi-map-marker-multiple
-                            </v-icon>
-                            <div class="text-h4">
-                                {{ summary.akun_per_daerah?.length ?? 0 }}
-                            </div>
-                            <div class="text-subtitle-1">
-                                Total Akun Per Daerah
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-            </v-row>
-
-            <!-- ===== Akun per MVO ===== -->
-            <v-row class="mb-4" v-if="hasAkunPerMVO">
-                <v-col cols="12" md="4" v-for="mvo in summary.akun_per_mvo" :key="`mvo-${mvo.mvo_id}`">
-                    <v-card color="teal" dark class="h-100 cursor-pointer" @click="$emit('show-mvo-subordinates', mvo)">
-                        <v-card-text class="text-center">
-                            <v-icon size="40" class="mb-2">
-                                mdi-account-supervisor
-                            </v-icon>
-
-                            <div class="text-h5">
-                                {{ mvo.mvo_nama }}
-                            </div>
-
-                            <div class="text-caption mb-2">
-                                {{ mvo.mvo_code }}
-                            </div>
-
-                            <v-divider class="my-2"></v-divider>
-
-                            <div class="d-flex justify-center align-center gap-4">
-                                <div class="d-flex align-center">
-                                    <v-icon size="18" class="mr-1">
-                                        mdi-account-multiple
-                                    </v-icon>
-                                    {{ mvo.total_bawahan }} Downline
-                                </div>
-
-                                <div class="d-flex align-center">
-                                    <v-icon size="18" color="amber" class="mr-1">
-                                        mdi-star
-                                    </v-icon>
-                                    {{ mvo.total_bintang_jaringan }}
-                                </div>
-                            </div>
-
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
-
-            <!-- ===== Top 5 Bintang ===== -->
             <v-card class="mb-4" v-for="role in bintangRoles" :key="role.key">
                 <v-card-title class="d-flex align-center">
                     <v-icon class="mr-2" :color="role.iconColor">
-                        {{ role.icon }}
+                        mdi-star
                     </v-icon>
                     Top 5 Bintang — {{ role.label }}
                 </v-card-title>
 
                 <v-card-text>
-                    <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders"
-                        :items="summary.top_5_bintang_role?.[role.key] ?? []" :loading="isLoading" item-key="mvo_id"
-                        :items-per-page="5">
+                    <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders" :items="role.data"
+                        :loading="isLoading" item-key="code" :items-per-page="5" hide-default-footer>
 
-                        <!-- Rank -->
+                        <!-- RANK -->
                         <template #item.rank="{ index }">
                             <v-chip :color="getRankColor(index + 1)" dark size="small">
                                 {{ index + 1 }}
                             </v-chip>
                         </template>
 
-                        <!-- Detail -->
+                        <!-- NAMA -->
                         <template #item.mvo_name="{ item }">
-                            <div class="font-weight-medium cursor-pointer" @click="handleShowMvoDetail(item.mvo_id)">
-                                {{ item.mvo?.nama ?? 'N/A' }}
+                            <div class="font-weight-medium" @click="$emit('show-mvo-detail', item.code, item)"
+                                style="cursor:pointer;">
+                                {{ item.nama ?? 'N/A' }}
                             </div>
                             <div class="text-caption text-grey">
-                                {{ item.mvo?.code ?? 'N/A' }}
+                                {{ item.code ?? 'N/A' }} • {{ item.cabang ?? 'N/A' }}
                             </div>
                         </template>
 
-                        <!-- Bintang -->
+                        <!-- BINTANG -->
                         <template #item.total_bintang="{ item }">
-                            <div class="d-flex justify-center">
-                                <v-icon v-for="n in parseInt(item.total_bintang || 0)" :key="n" color="amber"
-                                    size="small" class="mr-1">
-                                    mdi-star
-                                </v-icon>
+                            <div class="d-flex align-center justify-center">
+                                <v-chip color="amber" dark size="small">
+                                    <v-icon left size="14">mdi-star</v-icon>
+                                    {{ item.total_bintang || 0 }}
+                                </v-chip>
+                            </div>
+                        </template>
 
-                                <v-icon v-if="!item.total_bintang" color="grey" size="small">
-                                    mdi-star-outline
-                                </v-icon>
+                        <!-- JUMLAH RO -->
+                        <template #item.jumlah_ro="{ item }">
+                            <div class="text-center">
+                                {{ item.jumlah_ro || 0 }}
                             </div>
                         </template>
 
@@ -145,88 +117,57 @@
         <!-- ================= MOBILE VIEW ================= -->
         <div class="d-block d-md-none">
 
-            <v-row dense>
-                <v-col cols="6">
-                    <v-card color="info" dark class="cursor-pointer" @click="handleShowDetail('all_regions')">
-                        <v-card-text class="text-center pa-3">
-                            <v-icon size="32">
-                                mdi-map-marker-multiple
-                            </v-icon>
-                            <div class="text-h6 mt-2">
-                                {{ summary.akun_per_daerah?.length ?? 0 }}
-                            </div>
-                            <div class="text-caption">
-                                Total Akun Per Daerah
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="6" v-if="hasAkunPerMVO">
-                    <v-card color="success" dark class="cursor-pointer" @click="handleShowMvoWithSubordinates()">
-                        <v-card-text class="text-center pa-3">
-                            <v-icon size="32">mdi-account-network</v-icon>
-                            <div class="text-h6 mt-2">
-                                {{ summary.akun_per_mvo.length }}
-                            </div>
-                            <div class="text-caption">
-                                MVO dengan Downline
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
-
-            <!-- List MVO -->
-            <v-card v-if="hasAkunPerMVO" class="mt-3">
+            <v-card class="mt-3" v-for="role in bintangRoles" :key="'mobile-' + role.key">
                 <v-card-title class="pa-3">
-                    <v-icon class="mr-2">
-                        mdi-account-supervisor
+                    <v-icon class="mr-2" :color="role.iconColor">
+                        mdi-star
                     </v-icon>
-                    MVO dengan Downline
+                    Top 5 Bintang — {{ role.label }}
                 </v-card-title>
 
-                <v-list>
-                    <v-list-item v-for="mvo in summary.akun_per_mvo" :key="`mobile-${mvo.mvo_id}`"
-                        class="py-3 cursor-pointer" @click="$emit('show-mvo-subordinates', mvo)">
+                <v-card-text class="pa-0">
+                    <v-list>
 
-                        <template #prepend>
-                            <v-avatar color="teal" size="40">
-                                <v-icon color="white">
-                                    mdi-account-supervisor
-                                </v-icon>
-                            </v-avatar>
-                        </template>
+                        <!-- EMPTY STATE -->
+                        <v-list-item v-if="!role.data.length">
+                            <v-list-item-title class="text-center text-grey">
+                                Tidak ada data
+                            </v-list-item-title>
+                        </v-list-item>
 
-                        <v-list-item-title class="font-weight-medium">
-                            {{ mvo.mvo_nama }}
-                        </v-list-item-title>
+                        <!-- DATA -->
+                        <v-list-item v-for="(item, index) in role.data" :key="item.code"
+                            @click="$emit('show-mvo-detail', item.code, item)" style="cursor:pointer;" class="py-3">
 
-                        <v-list-item-subtitle>
-                            <div class="text-caption mb-1">
-                                {{ mvo.mvo_code }}
-                            </div>
-
-                            <div class="d-flex gap-1">
-                                <v-chip size="x-small" color="teal" variant="tonal">
-                                    {{ mvo.total_bawahan }} Downline
+                            <template v-slot:prepend>
+                                <v-chip :color="getRankColor(index + 1)" dark size="small" class="mr-3">
+                                    {{ index + 1 }}
                                 </v-chip>
+                            </template>
 
-                                <v-chip size="x-small" color="amber" variant="tonal">
-                                    {{ mvo.total_bintang_jaringan }}
+                            <v-list-item-title class="font-weight-medium">
+                                {{ item.nama || 'N/A' }}
+                            </v-list-item-title>
+
+                            <v-list-item-subtitle class="text-caption">
+                                {{ item.code }} • {{ item.cabang }}
+                            </v-list-item-subtitle>
+
+                            <template v-slot:append>
+                                <v-chip color="amber" dark size="small">
+                                    <v-icon left size="14">mdi-star</v-icon>
+                                    {{ item.total_bintang || 0 }}
                                 </v-chip>
-                            </div>
-                        </v-list-item-subtitle>
+                            </template>
 
-                        <template #append>
-                            <v-icon>mdi-chevron-right</v-icon>
-                        </template>
+                        </v-list-item>
 
-                    </v-list-item>
-                </v-list>
+                    </v-list>
+                </v-card-text>
             </v-card>
 
         </div>
+
     </div>
 </template>
 
@@ -238,21 +179,28 @@ export default {
     name: "DashboardOverview",
 
     emits: [
-        "show-detail",
-        "show-mvo-subordinates",
         "show-mvo-detail",
+        "navigate-to-tab"
     ],
 
     data() {
         return {
             dashboardData: { summary: {} },
-            mvoRawData: [],
-            documentRawData: [],
             isLoading: false,
+
             topBintangHeaders: [
                 { title: "Rank", key: "rank", align: "center", width: 80 },
                 { title: "Akun Details", key: "mvo_name" },
+                { title: "code", key: "code" },
+                { title: "cabang", key: "cabang" },
                 { title: "Total Bintang", key: "total_bintang", align: "center" },
+                { title: "Jumlah RO", key: "jumlah_ro", align: "center" },
+            ],
+
+            // Warna dinamis untuk role
+            colorPalette: [
+                'primary', 'cyan', 'purple', 'green', 'indigo',
+                'orange', 'teal', 'pink', 'deep-purple', 'blue-grey'
             ],
         };
     },
@@ -262,149 +210,105 @@ export default {
     },
 
     computed: {
+
         summary() {
             return this.dashboardData?.summary ?? {};
         },
 
-        hasAkunPerMVO() {
-            return (
-                this.summary.akun_per_mvo &&
-                this.summary.akun_per_mvo.length > 0
-            );
+        /* ===== ROLE DINAMIS dari ranking_mvo ===== */
+        bintangRoles() {
+            const rankingMvo = this.summary?.ranking_mvo;
+
+            if (!rankingMvo || !Array.isArray(rankingMvo)) return [];
+
+            // Group by jabatan
+            const groupedByJabatan = rankingMvo.reduce((acc, item) => {
+                const jabatan = item.jabatan || 'LAINNYA';
+                if (!acc[jabatan]) {
+                    acc[jabatan] = [];
+                }
+                acc[jabatan].push(item);
+                return acc;
+            }, {});
+
+            // Sort each group by total_bintang (descending) and take top 5
+            return Object.keys(groupedByJabatan).map((jabatan, index) => {
+                const sortedData = groupedByJabatan[jabatan]
+                    .sort((a, b) => parseInt(b.total_bintang || 0) - parseInt(a.total_bintang || 0))
+                    .slice(0, 5);
+
+                return {
+                    key: jabatan,
+                    label: jabatan, // Langsung pakai nama jabatan dari API
+                    iconColor: this.getColorByIndex(index),
+                    data: sortedData
+                };
+            });
         },
 
-        bintangRoles() {
-            return [
-                {
-                    key: "mvo",
-                    label: "MVO",
-                    icon: "mdi-account",
-                    iconColor: "primary",
-                },
-                {
-                    key: "distributor",
-                    label: "Distributor",
-                    icon: "mdi-store",
-                    iconColor: "cyan",
-                },
-                {
-                    key: "lainnya",
-                    label: "Lainnya",
-                    icon: "mdi-crown",
-                    iconColor: "purple",
-                },
-            ];
-        },
     },
 
     methods: {
+
+        /* ===== FETCH DATA ===== */
         async fetchData() {
             const token = Cookies.get("token");
             if (!token) return;
 
             this.isLoading = true;
-            try {
-                const [dashboardResponse, mvoResponse, documentResponse] = await Promise.all([
-                    axios.get("https://babaapi.teknosof.com/api/dashboard", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                    axios.get("https://babaapi.teknosof.com/api/mvo", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                    axios.get("https://babaapi.teknosof.com/api/mvo-document", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    })
-                ]);
 
-                if (dashboardResponse.data?.status === "success") {
-                    this.dashboardData = dashboardResponse.data.data;
+            try {
+                const res = await axios.get(
+                    "https://babaapi.teknosof.com/api/dashboard",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (res.data?.status === "success") {
+                    this.dashboardData = res.data.data;
                 }
-                if (mvoResponse.data?.status === "success") {
-                    this.mvoRawData = mvoResponse.data.data;
-                }
-                if (documentResponse.data?.status === "success") {
-                    this.documentRawData = documentResponse.data.data;
-                }
-            } catch (error) {
-                console.error("Error fetching dashboard data:", error);
+
+            } catch (err) {
+                console.error("Error fetch dashboard:", err);
             } finally {
                 this.isLoading = false;
             }
         },
 
-        handleShowDetail(type) {
-            let data = [];
-            switch (type) {
-                case 'all_users':
-                    data = this.mvoRawData;
-                    break;
-                case 'all_documents':
-                    data = this.documentRawData;
-                    break;
-                case 'all_regions':
-                    data = this.getRegionSummaryData();
-                    break;
-            }
-            this.$emit('show-detail', { type, data });
+        /* ===== NAVIGATE TO TAB ===== */
+        navigateToTab(section) {
+            this.$emit('navigate-to-tab', section);
         },
 
-        handleShowMvoWithSubordinates() {
-            this.$emit('show-detail', {
-                type: 'all_mvo_with_subordinates',
-                data: this.summary.akun_per_mvo || []
-            });
+        /* ===== GENERATE COLOR BY INDEX ===== */
+        getColorByIndex(index) {
+            return this.colorPalette[index % this.colorPalette.length];
         },
 
-        getRegionSummaryData() {
-            const regionSummary = [];
-            const regions = this.summary?.akun_per_daerah || [];
-
-            regions.forEach(region => {
-                const accountsInRegion = this.mvoRawData.filter(account =>
-                    account.daerah === region.daerah
-                );
-                regionSummary.push({
-                    id: region.daerah,
-                    region_name: region.daerah,
-                    total_accounts: region.total,
-                    accounts: accountsInRegion,
-                });
-            });
-            return regionSummary;
-        },
-
-        handleShowMvoDetail(mvoId) {
-            // Implementasi ulang logika dari `findMVOData` milik induk
-            let mvoData = this.summary?.top_5_bintang_role?.mvo?.find(item => item.mvo_id === mvoId)
-                || this.summary?.top_5_bintang_role?.distributor?.find(item => item.mvo_id === mvoId)
-                || this.summary?.top_5_bintang_role?.lainnya?.find(item => item.mvo_id === mvoId);
-
-            if (!mvoData) {
-                const mvoInfo = this.mvoRawData.find(item => item.id == mvoId);
-                const mvoDocuments = this.documentRawData.filter(item => item.mvo_id == mvoId);
-                const totalBintang = mvoDocuments.reduce((sum, doc) => sum + parseInt(doc.pointbintang || 0), 0);
-
-                mvoData = {
-                    mvo_id: mvoId,
-                    total_bintang: totalBintang,
-                    mvo: mvoInfo,
-                };
-            }
-            this.$emit('show-mvo-detail', mvoId, mvoData);
-        },
-
+        /* ===== RANK COLOR ===== */
         getRankColor(rank) {
             if (rank === 1) return "amber";
             if (rank === 2) return "grey";
             if (rank === 3) return "orange";
             return "blue";
         },
+
     },
 };
 </script>
 
 <style scoped>
-.cursor-pointer {
-    cursor: pointer;
+/* Optional: Tambahkan styling khusus mobile jika diperlukan */
+@media (max-width: 600px) {
+    .v-card-text .text-h6 {
+        font-size: 1rem !important;
+    }
+
+    .v-card-text .v-icon {
+        font-size: 24px !important;
+    }
 }
 </style>

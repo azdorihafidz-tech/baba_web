@@ -34,6 +34,29 @@
               Approve
             </v-btn>
           </template>
+
+          <!-- APPROVAL COLUMNS - Convert nomor_id to nama -->
+          <template #item.approval_upline_1="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_1) }}
+          </template>
+          <template #item.approval_upline_2="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_2) }}
+          </template>
+          <template #item.approval_upline_3="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_3) }}
+          </template>
+          <template #item.approval_upline_4="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_4) }}
+          </template>
+          <template #item.approval_upline_5="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_5) }}
+          </template>
+          <template #item.approval_upline_6="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_6) }}
+          </template>
+          <template #item.approval_upline_7="{ item }">
+            {{ getNamaByNomorId(item.approval_upline_7) }}
+          </template>
         </v-data-table>
       </template>
     </CardDataTable>
@@ -95,6 +118,54 @@
               <v-col cols="4" class="detail-label">Upline 1:</v-col>
               <v-col cols="8" class="detail-value">{{ item.upline_1 }}</v-col>
             </v-row>
+
+            <!-- Approval Information -->
+            <v-divider class="my-3"></v-divider>
+            <h4 class="text-subtitle-2 mb-2 text-primary">Status Approval</h4>
+
+            <v-row class="mb-1" v-if="item.approval_upline_1">
+              <v-col cols="5" class="detail-label text-caption">MVO:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_1) }}</v-chip>
+              </v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.approval_upline_2">
+              <v-col cols="5" class="detail-label text-caption">Regional:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_2) }}</v-chip>
+              </v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.approval_upline_3">
+              <v-col cols="5" class="detail-label text-caption">Founder:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_3) }}</v-chip>
+              </v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.approval_upline_4">
+              <v-col cols="5" class="detail-label text-caption">GM:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_4) }}</v-chip>
+              </v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.approval_upline_5">
+              <v-col cols="5" class="detail-label text-caption">Supplier:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_5) }}</v-chip>
+              </v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.approval_upline_6">
+              <v-col cols="5" class="detail-label text-caption">Distributor:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_6) }}</v-chip>
+              </v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.approval_upline_7">
+              <v-col cols="5" class="detail-label text-caption">Seller:</v-col>
+              <v-col cols="7" class="detail-value text-caption">
+                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_7) }}</v-chip>
+              </v-col>
+            </v-row>
+
             <v-divider class="my-3"></v-divider>
             <v-btn block color="success" @click.stop="showApproveDialog(item.id)">
               Approve
@@ -147,6 +218,7 @@ export default {
       },
       items: [],
       mvoTypeList: [],
+      allMvoData: [], // Data semua MVO dari API
       itemsBreadcrumb: [
         {
           title: "Dashboard",
@@ -196,7 +268,46 @@ export default {
 
   computed: {
     filteredItems() {
-      return this.items.filter(i => {
+      // Filter out superadmin first
+      let itemsWithoutSuperadmin = this.items.filter(i => {
+        return i.nama && i.nama.toLowerCase() !== 'superadmin';
+      });
+
+      // Filter out fully approved items (all approval columns are filled)
+      itemsWithoutSuperadmin = itemsWithoutSuperadmin.filter(i => {
+        // Check if all approval_upline fields that have corresponding upline are filled
+        const hasUpline1 = i.upline_1 && i.upline_1 !== '-';
+        const hasUpline2 = i.upline_2 && i.upline_2 !== '-';
+        const hasUpline3 = i.upline_3 && i.upline_3 !== '-';
+        const hasUpline4 = i.upline_4 && i.upline_4 !== '-';
+        const hasUpline5 = i.upline_5 && i.upline_5 !== '-';
+        const hasUpline6 = i.upline_6 && i.upline_6 !== '-';
+        const hasUpline7 = i.upline_7 && i.upline_7 !== '-';
+
+        const approval1Filled = i.approval_upline_1 && i.approval_upline_1 !== '-' && i.approval_upline_1 !== null;
+        const approval2Filled = i.approval_upline_2 && i.approval_upline_2 !== '-' && i.approval_upline_2 !== null;
+        const approval3Filled = i.approval_upline_3 && i.approval_upline_3 !== '-' && i.approval_upline_3 !== null;
+        const approval4Filled = i.approval_upline_4 && i.approval_upline_4 !== '-' && i.approval_upline_4 !== null;
+        const approval5Filled = i.approval_upline_5 && i.approval_upline_5 !== '-' && i.approval_upline_5 !== null;
+        const approval6Filled = i.approval_upline_6 && i.approval_upline_6 !== '-' && i.approval_upline_6 !== null;
+        const approval7Filled = i.approval_upline_7 && i.approval_upline_7 !== '-' && i.approval_upline_7 !== null;
+
+        // Check if all required approvals are filled
+        const allApprovalsFilled =
+          (!hasUpline1 || approval1Filled) &&
+          (!hasUpline2 || approval2Filled) &&
+          (!hasUpline3 || approval3Filled) &&
+          (!hasUpline4 || approval4Filled) &&
+          (!hasUpline5 || approval5Filled) &&
+          (!hasUpline6 || approval6Filled) &&
+          (!hasUpline7 || approval7Filled);
+
+        // Only show items that are NOT fully approved
+        return !allApprovalsFilled;
+      });
+
+      // Then apply search filter
+      return itemsWithoutSuperadmin.filter(i => {
         const s = this.search.toLowerCase();
         return (
           i.nama?.toLowerCase().includes(s) ||
@@ -219,6 +330,11 @@ export default {
     toggleMobileDetail(itemId) {
       this.expandedMobileCard = this.expandedMobileCard === itemId ? null : itemId;
     },
+    getNamaByNomorId(nomorId) {
+      if (!nomorId || nomorId === '-') return '-';
+      const mvo = this.allMvoData.find(item => item.nomor_id === nomorId);
+      return mvo ? mvo.nama : nomorId;
+    },
     mapUserWithBintang(users) {
       return users.map((u) => {
         const mvo = this.mvoTypeList.find((m) => m.id == u.mvo_type_id);
@@ -227,6 +343,25 @@ export default {
           jlh_bintang: mvo ? mvo.jlh_bintang : 0,
         };
       });
+    },
+    async getAllMvo() {
+      try {
+        const token = Cookies.get("token");
+        const response = await axios.get(
+          "https://babaapi.teknosof.com/api/mvo",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.status === "success" && response.data.data) {
+          this.allMvoData = response.data.data;
+        }
+      } catch (error) {
+        console.error("Gagal memuat data MVO", error);
+      }
     },
     async getAllMvoType() {
       try {
@@ -237,7 +372,6 @@ export default {
         if (response.data.status === "success" && response.data.data) {
           this.mvoTypeList = response.data.data;
 
-          // 🔥 Kalau user sudah ada → mapping ulang
           if (this.items.length > 0) {
             this.items = this.mapUserWithBintang(this.items);
           }
@@ -306,13 +440,12 @@ export default {
   },
 
   created() {
+    this.getAllMvo();
     this.getAllMvoType();
     this.loadData();
   },
 };
 </script>
-
-
 
 <style scoped>
 /* Desktop Table Styling */
@@ -326,12 +459,10 @@ export default {
   font-weight: bold;
 }
 
-/* Custom row styling */
 :deep(.v-data-table__tr:hover) {
   background-color: #f5f5f5 !important;
 }
 
-/* Chip styling */
 :deep(.v-chip) {
   font-weight: 500;
   text-transform: uppercase;
@@ -378,12 +509,6 @@ export default {
   margin-bottom: 4px;
 }
 
-.mobile-mvo-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
 .mobile-card-details {
   padding: 16px !important;
   background-color: #f8f9fa;
@@ -404,7 +529,6 @@ export default {
   align-items: center;
 }
 
-/* Icon rotation animation */
 .rotate-180 {
   transform: rotate(180deg);
 }
@@ -413,37 +537,12 @@ export default {
   transition: transform 0.3s ease;
 }
 
-/* Mobile Pagination */
-.mobile-pagination {
-  display: flex;
-  justify-content: center;
-  padding: 16px;
-}
-
-.custom-pagination :deep(.v-pagination__item) {
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-.custom-pagination :deep(.v-pagination__item--is-active) {
-  background-color: #FFD700 !important;
-  color: #000 !important;
-}
-
-/* Loading state styling */
 :deep(.v-progress-circular) {
   color: #FFD700 !important;
 }
 
 :deep(.v-progress-linear) {
   border-radius: 4px;
-}
-
-/* Responsive breakpoints */
-@media (max-width: 960px) {
-  .mobile-mvo-preview .v-chip {
-    font-size: 10px;
-  }
 }
 
 @media (max-width: 600px) {
