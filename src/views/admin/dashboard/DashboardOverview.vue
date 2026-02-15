@@ -221,30 +221,47 @@ export default {
 
             if (!rankingMvo || !Array.isArray(rankingMvo)) return [];
 
+            // ✅ Urutan jabatan yang diinginkan
+            const jabatanOrder = [
+                "MVO",
+                "REGIONAL",
+                "FO",
+                "GM",
+                "SUPPLIER",
+                "DIST",
+                "SELL"
+            ];
+
             // Group by jabatan
             const groupedByJabatan = rankingMvo.reduce((acc, item) => {
-                const jabatan = item.jabatan || 'LAINNYA';
+                const jabatan = item.jabatan || "LAINNYA";
+
                 if (!acc[jabatan]) {
                     acc[jabatan] = [];
                 }
+
                 acc[jabatan].push(item);
                 return acc;
             }, {});
 
-            // Sort each group by total_bintang (descending) and take top 5
-            return Object.keys(groupedByJabatan).map((jabatan, index) => {
-                const sortedData = groupedByJabatan[jabatan]
-                    .sort((a, b) => parseInt(b.total_bintang || 0) - parseInt(a.total_bintang || 0))
-                    .slice(0, 5);
+            // ✅ Ikuti urutan jabatanOrder
+            return jabatanOrder
+                .filter(jabatan => groupedByJabatan[jabatan]) // hanya tampil jika ada data
+                .map((jabatan, index) => {
 
-                return {
-                    key: jabatan,
-                    label: jabatan, // Langsung pakai nama jabatan dari API
-                    iconColor: this.getColorByIndex(index),
-                    data: sortedData
-                };
-            });
-        },
+                    const sortedData = groupedByJabatan[jabatan]
+                        .sort((a, b) => parseInt(b.total_bintang || 0) - parseInt(a.total_bintang || 0))
+                        .slice(0, 5);
+
+                    return {
+                        key: jabatan,
+                        label: jabatan,
+                        iconColor: this.getColorByIndex(index),
+                        data: sortedData
+                    };
+                });
+        }
+
 
     },
 
