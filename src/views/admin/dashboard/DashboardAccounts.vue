@@ -228,6 +228,83 @@
                 </v-col>
 
             </v-row>
+
+            <!-- ===== JABATAN CARDS MOBILE ===== -->
+            <v-card class="mb-3">
+                <v-card-title class="text-subtitle-1 font-weight-bold">
+                    JABATAN AKUN
+                </v-card-title>
+                <v-card-text class="pa-2">
+                    <v-row dense>
+                        <v-col v-for="(jabatan, index) in jabatanList" :key="index" cols="6">
+                            <v-card hover @click="handleShowJabatanDetail(jabatan.name)" :color="getJabatanColor(index)"
+                                dark style="cursor:pointer;" class="jabatan-card">
+                                <v-card-text class="text-center pa-2">
+                                    <v-icon size="24" class="mb-1">
+                                        mdi-account-tie
+                                    </v-icon>
+                                    <div class="text-h6 mb-0">
+                                        {{ jabatan.count }}
+                                    </div>
+                                    <div class="text-caption font-weight-bold text-truncate">
+                                        {{ jabatan.name }}
+                                    </div>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+                        <v-col v-if="jabatanList.length === 0" cols="12">
+                            <div class="text-center pa-4">
+                                <v-icon size="40" color="grey">mdi-account-tie-outline</v-icon>
+                                <div class="text-caption mt-2">No jabatan data available</div>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+            </v-card>
+
+            <!-- ===== STATISTICS MOBILE ===== -->
+            <v-card class="mb-3">
+                <v-card-title class="text-subtitle-1 font-weight-bold">
+                    Akun Status Statistics
+                </v-card-title>
+                <v-card-text>
+                    <div class="mb-4">
+                        <div class="d-flex align-center mb-2">
+                            <v-progress-linear :model-value="getAkunPercentage('total_approved')" color="success"
+                                height="20" rounded class="mr-3">
+                                <span class="text-white text-caption font-weight-bold">
+                                    {{ getAkunPercentage('total_approved').toFixed(1) }}%
+                                </span>
+                            </v-progress-linear>
+                            <span class="text-caption">Approved</span>
+                        </div>
+                        <div class="d-flex align-center">
+                            <v-progress-linear :model-value="getAkunPercentage('total_pending')" color="orange"
+                                height="20" rounded class="mr-3">
+                                <span class="text-white text-caption font-weight-bold">
+                                    {{ getAkunPercentage('total_pending').toFixed(1) }}%
+                                </span>
+                            </v-progress-linear>
+                            <span class="text-caption">Pending</span>
+                        </div>
+                    </div>
+                    <v-card flat color="grey-lighten-4" class="pa-3">
+                        <div class="text-subtitle-2 mb-2">Summary</div>
+                        <div class="d-flex justify-space-between text-caption mb-1">
+                            <span>Total</span>
+                            <b>{{ dashboardData.summary.total_akun }}</b>
+                        </div>
+                        <div class="d-flex justify-space-between text-caption mb-1">
+                            <span>Approved</span>
+                            <b class="text-success">{{ dashboardData.summary.total_approved }}</b>
+                        </div>
+                        <div class="d-flex justify-space-between text-caption">
+                            <span>Pending</span>
+                            <b class="text-orange">{{ dashboardData.summary.total_pending }}</b>
+                        </div>
+                    </v-card>
+                </v-card-text>
+            </v-card>
         </div>
 
         <!-- ================= DETAIL TABLE DIALOG ================= -->

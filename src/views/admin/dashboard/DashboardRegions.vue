@@ -138,6 +138,35 @@
                 </v-card-text>
             </v-card>
 
+            <!-- Akun per Region List Mobile -->
+            <v-card class="mb-3">
+                <v-card-title class="text-subtitle-1 font-weight-bold pa-3">
+                    <v-icon size="20" class="mr-2">mdi-shield-account</v-icon>
+                    Akun per Region
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-card-text class="pa-0">
+                    <v-list density="compact">
+                        <v-list-item v-for="(item, i) in regionTableData" :key="i" class="py-2">
+                            <template v-slot:prepend>
+                                <v-icon size="20" color="primary" class="mr-3">mdi-map-marker</v-icon>
+                            </template>
+                            <v-list-item-title class="font-weight-medium">{{ item.region }}</v-list-item-title>
+                            <v-list-item-subtitle>
+                                <div class="d-flex align-center mt-1">
+                                    <v-progress-linear :model-value="item.percentage" color="primary" height="6" rounded
+                                        class="mr-2" style="width: 60px;"></v-progress-linear>
+                                    <span class="text-caption">{{ item.percentage.toFixed(1) }}%</span>
+                                </div>
+                            </v-list-item-subtitle>
+                            <template v-slot:append>
+                                <v-chip color="primary" size="small" variant="flat">{{ item.total_accounts }}</v-chip>
+                            </template>
+                        </v-list-item>
+                    </v-list>
+                </v-card-text>
+            </v-card>
+
             <!-- Region Cards Mobile -->
             <v-row dense>
                 <v-col v-for="(region, index) in regionCardData" :key="index" cols="6">

@@ -247,45 +247,49 @@
             </v-card-text>
         </v-card>
 
+        <!-- Mobile Action Buttons -->
+        <v-row dense class="mb-3">
+            <v-col cols="6">
+                <v-card color="#FFD700" dark @click="openTopStarDialog" class="text-center pa-3"
+                    style="cursor: pointer">
+                    <v-icon class="mb-1">mdi-trophy</v-icon>
+                    <div class="text-caption font-weight-bold">TOP STAR</div>
+                </v-card>
+            </v-col>
+            <v-col cols="6">
+                <v-card color="success" dark @click="openAkunPerMvoDialog" class="text-center pa-3"
+                    style="cursor: pointer">
+                    <v-icon class="mb-1">mdi-account-multiple</v-icon>
+                    <div class="text-caption font-weight-bold">AKUN PER MVO</div>
+                </v-card>
+            </v-col>
+        </v-row>
+
         <!-- Mobile Star Section -->
         <div>
-            <!-- Summary Cards Mobile -->
-            <v-row dense class="mb-3">
-                <v-col cols="4">
-                    <v-card class="text-center">
-                        <v-card-text class="pa-2">
-                            <v-icon color="amber" size="20">mdi-star</v-icon>
-                            <div class="text-h6 font-weight-bold mt-1">{{ starSummary.totalBintang }}</div>
-                            <div class="text-caption">Bintang</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="4">
-                    <v-card class="text-center">
-                        <v-card-text class="pa-2">
-                            <v-icon color="success" size="20">mdi-account-multiple</v-icon>
-                            <div class="text-h6 font-weight-bold mt-1">{{ starSummary.totalAkun }}</div>
-                            <div class="text-caption">Akun</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="4">
-                    <v-card class="text-center">
-                        <v-card-text class="pa-2">
-                            <v-icon color="warning" size="20">mdi-map-marker</v-icon>
-                            <div class="text-h6 font-weight-bold mt-1">{{ starSummary.totalDaerah }}</div>
-                            <div class="text-caption">Daerah</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
-
             <!-- Mobile: Ranking Semua Akun -->
             <v-card class="mb-3">
                 <v-card-title class="pa-3">
                     <v-icon class="mr-2" color="amber">mdi-star</v-icon>
                     Ranking Bintang
                 </v-card-title>
+
+                <!-- Filter & Export Mobile -->
+                <v-card-text class="pa-3 pt-0">
+                    <v-row dense align="center">
+                        <v-col cols="8">
+                            <v-select v-model="filterRoleStar" :items="roleFilterItems" label="Filter Role"
+                                variant="outlined" density="compact" hide-details></v-select>
+                        </v-col>
+                        <v-col cols="4">
+                            <v-btn block color="success" size="small"
+                                @click="exportToExcel(filteredDashboardStar, 'Ranking_Semua_Akun', dashboardStarHeaders)">
+                                <v-icon>mdi-microsoft-excel</v-icon>
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+
                 <v-card-text class="pa-0">
                     <v-list>
                         <v-list-item v-for="item in dashboardData.dashboard_star || []" :key="item.id" class="py-3">
@@ -323,6 +327,33 @@
                     <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
                     Leaderboard Per Bulan
                 </v-card-title>
+
+                <!-- Filter & Export Mobile -->
+                <v-card-text class="pa-3 pt-0">
+                    <v-row dense class="mb-2">
+                        <v-col cols="6">
+                            <v-text-field v-model="filterStartMonth" type="month" label="Dari" density="compact"
+                                variant="outlined" hide-details />
+                        </v-col>
+                        <v-col cols="6">
+                            <v-text-field v-model="filterEndMonth" type="month" label="Sampai" density="compact"
+                                variant="outlined" hide-details />
+                        </v-col>
+                    </v-row>
+                    <v-row dense align="center">
+                        <v-col cols="8">
+                            <v-select v-model="filterRoleBulan" :items="roleFilterItems" label="Filter Role"
+                                variant="outlined" density="compact" hide-details />
+                        </v-col>
+                        <v-col cols="4">
+                            <v-btn block color="success" size="small"
+                                @click="exportToExcel(filteredLeaderboardBulanData, `Leaderboard_Bulan_${selectedLeaderboardMonth}`, leaderboardPerBulanHeaders)">
+                                <v-icon>mdi-microsoft-excel</v-icon>
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+
                 <v-card-text class="pa-3">
                     <v-chip-group v-model="selectedLeaderboardMonth" mandatory color="primary" class="mb-3">
                         <v-chip v-for="bulan in availableLeaderboardMonths" :key="bulan" :value="bulan" size="small"
@@ -364,11 +395,16 @@
 
             <!-- Mobile: Leaderboard Per Daerah (Cards) -->
             <div class="mb-3">
-                <v-card class="mb-2" color="white" elevation="1">
+                <v-card class="mb-2" color="#FFD700" dark elevation="1">
                     <v-card-title class="pa-3">
-                        <v-icon class="mr-2" color="warning">mdi-map-marker-multiple</v-icon>
+                        <v-icon class="mr-2" color="primary">mdi-map-marker-multiple</v-icon>
                         Leaderboard Per Daerah
                     </v-card-title>
+                    <v-card-text class="text-center pb-4">
+                        <v-icon size="40" class="mb-2">mdi-map-marker-multiple</v-icon>
+                        <div class="text-h4 font-weight-bold">{{ starSummary.totalDaerah }}</div>
+                        <div class="text-subtitle-1">Total Daerah</div>
+                    </v-card-text>
                 </v-card>
 
                 <v-card v-for="(daerahData, daerahKey) in dashboardData.leaderboard_per_daerah || {}"

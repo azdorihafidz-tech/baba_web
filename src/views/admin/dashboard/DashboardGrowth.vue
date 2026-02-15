@@ -1,29 +1,27 @@
 <template>
     <div>
-        <!-- Date Filter (Shared) -->
-        <v-card class="mb-4">
-            <v-card-title class="d-flex align-center">
-                <v-icon class="mr-2">mdi-calendar</v-icon>
-                Filter Tanggal
-            </v-card-title>
-            <v-card-text>
-                <v-row>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="dateRange.start" label="Tanggal Mulai" type="date" variant="outlined"
-                            :density="$vuetify.display.mobile ? 'compact' : 'default'"
-                            @update:model-value="fetchGrowthData" class="mb-2 mb-md-0"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="dateRange.end" label="Tanggal Akhir" type="date" variant="outlined"
-                            :density="$vuetify.display.mobile ? 'compact' : 'default'"
-                            @update:model-value="fetchGrowthData"></v-text-field>
-                    </v-col>
-                </v-row>
-            </v-card-text>
-        </v-card>
-
         <!-- Desktop View -->
         <div class="d-none d-md-block">
+            <!-- Date Filter Desktop -->
+            <v-card class="mb-4">
+                <v-card-title class="d-flex align-center">
+                    <v-icon class="mr-2">mdi-calendar</v-icon>
+                    Filter Tanggal
+                </v-card-title>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="dateRange.start" label="Tanggal Mulai" type="date" variant="outlined"
+                                density="default" @update:model-value="fetchGrowthData" class="mb-0"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field v-model="dateRange.end" label="Tanggal Akhir" type="date" variant="outlined"
+                                density="default" @update:model-value="fetchGrowthData"></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+            </v-card>
+
             <v-row class="mb-4">
                 <v-col cols="12" md="4">
                     <v-card color="primary" dark @click="$emit('show-detail', 'total_growth', filteredGrowthData)"
@@ -78,6 +76,26 @@
 
         <!-- Mobile View -->
         <div class="d-block d-md-none">
+            <!-- Date Filter Mobile -->
+            <v-card class="mb-3">
+                <v-card-title class="d-flex align-center pa-3 text-subtitle-1">
+                    <v-icon class="mr-2" size="20">mdi-calendar</v-icon>
+                    Filter Tanggal
+                </v-card-title>
+                <v-card-text class="pa-3 pt-0">
+                    <v-row dense>
+                        <v-col cols="6">
+                            <v-text-field v-model="dateRange.start" label="Mulai" type="date" variant="outlined"
+                                density="compact" hide-details @update:model-value="fetchGrowthData"></v-text-field>
+                        </v-col>
+                        <v-col cols="6">
+                            <v-text-field v-model="dateRange.end" label="Akhir" type="date" variant="outlined"
+                                density="compact" hide-details @update:model-value="fetchGrowthData"></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+            </v-card>
+
             <v-row dense class="mb-3">
                 <v-col cols="12">
                     <v-card color="primary" dark @click="$emit('show-detail', 'total_growth', filteredGrowthData)"

@@ -191,6 +191,50 @@
                 </v-col>
 
             </v-row>
+
+            <!-- ===== STATISTICS MOBILE ===== -->
+            <v-card class="mb-3">
+                <v-card-title class="text-subtitle-2 font-weight-bold">
+                    Document Status Statistics
+                </v-card-title>
+                <v-card-text>
+                    <div class="mb-4">
+                        <div class="d-flex align-center mb-2">
+                            <v-progress-linear :model-value="getDocumentPercentage('total_approved')" color="success"
+                                height="20" rounded class="mr-3">
+                                <span class="text-white text-caption font-weight-bold">
+                                    {{ getDocumentPercentage('total_approved').toFixed(1) }}%
+                                </span>
+                            </v-progress-linear>
+                            <span class="text-caption">Approved</span>
+                        </div>
+                        <div class="d-flex align-center">
+                            <v-progress-linear :model-value="getDocumentPercentage('total_pending')" color="orange"
+                                height="20" rounded class="mr-3">
+                                <span class="text-white text-caption font-weight-bold">
+                                    {{ getDocumentPercentage('total_pending').toFixed(1) }}%
+                                </span>
+                            </v-progress-linear>
+                            <span class="text-caption">Pending</span>
+                        </div>
+                    </div>
+                    <v-card flat color="grey-lighten-4" class="pa-3">
+                        <div class="text-subtitle-2 mb-2">Summary</div>
+                        <div class="d-flex justify-space-between text-caption mb-1">
+                            <span>Total</span>
+                            <b>{{ dashboardData.summary.documents.total_document }}</b>
+                        </div>
+                        <div class="d-flex justify-space-between text-caption mb-1">
+                            <span>Approved</span>
+                            <b class="text-success">{{ dashboardData.summary.documents.total_approved }}</b>
+                        </div>
+                        <div class="d-flex justify-space-between text-caption">
+                            <span>Pending</span>
+                            <b class="text-orange">{{ dashboardData.summary.documents.total_pending }}</b>
+                        </div>
+                    </v-card>
+                </v-card-text>
+            </v-card>
         </div>
 
         <!-- ================= DETAIL TABLE DIALOG ================= -->

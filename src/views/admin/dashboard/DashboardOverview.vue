@@ -1,66 +1,67 @@
 <template>
     <div>
 
-        <!-- ================= SUMMARY CARD - TAMPIL DI SEMUA LAYAR ================= -->
-        <v-row class="mb-4">
-            <v-col cols="6" sm="6" md="3">
-                <v-card color="purple" dark @click="navigateToTab('accounts')" style="cursor:pointer;">
-                    <v-card-text class="text-center">
-                        <v-icon size="36" class="mb-2">mdi-account-group</v-icon>
-                        <div class="text-h6 text-md-h4">
-                            {{ summary.jumlahakun ?? 0 }}
-                        </div>
-                        <div class="text-caption text-md-subtitle-1">
-                            Total Akun
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-
-            <v-col cols="6" sm="6" md="3">
-                <v-card color="primary" dark @click="navigateToTab('documents')" style="cursor:pointer;">
-                    <v-card-text class="text-center">
-                        <v-icon size="36" class="mb-2">mdi-file-document-multiple</v-icon>
-                        <div class="text-h6 text-md-h4">
-                            {{ summary.jumlahdokumen ?? 0 }}
-                        </div>
-                        <div class="text-caption text-md-subtitle-1">
-                            Total Dokumen
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-
-            <v-col cols="6" sm="6" md="3">
-                <v-card color="info" dark @click="navigateToTab('regions')" style="cursor:pointer;">
-                    <v-card-text class="text-center">
-                        <v-icon size="36" class="mb-2">mdi-map-marker-multiple</v-icon>
-                        <div class="text-h6 text-md-h4">
-                            {{ summary.akun_per_province?.length ?? 0 }}
-                        </div>
-                        <div class="text-caption text-md-subtitle-1">
-                            Total Provinsi
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-
-            <v-col cols="6" sm="6" md="3">
-                <v-card color="amber" dark @click="navigateToTab('star')" style="cursor:pointer;">
-                    <v-card-text class="text-center">
-                        <v-icon size="36" class="mb-2">mdi-star</v-icon>
-                        <div class="text-h6 text-md-h4">
-                            {{ summary.total_bintang_approved ?? 0 }}
-                        </div>
-                        <div class="text-caption text-md-subtitle-1">
-                            Total Bintang
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-        </v-row>
-
+        <!-- ================= DESKTOP VIEW ================= -->
         <div class="d-none d-md-block">
+            <!-- SUMMARY CARD DESKTOP -->
+            <v-row class="mb-4">
+                <v-col cols="3">
+                    <v-card color="purple" dark @click="navigateToTab('accounts')" style="cursor:pointer;">
+                        <v-card-text class="text-center">
+                            <v-icon size="36" class="mb-2">mdi-account-group</v-icon>
+                            <div class="text-h4">
+                                {{ summary.jumlahakun ?? 0 }}
+                            </div>
+                            <div class="text-subtitle-1">
+                                Total Akun
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="3">
+                    <v-card color="primary" dark @click="navigateToTab('documents')" style="cursor:pointer;">
+                        <v-card-text class="text-center">
+                            <v-icon size="36" class="mb-2">mdi-file-document-multiple</v-icon>
+                            <div class="text-h4">
+                                {{ summary.jumlahdokumen ?? 0 }}
+                            </div>
+                            <div class="text-subtitle-1">
+                                Total Dokumen
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="3">
+                    <v-card color="info" dark @click="navigateToTab('regions')" style="cursor:pointer;">
+                        <v-card-text class="text-center">
+                            <v-icon size="36" class="mb-2">mdi-map-marker-multiple</v-icon>
+                            <div class="text-h4">
+                                {{ summary.akun_per_province?.length ?? 0 }}
+                            </div>
+                            <div class="text-subtitle-1">
+                                Total Provinsi
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="3">
+                    <v-card color="amber" dark @click="navigateToTab('star')" style="cursor:pointer;">
+                        <v-card-text class="text-center">
+                            <v-icon size="36" class="mb-2">mdi-star</v-icon>
+                            <div class="text-h4">
+                                {{ summary.total_bintang_approved ?? 0 }}
+                            </div>
+                            <div class="text-subtitle-1">
+                                Total Bintang
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+
             <v-card class="mb-4" v-for="role in bintangRoles" :key="role.key">
                 <v-card-title class="d-flex align-center">
                     <v-icon class="mr-2" :color="role.iconColor">
@@ -116,6 +117,57 @@
 
         <!-- ================= MOBILE VIEW ================= -->
         <div class="d-block d-md-none">
+
+            <!-- SUMMARY CARD MOBILE -->
+            <v-row class="mb-2" dense>
+                <v-col cols="6">
+                    <v-card color="purple" dark @click="navigateToTab('accounts')" style="cursor:pointer;">
+                        <v-card-text class="text-center pa-3">
+                            <v-icon size="24" class="mb-1">mdi-account-group</v-icon>
+                            <div class="text-h6">
+                                {{ summary.jumlahakun ?? 0 }}
+                            </div>
+                            <div class="text-caption">Total Akun</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="6">
+                    <v-card color="primary" dark @click="navigateToTab('documents')" style="cursor:pointer;">
+                        <v-card-text class="text-center pa-3">
+                            <v-icon size="24" class="mb-1">mdi-file-document-multiple</v-icon>
+                            <div class="text-h6">
+                                {{ summary.jumlahdokumen ?? 0 }}
+                            </div>
+                            <div class="text-caption">Total Dokumen</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="6">
+                    <v-card color="info" dark @click="navigateToTab('regions')" style="cursor:pointer;">
+                        <v-card-text class="text-center pa-3">
+                            <v-icon size="24" class="mb-1">mdi-map-marker-multiple</v-icon>
+                            <div class="text-h6">
+                                {{ summary.akun_per_province?.length ?? 0 }}
+                            </div>
+                            <div class="text-caption">Total Provinsi</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="6">
+                    <v-card color="amber" dark @click="navigateToTab('star')" style="cursor:pointer;">
+                        <v-card-text class="text-center pa-3">
+                            <v-icon size="24" class="mb-1">mdi-star</v-icon>
+                            <div class="text-h6">
+                                {{ summary.total_bintang_approved ?? 0 }}
+                            </div>
+                            <div class="text-caption">Total Bintang</div>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
 
             <v-card class="mt-3" v-for="role in bintangRoles" :key="'mobile-' + role.key">
                 <v-card-title class="pa-3">
