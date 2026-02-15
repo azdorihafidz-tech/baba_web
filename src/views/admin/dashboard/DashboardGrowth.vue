@@ -31,18 +31,19 @@
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">mdi-chart-line</v-icon>
                             <div class="text-h4">{{ getTotalGrowth() }}</div>
-                            <div class="text-subtitle-1">Total Pertumbuhan</div>
+                            <div class="text-subtitle-1">Total Pertumbuhan (RO)</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-card color="warning" dark @click="$emit('show-detail', 'mvo_growth', filteredMVOGrowthData)"
+                    <v-card color="warning" dark
+                        @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)"
                         style="cursor: pointer;">
                         <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-account-group</v-icon>
-                            <div class="text-h4">{{ getMVOGrowth() }}</div>
-                            <div class="text-subtitle-1">Pertumbuhan MVO</div>
+                            <v-icon size="48" class="mb-2">mdi-map-marker-multiple</v-icon>
+                            <div class="text-h4">{{ getRegionGrowth() }}</div>
+                            <div class="text-subtitle-1">Pertumbuhan Region (RO)</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -56,21 +57,7 @@
                             Grafik Pertumbuhan Keseluruhan
                         </v-card-title>
                         <v-card-text>
-                            <div class="growth-chart">
-                                <div v-for="(item, index) in filteredGrowthData" :key="item.bulan"
-                                    class="growth-item mb-3">
-                                    <div class="d-flex justify-space-between align-center mb-1">
-                                        <span class="text-body-2">{{ formatMonth(item.bulan) }}</span>
-                                        <span class="text-h6 font-weight-bold">{{ item.total_anggota_baru }}</span>
-                                    </div>
-                                    <v-progress-linear
-                                        :model-value="(parseInt(item.total_anggota_baru) / getMaxGrowthValue()) * 100"
-                                        color="primary" height="20" rounded>
-                                        <span class="text-white text-caption">{{ item.total_anggota_baru }}
-                                            anggota</span>
-                                    </v-progress-linear>
-                                </div>
-                            </div>
+                            <canvas ref="overallChart"></canvas>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -78,29 +65,11 @@
                 <v-col cols="12" md="6">
                     <v-card class="mb-4">
                         <v-card-title class="d-flex align-center">
-                            <v-icon class="mr-2">mdi-chart-bar</v-icon>
-                            Grafik Pertumbuhan per MVO
+                            <v-icon class="mr-2">mdi-map-marker</v-icon>
+                            Grafik Pertumbuhan per Region
                         </v-card-title>
                         <v-card-text>
-                            <div class="growth-chart">
-                                <div v-for="(item, index) in filteredMVOGrowthData" :key="item.mvo_id + item.bulan"
-                                    class="growth-item mb-3">
-                                    <div class="d-flex justify-space-between align-center mb-1">
-                                        <div>
-                                            <span class="text-body-2 font-weight-medium">{{ item.mvo_nama }}</span>
-                                            <span class="text-caption text-grey ml-2">{{ formatMonth(item.bulan)
-                                            }}</span>
-                                        </div>
-                                        <span class="text-h6 font-weight-bold">{{ item.total_bawahan_baru }}</span>
-                                    </div>
-                                    <v-progress-linear
-                                        :model-value="(parseInt(item.total_bawahan_baru) / getMaxMVOGrowthValue()) * 100"
-                                        :color="getMVOColor(index)" height="20" rounded>
-                                        <span class="text-white text-caption">{{ item.total_bawahan_baru }}
-                                            Downline</span>
-                                    </v-progress-linear>
-                                </div>
-                            </div>
+                            <canvas ref="regionChart"></canvas>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -116,7 +85,7 @@
                         <v-card-text class="text-center pa-3">
                             <v-icon size="32" class="mb-2">mdi-chart-line</v-icon>
                             <div class="text-h5">{{ getTotalGrowth() }}</div>
-                            <div class="text-caption">Total Pertumbuhan</div>
+                            <div class="text-caption">Total Pertumbuhan (RO)</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -134,12 +103,13 @@
                     </v-card>
                 </v-col>
                 <v-col cols="6">
-                    <v-card color="warning" dark @click="$emit('show-detail', 'mvo_growth', filteredMVOGrowthData)"
+                    <v-card color="warning" dark
+                        @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)"
                         style="cursor: pointer;">
                         <v-card-text class="text-center pa-2">
-                            <v-icon size="24">mdi-account-group</v-icon>
-                            <div class="text-h6 mt-1">{{ getMVOGrowth() }}</div>
-                            <div class="text-caption">MVO</div>
+                            <v-icon size="24">mdi-map-marker-multiple</v-icon>
+                            <div class="text-h6 mt-1">{{ getRegionGrowth() }}</div>
+                            <div class="text-caption">Region</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -151,40 +121,17 @@
                     Pertumbuhan Keseluruhan
                 </v-card-title>
                 <v-card-text class="pa-3">
-                    <div v-for="(item, index) in filteredGrowthData" :key="item.bulan" class="mb-3">
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <span class="text-body-2">{{ formatMonth(item.bulan) }}</span>
-                            <span class="text-body-1 font-weight-bold">{{ item.total_anggota_baru }}</span>
-                        </div>
-                        <v-progress-linear
-                            :model-value="(parseInt(item.total_anggota_baru) / getMaxGrowthValue()) * 100"
-                            color="primary" height="16" rounded>
-                            <span class="text-white text-caption">{{ item.total_anggota_baru }}</span>
-                        </v-progress-linear>
-                    </div>
+                    <canvas ref="overallChartMobile"></canvas>
                 </v-card-text>
             </v-card>
 
             <v-card>
                 <v-card-title class="pa-3">
-                    <v-icon class="mr-2">mdi-chart-bar</v-icon>
-                    Pertumbuhan per MVO
+                    <v-icon class="mr-2">mdi-map-marker</v-icon>
+                    Pertumbuhan per Region
                 </v-card-title>
                 <v-card-text class="pa-3">
-                    <div v-for="(item, index) in filteredMVOGrowthData" :key="item.mvo_id + item.bulan" class="mb-3">
-                        <div class="d-flex justify-space-between align-center mb-1">
-                            <div>
-                                <div class="text-body-2 font-weight-medium">{{ item.mvo_nama }}</div>
-                                <div class="text-caption text-grey">{{ formatMonth(item.bulan) }}</div>
-                            </div>
-                            <span class="text-body-1 font-weight-bold">{{ item.total_bawahan_baru }}</span>
-                        </div>
-                        <v-progress-linear
-                            :model-value="(parseInt(item.total_bawahan_baru) / getMaxMVOGrowthValue()) * 100"
-                            :color="getMVOColor(index)" height="16" rounded>
-                            <span class="text-white text-caption">{{ item.total_bawahan_baru }}</span>
-                        </v-progress-linear>
-                    </div>
+                    <canvas ref="regionChartMobile"></canvas>
                 </v-card-text>
             </v-card>
         </div>
@@ -192,26 +139,48 @@
 </template>
 
 <script>
+import axios from "axios";
+import Cookies from "js-cookie";
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
+
 export default {
     name: 'DashboardGrowth',
     emits: ['show-detail'],
     data() {
         return {
-            dashboardData: { summary: {} },
+            mvo_type_id: null,
+            cabang: null,
+            growthRawData: [],
+            regionGrowthRawData: [],
             dateRange: {
                 start: this.getDefaultStartDate(),
                 end: this.getDefaultEndDate()
             },
+            overallChartInstance: null,
+            regionChartInstance: null,
+            overallChartMobileInstance: null,
+            regionChartMobileInstance: null,
         };
     },
     created() {
-        this.fetchDashboardData();
+        this.initUser();
+        this.fetchData();
+    },
+    mounted() {
+        this.$nextTick(() => {
+            this.renderCharts();
+        });
+    },
+    beforeUnmount() {
+        this.destroyCharts();
     },
     computed: {
         filteredGrowthData() {
-            if (!this.dashboardData.summary?.grafik_pertumbuhan) return [];
+            if (!this.growthRawData) return [];
 
-            return this.dashboardData.summary.grafik_pertumbuhan.filter(item => {
+            return this.growthRawData.filter(item => {
                 const itemDate = new Date(item.bulan + '-01');
                 const startDate = new Date(this.dateRange.start);
                 const endDate = new Date(this.dateRange.end);
@@ -219,10 +188,10 @@ export default {
                 return itemDate >= startDate && itemDate <= endDate;
             });
         },
-        filteredMVOGrowthData() {
-            if (!this.dashboardData.summary?.grafik_pertumbuhan_per_mvo) return [];
+        filteredRegionGrowthData() {
+            if (!this.regionGrowthRawData) return [];
 
-            return this.dashboardData.summary.grafik_pertumbuhan_per_mvo.filter(item => {
+            return this.regionGrowthRawData.filter(item => {
                 const itemDate = new Date(item.bulan + '-01');
                 const startDate = new Date(this.dateRange.start);
                 const endDate = new Date(this.dateRange.end);
@@ -231,7 +200,27 @@ export default {
             });
         }
     },
+    watch: {
+        filteredGrowthData() {
+            this.$nextTick(() => {
+                this.renderCharts();
+            });
+        },
+        filteredRegionGrowthData() {
+            this.$nextTick(() => {
+                this.renderCharts();
+            });
+        }
+    },
     methods: {
+        initUser() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) return;
+            this.mvo_type_id = user.mvo_type_id || null;
+            if (this.mvo_type_id !== "superadmin") {
+                this.cabang = user.cabang || null;
+            }
+        },
         getDefaultStartDate() {
             const date = new Date();
             date.setMonth(date.getMonth() - 6);
@@ -243,51 +232,300 @@ export default {
         fetchGrowthData() {
             // Logic handled by computed properties
         },
-        async fetchDashboardData() {
-            const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+        async fetchData() {
+            const token = Cookies.get("token") || localStorage.getItem("token");
             if (!token) return;
+
+            let url = "";
+            if (this.mvo_type_id === "superadmin") {
+                url = `https://babaapi.teknosof.com/api/dashboard/growth`;
+            } else {
+                if (!this.cabang) {
+                    console.warn("Cabang user tidak ada → API tidak dipanggil");
+                    return;
+                }
+                url = `https://babaapi.teknosof.com/api/dashboard/growth/${this.cabang}`;
+            }
+
             try {
-                const response = await fetch("https://babaapi.teknosof.com/api/dashboard", {
+                const response = await axios.get(url, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                const data = await response.json();
-                if (data.status === "success") {
-                    this.dashboardData = data.data;
+
+                if (response.data.status === "success") {
+                    this.growthRawData = response.data.overall_growth || [];
+                    this.regionGrowthRawData = response.data.region_growth || [];
                 }
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
             }
         },
         getTotalGrowth() {
-            return this.filteredGrowthData.reduce((total, item) => total + parseInt(item.total_anggota_baru || 0), 0);
+            return this.filteredGrowthData.reduce((total, item) => total + parseInt(item.total_ro || 0), 0);
         },
         getMonthlyGrowth() {
             return this.filteredGrowthData.length;
         },
-        getMVOGrowth() {
-            return this.filteredMVOGrowthData.reduce((total, item) => total + parseInt(item.total_bawahan_baru || 0), 0);
+        getRegionGrowth() {
+            return this.filteredRegionGrowthData.reduce((total, item) => total + parseInt(item.total_ro || 0), 0);
         },
         getMaxGrowthValue() {
-            const values = this.filteredGrowthData.map(item => parseInt(item.total_anggota_baru || 0));
+            const values = this.filteredGrowthData.map(item => parseInt(item.total_ro || 0));
             return Math.max(...values, 1);
         },
-        getMaxMVOGrowthValue() {
-            const values = this.filteredMVOGrowthData.map(item => parseInt(item.total_bawahan_baru || 0));
+        getMaxRegionGrowthValue() {
+            const values = this.filteredRegionGrowthData.map(item => parseInt(item.total_ro || 0));
             return Math.max(...values, 1);
         },
         formatMonth(monthString) {
             if (!monthString) return '';
             const [year, month] = monthString.split('-');
             const monthNames = [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
             ];
             return `${monthNames[parseInt(month) - 1]} ${year}`;
         },
-        getMVOColor(index) {
-            const colors = ["primary", "success", "info", "warning", "error", "purple", "cyan", "teal"];
+        getRegionColor(index) {
+            const colors = [
+                'rgba(255, 193, 7, 0.9)',    // Gold
+                'rgba(255, 179, 0, 0.8)',    // Amber
+                'rgba(255, 160, 0, 0.8)',    // Deep Orange-Gold
+                'rgba(255, 215, 64, 0.8)',   // Light Gold
+                'rgba(255, 204, 0, 0.8)',    // Yellow Gold
+                'rgba(255, 235, 59, 0.8)',   // Bright Yellow
+                'rgba(251, 192, 45, 0.8)',   // Golden Rod
+                'rgba(255, 224, 130, 0.8)'   // Pale Gold
+            ];
             return colors[index % colors.length];
         },
+        destroyCharts() {
+            if (this.overallChartInstance) {
+                this.overallChartInstance.destroy();
+                this.overallChartInstance = null;
+            }
+            if (this.regionChartInstance) {
+                this.regionChartInstance.destroy();
+                this.regionChartInstance = null;
+            }
+            if (this.overallChartMobileInstance) {
+                this.overallChartMobileInstance.destroy();
+                this.overallChartMobileInstance = null;
+            }
+            if (this.regionChartMobileInstance) {
+                this.regionChartMobileInstance.destroy();
+                this.regionChartMobileInstance = null;
+            }
+        },
+        renderCharts() {
+            this.destroyCharts();
+
+            // Desktop charts
+            if (this.$refs.overallChart) {
+                this.renderOverallChart(this.$refs.overallChart, false);
+            }
+            if (this.$refs.regionChart) {
+                this.renderRegionChart(this.$refs.regionChart, false);
+            }
+
+            // Mobile charts
+            if (this.$refs.overallChartMobile) {
+                this.renderOverallChart(this.$refs.overallChartMobile, true);
+            }
+            if (this.$refs.regionChartMobile) {
+                this.renderRegionChart(this.$refs.regionChartMobile, true);
+            }
+        },
+        renderOverallChart(canvas, isMobile) {
+            const ctx = canvas.getContext('2d');
+            const labels = this.filteredGrowthData.map(item => this.formatMonth(item.bulan));
+            const data = this.filteredGrowthData.map(item => parseInt(item.total_ro || 0));
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total RO',
+                        data: data,
+                        backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        barThickness: isMobile ? 20 : 40,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: isMobile ? 1.2 : 2,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Total RO: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: isMobile ? 10 : 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: isMobile ? 9 : 11
+                                },
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (isMobile) {
+                this.overallChartMobileInstance = chart;
+            } else {
+                this.overallChartInstance = chart;
+            }
+        },
+        renderRegionChart(canvas, isMobile) {
+            const ctx = canvas.getContext('2d');
+
+            // Group data by region
+            const regionMap = {};
+            this.filteredRegionGrowthData.forEach(item => {
+                const region = item.province_code;
+                const month = this.formatMonth(item.bulan);
+                const value = parseInt(item.total_ro || 0);
+
+                if (!regionMap[region]) {
+                    regionMap[region] = {};
+                }
+                regionMap[region][month] = value;
+            });
+
+            // Get all unique months
+            const allMonths = [...new Set(this.filteredRegionGrowthData.map(item => this.formatMonth(item.bulan)))];
+
+            // Create datasets for each region
+            const datasets = Object.keys(regionMap).map((region, index) => {
+                const data = allMonths.map(month => regionMap[region][month] || 0);
+                return {
+                    label: region,
+                    data: data,
+                    backgroundColor: this.getRegionColor(index),
+                    borderColor: this.getRegionColor(index).replace('0.8', '1'),
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    barThickness: isMobile ? 15 : 30,
+                };
+            });
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: allMonths,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: isMobile ? 1.2 : 2,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: isMobile ? 9 : 11
+                                },
+                                padding: isMobile ? 8 : 12,
+                                boxWidth: isMobile ? 12 : 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' RO';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stacked: false,
+                            ticks: {
+                                font: {
+                                    size: isMobile ? 10 : 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            stacked: false,
+                            ticks: {
+                                font: {
+                                    size: isMobile ? 9 : 11
+                                },
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (isMobile) {
+                this.regionChartMobileInstance = chart;
+            } else {
+                this.regionChartInstance = chart;
+            }
+        }
     }
 };
 </script>
+
+<style scoped>
+canvas {
+    max-height: 400px;
+}
+</style>
