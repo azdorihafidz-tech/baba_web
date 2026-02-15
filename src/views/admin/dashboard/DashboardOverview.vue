@@ -177,44 +177,40 @@
                     Top 5 Bintang — {{ role.label }}
                 </v-card-title>
 
-                <v-card-text class="pa-0">
-                    <v-list>
+                <v-card-text class="pa-3">
+                    <div v-if="!role.data.length" class="text-center text-grey pa-4">
+                        Tidak ada data
+                    </div>
 
-                        <!-- EMPTY STATE -->
-                        <v-list-item v-if="!role.data.length">
-                            <v-list-item-title class="text-center text-grey">
-                                Tidak ada data
-                            </v-list-item-title>
-                        </v-list-item>
-
-                        <!-- DATA -->
-                        <v-list-item v-for="(item, index) in role.data" :key="item.code"
-                            @click="$emit('show-mvo-detail', item.code, item)" style="cursor:pointer;" class="py-3">
-
-                            <template v-slot:prepend>
-                                <v-chip :color="getRankColor(index + 1)" dark size="small" class="mr-3">
-                                    {{ index + 1 }}
-                                </v-chip>
-                            </template>
-
-                            <v-list-item-title class="font-weight-medium">
-                                {{ item.nama || 'N/A' }}
-                            </v-list-item-title>
-
-                            <v-list-item-subtitle class="text-caption">
-                                {{ item.code }} • {{ item.cabang }}
-                            </v-list-item-subtitle>
-
-                            <template v-slot:append>
+                    <v-card v-for="(item, index) in role.data" :key="item.code" class="mb-3" variant="outlined"
+                        @click="$emit('show-mvo-detail', item.code, item)">
+                        <v-card-text>
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <div class="d-flex align-center">
+                                    <v-chip :color="getRankColor(index + 1)" dark size="small" class="mr-2">
+                                        {{ index + 1 }}
+                                    </v-chip>
+                                    <div class="font-weight-bold text-truncate">{{ item.nama || 'N/A' }}</div>
+                                </div>
                                 <v-chip color="amber" dark size="small">
                                     <v-icon left size="14">mdi-star</v-icon>
                                     {{ item.total_bintang || 0 }}
                                 </v-chip>
-                            </template>
+                            </div>
 
-                        </v-list-item>
+                            <div class="text-caption text-grey mb-2">
+                                {{ item.code }} • {{ item.cabang }}
+                            </div>
 
-                    </v-list>
+                            <v-divider class="my-2"></v-divider>
+
+                            <div class="d-flex justify-space-between">
+                                <div class="text-caption">
+                                    Jumlah RO: <b>{{ item.jumlah_ro || 0 }}</b>
+                                </div>
+                            </div>
+                        </v-card-text>
+                    </v-card>
                 </v-card-text>
             </v-card>
 

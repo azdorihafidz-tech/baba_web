@@ -96,42 +96,37 @@
                 </v-card-text>
             </v-card>
 
+
+
             <v-row dense class="mb-3">
-                <v-col cols="12">
-                    <v-card color="primary" dark @click="$emit('show-detail', 'total_growth', filteredGrowthData)"
-                        style="cursor: pointer;">
-                        <v-card-text class="text-center pa-3">
+
+                <!-- TOTAL GROWTH -->
+                <v-col cols="6" class="d-flex">
+                    <v-card class="flex-grow-1" color="primary" dark
+                        @click="$emit('show-detail', 'total_growth', filteredGrowthData)" style="cursor: pointer;">
+                        <v-card-text class="text-center pa-3 fill-height d-flex flex-column justify-center">
                             <v-icon size="32" class="mb-2">mdi-chart-line</v-icon>
-                            <div class="text-h5">{{ getTotalGrowth() }}</div>
+                            <div class="text-h6">{{ getTotalGrowth() }}</div>
                             <div class="text-caption">Total Pertumbuhan (RO)</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
-            </v-row>
 
-            <v-row dense class="mb-3">
-                <v-col cols="6">
-                    <v-card color="success" dark @click="$emit('show-detail', 'monthly_growth', filteredGrowthData)"
-                        style="cursor: pointer;">
-                        <v-card-text class="text-center pa-2">
-                            <v-icon size="24">mdi-chart-bar</v-icon>
-                            <div class="text-h6 mt-1">{{ getMonthlyGrowth() }}</div>
-                            <div class="text-caption">Bulanan</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="6">
-                    <v-card color="warning" dark
+                <!-- REGION -->
+                <v-col cols="6" class="d-flex">
+                    <v-card class="flex-grow-1" color="warning" dark
                         @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)"
                         style="cursor: pointer;">
-                        <v-card-text class="text-center pa-2">
-                            <v-icon size="24">mdi-map-marker-multiple</v-icon>
-                            <div class="text-h6 mt-1">{{ getRegionGrowth() }}</div>
+                        <v-card-text class="text-center pa-3 fill-height d-flex flex-column justify-center">
+                            <v-icon size="32" class="mb-2">mdi-map-marker-multiple</v-icon>
+                            <div class="text-h6">{{ getRegionGrowth() }}</div>
                             <div class="text-caption">Region</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
+
             </v-row>
+
 
             <v-card class="mb-3">
                 <v-card-title class="pa-3">

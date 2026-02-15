@@ -217,16 +217,37 @@
 
                 <!-- TABLE -->
                 <v-card-text style="max-height: 500px;">
-                    <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10" class="elevation-1"
-                        density="comfortable">
-                        <!-- No data template -->
-                        <template v-slot:no-data>
-                            <div class="text-center pa-4">
-                                <v-icon size="64" color="grey">mdi-account-outline</v-icon>
-                                <div class="text-h6 mt-2">No data found</div>
-                            </div>
-                        </template>
-                    </v-data-table>
+                    <!-- Desktop View -->
+                    <div class="d-none d-md-block">
+                        <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10"
+                            class="elevation-1" density="comfortable">
+                            <!-- No data template -->
+                            <template v-slot:no-data>
+                                <div class="text-center pa-4">
+                                    <v-icon size="64" color="grey">mdi-account-outline</v-icon>
+                                    <div class="text-h6 mt-2">No data found</div>
+                                </div>
+                            </template>
+                        </v-data-table>
+                    </div>
+
+                    <!-- Mobile View -->
+                    <div class="d-block d-md-none">
+                        <v-card v-for="(item, index) in detailData" :key="index" class="mb-3" variant="outlined">
+                            <v-card-text>
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                    <div class="font-weight-bold text-truncate">{{ item.nama }}</div>
+                                    <v-chip size="x-small" color="primary">{{ item.jabatan }}</v-chip>
+                                </div>
+                                <div class="text-caption">Username: {{ item.username }}</div>
+                                <div class="text-caption">Cabang: {{ item.cabang }}</div>
+                            </v-card-text>
+                        </v-card>
+                        <div v-if="detailData.length === 0" class="text-center pa-4">
+                            <v-icon size="64" color="grey">mdi-account-outline</v-icon>
+                            <div class="text-caption mt-2">No data found</div>
+                        </div>
+                    </div>
                 </v-card-text>
 
                 <v-divider></v-divider>

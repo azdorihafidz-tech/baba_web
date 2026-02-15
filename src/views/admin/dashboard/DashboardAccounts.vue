@@ -180,9 +180,9 @@
             <v-row dense class="mb-3">
 
                 <v-col cols="4">
-                    <v-card class="text-center" @click="handleShowDetail('all_akun')">
+                    <v-card color="primary" dark class="text-center" @click="handleShowDetail('all_akun')">
                         <v-card-text class="pa-2">
-                            <v-icon color="primary" size="20">
+                            <v-icon size="20">
                                 mdi-account-multiple
                             </v-icon>
 
@@ -196,9 +196,9 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card class="text-center" @click="handleShowDetail('total_approved_akun')">
+                    <v-card color="success" dark class="text-center" @click="handleShowDetail('total_approved_akun')">
                         <v-card-text class="pa-2">
-                            <v-icon color="success" size="20">
+                            <v-icon size="20">
                                 mdi-check-circle
                             </v-icon>
 
@@ -212,9 +212,9 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card class="text-center" @click="handleShowDetail('total_pending_akun')">
+                    <v-card color="orange" dark class="text-center" @click="handleShowDetail('total_pending_akun')">
                         <v-card-text class="pa-2">
-                            <v-icon color="orange" size="20">
+                            <v-icon size="20">
                                 mdi-clock-outline
                             </v-icon>
 
@@ -331,16 +331,47 @@
 
                 <!-- TABLE -->
                 <v-card-text style="max-height: 500px;">
-                    <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10" class="elevation-1"
-                        density="comfortable">
-                        <!-- No data template -->
-                        <template v-slot:no-data>
-                            <div class="text-center pa-4">
-                                <v-icon size="64" color="grey">mdi-account-outline</v-icon>
-                                <div class="text-h6 mt-2">No akun found</div>
-                            </div>
-                        </template>
-                    </v-data-table>
+                    <!-- Desktop View -->
+                    <div class="d-none d-md-block">
+                        <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10"
+                            class="elevation-1" density="comfortable">
+                            <!-- No data template -->
+                            <template v-slot:no-data>
+                                <div class="text-center pa-4">
+                                    <v-icon size="64" color="grey">mdi-account-outline</v-icon>
+                                    <div class="text-h6 mt-2">No akun found</div>
+                                </div>
+                            </template>
+                        </v-data-table>
+                    </div>
+
+                    <!-- Mobile View -->
+                    <div class="d-block d-md-none">
+                        <v-card v-for="(item, index) in detailData" :key="index" class="mb-3" variant="outlined"
+                            :color="getJabatanColor(index)">
+                            <v-card-text>
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                    <div class="font-weight-bold text-truncate">{{ item.nama }}</div>
+                                    <v-chip size="x-small" color="primary">{{ item.jabatan }}</v-chip>
+                                </div>
+                                <div class="text-caption">Username: {{ item.username }}</div>
+                                <div class="text-caption">Cabang: {{ item.cabang }}</div>
+                                <v-divider class="my-2"></v-divider>
+                                <div class="d-flex justify-space-between">
+                                    <div class="text-caption"><v-icon size="small"
+                                            class="mr-1">mdi-file-document</v-icon> {{
+                                                item.total_document }}</div>
+                                    <div class="text-caption"><v-icon size="small" class="mr-1"
+                                            color="amber">mdi-star</v-icon> {{
+                                                item.total_bintang }}</div>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                        <div v-if="detailData.length === 0" class="text-center pa-4">
+                            <v-icon size="64" color="grey">mdi-account-outline</v-icon>
+                            <div class="text-caption mt-2">No akun found</div>
+                        </div>
+                    </div>
                 </v-card-text>
 
                 <v-divider></v-divider>

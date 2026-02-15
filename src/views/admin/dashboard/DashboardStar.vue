@@ -479,7 +479,7 @@
                         <v-card flat color="grey-lighten-4" class="text-center pa-3">
                             <v-icon color="amber" size="20">mdi-star</v-icon>
                             <div class="text-h6 font-weight-bold mt-1">{{ getTotalBintangDaerah(selectedDaerahData)
-                            }}</div>
+                                }}</div>
                             <div class="text-caption">Total Bintang</div>
                         </v-card>
                     </v-col>
@@ -633,12 +633,30 @@
                 </v-btn>
             </v-card-text>
             <v-card-text>
-                <v-data-table :headers="topStarHeaders" :items="dashboardData.top_star" :items-per-page="10"
-                    class="bg-grey-lighten-4">
-                    <template v-slot:item.total_repeat_order="{ item }">
-                        {{ item.total_repeat_order }}
-                    </template>
-                </v-data-table>
+                <!-- Desktop View -->
+                <div class="d-none d-md-block">
+                    <v-data-table :headers="topStarHeaders" :items="dashboardData.top_star" :items-per-page="10"
+                        class="bg-grey-lighten-4">
+                        <template v-slot:item.total_repeat_order="{ item }">
+                            {{ item.total_repeat_order }}
+                        </template>
+                    </v-data-table>
+                </div>
+                <!-- Mobile View -->
+                <div class="d-block d-md-none">
+                    <v-card v-for="(item, index) in dashboardData.top_star" :key="index" class="mb-3"
+                        variant="outlined">
+                        <v-card-text>
+                            <div class="font-weight-bold mb-1">{{ item.nama }}</div>
+                            <div class="text-caption text-grey mb-2">{{ item.code }} • {{ item.province_code }}</div>
+                            <v-divider class="my-2"></v-divider>
+                            <div class="d-flex justify-space-between">
+                                <div class="text-caption">Total RO: <b>{{ item.total_repeat_order }}</b></div>
+                                <div class="text-caption">Total Transaksi: <b>{{ item.total_transaksi_ro }}</b></div>
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </div>
             </v-card-text>
         </v-card>
     </v-dialog>
@@ -663,17 +681,39 @@
                 </v-btn>
             </v-card-text>
             <v-card-text>
-                <v-data-table :headers="akunPerMvoHeaders" :items="dashboardData.akun_per_mvo" :items-per-page="10"
-                    class="bg-grey-lighten-4">
-                    <template v-slot:item.role="{ item }">
-                        <v-chip :color="getRoleColor(item.role)" dark size="small">
-                            {{ getRoleLabel(item.role) }}
-                        </v-chip>
-                    </template>
-                    <template v-slot:item.total_akun="{ item }">
-                        <v-chip color="primary" size="small">{{ item.total_akun }}</v-chip>
-                    </template>
-                </v-data-table>
+                <!-- Desktop View -->
+                <div class="d-none d-md-block">
+                    <v-data-table :headers="akunPerMvoHeaders" :items="dashboardData.akun_per_mvo" :items-per-page="10"
+                        class="bg-grey-lighten-4">
+                        <template v-slot:item.role="{ item }">
+                            <v-chip :color="getRoleColor(item.role)" dark size="small">
+                                {{ getRoleLabel(item.role) }}
+                            </v-chip>
+                        </template>
+                        <template v-slot:item.total_akun="{ item }">
+                            <v-chip color="primary" size="small">{{ item.total_akun }}</v-chip>
+                        </template>
+                    </v-data-table>
+                </div>
+                <!-- Mobile View -->
+                <div class="d-block d-md-none">
+                    <v-card v-for="(item, index) in dashboardData.akun_per_mvo" :key="index" class="mb-3"
+                        variant="outlined">
+                        <v-card-text>
+                            <div class="d-flex justify-space-between align-center mb-1">
+                                <div class="font-weight-bold">{{ item.nama }}</div>
+                                <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
+                                    }}</v-chip>
+                            </div>
+                            <div class="text-caption text-grey mb-2">{{ item.code }}</div>
+                            <v-divider class="my-2"></v-divider>
+                            <div class="text-right">
+                                <span class="text-caption mr-2">Total Akun:</span>
+                                <v-chip color="primary" size="small">{{ item.total_akun }}</v-chip>
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </div>
             </v-card-text>
         </v-card>
     </v-dialog>

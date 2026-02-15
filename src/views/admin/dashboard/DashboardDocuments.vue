@@ -143,9 +143,9 @@
             <v-row dense class="mb-3">
 
                 <v-col cols="4">
-                    <v-card class="text-center" @click="handleShowDetail('all_documents')">
+                    <v-card color="primary" dark class="text-center" @click="handleShowDetail('all_documents')">
                         <v-card-text class="pa-2">
-                            <v-icon color="primary" size="20">
+                            <v-icon size="20">
                                 mdi-file-document-multiple
                             </v-icon>
 
@@ -159,9 +159,10 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card class="text-center" @click="handleShowDetail('total_approved_documents')">
+                    <v-card color="success" dark class="text-center"
+                        @click="handleShowDetail('total_approved_documents')">
                         <v-card-text class="pa-2">
-                            <v-icon color="success" size="20">
+                            <v-icon size="20">
                                 mdi-check-circle
                             </v-icon>
 
@@ -175,9 +176,10 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card class="text-center" @click="handleShowDetail('total_pending_documents')">
+                    <v-card color="orange" dark class="text-center"
+                        @click="handleShowDetail('total_pending_documents')">
                         <v-card-text class="pa-2">
-                            <v-icon color="orange" size="20">
+                            <v-icon size="20">
                                 mdi-clock-outline
                             </v-icon>
 
@@ -261,23 +263,53 @@
 
                 <!-- TABLE -->
                 <v-card-text style="max-height: 500px;">
-                    <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10" class="elevation-1"
-                        density="comfortable">
-                        <!-- Status Column with Chip -->
-                        <template v-slot:item.status_inputan="{ item }">
-                            <v-chip :color="getStatusColor(item.status_inputan)" size="small" dark>
-                                {{ getStatusText(item.status_inputan) }}
-                            </v-chip>
-                        </template>
+                    <!-- Desktop View -->
+                    <div class="d-none d-md-block">
+                        <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10"
+                            class="elevation-1" density="comfortable">
+                            <!-- Status Column with Chip -->
+                            <template v-slot:item.status_inputan="{ item }">
+                                <v-chip :color="getStatusColor(item.status_inputan)" size="small" dark>
+                                    {{ getStatusText(item.status_inputan) }}
+                                </v-chip>
+                            </template>
 
-                        <!-- No data template -->
-                        <template v-slot:no-data>
-                            <div class="text-center pa-4">
-                                <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
-                                <div class="text-h6 mt-2">No documents found</div>
-                            </div>
-                        </template>
-                    </v-data-table>
+                            <!-- No data template -->
+                            <template v-slot:no-data>
+                                <div class="text-center pa-4">
+                                    <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
+                                    <div class="text-h6 mt-2">No documents found</div>
+                                </div>
+                            </template>
+                        </v-data-table>
+                    </div>
+
+                    <!-- Mobile View -->
+                    <div class="d-block d-md-none">
+                        <v-card v-for="(item, index) in detailData" :key="index" class="mb-3" variant="outlined"
+                            :color="getStatusColor(item.status_inputan)">
+                            <v-card-text>
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                    <div class="font-weight-bold text-truncate">{{ item.nama }}</div>
+                                    <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" dark>
+                                        {{ getStatusText(item.status_inputan) }}
+                                    </v-chip>
+                                </div>
+                                <div class="text-caption">Code: {{ item.code }}</div>
+                                <div class="text-caption">Prov: {{ item.province_code }}</div>
+                                <div class="text-caption">Jabatan: {{ item.jabatan }}</div>
+                                <v-divider class="my-2"></v-divider>
+                                <div class="d-flex justify-space-between">
+                                    <div class="text-caption">Point: {{ item.pointbintang }}</div>
+                                    <div class="text-caption">RO: {{ item.repeat_order }}</div>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                        <div v-if="detailData.length === 0" class="text-center pa-4">
+                            <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
+                            <div class="text-caption mt-2">No documents found</div>
+                        </div>
+                    </div>
                 </v-card-text>
 
                 <v-divider></v-divider>
