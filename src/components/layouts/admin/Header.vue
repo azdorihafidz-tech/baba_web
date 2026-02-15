@@ -5,25 +5,25 @@
     </v-app-bar-nav-icon>
 
     <!-- Gambar Header Avatar - DITAMBAHKAN -->
-    <div v-if="headerData?.path_gambar_header" class="mr-3">
+    <div v-if="headerData?.foto_ruang_kota" class="mr-3">
       <v-avatar size="40" class="border-2 border-amber">
-        <v-img :src="getHeaderImageUrl(headerData.path_gambar_header)" :alt="`Logo ${headerData.cabang}`"
+        <v-img :src="getHeaderImageUrl(headerData.foto_ruang_kota)" :alt="`Logo ${headerData.code}`"
           @error="onHeaderImageError" @load="onHeaderImageLoad" cover />
       </v-avatar>
     </div>
 
-    <!-- Judul dengan Cabang -->
+    <!-- Judul dengan Code -->
     <v-app-bar-title class="d-flex align-center">
       <div class="d-flex flex-column">
         <span class="text-h6 font-weight-bold" style="color: #d4af37; letter-spacing: 1px;">
           BABA PARFUME
         </span>
-        <div v-if="(headerData?.cabang || currentUserName) && !isLoadingHeader" class="d-flex align-center mt-n1">
-          <span v-if="headerData?.cabang" class="text-caption font-weight-medium"
+        <div v-if="(headerData?.code || currentUserName) && !isLoadingHeader" class="d-flex align-center mt-n1">
+          <span v-if="headerData?.code" class="text-caption font-weight-medium"
             style="color: #f4e47c; margin-right: 8px;">
-            📍 {{ headerData.cabang }}
+            📍 {{ headerData.code }}
           </span>
-          <span v-if="headerData?.cabang && currentUserName" class="text-caption" style="color: #d4af37;">
+          <span v-if="headerData?.code && currentUserName" class="text-caption" style="color: #d4af37;">
             |
           </span>
           <span v-if="currentUserName" class="text-caption font-weight-medium" style="color: #d4af37;">
@@ -32,7 +32,7 @@
         </div>
         <span v-if="isLoadingHeader" class="text-caption" style="color: #d4af37;">
           <v-progress-circular indeterminate size="12" width="2" color="amber" class="mr-1"></v-progress-circular>
-          Loading cabang & gambar...
+          Loading code & gambar...
         </span>
       </div>
     </v-app-bar-title>
@@ -90,26 +90,16 @@
         <v-card-text class="pt-4">
           <v-row>
             <v-col cols="12">
-              <v-alert :type="headerData?.cabang ? 'success' : 'warning'" variant="tonal" class="mb-3">
-                <v-alert-title>Status Cabang</v-alert-title>
-                <div>{{ headerData?.cabang || 'Tidak tersedia' }}</div>
+              <v-alert :type="headerData?.code ? 'success' : 'warning'" variant="tonal" class="mb-3">
+                <v-alert-title>Status Code</v-alert-title>
+                <div>{{ headerData?.code || 'Tidak tersedia' }}</div>
               </v-alert>
 
-              <!-- <v-alert :type="headerData?.path_gambar_header ? 'success' : 'info'" variant="tonal" class="mb-3">
-                <v-alert-title>Status Gambar Header</v-alert-title>
-                <div v-if="headerData?.path_gambar_header">
-                  ✅ Tersedia: {{ headerData.path_gambar_header }}
-                </div>
-                <div v-else>
-                  ℹ️ Tidak ada gambar header untuk cabang ini
-                </div>
-              </v-alert> -->
-
               <!-- Preview gambar jika ada - DITAMBAHKAN -->
-              <v-card v-if="headerData?.path_gambar_header" variant="outlined" class="mb-3">
+              <v-card v-if="headerData?.foto_ruang_kota" variant="outlined" class="mb-3">
                 <v-card-title class="text-subtitle-1">Preview Gambar</v-card-title>
                 <v-card-text class="text-center">
-                  <v-img :src="getHeaderImageUrl(headerData.path_gambar_header)" :alt="`Preview ${headerData.cabang}`"
+                  <v-img :src="getHeaderImageUrl(headerData.foto_ruang_kota)" :alt="`Preview ${headerData.code}`"
                     max-height="150" contain class="rounded" @error="onHeaderImageError" @load="onHeaderImageLoad">
                     <template v-slot:placeholder>
                       <v-row class="fill-height ma-0" align="center" justify="center">
@@ -126,8 +116,8 @@
                   <v-list-item-subtitle>{{ getCurrentUser()?.nama || 'Unknown' }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item>
-                  <v-list-item-title>Cabang User</v-list-item-title>
-                  <v-list-item-subtitle>{{ getCurrentUser()?.cabang || 'Tidak tersedia' }}</v-list-item-subtitle>
+                  <v-list-item-title>Code User</v-list-item-title>
+                  <v-list-item-subtitle>{{ getCurrentUser()?.code || 'Tidak tersedia' }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-title>Data Terakhir Diperbarui</v-list-item-title>
@@ -261,20 +251,20 @@ export default {
     },
 
     // Get full URL for header image - DITAMBAHKAN
-    getHeaderImageUrl(pathGambarHeader) {
-      if (!pathGambarHeader) {
+    getHeaderImageUrl(fotoRuangKota) {
+      if (!fotoRuangKota) {
         console.log('No image path provided');
         return '';
       }
 
-      console.log('Original image path:', pathGambarHeader);
+      console.log('Original image path:', fotoRuangKota);
 
-      if (pathGambarHeader.startsWith('http://') || pathGambarHeader.startsWith('https://')) {
-        console.log('Full URL detected:', pathGambarHeader);
-        return pathGambarHeader;
+      if (fotoRuangKota.startsWith('http://') || fotoRuangKota.startsWith('https://')) {
+        console.log('Full URL detected:', fotoRuangKota);
+        return fotoRuangKota;
       }
 
-      const cleanPath = pathGambarHeader.startsWith('/') ? pathGambarHeader.substring(1) : pathGambarHeader;
+      const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
       const httpsUrl = `https://babaapi.teknosof.com/project/public/${cleanPath}`;
       console.log('Generated HTTPS URL:', httpsUrl);
 
@@ -285,7 +275,7 @@ export default {
     onHeaderImageError(event) {
       console.warn('❌ Header image failed to load:', event.target.src);
 
-      if (this.headerData?.path_gambar_header && event.target.src.includes('https://')) {
+      if (this.headerData?.foto_ruang_kota && event.target.src.includes('https://')) {
         const httpUrl = event.target.src.replace('https://babaapi.teknosof.com/project/public/', 'https://babaapi.teknosof.com/project/public/');
         console.log('🔄 Trying HTTP fallback for header image:', httpUrl);
         event.target.src = httpUrl;
@@ -301,13 +291,13 @@ export default {
 
     // Debug method untuk melihat URL yang di-generate - DITAMBAHKAN
     debugImageUrl() {
-      if (this.headerData?.path_gambar_header) {
-        const fullUrl = this.getHeaderImageUrl(this.headerData.path_gambar_header);
+      if (this.headerData?.foto_ruang_kota) {
+        const fullUrl = this.getHeaderImageUrl(this.headerData.foto_ruang_kota);
         console.log('🔍 Debug Image URL:');
-        console.log('📁 Original path:', this.headerData.path_gambar_header);
+        console.log('📁 Original path:', this.headerData.foto_ruang_kota);
         console.log('🌐 Full URL:', fullUrl);
-        console.log('🏢 Cabang:', this.headerData.cabang);
-        console.log('👤 User cabang:', this.getUserCabang());
+        console.log('🏢 Code:', this.headerData.code);
+        console.log('👤 User code:', this.getUserCode());
 
         const img = new Image();
         img.onload = () => {
@@ -325,15 +315,18 @@ export default {
       }
     },
 
-    getUserCabang() {
+    getUserCode() {
       try {
         const userData = localStorage.getItem('user');
         if (userData) {
           const user = JSON.parse(userData);
-          return user.cabang || null;
+          // User menyimpan "cabang", kita gunakan itu untuk matching dengan "code" di API
+          console.log('👤 User data:', user);
+          console.log('📍 User cabang/code:', user.cabang || user.code);
+          return user.cabang || user.code || null;
         }
       } catch (error) {
-        console.error('Error getting user cabang:', error);
+        console.error('Error getting user code:', error);
       }
       return null;
     },
@@ -349,9 +342,9 @@ export default {
           return null;
         }
 
-        const userCabang = this.getUserCabang();
+        const userCode = this.getUserCode();
         console.log('🔍 Fetching header data from API...');
-        console.log('👤 User cabang:', userCabang);
+        console.log('👤 User code:', userCode);
 
         const apiClient = axios.create({
           timeout: 20000,
@@ -365,8 +358,8 @@ export default {
         let headerResponse;
 
         try {
-          console.log('🔐 Trying HTTPS: https://babaapi.teknosof.com/api/gambar-header');
-          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header');
+          console.log('🔐 Trying HTTPS: https://babaapi.teknosof.com/api/provinsi');
+          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
           console.log('✅ HTTPS request successful');
         } catch (httpsError) {
           console.warn('❌ HTTPS header request failed:', httpsError.message);
@@ -376,8 +369,8 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            console.log('🔓 Trying HTTP: https://babaapi.teknosof.com/api/gambar-header');
-            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header');
+            console.log('🔓 Trying HTTP: https://babaapi.teknosof.com/api/provinsi');
+            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
             console.log('✅ HTTP request successful');
           } else {
             throw httpsError;
@@ -397,23 +390,25 @@ export default {
           if (Array.isArray(headerResponse.data.data) && headerResponse.data.data.length > 0) {
             console.log('📚 Processing array data, all items:', headerResponse.data.data);
 
-            const availableCabang = headerResponse.data.data.map(item => item.cabang).filter(Boolean);
-            console.log('🏢 Available cabang in API:', availableCabang);
+            const availableCode = headerResponse.data.data.map(item => item.code).filter(Boolean);
+            console.log('🏢 Available codes in API:', availableCode);
 
             let matchedHeader = null;
 
-            if (userCabang) {
+            if (userCode) {
+              console.log('🔍 Mencari match untuk user code:', userCode);
+
               matchedHeader = headerResponse.data.data.find(header =>
-                header.cabang &&
-                header.cabang.toUpperCase().trim() === userCabang.toUpperCase().trim()
+                header.code &&
+                header.code.toUpperCase().trim() === userCode.toUpperCase().trim()
               );
 
               if (matchedHeader) {
-                console.log('🎯 Perfect match found for cabang:', userCabang);
+                console.log('🎯 Perfect match found for code:', userCode);
                 console.log('✅ Matched header:', matchedHeader);
               } else {
-                console.log('⚠️ No exact match found for cabang:', userCabang);
-                console.log('🔍 Available cabang for comparison:', availableCabang);
+                console.log('⚠️ No exact match found for code:', userCode);
+                console.log('🔍 Available code for comparison:', availableCode);
               }
             }
 
@@ -424,8 +419,8 @@ export default {
 
             if (matchedHeader) {
               headerData = {
-                cabang: matchedHeader.cabang || userCabang || 'Cabang Tidak Ditemukan',
-                path_gambar_header: matchedHeader.path_gambar_header || null
+                code: matchedHeader.code || userCode || 'Code Tidak Ditemukan',
+                foto_ruang_kota: matchedHeader.foto_ruang_kota || null
               };
               console.log('✨ Processed header data from matched header:', headerData);
             }
@@ -445,10 +440,10 @@ export default {
         } else {
           console.warn('❌ No valid header data found in any response structure')
 
-          if (userCabang) {
+          if (userCode) {
             const fallbackHeaderData = {
-              cabang: userCabang,
-              path_gambar_header: null
+              code: userCode,
+              foto_ruang_kota: null
             };
             localStorage.setItem('headerData', JSON.stringify(fallbackHeaderData));
             this.headerData = fallbackHeaderData;
@@ -463,17 +458,17 @@ export default {
       } catch (error) {
         console.error('❌ Error fetching header data:', error)
 
-        const userCabang = this.getUserCabang();
-        if (userCabang) {
+        const userCode = this.getUserCode();
+        if (userCode) {
           const errorFallbackData = {
-            cabang: userCabang,
-            path_gambar_header: null
+            code: userCode,
+            foto_ruang_kota: null
           };
           localStorage.setItem('headerData', JSON.stringify(errorFallbackData));
           this.headerData = errorFallbackData;
           console.log('🛡️ Created error fallback header data:', errorFallbackData);
           this.$forceUpdate();
-          this.showSnackbar('Gagal memuat gambar header, menggunakan data cabang user', 'warning');
+          this.showSnackbar('Gagal memuat gambar header, menggunakan data code user', 'warning');
           return errorFallbackData;
         }
 
@@ -492,9 +487,9 @@ export default {
         const newHeaderData = await this.fetchHeaderData();
 
         if (newHeaderData) {
-          const message = newHeaderData.path_gambar_header
-            ? `✅ Data header berhasil diperbarui - ${newHeaderData.cabang} (dengan gambar)`
-            : `✅ Data header berhasil diperbarui - ${newHeaderData.cabang} (tanpa gambar)`;
+          const message = newHeaderData.foto_ruang_kota
+            ? `✅ Data header berhasil diperbarui - ${newHeaderData.code} (dengan gambar)`
+            : `✅ Data header berhasil diperbarui - ${newHeaderData.code} (tanpa gambar)`;
           this.showSnackbar(message, 'success');
         } else {
           this.showSnackbar('⚠️ Tidak dapat memperbarui data header', 'warning');

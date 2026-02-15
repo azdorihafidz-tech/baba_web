@@ -638,7 +638,6 @@ export default {
           { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
           { key: "jlh_bintang", title: "Bintang" },
-          // { key: "upline_7", title: "SELLER" },
           { key: "upline_6", title: "DISTRIBUTOR" },
           { key: "upline_5", title: "SUPPLIER" },
           { key: "upline_4", title: "GENERAL MANAGER" },
@@ -655,14 +654,14 @@ export default {
         no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
         jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
         password: '', path_gambar_profile: null, cabang: '', upline_1: '',
-        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: ''
       },
 
       modelEdit: {
         id: "", no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
         jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
         password: '', path_gambar_profile: null, cabang: '', upline_1: '',
-        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: ''
       },
 
       modelDelete: { id: "" },
@@ -1126,7 +1125,7 @@ export default {
         no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
         jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
         password: '', path_gambar_profile: null, cabang: '', upline_1: '',
-        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: ''
       };
       this.previewFotoProfileAdd = null;
       this.mvoOptionsAdd = this.regionalOptionsAdd = this.founderOptionsAdd = [];
@@ -1138,7 +1137,7 @@ export default {
         id: "", no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
         jenis_kelamin: '', nohp: '', alamat: '', mvo_type_id: '', username: '',
         password: '', path_gambar_profile: null, cabang: '', upline_1: '',
-        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: '', upline_7: '-'
+        upline_2: '', upline_3: '', upline_4: '', upline_5: '', upline_6: ''
       };
       this.previewFotoProfileEdit = null;
       this.mvoOptionsEdit = this.regionalOptionsEdit = this.founderOptionsEdit = [];
@@ -1388,7 +1387,6 @@ export default {
             this.modelEdit.upline_4 = extractCode(userData.upline_4);
             this.modelEdit.upline_5 = extractCode(userData.upline_5);
             this.modelEdit.upline_6 = extractCode(userData.upline_6);
-            this.modelEdit.upline_7 = userData.upline_7 || "-";
 
             this.modelEdit.path_gambar_profile = null;
 
@@ -1559,7 +1557,8 @@ export default {
           this.showSnackbar('Status aktivasi berhasil diubah', 'success');
         })
         .catch((error) => {
-          this.showSnackbar('Gagal mengubah status aktivasi', 'error');
+          console.log('error x', error);
+          this.showSnackbar(error.response?.data?.message, 'error');
         })
         .finally(() => {
           this.isButtonLoading = false;
