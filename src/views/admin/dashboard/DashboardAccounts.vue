@@ -1,298 +1,580 @@
 <template>
     <div>
-        <!-- Desktop View -->
+
+        <!-- ================= DESKTOP VIEW ================= -->
         <div class="d-none d-md-block">
+
+            <!-- ===== SUMMARY CARD ===== -->
             <v-row class="mb-4">
+
+                <!-- TOTAL -->
                 <v-col cols="12" md="4">
-                    <v-card color="primary" dark @click="handleShowDetail('all_accounts')" style="cursor: pointer;">
+                    <v-card color="primary" dark @click="handleShowDetail('all_akun')" style="cursor:pointer;">
                         <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-account-multiple</v-icon>
-                            <div class="text-h4">{{ dashboardData.summary?.user_total || 0 }}</div>
-                            <div class="text-subtitle-1">Total Akun</div>
+                            <v-icon size="48" class="mb-2">
+                                mdi-account-multiple
+                            </v-icon>
+
+                            <div class="text-h4">
+                                {{ dashboardData.summary.total_akun }}
+                            </div>
+
+                            <div>Total Akun</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
 
+                <!-- APPROVED -->
                 <v-col cols="12" md="4">
-                    <v-card color="success" dark @click="handleShowDetail('approved_accounts')"
-                        style="cursor: pointer;">
+                    <v-card color="success" dark @click="handleShowDetail('total_approved_akun')"
+                        style="cursor:pointer;">
                         <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-account-check</v-icon>
-                            <div class="text-h4">{{ dashboardData.summary?.akun?.approved || 0 }}</div>
-                            <div class="text-subtitle-1">Approved Akun</div>
+                            <v-icon size="48" class="mb-2">
+                                mdi-check-circle
+                            </v-icon>
+
+                            <div class="text-h4">
+                                {{ dashboardData.summary.total_approved }}
+                            </div>
+
+                            <div>Approved</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
 
+                <!-- PENDING -->
                 <v-col cols="12" md="4">
-                    <v-card color="orange" dark @click="handleShowDetail('pending_accounts')" style="cursor: pointer;">
+                    <v-card color="orange" dark @click="handleShowDetail('total_pending_akun')" style="cursor:pointer;">
                         <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-account-clock</v-icon>
-                            <div class="text-h4">{{ dashboardData.summary?.akun?.pending || 0 }}</div>
-                            <div class="text-subtitle-1">Pending Akun</div>
+                            <v-icon size="48" class="mb-2">
+                                mdi-clock-outline
+                            </v-icon>
+
+                            <div class="text-h4">
+                                {{ dashboardData.summary.total_pending }}
+                            </div>
+
+                            <div>Pending</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
+
             </v-row>
-
-            <v-row class="mb-4">
-                <v-col cols="12" md="4">
-                    <v-card color="success" dark @click="handleShowDetail('mvo_accounts')" style="cursor: pointer;">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-store</v-icon>
-                            <div class="text-h4">{{ dashboardData.summary?.akun?.total || 0 }}</div>
-                            <div class="text-subtitle-1">MVO</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="4">
-                    <v-card color="cyan" dark @click="handleShowDetail('distributor_accounts')"
-                        style="cursor: pointer;">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-store</v-icon>
-                            <div class="text-h4">{{ dashboardData.summary?.akun?.distributor || 0 }}</div>
-                            <div class="text-subtitle-1">Distributors</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="12" md="4">
-                    <v-card color="purple" dark @click="handleShowDetail('founder_accounts')" style="cursor: pointer;">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-crown</v-icon>
-                            <div class="text-h4">{{ dashboardData.summary?.akun?.founder || 0 }}</div>
-                            <div class="text-subtitle-1">Founders</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
-
+            <!-- ===== JABATAN CARDS ===== -->
             <v-card class="mb-4">
-                <v-card-title>Account Status Statistics</v-card-title>
+                <v-card-title>
+                    JABATAN AKUN
+                </v-card-title>
+
                 <v-card-text>
                     <v-row>
-                        <v-col cols="12" md="8">
-                            <div class="d-flex align-center mb-3">
-                                <v-progress-linear :model-value="getAccountPercentage('approved')" color="success"
-                                    height="30" rounded class="mr-3">
-                                    <span class="text-white font-weight-bold">{{
-                                        getAccountPercentage('approved').toFixed(1) }}%</span>
-                                </v-progress-linear>
-                                <span class="text-body-1 font-weight-medium">Approved ({{
-                                    dashboardData.summary?.akun?.approved || 0
-                                }})</span>
-                            </div>
-                            <div class="d-flex align-center">
-                                <v-progress-linear :model-value="getAccountPercentage('pending')" color="orange"
-                                    height="30" rounded class="mr-3">
-                                    <span class="text-white font-weight-bold">{{
-                                        getAccountPercentage('pending').toFixed(1) }}%</span>
-                                </v-progress-linear>
-                                <span class="text-body-1 font-weight-medium">Pending ({{
-                                    dashboardData.summary?.akun?.pending || 0
-                                }})</span>
-                            </div>
-                        </v-col>
-                        <v-col cols="12" md="4">
-                            <v-card flat color="grey-lighten-4" class="pa-4">
-                                <div class="text-h6 mb-2">Account Types</div>
-                                <div class="d-flex justify-space-between mb-1">
-                                    <span>MVO:</span>
-                                    <span class="font-weight-bold text-cyan">{{ dashboardData.summary?.akun?.mvo || 0
-                                    }}</span>
-                                </div>
-                                <div class="d-flex justify-space-between mb-1">
-                                    <span>Distributors:</span>
-                                    <span class="font-weight-bold text-cyan">{{ dashboardData.summary?.akun?.distributor
-                                        || 0 }}</span>
-                                </div>
-                                <div class="d-flex justify-space-between">
-                                    <span>Founders:</span>
-                                    <span class="font-weight-bold text-purple">{{ dashboardData.summary?.akun?.founder
-                                        || 0 }}</span>
-                                </div>
+                        <v-col v-for="(jabatan, index) in jabatanList" :key="index" cols="12" sm="6" md="4" lg="3">
+                            <v-card hover @click="handleShowJabatanDetail(jabatan.name)" :color="getJabatanColor(index)"
+                                dark style="cursor:pointer;" class="jabatan-card">
+                                <v-card-text class="text-center">
+                                    <v-icon size="40" class="mb-2">
+                                        mdi-account-tie
+                                    </v-icon>
+
+                                    <div class="text-h5 mb-2">
+                                        {{ jabatan.count }}
+                                    </div>
+
+                                    <div class="text-subtitle-1 font-weight-bold">
+                                        {{ jabatan.name }}
+                                    </div>
+                                </v-card-text>
                             </v-card>
+                        </v-col>
+
+                        <!-- No data state -->
+                        <v-col v-if="jabatanList.length === 0" cols="12">
+                            <div class="text-center pa-4">
+                                <v-icon size="64" color="grey">mdi-account-tie-outline</v-icon>
+                                <div class="text-h6 mt-2">No jabatan data available</div>
+                            </div>
                         </v-col>
                     </v-row>
                 </v-card-text>
             </v-card>
+            <!-- ===== STATISTICS ===== -->
+            <v-card class="mb-4">
+                <v-card-title>
+                    Akun Status Statistics
+                </v-card-title>
+
+                <v-card-text>
+                    <v-row>
+
+                        <!-- PROGRESS -->
+                        <v-col cols="12" md="6">
+
+                            <!-- APPROVED -->
+                            <div class="d-flex align-center mb-3">
+                                <v-progress-linear :model-value="getAkunPercentage('total_approved')" color="success"
+                                    height="25" rounded class="mr-3">
+                                    <span class="text-white font-weight-bold">
+                                        {{ getAkunPercentage('total_approved').toFixed(1) }}%
+                                    </span>
+                                </v-progress-linear>
+
+                                <span>Approved</span>
+                            </div>
+
+                            <!-- PENDING -->
+                            <div class="d-flex align-center">
+                                <v-progress-linear :model-value="getAkunPercentage('total_pending')" color="orange"
+                                    height="25" rounded class="mr-3">
+                                    <span class="text-white font-weight-bold">
+                                        {{ getAkunPercentage('total_pending').toFixed(1) }}%
+                                    </span>
+                                </v-progress-linear>
+
+                                <span>Pending</span>
+                            </div>
+
+                        </v-col>
+
+                        <!-- SUMMARY TEXT -->
+                        <v-col cols="12" md="6">
+                            <v-card flat color="grey-lighten-4" class="pa-4">
+
+                                <div class="text-h6 mb-2">
+                                    Summary
+                                </div>
+
+                                <div class="d-flex justify-space-between">
+                                    <span>Total</span>
+                                    <b>
+                                        {{ dashboardData.summary.total_akun }}
+                                    </b>
+                                </div>
+
+                                <div class="d-flex justify-space-between">
+                                    <span>Approved</span>
+                                    <b class="text-success">
+                                        {{ dashboardData.summary.total_approved }}
+                                    </b>
+                                </div>
+
+                                <div class="d-flex justify-space-between">
+                                    <span>Pending</span>
+                                    <b class="text-orange">
+                                        {{ dashboardData.summary.total_pending }}
+                                    </b>
+                                </div>
+
+                            </v-card>
+                        </v-col>
+
+                    </v-row>
+                </v-card-text>
+            </v-card>
+
+
+
         </div>
 
-        <!-- Mobile View -->
+        <!-- ================= MOBILE VIEW ================= -->
         <div class="d-block d-md-none">
             <v-row dense class="mb-3">
-                <v-col cols="12">
-                    <v-card color="info" dark @click="handleShowDetail('all_users')" style="cursor: pointer;">
-                        <v-card-text class="text-center pa-6">
-                            <v-icon size="40">mdi-account-group</v-icon>
-                            <div class="text-h5 mt-3">{{ dashboardData.summary?.user_total || 0 }}</div>
-                            <div class="text-body-2 mt-1">Total Akun</div>
+
+                <v-col cols="4">
+                    <v-card class="text-center" @click="handleShowDetail('all_akun')">
+                        <v-card-text class="pa-2">
+                            <v-icon color="primary" size="20">
+                                mdi-account-multiple
+                            </v-icon>
+
+                            <div class="text-h6 mt-1">
+                                {{ dashboardData.summary.total_akun }}
+                            </div>
+
+                            <div class="text-caption">Total</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
-            </v-row>
 
-            <v-row dense class="mb-3">
-                <v-col cols="6">
-                    <v-card class="text-center" @click="handleShowDetail('approved_accounts')" style="cursor: pointer;">
+                <v-col cols="4">
+                    <v-card class="text-center" @click="handleShowDetail('total_approved_akun')">
                         <v-card-text class="pa-2">
-                            <v-icon color="success" size="20">mdi-account-check</v-icon>
-                            <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.approved || 0
-                            }}</div>
+                            <v-icon color="success" size="20">
+                                mdi-check-circle
+                            </v-icon>
+
+                            <div class="text-h6 mt-1">
+                                {{ dashboardData.summary.total_approved }}
+                            </div>
+
                             <div class="text-caption">Approved</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
-                <v-col cols="6">
-                    <v-card class="text-center" @click="handleShowDetail('pending_accounts')" style="cursor: pointer;">
+
+                <v-col cols="4">
+                    <v-card class="text-center" @click="handleShowDetail('total_pending_akun')">
                         <v-card-text class="pa-2">
-                            <v-icon color="orange" size="20">mdi-account-clock</v-icon>
-                            <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.pending || 0
-                            }}</div>
+                            <v-icon color="orange" size="20">
+                                mdi-clock-outline
+                            </v-icon>
+
+                            <div class="text-h6 mt-1">
+                                {{ dashboardData.summary.total_pending }}
+                            </div>
+
                             <div class="text-caption">Pending</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
-            </v-row>
 
-            <v-row dense class="mb-3">
-                <v-col cols="6">
-                    <v-card class="text-center" @click="handleShowDetail('distributor_accounts')"
-                        style="cursor: pointer;">
-                        <v-card-text class="pa-2">
-                            <v-icon color="cyan" size="20">mdi-store</v-icon>
-                            <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.distributor
-                                || 0 }}</div>
-                            <div class="text-caption">Distributors</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="6">
-                    <v-card class="text-center" @click="handleShowDetail('founder_accounts')" style="cursor: pointer;">
-                        <v-card-text class="pa-2">
-                            <v-icon color="purple" size="20">mdi-crown</v-icon>
-                            <div class="text-body-1 font-weight-bold mt-1">{{ dashboardData.summary?.akun?.founder || 0
-                            }}</div>
-                            <div class="text-caption">Founders</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
             </v-row>
-
-            <v-card>
-                <v-card-title class="pa-3">Account Status</v-card-title>
-                <v-card-text class="pa-3">
-                    <div class="mb-3">
-                        <div class="d-flex justify-space-between mb-1">
-                            <span class="text-body-2">Approved</span>
-                            <span class="text-caption">{{ getAccountPercentage('approved').toFixed(1) }}%</span>
-                        </div>
-                        <v-progress-linear :model-value="getAccountPercentage('approved')" color="success" height="8"
-                            rounded />
-                    </div>
-                    <div>
-                        <div class="d-flex justify-space-between mb-1">
-                            <span class="text-body-2">Pending</span>
-                            <span class="text-caption">{{ getAccountPercentage('pending').toFixed(1) }}%</span>
-                        </div>
-                        <v-progress-linear :model-value="getAccountPercentage('pending')" color="orange" height="8"
-                            rounded />
-                    </div>
-                </v-card-text>
-            </v-card>
         </div>
+
+        <!-- ================= DETAIL TABLE DIALOG ================= -->
+        <v-dialog v-model="detailDialog" max-width="1200px" scrollable>
+            <v-card>
+                <v-card-title class="d-flex align-center justify-space-between">
+                    <span>{{ detailTitle }}</span>
+                    <v-btn icon @click="detailDialog = false">
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                </v-card-title>
+
+                <v-divider></v-divider>
+
+                <!-- EXPORT BUTTON -->
+                <v-card-text class="text-center pa-4">
+                    <v-btn color="success" prepend-icon="mdi-microsoft-excel" @click="exportToExcel"
+                        :loading="exporting">
+                        Export to Excel
+                    </v-btn>
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <!-- TABLE -->
+                <v-card-text style="max-height: 500px;">
+                    <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10" class="elevation-1"
+                        density="comfortable">
+                        <!-- No data template -->
+                        <template v-slot:no-data>
+                            <div class="text-center pa-4">
+                                <v-icon size="64" color="grey">mdi-account-outline</v-icon>
+                                <div class="text-h6 mt-2">No akun found</div>
+                            </div>
+                        </template>
+                    </v-data-table>
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" variant="text" @click="detailDialog = false">
+                        Close
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
     </div>
 </template>
 
 <script>
 import axios from "axios";
 import Cookies from "js-cookie";
+import * as XLSX from "xlsx";
 
 export default {
-    name: 'DashboardAccounts',
-    emits: ['show-detail'],
+    name: "DashboardAkun",
+    emits: ["show-detail"],
+
     data() {
         return {
-            dashboardData: { summary: { akun: {} } },
-            mvoRawData: [],
-            isLoading: false,
+            mvoTypeId: null,
+
+            dashboardData: {
+                summary: {
+                    total_akun: 0,
+                    total_approved: 0,
+                    total_pending: 0,
+                },
+            },
+
+            akunRawData: [],
+            jabatanList: [],
+
+            // Array warna untuk card jabatan
+            jabatanColors: [
+                'primary',
+                'success',
+                'info',
+                'warning',
+                'error',
+                'purple',
+                'indigo',
+                'teal',
+                'cyan',
+                'pink',
+                'deep-purple',
+                'blue',
+                'green',
+                'amber',
+                'orange',
+                'deep-orange',
+            ],
+
+            cabang: null,
+
+            // Detail Dialog
+            detailDialog: false,
+            detailTitle: "",
+            detailData: [],
+            detailType: "",
+            exporting: false,
+
+            // Table Headers
+            tableHeaders: [
+                { title: "No", key: "no", sortable: false, width: "60px" },
+                { title: "Username", key: "username", sortable: true },
+                { title: "Nama", key: "nama", sortable: true },
+                { title: "Cabang", key: "cabang", sortable: true },
+                { title: "Jabatan", key: "jabatan", sortable: true },
+                { title: "Total Document", key: "total_document", sortable: true },
+                { title: "Total Bintang", key: "total_bintang", sortable: true },
+            ],
         };
     },
+
     created() {
+        this.initUser();
         this.fetchData();
     },
+
     methods: {
-        async fetchData() {
-            this.isLoading = true;
-            const token = Cookies.get("token");
-            if (!token) {
-                // Handle not logged in
-                return;
-            }
 
-            try {
-                const [dashboardResponse, mvoResponse] = await Promise.all([
-                    axios.get("https://babaapi.teknosof.com/api/dashboard", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                    axios.get("https://babaapi.teknosof.com/api/mvo", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    })
-                ]);
+        // ================= INIT USER =================
+        initUser() {
 
-                if (dashboardResponse.data && dashboardResponse.data.status === "success") {
-                    this.dashboardData = dashboardResponse.data.data;
-                }
+            const user =
+                JSON.parse(localStorage.getItem("user"));
 
-                if (mvoResponse.data && mvoResponse.data.status === "success") {
-                    this.mvoRawData = mvoResponse.data.data;
-                }
-            } catch (error) {
-                console.error("Error fetching accounts data:", error);
-            } finally {
-                this.isLoading = false;
+            if (!user) return;
+
+            this.mvo_type_id =
+                user.mvo_type_id ||
+                null;
+
+            // Hanya set cabang kalau bukan superadmin
+            if (this.mvo_type_id !== "superadmin") {
+
+                this.cabang =
+                    user.cabang ||
+                    user.cabang ||
+                    null;
             }
         },
+        async fetchData() {
 
+            const token =
+                Cookies.get("token") ||
+                localStorage.getItem("token");
+
+            if (!token) return;
+
+            let url = "";
+
+            if (this.mvo_type_id === "superadmin") {
+
+                // SUPERADMIN → Semua data
+                url =
+                    `https://babaapi.teknosof.com/api/dashboard/akun`;
+
+            } else {
+
+                // NON SUPERADMIN → Wajib ada cabang
+                if (!this.cabang) {
+                    console.warn(
+                        "Cabang user tidak ada → API tidak dipanggil"
+                    );
+                    return;
+                }
+
+                url =
+                    `https://babaapi.teknosof.com/api/dashboard/akun/${this.cabang}`;
+            }
+
+            // ================= CALL API =================
+            try {
+
+                const res = await axios.get(url, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (res.data.status === "success") {
+
+                    // Map API response to component structure
+                    this.dashboardData.summary = {
+                        total_akun: res.data.summary.total_akun || 0,
+                        total_approved: res.data.summary.total_approved || 0,
+                        total_pending: res.data.summary.total_pending || 0,
+                    };
+
+                    this.akunRawData =
+                        res.data.data || [];
+
+                    // Process jabatan data
+                    this.processJabatanData();
+                }
+
+            } catch (err) {
+
+                console.error(
+                    "Fetch dashboard error:",
+                    err
+                );
+            }
+        },
+        processJabatanData() {
+            // Group akun by jabatan
+            const jabatanMap = {};
+
+            this.akunRawData.forEach(akun => {
+                const jabatan = akun.jabatan || 'Unknown';
+
+                if (!jabatanMap[jabatan]) {
+                    jabatanMap[jabatan] = {
+                        name: jabatan,
+                        count: 0
+                    };
+                }
+
+                jabatanMap[jabatan].count++;
+            });
+
+            // Convert to array and sort by count descending
+            this.jabatanList = Object.values(jabatanMap)
+                .sort((a, b) => b.count - a.count);
+        },
+        handleShowJabatanDetail(jabatanName) {
+            // Filter data by jabatan
+            const data = this.akunRawData.filter(
+                akun => (akun.jabatan || 'Unknown') === jabatanName
+            );
+
+            this.detailData = data.map((item, index) => ({
+                ...item,
+                no: index + 1
+            }));
+
+            this.detailTitle = `Akun - ${jabatanName}`;
+            this.detailType = 'jabatan';
+            this.detailDialog = true;
+
+            this.$emit('show-detail', {
+                type: 'jabatan',
+                jabatan: jabatanName,
+                data
+            });
+        },
+        getJabatanColor(index) {
+            // Return color from array based on index, cycle if more jabatan than colors
+            return this.jabatanColors[index % this.jabatanColors.length];
+        },
         handleShowDetail(type) {
             let data = [];
+            let title = "";
+
             switch (type) {
-                case 'all_accounts':
-                case 'all_users':
-                    data = [...this.mvoRawData];
+
+                case "all_akun":
+                    data = [...this.akunRawData];
+                    title = "All Akun";
                     break;
-                case 'approved_accounts':
-                    data = this.mvoRawData.filter(item => item.status_inputan === "approved");
+
+                case "total_approved_akun":
+                    data = [...this.akunRawData];
+                    title = "Approved Akun";
                     break;
-                case 'pending_accounts':
-                    data = this.mvoRawData.filter(item =>
-                        item.status_inputan === null ||
-                        item.status_inputan === "pending" ||
-                        item.status_inputan === undefined
-                    );
+
+                case "total_pending_akun":
+                    data = [...this.akunRawData];
+                    title = "Pending Akun";
                     break;
-                case 'distributor_accounts':
-                    data = this.mvoRawData.filter(item => item.code && item.code.startsWith('DIST-'));
-                    break;
-                case 'mvo_accounts':
-                    data = this.mvoRawData.filter(item => item.code && item.code.startsWith('MVO-'));
-                    break;
-                case 'founder_accounts':
-                    data = this.mvoRawData.filter(item => item.code && item.code.startsWith('FO-'));
-                    break;
-                default:
-                    data = [];
             }
-            this.$emit('show-detail', { type, data });
+
+            this.detailData = data.map((item, index) => ({
+                ...item,
+                no: index + 1
+            }));
+
+            this.detailTitle = title;
+            this.detailType = type;
+            this.detailDialog = true;
+            this.$emit(
+                "show-detail",
+                { type, data }
+            );
         },
 
-        getAccountPercentage(type) {
-            const total = this.dashboardData.summary?.akun?.total || 0;
-            if (total === 0) return 0;
+        getAkunPercentage(type) {
+            const total = Number(this.dashboardData.summary.total_akun) || 0;
+            if (!total) return 0;
 
-            const value = this.dashboardData.summary?.akun?.[type] || 0;
+            const value = Number(this.dashboardData.summary[type]) || 0;
             return (value / total) * 100;
         },
-    }
+        exportToExcel() {
+            this.exporting = true;
+
+            // ===== Ambil header yang tampil =====
+            const headers = this.tableHeaders;
+
+            // ===== Mapping data sesuai header =====
+            const data = this.detailData.map(row => {
+
+                let obj = {};
+
+                headers.forEach(h => {
+
+                    let value = row[h.key];
+
+                    obj[h.title] = value ?? "-";
+                });
+
+                return obj;
+            });
+
+            // ===== Convert ke Excel =====
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(wb, ws, "Akun");
+
+            const fileName =
+                `${this.detailTitle.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+            XLSX.writeFile(wb, fileName);
+
+            this.exporting = false;
+        }
+    },
 };
 </script>
+
+<style scoped>
+.v-data-table {
+    font-size: 0.875rem;
+}
+
+.jabatan-card {
+    transition: all 0.3s ease;
+}
+
+.jabatan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
