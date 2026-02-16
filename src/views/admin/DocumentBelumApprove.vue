@@ -51,6 +51,20 @@
               </v-chip>
             </template>
 
+            <!-- NEW: Status MVO Column -->
+            <template v-slot:item.status_mvo="{ item }">
+              <v-chip :color="getMvoStatusColor(item)" size="small" variant="flat" class="text-caption">
+                {{ getMvoStatusText(item) }}
+              </v-chip>
+            </template>
+
+            <!-- NEW: Status Regional Column -->
+            <template v-slot:item.status_regional="{ item }">
+              <v-chip :color="getRegionalStatusColor(item)" size="small" variant="flat" class="text-caption">
+                {{ getRegionalStatusText(item) }}
+              </v-chip>
+            </template>
+
             <template v-slot:item.approval_status="{ item }">
               <v-chip :color="getApprovalStatusColor(item)" size="small" variant="flat" class="text-caption">
                 {{ getApprovalStatusText(item) }}
@@ -95,21 +109,22 @@
             </template>
 
 
-            <!-- NEW: Actions column untuk tombol Approve -->
+            <!-- Actions column untuk tombol Approve -->
+            <!-- Actions column untuk tombol Approve -->
             <template v-slot:item.actions="{ item }">
-              <!-- <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click="approveDocument(item)"
+              <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click="approveDocument(item)"
                 :loading="approvingId === item.id" :disabled="approvingId === item.id">
                 <v-icon start size="small">mdi-check-circle</v-icon>
                 Approve
               </v-btn>
-              <v-chip v-else size="small" color="grey" variant="flat">
-                No Action
-              </v-chip> -->
-              <v-btn size="small" color="success" @click="approveDocument(item)" :loading="approvingId === item.id"
-                :disabled="approvingId === item.id">
+              <v-chip v-else-if="isDocumentFullyApproved(item)" size="small" color="success" variant="flat">
                 <v-icon start size="small">mdi-check-circle</v-icon>
-                Approve
-              </v-btn>
+                Sudah Approve
+              </v-chip>
+              <v-chip v-else size="small" color="grey" variant="flat">
+                <v-icon start size="small">mdi-information</v-icon>
+                Menunggu
+              </v-chip>
             </template>
           </v-data-table>
         </template>
@@ -221,8 +236,7 @@
                 </v-row>
                 <v-row class="mb-2">
                   <v-col cols="5" class="detail-label">Tanggal Input:</v-col>
-                  <v-col cols="7" class="detail-value">{{ formatDate(item.tanggal_repeat_order)
-                  }}</v-col>
+                  <v-col cols="7" class="detail-value">{{ formatDate(item.tanggal_repeat_order) }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
                   <v-col cols="5" class="detail-label">Range Point:</v-col>
@@ -253,10 +267,18 @@
                   Status
                 </h4>
                 <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Status:</v-col>
+                  <v-col cols="5" class="detail-label">Status MVO:</v-col>
                   <v-col cols="7" class="detail-value">
-                    <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" variant="flat">
-                      {{ getStatusText(item.status_inputan) }}
+                    <v-chip :color="getMvoStatusColor(item)" size="x-small" variant="flat">
+                      {{ getMvoStatusText(item) }}
+                    </v-chip>
+                  </v-col>
+                </v-row>
+                <v-row class="mb-2">
+                  <v-col cols="5" class="detail-label">Status Regional:</v-col>
+                  <v-col cols="7" class="detail-value">
+                    <v-chip :color="getRegionalStatusColor(item)" size="x-small" variant="flat">
+                      {{ getRegionalStatusText(item) }}
                     </v-chip>
                   </v-col>
                 </v-row>
@@ -282,7 +304,7 @@
                   Lihat File
                 </v-btn>
 
-                <!-- NEW: Tombol Approve untuk Mobile -->
+                <!-- Tombol Approve untuk Mobile -->
                 <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click.stop="approveDocument(item)"
                   :loading="approvingId === item.id" :disabled="approvingId === item.id" class="mb-2"
                   prepend-icon="mdi-check-circle">
@@ -401,7 +423,8 @@ export default {
           { key: "star_icon", title: "Rating Star", sortable: false, align: "center" },
           { key: "tanggal_repeat_order", title: "Tanggal Input", align: "center" },
           { key: "repeat_order", title: "Range Point", align: "center" },
-          // { key: "status_inputan", title: "Status", align: "center" },
+          { key: "status_mvo", title: "Status MVO", align: "center", width: "150px" },
+          { key: "status_regional", title: "Status Regional", align: "center", width: "150px" },
           { key: "approval_status", title: "Status Approval", align: "center", width: "200px" },
           { key: "upline_1", title: "MVO" },
           { key: "upline_2", title: "Regional" },
@@ -433,6 +456,10 @@ export default {
   },
 
   methods: {
+    isDocumentFullyApproved(item) {
+      // Jika status_inputan sudah approved, berarti sudah fully approved
+      return item.status_inputan?.toLowerCase() === 'approved';
+    },
     toggleMobileDetail(itemId) {
       if (this.expandedMobileCard === itemId) {
         this.expandedMobileCard = null;
@@ -503,7 +530,7 @@ export default {
           console.log("Sample MVO data:", this.allMvoData.slice(0, 3));
 
           // Debug: cari MVO dengan ID yang login
-          const loggedInMvo = this.allMvoData.find(item => item.id == this.mvo_id);
+          const loggedInMvo = this.allMvoData.find(item => item.code === this.mvo_id);
           console.log("Logged in MVO found:", loggedInMvo);
         }
       } catch (error) {
@@ -519,7 +546,9 @@ export default {
         'Rating Star': item.pointbintang || 0,
         'Tanggal Input': this.formatDate(item.tanggal_repeat_order),
         'Range Point': item.repeat_order || '-',
-        'Status': this.getStatusText(item.status_inputan),
+        'Status MVO': this.getMvoStatusText(item),
+        'Status Regional': this.getRegionalStatusText(item),
+        'Status Approval': this.getApprovalStatusText(item),
         'MVO': item.upline_1 || '-',
         'Regional': item.upline_2 || '-',
       }));
@@ -564,28 +593,73 @@ export default {
     },
 
     /**
+     * NEW METHOD: Get MVO Status
+     */
+    getMvoStatusText(item) {
+      // Cek apakah ada upline_1 (MVO)
+      if (!item.upline_1) {
+        return 'Tidak Ada MVO';
+      }
+
+      // Cek status approval MVO (upline_1)
+      if (item.approval_doc_upline_1 === null) {
+        return 'Menunggu Approval';
+      } else {
+        return 'Sudah Disetujui';
+      }
+    },
+
+    getMvoStatusColor(item) {
+      if (!item.upline_1) {
+        return 'grey';
+      }
+
+      if (item.approval_doc_upline_1 === null) {
+        return 'warning';
+      } else {
+        return 'success';
+      }
+    },
+
+    /**
+     * NEW METHOD: Get Regional Status
+     */
+    getRegionalStatusText(item) {
+      // Cek apakah ada upline_2 (Regional)
+      if (!item.upline_2) {
+        return 'Tidak Ada Regional';
+      }
+
+      // Cek status approval Regional (upline_2)
+      if (item.approval_doc_upline_2 === null) {
+        return 'Menunggu Approval';
+      } else {
+        return 'Sudah Disetujui';
+      }
+    },
+
+    getRegionalStatusColor(item) {
+      if (!item.upline_2) {
+        return 'grey';
+      }
+
+      if (item.approval_doc_upline_2 === null) {
+        return 'warning';
+      } else {
+        return 'success';
+      }
+    },
+
+    /**
      * Mendapatkan kode MVO user yang sedang login
      */
     getLoggedInMvoCode() {
-      console.log("Getting logged in MVO code...");
+      console.log("=== getLoggedInMvoCode ===");
       console.log("mvo_id from localStorage:", this.mvo_id);
-      console.log("All MVO Data count:", this.allMvoData.length);
 
-      // Cek apakah mvo_id sudah berupa code (format: XXX-XXX-XXX)
-      if (this.mvo_id && this.mvo_id.includes('-')) {
-        console.log("mvo_id is already a code:", this.mvo_id);
-        return this.mvo_id;
-      }
-
-      // Jika bukan code, cari berdasarkan ID
-      const mvoIdString = String(this.mvo_id);
-      const mvo = this.allMvoData.find(item => {
-        const itemIdString = String(item.id);
-        return itemIdString === mvoIdString;
-      });
-
-      console.log("Found MVO by ID:", mvo);
-      return mvo ? mvo.code : null;
+      // Di localStorage, mvo_id sudah berupa code (MVO-JKT-001)
+      // Jadi langsung return saja
+      return this.mvo_id;
     },
 
     /**
@@ -600,12 +674,22 @@ export default {
     },
 
     /**
-     * Mendapatkan text status approval saat ini
+     * UPDATED METHOD: Get approval status text
+     * Logika baru: Jika MVO dan Regional sudah approve, tampilkan "Menunggu Approval Admin"
      */
     getApprovalStatusText(item) {
-      // Jika sudah fully approved
+      // Jika sudah fully approved oleh admin
       if (item.status_inputan?.toLowerCase() === 'approved') {
-        return 'Sudah Disetujui Semua';
+        return 'Sudah Disetujui';
+      }
+
+      // Cek apakah MVO dan Regional sudah approve semua
+      const mvoApproved = !item.upline_1 || item.approval_doc_upline_1 === 1;
+      const regionalApproved = !item.upline_2 || item.approval_doc_upline_2 === 1;
+
+      // Jika MVO dan Regional sudah approve semua, berarti menunggu admin
+      if (mvoApproved && regionalApproved) {
+        return 'Menunggu Approval Admin';
       }
 
       // Cari level tertinggi yang ada (tidak null) dari upline
@@ -628,16 +712,25 @@ export default {
         }
       }
 
-      // Jika semua sudah approve tapi status_inputan belum diupdate
-      return 'Proses Approval Selesai';
+      // Jika semua sudah approve tapi status_inputan belum diupdate, tetap menunggu admin
+      return 'Menunggu Approval Admin';
     },
 
     /**
-     * Mendapatkan warna chip untuk status approval
+     * UPDATED METHOD: Get approval status color
      */
     getApprovalStatusColor(item) {
       if (item.status_inputan?.toLowerCase() === 'approved') {
         return 'success';
+      }
+
+      // Cek apakah MVO dan Regional sudah approve semua
+      const mvoApproved = !item.upline_1 || item.approval_doc_upline_1 === 1;
+      const regionalApproved = !item.upline_2 || item.approval_doc_upline_2 === 1;
+
+      // Jika sudah approve semua, menunggu admin (gunakan warna info/biru)
+      if (mvoApproved && regionalApproved) {
+        return 'info';
       }
 
       // Cari level tertinggi yang ada
@@ -655,12 +748,11 @@ export default {
         const uplineField = `upline_${level}`;
 
         if (item[uplineField] && item[approvalField] === null) {
-          // Warna berbeda berdasarkan level
-          return 'info'; // MVO, Regional
+          return 'warning';
         }
       }
 
-      return 'success';
+      return 'info';
     },
 
     isImageFile(filePath) {
@@ -695,16 +787,7 @@ export default {
     },
 
     /**
-     * NEW METHODS: Approval Logic
-     */
-
-    /**
-     * Menentukan siapa yang bisa approve dokumen ini
-     * Logika BARU yang BENAR:
-     * - Harus approve dari level TERTINGGI ke TERENDAH
-     * - User hanya bisa approve jika:
-     *   1. Semua level DI ATAS dia sudah approve
-     *   2. Gilirannya dia (upline-nya dia dan approval-nya null)
+     * Approval Logic - TIDAK DIUBAH
      */
     canApproveDocument(item) {
       // Jika sudah approved semua, tidak bisa approve lagi
@@ -715,6 +798,7 @@ export default {
 
       // Ambil kode MVO user yang login
       const loggedInMvoCode = this.getLoggedInMvoCode();
+      console.log(`\n=== canApproveDocument for Doc ${item.id} ===`);
       console.log(`Logged in MVO Code: ${loggedInMvoCode}`);
 
       if (!loggedInMvoCode) {
@@ -738,22 +822,26 @@ export default {
         const approvalField = `approval_doc_upline_${level}`;
         const uplineField = `upline_${level}`;
 
-        console.log(`Checking level ${level}:`, {
-          upline: item[uplineField],
-          approval: item[approvalField],
-          loggedInCode: loggedInMvoCode
-        });
+        console.log(`\nChecking level ${level}:`);
+        console.log(`  upline: ${item[uplineField]}`);
+        console.log(`  approval: ${item[approvalField]}`);
 
         // Jika upline ada dan approval masih null
         if (item[uplineField] && item[approvalField] === null) {
-          // Ini adalah level yang perlu di-approve berikutnya
+          // IMPORTANT: Extract code dari upline
+          // Format: "MVO-JKT-001 - Rudi Hartono" → "MVO-JKT-001"
+          const uplineCode = item[uplineField].split(' - ')[0].trim();
+
+          console.log(`  Extracted upline code: ${uplineCode}`);
+          console.log(`  Comparison: ${uplineCode} === ${loggedInMvoCode}`);
+
           // Cek apakah user yang login adalah orang di level ini
-          if (item[uplineField] === loggedInMvoCode) {
+          if (uplineCode === loggedInMvoCode) {
             console.log(`✓ User dapat approve di level ${level}`);
             return true;
           } else {
             // Bukan giliran user ini
-            console.log(`✗ Menunggu approval dari ${item[uplineField]}, bukan ${loggedInMvoCode}`);
+            console.log(`✗ Menunggu approval dari ${uplineCode}, bukan ${loggedInMvoCode}`);
             return false;
           }
         }
@@ -775,7 +863,7 @@ export default {
     },
 
     /**
-     * Proses approval setelah konfirmasi
+     * Proses approval setelah konfirmasi - TIDAK DIUBAH
      */
     async confirmApprove() {
       const item = this.confirmDialog.document;
@@ -854,6 +942,7 @@ export default {
 
         if (response.data.status === "success") {
           this.showSnackbar("Dokumen berhasil disetujui!", "success");
+          this.contentSnackbar.color = "success";
 
           // Reload data untuk update tabel
           await this.getPendingApprovalDocuments();
@@ -887,14 +976,14 @@ export default {
     this.mvo_id = localStorage.getItem("mvo_id") || ""; // Ambil mvo_id dari localStorage
 
     console.log("=== INITIALIZATION ===");
-    console.log("Logged in MVO ID:", this.mvo_id);
+    console.log("Logged in MVO ID (code):", this.mvo_id);
     console.log("Logged in MVO Type:", this.mvo_type_id);
 
     // Load MVO data first, then load documents
     await this.getAllMvo();
     await this.getPendingApprovalDocuments();
 
-    console.log("=== CHECKING APPROVAL STATUS ===");
+    console.log("\n=== CHECKING APPROVAL STATUS ===");
     // Check each document
     this.datatable.items.forEach((item, index) => {
       console.log(`\n--- Document ${index + 1} (ID: ${item.id}) ---`);
