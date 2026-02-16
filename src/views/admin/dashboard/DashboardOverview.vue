@@ -1,6 +1,45 @@
 <template>
     <div>
 
+        <!-- ================= DATE RANGE FILTER ================= -->
+        <v-card class="mb-4">
+            <v-card-text>
+                <v-row dense>
+
+                    <!-- Tanggal Mulai -->
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="dateRange.start_date" label="Tanggal Mulai" type="date"
+                            prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                    </v-col>
+
+                    <!-- Tanggal Selesai -->
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="dateRange.end_date" label="Tanggal Selesai" type="date"
+                            prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                    </v-col>
+
+                    <!-- Tombol -->
+                    <v-col cols="12" md="4" class="d-flex align-center gap-2">
+
+                        <!-- FILTER -->
+                        <v-btn color="primary" @click="applyDateFilter" :loading="isLoading" density="compact"
+                            style="height: 40px; min-width: 110px;">
+                            <v-icon start>mdi-magnify</v-icon>
+                            Filter
+                        </v-btn>
+
+                        <!-- RESET -->
+                        <v-btn color="grey" variant="outlined" @click="resetDateFilter" :disabled="isLoading"
+                            density="compact" style="height: 40px; min-width: 40px;">
+                            <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
+
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card>
+
+
         <!-- ================= DESKTOP VIEW ================= -->
         <div class="d-none d-md-block">
             <!-- SUMMARY CARD DESKTOP -->
@@ -240,10 +279,20 @@ export default {
     ],
 
     data() {
+        const today = new Date();
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
         return {
             dashboardData: { summary: {} },
             search: {},
             isLoading: false,
+
+            // Date Range Filter
+            dateRange: {
+                start_date: threeMonthsAgo.toISOString().slice(0, 10),
+                end_date: today.toISOString().slice(0, 10)
+            },
 
             topBintangHeaders: [
                 { title: "Rank", key: "rank", align: "center", width: 80 },
@@ -332,14 +381,26 @@ export default {
             this.isLoading = true;
 
             try {
-                const res = await axios.get(
-                    "https://babaapi.teknosof.com/api/dashboard",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                // Build URL with query parameters
+                let url = "https://babaapi.teknosof.com/api/dashboard";
+                const params = new URLSearchParams();
+
+                if (this.dateRange.start_date) {
+                    params.append('start_date', this.dateRange.start_date);
+                }
+                if (this.dateRange.end_date) {
+                    params.append('end_date', this.dateRange.end_date);
+                }
+
+                if (params.toString()) {
+                    url += `?${params.toString()}`;
+                }
+
+                const res = await axios.get(url, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
                 if (res.data?.status === "success") {
                     this.dashboardData = res.data.data;
@@ -350,6 +411,29 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        /* ===== APPLY DATE FILTER ===== */
+        applyDateFilter() {
+            // Validasi tanggal
+            if (this.dateRange.start_date && this.dateRange.end_date) {
+                if (new Date(this.dateRange.start_date) > new Date(this.dateRange.end_date)) {
+                    alert('Tanggal mulai tidak boleh lebih besar dari tanggal selesai');
+                    return;
+                }
+            }
+            this.fetchData();
+        },
+
+        /* ===== RESET DATE FILTER ===== */
+        resetDateFilter() {
+            const today = new Date();
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+            this.dateRange.start_date = threeMonthsAgo.toISOString().slice(0, 10);
+            this.dateRange.end_date = today.toISOString().slice(0, 10);
+            this.fetchData();
         },
 
         /* ===== NAVIGATE TO TAB ===== */
@@ -395,5 +479,9 @@ export default {
     .v-card-text .v-icon {
         font-size: 24px !important;
     }
+}
+
+.gap-2 {
+    gap: 8px;
 }
 </style>
