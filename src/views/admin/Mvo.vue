@@ -411,9 +411,23 @@
                   </div>
                 </template>
 
+                <!-- NEW: Template for Status MVO -->
+                <template v-slot:item.status_mvo="{ item }">
+                  <v-chip :color="getMvoStatusColor(item)" size="small" variant="flat">
+                    {{ getMvoStatusText(item) }}
+                  </v-chip>
+                </template>
+
+                <!-- NEW: Template for Status Regional -->
+                <template v-slot:item.status_regional="{ item }">
+                  <v-chip :color="getRegionalStatusColor(item)" size="small" variant="flat">
+                    {{ getRegionalStatusText(item) }}
+                  </v-chip>
+                </template>
+
                 <template v-slot:item.status_inputan="{ item }">
-                  <v-chip :color="getDocumentStatusColor(item.status_inputan)" size="small" variant="flat">
-                    {{ getDocumentStatusText(item.status_inputan) }}
+                  <v-chip :color="getAdminStatusColor(item)" size="small" variant="flat">
+                    {{ getAdminStatusText(item) }}
                   </v-chip>
                 </template>
 
@@ -753,6 +767,46 @@
 
                     <!-- Status Approval Section -->
                     <v-divider class="my-2"></v-divider>
+
+                    <!-- Status Approval Section -->
+                    <v-divider class="my-2"></v-divider>
+
+                    <!-- Status MVO -->
+                    <v-row class="mb-2" no-gutters>
+                      <v-col cols="5">
+                        <div class="text-caption text-grey">Status MVO:</div>
+                      </v-col>
+                      <v-col cols="7">
+                        <v-chip :color="getMvoStatusColor(document)" size="x-small" variant="flat">
+                          {{ getMvoStatusText(document) }}
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+
+                    <!-- Status Regional -->
+                    <v-row class="mb-2" no-gutters>
+                      <v-col cols="5">
+                        <div class="text-caption text-grey">Status Regional:</div>
+                      </v-col>
+                      <v-col cols="7">
+                        <v-chip :color="getRegionalStatusColor(document)" size="x-small" variant="flat">
+                          {{ getRegionalStatusText(document) }}
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+
+                    <!-- Status Admin -->
+                    <v-row class="mb-3" no-gutters>
+                      <v-col cols="5">
+                        <div class="text-caption text-grey">Status Admin:</div>
+                      </v-col>
+                      <v-col cols="7">
+                        <v-chip :color="getAdminStatusColor(document)" size="x-small" variant="flat">
+                          {{ getAdminStatusText(document) }}
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+
                     <v-row class="mb-3" no-gutters>
                       <v-col cols="5">
                         <div class="text-caption text-grey">Status:</div>
@@ -1181,8 +1235,9 @@ export default {
         { key: "star_icon", title: "Rating Star", sortable: false, align: "center" },
         { key: "tanggal_repeat_order", title: "Tanggal Input", align: "center" },
         { key: "repeat_order", title: "Range Point", align: "center" },
-        { key: "status_inputan", title: "Status", align: "center" },
-        // { key: "status_inputan_2", title: "Status Admin", align: "center" },
+        { key: "status_mvo", title: "Status MVO", align: "center" },           // TAMBAH BARIS INI
+        { key: "status_regional", title: "Status Regional", align: "center" }, // TAMBAH BARIS INI
+        { key: "status_inputan", title: "Status Admin", align: "center" },     // UBAH "Status" JADI "Status Admin"
         { key: "file_path", title: "File Preview", sortable: false, width: "200px" },
         { key: "action", title: "Actions", sortable: false, align: "center" },
       ],
@@ -1300,6 +1355,74 @@ export default {
   },
 
   methods: {
+    getMvoStatusText(item) {
+      // Cek apakah ada upline_1 (MVO)
+      if (!item.upline_1) {
+        return 'Tidak Ada MVO';
+      }
+
+      // Cek status approval MVO (upline_1)
+      if (item.approval_doc_upline_1 === null) {
+        return 'Belum Approve';
+      } else {
+        return 'Sudah Approve';
+      }
+    },
+
+    getMvoStatusColor(item) {
+      if (!item.upline_1) {
+        return 'grey';
+      }
+
+      if (item.approval_doc_upline_1 === null) {
+        return 'warning';
+      } else {
+        return 'success';
+      }
+    },
+
+    getRegionalStatusText(item) {
+      // Cek apakah ada upline_2 (Regional)
+      if (!item.upline_2) {
+        return 'Tidak Ada Regional';
+      }
+
+      // Cek status approval Regional (upline_2)
+      if (item.approval_doc_upline_2 === null) {
+        return 'Belum Approve';
+      } else {
+        return 'Sudah Approve';
+      }
+    },
+
+    getRegionalStatusColor(item) {
+      if (!item.upline_2) {
+        return 'grey';
+      }
+
+      if (item.approval_doc_upline_2 === null) {
+        return 'warning';
+      } else {
+        return 'success';
+      }
+    },
+
+    getAdminStatusText(item) {
+      if (item.status_inputan === 'approved') {
+        return 'Sudah Approve';
+      } else {
+        return 'Belum Approve';
+      }
+    },
+
+    getAdminStatusColor(item) {
+      if (item.status_inputan === 'approved') {
+        return 'success';
+      } else {
+        return 'warning';
+      }
+    },
+
     validateRangePoint(mode) {
       const model = mode === 'add' ? this.documentAddModel : this.documentEditModel;
       let value = Number(model.repeat_order);
