@@ -22,30 +22,41 @@
                 </v-card-text>
             </v-card>
 
-            <v-row class="mb-4">
-                <v-col cols="12" md="4">
-                    <v-card color="primary" dark @click="$emit('show-detail', 'total_growth', filteredGrowthData)"
-                        style="cursor: pointer;">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-chart-line</v-icon>
-                            <div class="text-h4">{{ getTotalGrowth() }}</div>
-                            <div class="text-subtitle-1">Total Pertumbuhan (RO)</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
+            <v-row class="ga-4" align="stretch">
+                <v-card color="primary" dark class="flex-grow-1"
+                    @click="$emit('show-detail', 'total_growth', filteredGrowthData)" style="cursor: pointer;">
+                    <v-card-text class="text-center">
+                        <v-icon size="48" class="mb-2">mdi-chart-line</v-icon>
+                        <div class="text-h4">{{ getTotalGrowth() }}</div>
+                        <div class="text-subtitle-1">Total Pertumbuhan (RO)</div>
+                    </v-card-text>
+                </v-card>
 
-                <v-col cols="12" md="4">
-                    <v-card color="warning" dark
-                        @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)"
-                        style="cursor: pointer;">
-                        <v-card-text class="text-center">
-                            <v-icon size="48" class="mb-2">mdi-map-marker-multiple</v-icon>
-                            <div class="text-h4">{{ getRegionGrowth() }}</div>
-                            <div class="text-subtitle-1">Pertumbuhan Region (RO)</div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
+                <v-card color="warning" dark class="flex-grow-1"
+                    @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)" style="cursor: pointer;">
+                    <v-card-text class="text-center">
+                        <v-icon size="48" class="mb-2">mdi-map-marker-multiple</v-icon>
+                        <div class="text-h4">{{ getRegionGrowth() }}</div>
+                        <div class="text-subtitle-1">Pertumbuhan Region (RO)</div>
+                    </v-card-text>
+                </v-card>
             </v-row>
+            <!-- <v-row class="ga-4" align="stretch">
+            <v-card color="#FFD700" dark hover class="flex-grow-1" @click="openTopStarDialog" style="cursor: pointer">
+                <v-card-text class="text-center">
+                    <v-icon size="48" class="mb-2">mdi-trophy</v-icon>
+                    <div class="text-subtitle-1">TOP STAR</div>
+                </v-card-text>
+            </v-card>
+
+            <v-card color="success" dark hover class="flex-grow-1" @click="openAkunPerMvoDialog"
+                style="cursor: pointer">
+                <v-card-text class="text-center">
+                    <v-icon size="48" class="mb-2">mdi-account-multiple</v-icon>
+                    <div class="text-subtitle-1">TOTAL AKUN PER MVO</div>
+                </v-card-text>
+            </v-card>
+        </v-row> -->
 
             <v-row>
                 <v-col cols="12" md="6">
