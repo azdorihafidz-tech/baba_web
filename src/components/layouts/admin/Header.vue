@@ -29,6 +29,14 @@
           <span v-if="currentUserName" class="text-caption font-weight-medium" style="color: #d4af37;">
             👤 {{ currentUserName }}
           </span>
+          <!-- DITAMBAHKAN: Menampilkan mvo_type_id -->
+          <span v-if="currentUserMvoTypeName" class="text-caption font-weight-medium"
+            style="color: #f4e47c; margin-left: 8px;">
+            🏷️ {{ currentUserMvoTypeName }}
+          </span>
+          <span v-else-if="isLoadingMvoType" class="text-caption" style="color: #f4e47c; margin-left: 8px;">
+            <v-progress-circular indeterminate size="10" width="2" color="amber" class="mr-1"></v-progress-circular>
+          </span>
         </div>
         <span v-if="isLoadingHeader" class="text-caption" style="color: #d4af37;">
           <v-progress-circular indeterminate size="12" width="2" color="amber" class="mr-1"></v-progress-circular>
@@ -179,11 +187,126 @@ export default {
         text: '',
         color: 'success'
       },
-      currentUserName: ''
+      currentUserName: '',
+      currentUserMvoTypeId: '',
+      currentUserMvoTypeName: '', // DITAMBAHKAN untuk menyimpan nama MVO Type
+      isLoadingMvoType: false // DITAMBAHKAN untuk loading state
     }
   },
 
   methods: {
+    async fetchMvoTypeName() {
+      const mvoTypeId = this.getCurrentUserMvoTypeId();
+
+      if (!mvoTypeId) {
+        console.log('No mvo_type_id found');
+        return null;
+      }
+
+      this.isLoadingMvoType = true;
+
+      try {
+        const token = Cookies.get("token");
+
+        if (!token) {
+          console.log('No token available for MVO Type request');
+          return null;
+        }
+
+        console.log('🔍 Fetching MVO Type data from API...');
+        console.log('🆔 MVO Type ID:', mvoTypeId);
+
+        const apiClient = axios.create({
+          timeout: 15000,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        let mvoTypeResponse;
+
+        try {
+          console.log('🔐 Trying HTTPS: https://babaapi.teknosof.com/api/mvo-type');
+          mvoTypeResponse = await apiClient.get('https://babaapi.teknosof.com/api/mvo-type');
+          console.log('✅ HTTPS request successful');
+        } catch (httpsError) {
+          console.warn('❌ HTTPS MVO Type request failed:', httpsError.message);
+
+          if (httpsError.code === 'ERR_NETWORK' ||
+            httpsError.message.includes('certificate') ||
+            httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
+            httpsError.response?.status === undefined) {
+
+            console.log('🔓 Trying HTTP: http://babaapi.teknosof.com/api/mvo-type');
+            mvoTypeResponse = await apiClient.get('http://babaapi.teknosof.com/api/mvo-type');
+            console.log('✅ HTTP request successful');
+          } else {
+            throw httpsError;
+          }
+        }
+
+        console.log('📊 MVO Type API response:', mvoTypeResponse.data);
+
+        if (mvoTypeResponse.data && mvoTypeResponse.data.status === 'success') {
+          const mvoTypes = mvoTypeResponse.data.data;
+
+          if (Array.isArray(mvoTypes) && mvoTypes.length > 0) {
+            console.log('📚 Available MVO Types:', mvoTypes);
+
+            // Cari MVO Type berdasarkan ID
+            const matchedMvoType = mvoTypes.find(type =>
+              type.id == mvoTypeId || type.mvo_type_id == mvoTypeId
+            );
+
+            if (matchedMvoType && matchedMvoType.name) {
+              console.log('🎯 Matched MVO Type:', matchedMvoType);
+              this.currentUserMvoTypeName = matchedMvoType.name;
+
+              // Simpan ke localStorage untuk cache
+              localStorage.setItem('mvoTypeName', matchedMvoType.name);
+
+              return matchedMvoType.name;
+            } else {
+              console.warn('⚠️ No matching MVO Type found for ID:', mvoTypeId);
+              this.currentUserMvoTypeName = `ID: ${mvoTypeId}`;
+              return null;
+            }
+          }
+        }
+
+        return null;
+
+      } catch (error) {
+        console.error('❌ Error fetching MVO Type data:', error);
+        // Fallback: tampilkan ID jika gagal fetch
+        this.currentUserMvoTypeName = `ID: ${mvoTypeId}`;
+        return null;
+      } finally {
+        this.isLoadingMvoType = false;
+      }
+    },
+
+    getCurrentUserMvoTypeId() {
+      const user = this.getCurrentUser();
+      return user?.mvo_type_id || '';
+    },
+
+    loadMvoTypeFromStorage() {
+      console.log('Loading MVO Type name from storage...');
+
+      try {
+        const storedMvoTypeName = localStorage.getItem('mvoTypeName');
+        if (storedMvoTypeName) {
+          this.currentUserMvoTypeName = storedMvoTypeName;
+          console.log('MVO Type name loaded from storage:', storedMvoTypeName);
+        }
+      } catch (error) {
+        console.error('Error loading MVO Type name from storage:', error);
+      }
+    },
+
     goToProfile() {
       console.log('Navigating to profile page...');
       this.$router.push({ name: 'Profil' }).catch(error => {
@@ -591,6 +714,7 @@ export default {
 
       this.headerData = null;
       this.currentUserName = '';
+      this.currentUserMvoTypeId = ''; // DITAMBAHKAN
       delete axios.defaults.headers.common['Authorization'];
 
       if (apiSuccess) {
@@ -634,6 +758,20 @@ export default {
         }
       } else if (event.key === 'user') {
         this.currentUserName = this.getCurrentUserName();
+        this.currentUserMvoTypeId = this.getCurrentUserMvoTypeId();
+
+        // Fetch ulang MVO Type name jika user berubah
+        if (this.currentUserMvoTypeId) {
+          this.fetchMvoTypeName();
+        }
+      } else if (event.key === 'mvoTypeName') {
+        try {
+          if (event.newValue) {
+            this.currentUserMvoTypeName = event.newValue;
+          }
+        } catch (error) {
+          console.error('Error parsing MVO Type name from storage:', error);
+        }
       }
     }
   },
@@ -650,11 +788,22 @@ export default {
     }
 
     this.currentUserName = this.getCurrentUserName();
+    this.currentUserMvoTypeId = this.getCurrentUserMvoTypeId();
+
+    // Load dari storage dulu untuk tampilan cepat
+    this.loadMvoTypeFromStorage();
+
     this.loadHeaderDataFromStorage();
 
     setTimeout(() => {
       console.log('Fetching fresh header data from API...');
       this.fetchHeaderData();
+
+      // Fetch MVO Type name
+      if (this.currentUserMvoTypeId) {
+        console.log('Fetching MVO Type name from API...');
+        this.fetchMvoTypeName();
+      }
     }, 500);
 
     window.addEventListener('storage', this.handleStorageChange);
