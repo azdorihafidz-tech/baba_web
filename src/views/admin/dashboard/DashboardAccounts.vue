@@ -336,8 +336,8 @@
 
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
-                        <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch" :items-per-page="10"
-                            class="elevation-1" density="comfortable">
+                        <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
+                            :items-per-page="10" class="elevation-1 bg-grey-lighten-4" density="comfortable">
                             <!-- No data template -->
                             <template v-slot:no-data>
                                 <div class="text-center pa-4">
@@ -692,6 +692,16 @@ export default {
 <style scoped>
 .v-data-table {
     font-size: 0.875rem;
+}
+
+:deep(.v-data-table) {
+    border: 1px solid #000000;
+}
+
+:deep(.v-data-table__th) {
+    background-color: #888888 !important;
+    color: #FFD700 !important;
+    font-weight: bold;
 }
 
 .jabatan-card {

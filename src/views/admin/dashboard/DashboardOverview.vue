@@ -110,9 +110,16 @@
                 </v-card-title>
 
                 <v-card-text>
-                    <v-text-field v-model="search[role.key]" prepend-inner-icon="mdi-magnify" label="Search" single-line
-                        hide-details variant="outlined" density="compact" class="mb-4"
-                        style="max-width: 300px;"></v-text-field>
+                    <div class="d-flex align-center justify-space-between mb-4">
+                        <v-text-field v-model="search[role.key]" prepend-inner-icon="mdi-magnify" label="Search"
+                            single-line hide-details variant="outlined" density="compact"
+                            style="max-width: 300px;"></v-text-field>
+
+                        <v-btn color="success" size="small" @click="exportToExcel(role.data, `Top_5_${role.label}`)">
+                            <v-icon start>mdi-microsoft-excel</v-icon>
+                            Export
+                        </v-btn>
+                    </div>
 
                     <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders" :items="role.data"
                         :search="search[role.key]" :loading="isLoading" item-key="code" :items-per-page="5"
@@ -269,6 +276,7 @@
 <script>
 import axios from "axios";
 import Cookies from "js-cookie";
+import * as XLSX from "xlsx";
 
 export default {
     name: "DashboardOverview",
@@ -465,6 +473,25 @@ export default {
             return "blue";
         },
 
+        /* ===== EXPORT EXCEL ===== */
+        exportToExcel(data, filename) {
+            if (!data || data.length === 0) return;
+
+            const exportData = data.map((item, index) => ({
+                Rank: index + 1,
+                Nama: item.nama,
+                Code: item.code,
+                Cabang: item.cabang,
+                'Total Bintang': item.total_bintang,
+                'Jumlah RO': item.jumlah_ro
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        },
+
     },
 };
 </script>
@@ -483,5 +510,15 @@ export default {
 
 .gap-2 {
     gap: 8px;
+}
+
+:deep(.v-data-table) {
+    border: 1px solid #000000;
+}
+
+:deep(.v-data-table__th) {
+    background-color: #888888 !important;
+    color: #FFD700 !important;
+    font-weight: bold;
 }
 </style>

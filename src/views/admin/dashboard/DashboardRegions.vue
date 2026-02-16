@@ -31,12 +31,19 @@
                 <v-divider></v-divider>
 
                 <v-card-text>
-                    <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search Region"
-                        single-line hide-details variant="outlined" density="compact" class="mb-4"
-                        style="max-width: 300px;"></v-text-field>
+                    <div class="d-flex align-center justify-space-between mb-4">
+                        <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search Region"
+                            single-line hide-details variant="outlined" density="compact"
+                            style="max-width: 300px;"></v-text-field>
+
+                        <v-btn color="success" @click="exportRegionTableToExcel">
+                            <v-icon start>mdi-microsoft-excel</v-icon>
+                            Export Excel
+                        </v-btn>
+                    </div>
 
                     <v-data-table :headers="regionTableHeaders" :items="regionTableData" :search="searchRegion"
-                        :items-per-page="10" class="elevation-0" density="comfortable">
+                        :items-per-page="10" class="elevation-0 text-no-wrap bg-grey-lighten-4" density="comfortable">
                         <!-- Custom slot for region column with icon -->
                         <template v-slot:item.region="{ item }">
                             <div class="d-flex align-center">
@@ -231,7 +238,8 @@
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
                         <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
-                            :items-per-page="10" class="elevation-1" density="comfortable">
+                            :items-per-page="10" class="elevation-1 text-no-wrap bg-grey-lighten-4"
+                            density="comfortable">
                             <!-- No data template -->
                             <template v-slot:no-data>
                                 <div class="text-center pa-4">
@@ -594,6 +602,20 @@ export default {
             XLSX.writeFile(wb, fileName);
 
             this.exporting = false;
+        },
+
+        exportRegionTableToExcel() {
+            const data = this.regionTableData.map(item => ({
+                Region: item.region,
+                'Total Accounts': item.total_accounts,
+                'Percentage': item.percentage.toFixed(2) + '%'
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Region Summary");
+
+            XLSX.writeFile(wb, `Region_Summary_${new Date().toISOString().slice(0, 10)}.xlsx`);
         }
     },
 };
@@ -602,6 +624,16 @@ export default {
 <style scoped>
 .v-data-table {
     font-size: 0.875rem;
+}
+
+:deep(.v-data-table) {
+    border: 1px solid #000000;
+}
+
+:deep(.v-data-table__th) {
+    background-color: #888888 !important;
+    color: #FFD700 !important;
+    font-weight: bold;
 }
 
 .region-card {

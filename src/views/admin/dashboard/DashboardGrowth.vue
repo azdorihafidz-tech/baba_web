@@ -18,6 +18,11 @@
                             <v-text-field v-model="dateRange.end" label="Tanggal Akhir" type="date" variant="outlined"
                                 density="default" @update:model-value="fetchGrowthData"></v-text-field>
                         </v-col>
+                        <v-col cols="12" class="text-right">
+                            <v-btn color="success" prepend-icon="mdi-microsoft-excel" @click="exportGrowthData">
+                                Export Data
+                            </v-btn>
+                        </v-col>
                     </v-row>
                 </v-card-text>
             </v-card>
@@ -166,6 +171,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Chart, registerables } from 'chart.js';
+import * as XLSX from "xlsx";
 
 Chart.register(...registerables);
 
@@ -543,6 +549,28 @@ export default {
             } else {
                 this.regionChartInstance = chart;
             }
+        },
+        exportGrowthData() {
+            const wb = XLSX.utils.book_new();
+
+            // Overall Growth Sheet
+            const overallData = this.filteredGrowthData.map(item => ({
+                Bulan: item.bulan,
+                'Total RO': item.total_ro
+            }));
+            const wsOverall = XLSX.utils.json_to_sheet(overallData);
+            XLSX.utils.book_append_sheet(wb, wsOverall, "Overall Growth");
+
+            // Region Growth Sheet
+            const regionData = this.filteredRegionGrowthData.map(item => ({
+                Bulan: item.bulan,
+                Region: item.province_code,
+                'Total RO': item.total_ro
+            }));
+            const wsRegion = XLSX.utils.json_to_sheet(regionData);
+            XLSX.utils.book_append_sheet(wb, wsRegion, "Region Growth");
+
+            XLSX.writeFile(wb, `Growth_Data_${this.dateRange.start}_to_${this.dateRange.end}.xlsx`);
         }
     }
 };
