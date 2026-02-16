@@ -31,8 +31,12 @@
                 <v-divider></v-divider>
 
                 <v-card-text>
-                    <v-data-table :headers="regionTableHeaders" :items="regionTableData" :items-per-page="10"
-                        class="elevation-0" density="comfortable">
+                    <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search Region"
+                        single-line hide-details variant="outlined" density="compact" class="mb-4"
+                        style="max-width: 300px;"></v-text-field>
+
+                    <v-data-table :headers="regionTableHeaders" :items="regionTableData" :search="searchRegion"
+                        :items-per-page="10" class="elevation-0" density="comfortable">
                         <!-- Custom slot for region column with icon -->
                         <template v-slot:item.region="{ item }">
                             <div class="d-flex align-center">
@@ -146,8 +150,12 @@
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text class="pa-0">
+                    <div class="pa-3 pb-0">
+                        <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search Region"
+                            single-line hide-details variant="outlined" density="compact"></v-text-field>
+                    </div>
                     <v-list density="compact">
-                        <v-list-item v-for="(item, i) in regionTableData" :key="i" class="py-2">
+                        <v-list-item v-for="(item, i) in filteredRegionTableData" :key="i" class="py-2">
                             <template v-slot:prepend>
                                 <v-icon size="20" color="primary" class="mr-3">mdi-map-marker</v-icon>
                             </template>
@@ -217,10 +225,13 @@
 
                 <!-- TABLE -->
                 <v-card-text style="max-height: 500px;">
+                    <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Search" single-line
+                        hide-details variant="outlined" density="compact" class="mb-4 sticky-search"></v-text-field>
+
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
-                        <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10"
-                            class="elevation-1" density="comfortable">
+                        <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
+                            :items-per-page="10" class="elevation-1" density="comfortable">
                             <!-- No data template -->
                             <template v-slot:no-data>
                                 <div class="text-center pa-4">
@@ -233,7 +244,8 @@
 
                     <!-- Mobile View -->
                     <div class="d-block d-md-none">
-                        <v-card v-for="(item, index) in detailData" :key="index" class="mb-3" variant="outlined">
+                        <v-card v-for="(item, index) in filteredDetailData" :key="index" class="mb-3"
+                            variant="outlined">
                             <v-card-text>
                                 <div class="d-flex justify-space-between align-center mb-2">
                                     <div class="font-weight-bold text-truncate">{{ item.nama }}</div>
@@ -243,7 +255,7 @@
                                 <div class="text-caption">Cabang: {{ item.cabang }}</div>
                             </v-card-text>
                         </v-card>
-                        <div v-if="detailData.length === 0" class="text-center pa-4">
+                        <div v-if="filteredDetailData.length === 0" class="text-center pa-4">
                             <v-icon size="64" color="grey">mdi-account-outline</v-icon>
                             <div class="text-caption mt-2">No data found</div>
                         </div>
@@ -279,6 +291,8 @@ export default {
 
             regionRawData: [],
             cabang: null,
+            searchRegion: "",
+            detailSearch: "",
 
             // Region colors matching the image
             regionColors: [
@@ -373,7 +387,25 @@ export default {
                 total_accounts: region.count,
                 percentage: region.percentage
             }));
-        }
+        },
+
+        filteredRegionTableData() {
+            if (!this.searchRegion) return this.regionTableData;
+            const search = this.searchRegion.toLowerCase();
+            return this.regionTableData.filter(item =>
+                item.region.toLowerCase().includes(search)
+            );
+        },
+        filteredDetailData() {
+            if (!this.detailSearch) return this.detailData;
+            const search = this.detailSearch.toLowerCase();
+            return this.detailData.filter(item =>
+                (item.username && item.username.toLowerCase().includes(search)) ||
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.cabang && item.cabang.toLowerCase().includes(search)) ||
+                (item.jabatan && item.jabatan.toLowerCase().includes(search))
+            );
+        },
     },
 
     created() {
@@ -585,5 +617,12 @@ export default {
 /* Custom styling for progress bars */
 .v-progress-linear {
     border-radius: 4px;
+}
+
+.sticky-search {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: white;
 }
 </style>

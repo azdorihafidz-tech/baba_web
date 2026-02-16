@@ -71,8 +71,13 @@
                 </v-card-title>
 
                 <v-card-text>
+                    <v-text-field v-model="search[role.key]" prepend-inner-icon="mdi-magnify" label="Search" single-line
+                        hide-details variant="outlined" density="compact" class="mb-4"
+                        style="max-width: 300px;"></v-text-field>
+
                     <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topBintangHeaders" :items="role.data"
-                        :loading="isLoading" item-key="code" :items-per-page="5" hide-default-footer>
+                        :search="search[role.key]" :loading="isLoading" item-key="code" :items-per-page="5"
+                        hide-default-footer>
 
                         <!-- RANK -->
                         <template #item.rank="{ index }">
@@ -178,12 +183,15 @@
                 </v-card-title>
 
                 <v-card-text class="pa-3">
-                    <div v-if="!role.data.length" class="text-center text-grey pa-4">
+                    <v-text-field v-model="search[role.key]" prepend-inner-icon="mdi-magnify" label="Search" single-line
+                        hide-details variant="outlined" density="compact" class="mb-3"></v-text-field>
+
+                    <div v-if="!getFilteredMobileData(role.data, role.key).length" class="text-center text-grey pa-4">
                         Tidak ada data
                     </div>
 
-                    <v-card v-for="(item, index) in role.data" :key="item.code" class="mb-3" variant="outlined"
-                        @click="$emit('show-mvo-detail', item.code, item)">
+                    <v-card v-for="(item, index) in getFilteredMobileData(role.data, role.key)" :key="item.code"
+                        class="mb-3" variant="outlined" @click="$emit('show-mvo-detail', item.code, item)">
                         <v-card-text>
                             <div class="d-flex justify-space-between align-center mb-2">
                                 <div class="d-flex align-center">
@@ -234,6 +242,7 @@ export default {
     data() {
         return {
             dashboardData: { summary: {} },
+            search: {},
             isLoading: false,
 
             topBintangHeaders: [
@@ -346,6 +355,17 @@ export default {
         /* ===== NAVIGATE TO TAB ===== */
         navigateToTab(section) {
             this.$emit('navigate-to-tab', section);
+        },
+
+        getFilteredMobileData(data, key) {
+            const term = this.search[key];
+            if (!term) return data;
+            const lowerTerm = term.toLowerCase();
+            return data.filter(item =>
+                (item.nama && item.nama.toLowerCase().includes(lowerTerm)) ||
+                (item.code && item.code.toLowerCase().includes(lowerTerm)) ||
+                (item.cabang && item.cabang.toLowerCase().includes(lowerTerm))
+            );
         },
 
         /* ===== GENERATE COLOR BY INDEX ===== */

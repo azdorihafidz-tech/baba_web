@@ -36,6 +36,10 @@
                             <v-select v-model="filterRoleStar" :items="roleFilterItems" label="Filter Role"
                                 variant="outlined" density="compact" hide-details></v-select>
                         </div>
+                        <div style="width: 300px;">
+                            <v-text-field v-model="searchStar" prepend-inner-icon="mdi-magnify" label="Search"
+                                variant="outlined" density="compact" hide-details></v-text-field>
+                        </div>
                     </div>
                     <div class="text-center">
                         <v-btn color="success" prepend-icon="mdi-microsoft-excel"
@@ -46,7 +50,8 @@
                 </v-card-text>
                 <v-card-text>
                     <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="dashboardStarHeaders"
-                        :items="filteredDashboardStar" :loading="isLoading" item-key="id" :items-per-page="10">
+                        :search="searchStar" :items="filteredDashboardStar" :loading="isLoading" item-key="id"
+                        :items-per-page="10">
                         <template v-slot:item.ranking="{ item }">
                             <v-chip :color="getRankColor(item.ranking)" dark size="small">
                                 <v-icon v-if="item.ranking <= 3" left size="14">
@@ -83,7 +88,7 @@
             <v-card class="mb-4">
                 <v-card-title class="d-flex align-center">
                     <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
-                    Leaderboard Per Bulan
+                    Leaderboard
                 </v-card-title>
 
                 <!-- FILTER AREA -->
@@ -102,6 +107,8 @@
                     <div class="d-flex align-center justify-center mb-3">
                         <v-select v-model="filterRoleBulan" :items="roleFilterItems" label="Filter Role"
                             variant="outlined" density="compact" hide-details style="min-width: 200px;" />
+                        <v-text-field v-model="searchBulan" prepend-inner-icon="mdi-magnify" label="Search"
+                            variant="outlined" density="compact" hide-details style="min-width: 200px;" class="ml-2" />
                     </div>
 
                     <!-- Export Button -->
@@ -128,7 +135,8 @@
 
                     <!-- DATA TABLE -->
                     <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="leaderboardPerBulanHeaders"
-                        :items="filteredLeaderboardBulanData" :loading="isLoading" item-key="id" :items-per-page="10">
+                        :search="searchBulan" :items="filteredLeaderboardBulanData" :loading="isLoading" item-key="id"
+                        :items-per-page="10">
 
                         <!-- Ranking -->
                         <template v-slot:item.ranking="{ item }">
@@ -281,6 +289,10 @@
                             <v-select v-model="filterRoleStar" :items="roleFilterItems" label="Filter Role"
                                 variant="outlined" density="compact" hide-details></v-select>
                         </v-col>
+                        <v-col cols="12" class="mt-2">
+                            <v-text-field v-model="searchStar" prepend-inner-icon="mdi-magnify" label="Search"
+                                variant="outlined" density="compact" hide-details></v-text-field>
+                        </v-col>
                         <v-col cols="4">
                             <v-btn block color="success" size="small"
                                 @click="exportToExcel(filteredDashboardStar, 'Ranking_Semua_Akun', dashboardStarHeaders)">
@@ -292,7 +304,7 @@
 
                 <v-card-text class="pa-0">
                     <v-list>
-                        <v-list-item v-for="item in dashboardData.dashboard_star || []" :key="item.id" class="py-3">
+                        <v-list-item v-for="item in filteredMobileDashboardStar" :key="item.id" class="py-3">
                             <template v-slot:prepend>
                                 <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-2"
                                     style="min-width: 32px; justify-content: center;">
@@ -345,6 +357,10 @@
                             <v-select v-model="filterRoleBulan" :items="roleFilterItems" label="Filter Role"
                                 variant="outlined" density="compact" hide-details />
                         </v-col>
+                        <v-col cols="12" class="mt-2">
+                            <v-text-field v-model="searchBulan" prepend-inner-icon="mdi-magnify" label="Search"
+                                variant="outlined" density="compact" hide-details />
+                        </v-col>
                         <v-col cols="4">
                             <v-btn block color="success" size="small"
                                 @click="exportToExcel(filteredLeaderboardBulanData, `Leaderboard_Bulan_${selectedLeaderboardMonth}`, leaderboardPerBulanHeaders)">
@@ -364,7 +380,7 @@
                 </v-card-text>
                 <v-card-text class="pa-0">
                     <v-list>
-                        <v-list-item v-for="item in currentLeaderboardBulanData" :key="item.id" class="py-3">
+                        <v-list-item v-for="item in filteredMobileLeaderboardBulan" :key="item.id" class="py-3">
                             <template v-slot:prepend>
                                 <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-2"
                                     style="min-width: 32px; justify-content: center;">
@@ -465,6 +481,10 @@
 
             <v-divider></v-divider>
 
+            <v-card-text class="pa-4 pb-0">
+                <v-text-field v-model="searchDaerah" prepend-inner-icon="mdi-magnify" label="Search" variant="outlined"
+                    density="compact" hide-details></v-text-field>
+            </v-card-text>
             <v-card-text class="pa-4 pb-0 text-center">
                 <v-btn color="success" prepend-icon="mdi-microsoft-excel"
                     @click="exportToExcel(selectedDaerahData, `Leaderboard_Daerah_${selectedDaerahKey}`, daerahDetailHeaders)">
@@ -547,7 +567,7 @@
                 <!-- Mobile List -->
                 <div class="d-block d-md-none">
                     <v-list>
-                        <v-list-item v-for="item in selectedDaerahData" :key="item.id" class="py-3">
+                        <v-list-item v-for="item in filteredMobileDaerahData" :key="item.id" class="py-3">
                             <template v-slot:prepend>
                                 <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-2"
                                     style="min-width: 32px; justify-content: center;">
@@ -578,7 +598,8 @@
                 <!-- Desktop Table -->
                 <div class="d-none d-md-block">
                     <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="daerahDetailHeaders"
-                        :items="selectedDaerahData" :loading="isLoading" item-key="id" :items-per-page="10">
+                        :search="searchDaerah" :items="selectedDaerahData" :loading="isLoading" item-key="id"
+                        :items-per-page="10">
                         <template v-slot:item.ranking="{ item }">
                             <v-chip :color="getRankColor(item.ranking)" dark size="small">
                                 <v-icon v-if="item.ranking <= 3" left size="14">
@@ -626,6 +647,10 @@
                 </v-btn>
             </v-card-title>
             <v-divider></v-divider>
+            <v-card-text class="pa-4 pb-0">
+                <v-text-field v-model="searchTopStar" prepend-inner-icon="mdi-magnify" label="Search" variant="outlined"
+                    density="compact" hide-details></v-text-field>
+            </v-card-text>
             <v-card-text class="pa-4 text-center">
                 <v-btn color="success" prepend-icon="mdi-microsoft-excel"
                     @click="exportToExcel(dashboardData.top_star, 'Top_Star_Data', topStarHeaders)">
@@ -635,8 +660,8 @@
             <v-card-text>
                 <!-- Desktop View -->
                 <div class="d-none d-md-block">
-                    <v-data-table :headers="topStarHeaders" :items="dashboardData.top_star" :items-per-page="10"
-                        class="bg-grey-lighten-4">
+                    <v-data-table :headers="topStarHeaders" :items="dashboardData.top_star" :search="searchTopStar"
+                        :items-per-page="10" class="bg-grey-lighten-4">
                         <template v-slot:item.total_repeat_order="{ item }">
                             {{ item.total_repeat_order }}
                         </template>
@@ -644,8 +669,7 @@
                 </div>
                 <!-- Mobile View -->
                 <div class="d-block d-md-none">
-                    <v-card v-for="(item, index) in dashboardData.top_star" :key="index" class="mb-3"
-                        variant="outlined">
+                    <v-card v-for="(item, index) in filteredMobileTopStar" :key="index" class="mb-3" variant="outlined">
                         <v-card-text>
                             <div class="font-weight-bold mb-1">{{ item.nama }}</div>
                             <div class="text-caption text-grey mb-2">{{ item.code }} • {{ item.province_code }}</div>
@@ -674,6 +698,10 @@
                 </v-btn>
             </v-card-title>
             <v-divider></v-divider>
+            <v-card-text class="pa-4 pb-0">
+                <v-text-field v-model="searchAkunMvo" prepend-inner-icon="mdi-magnify" label="Search" variant="outlined"
+                    density="compact" hide-details></v-text-field>
+            </v-card-text>
             <v-card-text class="pa-4 text-center">
                 <v-btn color="success" prepend-icon="mdi-microsoft-excel"
                     @click="exportToExcel(dashboardData.akun_per_mvo, 'Akun_Per_MVO', akunPerMvoHeaders)">
@@ -683,8 +711,8 @@
             <v-card-text>
                 <!-- Desktop View -->
                 <div class="d-none d-md-block">
-                    <v-data-table :headers="akunPerMvoHeaders" :items="dashboardData.akun_per_mvo" :items-per-page="10"
-                        class="bg-grey-lighten-4">
+                    <v-data-table :headers="akunPerMvoHeaders" :items="dashboardData.akun_per_mvo"
+                        :search="searchAkunMvo" :items-per-page="10" class="bg-grey-lighten-4">
                         <template v-slot:item.role="{ item }">
                             <v-chip :color="getRoleColor(item.role)" dark size="small">
                                 {{ getRoleLabel(item.role) }}
@@ -697,7 +725,7 @@
                 </div>
                 <!-- Mobile View -->
                 <div class="d-block d-md-none">
-                    <v-card v-for="(item, index) in dashboardData.akun_per_mvo" :key="index" class="mb-3"
+                    <v-card v-for="(item, index) in filteredMobileAkunPerMvo" :key="index" class="mb-3"
                         variant="outlined">
                         <v-card-text>
                             <div class="d-flex justify-space-between align-center mb-1">
@@ -749,6 +777,11 @@ export default {
             selectedDaerahData: [],
             filterRoleStar: 'ALL',
             filterRoleBulan: 'ALL',
+            searchStar: '',
+            searchBulan: '',
+            searchDaerah: '',
+            searchTopStar: '',
+            searchAkunMvo: '',
 
             // Headers
             dashboardStarHeaders: [
@@ -857,6 +890,48 @@ export default {
                 return [];
             }
             return this.dashboardData.leaderboard_per_bulan[this.selectedLeaderboardMonth] || [];
+        },
+
+        filteredMobileDashboardStar() {
+            if (!this.searchStar) return this.filteredDashboardStar;
+            const search = this.searchStar.toLowerCase();
+            return this.filteredDashboardStar.filter(item =>
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.code && item.code.toLowerCase().includes(search))
+            );
+        },
+        filteredMobileLeaderboardBulan() {
+            if (!this.searchBulan) return this.filteredLeaderboardBulanData;
+            const search = this.searchBulan.toLowerCase();
+            return this.filteredLeaderboardBulanData.filter(item =>
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.code && item.code.toLowerCase().includes(search))
+            );
+        },
+        filteredMobileDaerahData() {
+            if (!this.searchDaerah) return this.selectedDaerahData;
+            const search = this.searchDaerah.toLowerCase();
+            return this.selectedDaerahData.filter(item =>
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.code && item.code.toLowerCase().includes(search))
+            );
+        },
+        filteredMobileTopStar() {
+            if (!this.searchTopStar) return this.dashboardData.top_star;
+            const search = this.searchTopStar.toLowerCase();
+            return this.dashboardData.top_star.filter(item =>
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.code && item.code.toLowerCase().includes(search)) ||
+                (item.province_code && item.province_code.toLowerCase().includes(search))
+            );
+        },
+        filteredMobileAkunPerMvo() {
+            if (!this.searchAkunMvo) return this.dashboardData.akun_per_mvo;
+            const search = this.searchAkunMvo.toLowerCase();
+            return this.dashboardData.akun_per_mvo.filter(item =>
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.code && item.code.toLowerCase().includes(search))
+            );
         }
     },
 

@@ -263,10 +263,13 @@
 
                 <!-- TABLE -->
                 <v-card-text style="max-height: 500px;">
+                    <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Search" single-line
+                        hide-details variant="outlined" density="compact" class="mb-4 sticky-search"></v-text-field>
+
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
-                        <v-data-table :headers="tableHeaders" :items="detailData" :items-per-page="10"
-                            class="elevation-1" density="comfortable">
+                        <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
+                            :items-per-page="10" class="elevation-1" density="comfortable">
                             <!-- Status Column with Chip -->
                             <template v-slot:item.status_inputan="{ item }">
                                 <v-chip :color="getStatusColor(item.status_inputan)" size="small" dark>
@@ -286,7 +289,7 @@
 
                     <!-- Mobile View -->
                     <div class="d-block d-md-none">
-                        <v-card v-for="(item, index) in detailData" :key="index" class="mb-3" variant="outlined"
+                        <v-card v-for="(item, index) in filteredDetailData" :key="index" class="mb-3" variant="outlined"
                             :color="getStatusColor(item.status_inputan)">
                             <v-card-text>
                                 <div class="d-flex justify-space-between align-center mb-2">
@@ -305,7 +308,7 @@
                                 </div>
                             </v-card-text>
                         </v-card>
-                        <div v-if="detailData.length === 0" class="text-center pa-4">
+                        <div v-if="filteredDetailData.length === 0" class="text-center pa-4">
                             <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
                             <div class="text-caption mt-2">No documents found</div>
                         </div>
@@ -352,6 +355,7 @@ export default {
             documentRawData: [],
 
             cabang: null,
+            detailSearch: "",
 
             // Detail Dialog
             detailDialog: false,
@@ -372,6 +376,19 @@ export default {
                 { title: "Status", key: "status_inputan", sortable: true },
             ],
         };
+    },
+
+    computed: {
+        filteredDetailData() {
+            if (!this.detailSearch) return this.detailData;
+            const search = this.detailSearch.toLowerCase();
+            return this.detailData.filter(item =>
+                (item.code && item.code.toLowerCase().includes(search)) ||
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.province_code && item.province_code.toLowerCase().includes(search)) ||
+                (item.jabatan && item.jabatan.toLowerCase().includes(search))
+            );
+        }
     },
 
     created() {
@@ -581,5 +598,12 @@ export default {
 <style scoped>
 .v-data-table {
     font-size: 0.875rem;
+}
+
+.sticky-search {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: white;
 }
 </style>

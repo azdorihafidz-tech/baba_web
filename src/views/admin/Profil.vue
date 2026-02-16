@@ -211,6 +211,22 @@
                                                     bg-color="grey-darken-4" class="profile-field"
                                                     disabled></v-text-field>
                                             </v-col>
+                                            <v-col cols="12">
+                                                <v-card class="position-card" elevation="2">
+                                                    <div class="d-flex align-center pa-4">
+                                                        <v-avatar size="56" color="amber" class="mr-4">
+                                                            <v-icon size="32" color="white">mdi-briefcase</v-icon>
+                                                        </v-avatar>
+                                                        <div class="flex-grow-1">
+                                                            <div class="text-caption text-grey">Jabatan</div>
+                                                            <div class="text-h6 font-weight-medium mt-1">
+                                                                {{ editedData.mvo_type_id }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+
                                         </v-row>
                                     </div>
                                 </v-col>
@@ -505,3 +521,14 @@ export default {
     }
 };
 </script>
+<style scoped>
+.position-card {
+    background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+    border-left: 4px solid #ffc107;
+    transition: transform 0.2s;
+}
+
+.position-card:hover {
+    transform: translateX(4px);
+}
+</style>
