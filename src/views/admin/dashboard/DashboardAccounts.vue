@@ -579,9 +579,22 @@ export default {
                 jabatanMap[jabatan].count++;
             });
 
-            // Convert to array and sort by count descending
+            // Convert to array and sort by custom order
+            const order = ['MVO', 'REGIONAL', 'FO', 'GM', 'SUPPLIER', 'DIST', 'SELL'];
+
             this.jabatanList = Object.values(jabatanMap)
-                .sort((a, b) => b.count - a.count);
+                .sort((a, b) => {
+                    const nameA = (a.name || '').toUpperCase();
+                    const nameB = (b.name || '').toUpperCase();
+
+                    let indexA = order.indexOf(nameA);
+                    let indexB = order.indexOf(nameB);
+
+                    if (indexA === -1) indexA = 999;
+                    if (indexB === -1) indexB = 999;
+
+                    return indexA - indexB;
+                });
         },
         handleShowJabatanDetail(jabatanName) {
             // Filter data by jabatan
@@ -629,6 +642,21 @@ export default {
                     title = "Pending Akun";
                     break;
             }
+
+            // Sort data by jabatan custom order
+            const order = ['MVO', 'REGIONAL', 'FO', 'GM', 'SUPPLIER', 'DIST', 'SELL'];
+            data.sort((a, b) => {
+                const jabatanA = (a.jabatan || '').toUpperCase().trim();
+                const jabatanB = (b.jabatan || '').toUpperCase().trim();
+
+                let indexA = order.indexOf(jabatanA);
+                let indexB = order.indexOf(jabatanB);
+
+                if (indexA === -1) indexA = 999;
+                if (indexB === -1) indexB = 999;
+
+                return indexA - indexB;
+            });
 
             this.detailData = data.map((item, index) => ({
                 ...item,

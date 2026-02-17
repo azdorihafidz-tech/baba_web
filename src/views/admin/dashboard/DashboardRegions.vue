@@ -237,7 +237,8 @@
 
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
-                        <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
+                        <!-- ✅ Pakai sortedDetailData bukan detailData -->
+                        <v-data-table :headers="tableHeaders" :items="sortedDetailData" :search="detailSearch"
                             :items-per-page="10" class="elevation-1 text-no-wrap bg-grey-lighten-4"
                             density="comfortable">
                             <!-- No data template -->
@@ -252,6 +253,7 @@
 
                     <!-- Mobile View -->
                     <div class="d-block d-md-none">
+                        <!-- ✅ filteredDetailData sudah include sortByJabatan -->
                         <v-card v-for="(item, index) in filteredDetailData" :key="index" class="mb-3"
                             variant="outlined">
                             <v-card-text>
@@ -295,19 +297,21 @@ export default {
 
     data() {
         return {
-            mvo_type_id: null,
+            // ===== JABATAN ORDER =====
+            jabatanOrder: ['MVO', 'REGIONAL', 'FO', 'GM', 'SUPPLIER', 'DIST', 'SELL'],
 
+            mvo_type_id: null,
             regionRawData: [],
             cabang: null,
             searchRegion: "",
             detailSearch: "",
 
-            // Region colors matching the image
+            // Region colors
             regionColors: [
-                'blue darken-1',    // BDG - Blue
-                'success',          // BTM - Green
-                'blue darken-1',    // MDN - Blue
-                'orange darken-1',  // PKU - Orange
+                'blue darken-1',
+                'success',
+                'blue darken-1',
+                'orange darken-1',
                 'purple',
                 'indigo',
                 'teal',
@@ -347,14 +351,11 @@ export default {
         },
 
         totalAkun() {
-            // Total semua akun dari semua cabang/region
             return this.regionRawData.length;
         },
 
         regionCardData() {
-            // Check if data already has aggregated structure (from superadmin API)
             if (this.regionRawData.length > 0 && this.regionRawData[0].total_akun !== undefined) {
-                // Data sudah dalam format summary dari API
                 return this.regionRawData.map(region => ({
                     name: region.cabang,
                     count: parseInt(region.total_akun),
@@ -362,30 +363,21 @@ export default {
                 })).sort((a, b) => b.count - a.count);
             }
 
-            // Data masih dalam format detail individual akun, perlu di-group
             const regionMap = {};
-
             this.regionRawData.forEach(akun => {
                 const region = akun.cabang || 'Unknown';
-
                 if (!regionMap[region]) {
-                    regionMap[region] = {
-                        name: region,
-                        count: 0
-                    };
+                    regionMap[region] = { name: region, count: 0 };
                 }
-
                 regionMap[region].count++;
             });
 
-            // Convert to array and calculate percentages
             const totalAccounts = this.regionRawData.length;
             const regions = Object.values(regionMap).map(region => ({
                 ...region,
                 percentage: totalAccounts > 0 ? (region.count / totalAccounts) * 100 : 0
             }));
 
-            // Sort by count descending
             return regions.sort((a, b) => b.count - a.count);
         },
 
@@ -404,10 +396,18 @@ export default {
                 item.region.toLowerCase().includes(search)
             );
         },
+
+        // ✅ Untuk Desktop v-data-table: data sudah di-sort by jabatan
+        sortedDetailData() {
+            return this.sortByJabatan(this.detailData);
+        },
+
+        // ✅ Untuk Mobile list: data di-sort by jabatan + filter search
         filteredDetailData() {
-            if (!this.detailSearch) return this.detailData;
+            const sorted = this.sortByJabatan(this.detailData);
+            if (!this.detailSearch) return sorted;
             const search = this.detailSearch.toLowerCase();
-            return this.detailData.filter(item =>
+            return sorted.filter(item =>
                 (item.username && item.username.toLowerCase().includes(search)) ||
                 (item.nama && item.nama.toLowerCase().includes(search)) ||
                 (item.cabang && item.cabang.toLowerCase().includes(search)) ||
@@ -423,15 +423,28 @@ export default {
 
     methods: {
 
+        // ===== SORT BY JABATAN ORDER =====
+        sortByJabatan(data) {
+            return [...data].sort((a, b) => {
+                const jabatanA = (a.jabatan || '').toUpperCase().trim();
+                const jabatanB = (b.jabatan || '').toUpperCase().trim();
+
+                const indexA = this.jabatanOrder.indexOf(jabatanA);
+                const indexB = this.jabatanOrder.indexOf(jabatanB);
+
+                // Jabatan yang tidak ada di list → taruh di akhir
+                const orderA = indexA === -1 ? 999 : indexA;
+                const orderB = indexB === -1 ? 999 : indexB;
+
+                return orderA - orderB;
+            });
+        },
+
         // ================= INIT USER =================
         initUser() {
             const user = JSON.parse(localStorage.getItem("user"));
-
             if (!user) return;
-
             this.mvo_type_id = user.mvo_type_id || null;
-
-            // Hanya set cabang kalau bukan superadmin
             if (this.mvo_type_id !== "superadmin") {
                 this.cabang = user.cabang || null;
             }
@@ -439,42 +452,32 @@ export default {
 
         async fetchData() {
             const token = Cookies.get("token") || localStorage.getItem("token");
-
             if (!token) return;
 
             let url = "";
-
             if (this.mvo_type_id === "superadmin") {
-                // SUPERADMIN → Semua data
                 url = `https://babaapi.teknosof.com/api/dashboard/akun`;
             } else {
-                // NON SUPERADMIN → Wajib ada cabang
                 if (!this.cabang) {
                     console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
-
                 url = `https://babaapi.teknosof.com/api/dashboard/akun/${this.cabang}`;
             }
 
             try {
                 const res = await axios.get(url, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
 
                 if (res.data.status === "success") {
-                    // Check if this is superadmin mode (region_summary)
                     if (res.data.mode === "region_summary") {
-                        // Transform region summary data to match component structure
                         this.regionRawData = res.data.data.map(region => ({
                             cabang: region.province,
                             total_akun: parseInt(region.total_akun),
                             percentage: region.percentage
                         }));
                     } else {
-                        // Standard mode - list of individual akun
                         this.regionRawData = res.data.data || [];
                     }
                 }
@@ -484,13 +487,10 @@ export default {
         },
 
         async handleShowRegionDetail(regionName) {
-            // Check if we're in summary mode (superadmin)
             const isSummaryMode = this.regionRawData.length > 0 && this.regionRawData[0].total_akun !== undefined;
 
             if (isSummaryMode) {
-                // Fetch detailed data for this specific region
                 const token = Cookies.get("token") || localStorage.getItem("token");
-
                 if (!token) return;
 
                 try {
@@ -500,17 +500,15 @@ export default {
 
                     const res = await axios.get(
                         `https://babaapi.teknosof.com/api/dashboard/akun/${regionName}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
+                        { headers: { Authorization: `Bearer ${token}` } }
                     );
 
                     if (res.data.status === "success") {
                         const data = res.data.data || [];
 
-                        this.detailData = data.map((item, index) => ({
+                        // ✅ Sort by jabatan dulu, baru assign no urut
+                        const sorted = this.sortByJabatan(data);
+                        this.detailData = sorted.map((item, index) => ({
                             ...item,
                             no: index + 1
                         }));
@@ -521,7 +519,7 @@ export default {
                         this.$emit('show-detail', {
                             type: 'region',
                             region: regionName,
-                            data
+                            data: sorted
                         });
                     }
                 } catch (err) {
@@ -529,12 +527,13 @@ export default {
                     this.detailTitle = `Error loading data for ${regionName}`;
                 }
             } else {
-                // Data already detailed, just filter
                 const data = this.regionRawData.filter(
                     akun => (akun.cabang || 'Unknown') === regionName
                 );
 
-                this.detailData = data.map((item, index) => ({
+                // ✅ Sort by jabatan dulu, baru assign no urut
+                const sorted = this.sortByJabatan(data);
+                this.detailData = sorted.map((item, index) => ({
                     ...item,
                     no: index + 1
                 }));
@@ -546,14 +545,15 @@ export default {
                 this.$emit('show-detail', {
                     type: 'region',
                     region: regionName,
-                    data
+                    data: sorted
                 });
             }
         },
 
         handleShowAllAkun() {
-            // Tampilkan semua akun dari semua region
-            this.detailData = this.regionRawData.map((item, index) => ({
+            // ✅ Sort by jabatan dulu, baru assign no urut
+            const sorted = this.sortByJabatan(this.regionRawData);
+            this.detailData = sorted.map((item, index) => ({
                 ...item,
                 no: index + 1
             }));
@@ -564,41 +564,32 @@ export default {
 
             this.$emit('show-detail', {
                 type: 'all_region',
-                data: this.regionRawData
+                data: sorted
             });
         },
 
         getRegionColor(index) {
-            // Return color from array based on index, cycle if more regions than colors
             return this.regionColors[index % this.regionColors.length];
         },
 
         exportToExcel() {
             this.exporting = true;
 
-            // ===== Ambil header yang tampil =====
             const headers = this.tableHeaders;
-
-            // ===== Mapping data sesuai header =====
-            const data = this.detailData.map(row => {
+            // ✅ Export pakai sortedDetailData agar urutan jabatan ikut tersimpan di Excel
+            const data = this.sortedDetailData.map(row => {
                 let obj = {};
-
                 headers.forEach(h => {
-                    let value = row[h.key];
-                    obj[h.title] = value ?? "-";
+                    obj[h.title] = row[h.key] ?? "-";
                 });
-
                 return obj;
             });
 
-            // ===== Convert ke Excel =====
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
-
             XLSX.utils.book_append_sheet(wb, ws, "Region");
 
             const fileName = `${this.detailTitle.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-
             XLSX.writeFile(wb, fileName);
 
             this.exporting = false;
@@ -646,7 +637,6 @@ export default {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* Custom styling for progress bars */
 .v-progress-linear {
     border-radius: 4px;
 }

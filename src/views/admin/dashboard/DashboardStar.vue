@@ -252,11 +252,34 @@
             <!-- Section 2: Leaderboard Per Bulan -->
             <v-card-title class="d-flex align-center">
                 <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
-                Leaderboard per Bulan
+                Akumulasi Star
             </v-card-title>
 
             <!-- FILTER AREA -->
             <v-card-text class="pb-0">
+
+                <!-- DATE RANGE FILTER -->
+                <!-- <v-row dense class="mb-4">
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="dateRange.start_date" label="Tanggal Mulai" type="date"
+                            prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="dateRange.end_date" label="Tanggal Selesai" type="date"
+                            prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                    </v-col>
+                    <v-col cols="12" md="4" class="d-flex align-center gap-2">
+                        <v-btn color="primary" @click="applyDateFilter" :loading="isLoading" density="compact"
+                            style="height: 40px; min-width: 110px;">
+                            <v-icon start>mdi-magnify</v-icon>
+                            Filter
+                        </v-btn>
+                        <v-btn color="grey" variant="outlined" @click="resetDateFilter" :disabled="isLoading"
+                            density="compact" style="height: 40px; min-width: 40px;">
+                            <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
+                    </v-col>
+                </v-row> -->
 
                 <!-- Filter Role -->
                 <div class="d-flex align-center justify-space-between mb-3">
@@ -495,7 +518,7 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Downline</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ mvo.totalDownlines
-                                            }}</div>
+                                        }}</div>
                                     </div>
                                 </div>
                                 <v-divider class="my-1 border-opacity-25" color="white"></v-divider>
@@ -545,7 +568,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                                }}</v-chip>
+                            }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -566,9 +589,31 @@
         <v-card class="mb-4">
             <v-card-title class="d-flex align-center">
                 <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
-                Leaderboard per Bulan
+                Akumulasi Star
             </v-card-title>
             <v-card-text>
+                <!-- DATE RANGE FILTER MOBILE -->
+                <!-- <v-row dense class="mb-3">
+                    <v-col cols="12">
+                        <v-text-field v-model="dateRange.start_date" label="Tanggal Mulai" type="date"
+                            prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field v-model="dateRange.end_date" label="Tanggal Selesai" type="date"
+                            prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                    </v-col>
+                    <v-col cols="12" class="d-flex align-center justify-center gap-2">
+                        <v-btn color="primary" @click="applyDateFilter" :loading="isLoading" density="compact"
+                            style="height: 40px;" block>
+                            <v-icon start>mdi-magnify</v-icon>
+                            Filter
+                        </v-btn>
+                        <v-btn color="grey" variant="outlined" @click="resetDateFilter" :disabled="isLoading"
+                            density="compact" style="height: 40px; min-width: 40px;">
+                            <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
+                    </v-col>
+                </v-row> -->
                 <v-row dense>
                     <v-col cols="12">
                         <v-select v-model="filterRoleBulan" :items="roleFilterItems" label="Filter Role"
@@ -606,7 +651,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                                }}</v-chip>
+                            }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -622,10 +667,58 @@
                 </div>
             </v-list>
         </v-card>
+
+        <!-- Section: Leaderboard Daerah -->
+        <!-- <v-card class="mb-4">
+            <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="primary">mdi-map-marker-multiple</v-icon>
+                Leaderboard Daerah
+            </v-card-title>
+            <v-card-text>
+                <v-row dense>
+                    <v-col v-for="(daerahData, daerahKey) in dashboardData.leaderboard_per_daerah || {}"
+                        :key="daerahKey" cols="12">
+                        <v-card :color="getDaerahCardColor(daerahKey)" dark
+                            @click="showDaerahLeaderboardDetail(daerahKey, daerahData)" style="cursor: pointer;">
+                            <v-card-text class="pa-3">
+                                <div class="d-flex justify-space-between align-center">
+                                    <div>
+                                        <div class="text-h6 font-weight-bold">{{ daerahKey }}</div>
+                                        <div class="text-caption">{{ daerahData.length }} Akun</div>
+                                    </div>
+                                    <v-icon size="32" class="opacity-50">mdi-map-marker</v-icon>
+                                </div>
+
+                                <v-divider class="my-2" color="white"></v-divider>
+
+                                <div v-if="daerahData.length > 0" class="d-flex align-center mt-2">
+                                    <div class="mr-3 text-center" style="min-width: 40px;">
+                                        <v-icon color="amber">mdi-trophy</v-icon>
+                                        <div class="text-caption font-weight-bold">#1</div>
+                                    </div>
+                                    <div class="text-truncate flex-grow-1">
+                                        <div class="text-body-2 font-weight-bold text-truncate">{{ daerahData[0].nama }}
+                                        </div>
+                                        <div class="d-flex align-center">
+                                            <v-icon size="12" color="amber" class="mr-1">mdi-star</v-icon>
+                                            <span class="text-caption">{{ daerahData[0].total_bintang }} Bintang</span>
+                                        </div>
+                                    </div>
+                                    <v-icon size="20">mdi-chevron-right</v-icon>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                    <v-col v-if="!Object.keys(dashboardData.leaderboard_per_daerah || {}).length" cols="12">
+                        <div class="text-center pa-4 text-grey">Belum ada data Leaderboard Daerah</div>
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card> -->
     </div>
 
     <!-- Daerah Leaderboard Detail Modal -->
-    <v-dialog v-model="daerahDetailModal" max-width="90vw" fullscreen-on-mobile>
+    <!-- <v-dialog v-model="daerahDetailModal" max-width="90vw" fullscreen-on-mobile>
         <v-card>
             <v-card-title class="d-flex justify-space-between align-center pa-4">
                 <div>
@@ -653,14 +746,13 @@
                 </v-btn>
             </v-card-text>
 
-            <!-- Summary mini cards -->
             <v-card-text class="pa-4 pb-2">
                 <v-row dense>
                     <v-col cols="6" md="3">
                         <v-card flat color="grey-lighten-4" class="text-center pa-3">
                             <v-icon color="amber" size="20">mdi-star</v-icon>
                             <div class="text-h6 font-weight-bold mt-1">{{ getTotalBintangDaerah(selectedDaerahData)
-                            }}</div>
+                                }}</div>
                             <div class="text-caption">Total Bintang</div>
                         </v-card>
                     </v-col>
@@ -725,7 +817,6 @@
             </v-card-text>
 
             <v-card-text class="pa-0">
-                <!-- Mobile List -->
                 <div class="d-block d-md-none">
                     <v-list>
                         <v-list-item v-for="item in filteredMobileDaerahData" :key="item.id" class="py-3">
@@ -756,7 +847,6 @@
                     </v-list>
                 </div>
 
-                <!-- Desktop Table -->
                 <div class="d-none d-md-block">
                     <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="daerahDetailHeaders"
                         :search="searchDaerah" :items="selectedDaerahData" :loading="isLoading" item-key="id"
@@ -793,7 +883,7 @@
                 </div>
             </v-card-text>
         </v-card>
-    </v-dialog>
+    </v-dialog>  -->
 
     <!-- MVO Detail Dialog -->
     <v-dialog v-model="mvoDetailDialog" max-width="1000px" scrollable>
@@ -848,7 +938,7 @@
                                 <v-card flat color="grey-lighten-4" class="pa-3 text-center">
                                     <v-icon color="info" size="24">mdi-file-document</v-icon>
                                     <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.documents?.length || 0
-                                        }}
+                                    }}
                                     </div>
                                     <div class="text-caption">Total Dokumen</div>
                                 </v-card>
@@ -879,7 +969,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Jaringan</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.jaringan_mvo
-                                                }}
+                                            }}
                                             </div>
                                         </v-col>
                                         <v-col cols="6">
@@ -891,7 +981,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Alamat</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.alamat || '-'
-                                                }}
+                                            }}
                                             </div>
                                         </v-col>
                                     </v-row>
@@ -908,37 +998,37 @@
                                             <div class="text-caption text-grey">Upline 1</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_1 ||
                                                 '-'
-                                                }}</div>
+                                            }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 2</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_2 ||
                                                 '-'
-                                                }}</div>
+                                            }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 3</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_3 ||
                                                 '-'
-                                                }}</div>
+                                            }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 4</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_4 ||
                                                 '-'
-                                                }}</div>
+                                            }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 5</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_5 ||
                                                 '-'
-                                                }}</div>
+                                            }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 6</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_6 ||
                                                 '-'
-                                                }}</div>
+                                            }}</div>
                                         </v-col>
                                     </v-row>
                                 </v-card>
@@ -1100,9 +1190,18 @@ import * as XLSX from "xlsx";
 
 export default {
     data() {
+        const today = new Date();
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
         return {
             tab: "dashboard-star",
             isLoading: false,
+
+            dateRange: {
+                start_date: threeMonthsAgo.toISOString().slice(0, 10),
+                end_date: today.toISOString().slice(0, 10),
+            },
 
             // Leaderboard per bulan
             selectedLeaderboardMonth: null,
@@ -1404,12 +1503,23 @@ export default {
 
             this.isLoading = true;
             try {
-                const dashboardResponse = await axios.get(
-                    "https://babaapi.teknosof.com/api/dashboard/star",
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
+                let url = "https://babaapi.teknosof.com/api/dashboard/star";
+                const params = new URLSearchParams();
+
+                if (this.dateRange.start_date) {
+                    params.append('start_date', this.dateRange.start_date);
+                }
+                if (this.dateRange.end_date) {
+                    params.append('end_date', this.dateRange.end_date);
+                }
+
+                if (params.toString()) {
+                    url += `?${params.toString()}`;
+                }
+
+                const dashboardResponse = await axios.get(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
                 if (dashboardResponse.data && dashboardResponse.data.status === "success") {
                     this.dashboardData = dashboardResponse.data.data;
@@ -1454,6 +1564,26 @@ export default {
 
         async refreshData() {
             await this.fetchDashboardData();
+        },
+
+        // applyDateFilter() {
+        //     if (this.dateRange.start_date && this.dateRange.end_date) {
+        //         if (new Date(this.dateRange.start_date) > new Date(this.dateRange.end_date)) {
+        //             alert('Tanggal mulai tidak boleh lebih besar dari tanggal selesai');
+        //             return;
+        //         }
+        //     }
+        //     this.fetchDashboardData();
+        // },
+
+        resetDateFilter() {
+            const today = new Date();
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+            this.dateRange.start_date = threeMonthsAgo.toISOString().slice(0, 10);
+            this.dateRange.end_date = today.toISOString().slice(0, 10);
+            this.fetchDashboardData();
         },
 
         getRoleColorFromCode(code) {
@@ -1574,6 +1704,10 @@ export default {
 
 .lh-1 {
     line-height: 1;
+}
+
+.gap-2 {
+    gap: 8px;
 }
 
 @media (max-width: 959px) {
