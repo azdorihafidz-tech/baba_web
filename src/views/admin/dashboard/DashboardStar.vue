@@ -1,6 +1,32 @@
 <template>
     <!-- Desktop Layout (md and up) -->
     <v-card class="d-none d-md-block">
+        <!-- DATE RANGE FILTER (GLOBAL) -->
+        <v-card-text>
+            <v-row dense>
+                <v-col cols="12" md="4">
+                    <v-text-field v-model="dateRange.start_date" label="Tanggal Mulai" type="date"
+                        prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                </v-col>
+                <v-col cols="12" md="4">
+                    <v-text-field v-model="dateRange.end_date" label="Tanggal Selesai" type="date"
+                        prepend-inner-icon="mdi-calendar" variant="outlined" density="compact" hide-details />
+                </v-col>
+                <v-col cols="12" md="4" class="d-flex align-center gap-2">
+                    <v-btn color="primary" @click="applyDateFilter" :loading="isLoading" density="compact"
+                        style="height: 40px; min-width: 110px;">
+                        <v-icon start>mdi-magnify</v-icon>
+                        Filter
+                    </v-btn>
+                    <v-btn color="grey" variant="outlined" @click="resetDateFilter" :disabled="isLoading"
+                        density="compact" style="height: 40px; min-width: 40px;">
+                        <v-icon>mdi-refresh</v-icon>
+                    </v-btn>
+                </v-col>
+            </v-row>
+        </v-card-text>
+        <v-divider></v-divider>
+
         <!-- Section: Top Star (Cards) -->
         <v-card-title class="d-flex align-center">
             <v-icon class="mr-2" color="#FFD700">mdi-trophy</v-icon>
@@ -155,8 +181,7 @@
                                         <!-- RO -->
                                         <div class="text-center">
                                             <div class="text-caption text-white opacity-80 mb-1">
-                                                Repeat Order
-                                            </div>
+                                                RO </div>
                                             <div class="text-h6 font-weight-bold text-white lh-1">
                                                 {{ mvo.totalRepeatOrder }}
                                             </div>
@@ -415,6 +440,32 @@
     <!-- Mobile Layout (sm and below) -->
     <div class="d-block d-md-none pa-2">
 
+        <!-- DATE RANGE FILTER MOBILE -->
+        <v-card class="mb-4">
+            <v-card-text class="pa-3">
+                <v-row dense>
+                    <v-col cols="6">
+                        <v-text-field v-model="dateRange.start_date" label="Mulai" type="date" variant="outlined"
+                            density="compact" hide-details></v-text-field>
+                    </v-col>
+                    <v-col cols="6">
+                        <v-text-field v-model="dateRange.end_date" label="Selesai" type="date" variant="outlined"
+                            density="compact" hide-details></v-text-field>
+                    </v-col>
+                    <v-col cols="12" class="d-flex gap-2">
+                        <v-btn color="primary" @click="applyDateFilter" :loading="isLoading" class="flex-grow-1"
+                            density="compact">
+                            Filter
+                        </v-btn>
+                        <v-btn color="grey" variant="outlined" @click="resetDateFilter" :disabled="isLoading"
+                            density="compact">
+                            <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card>
+
         <!-- Section: Top Star -->
         <div class="mb-4">
             <div class="d-flex align-center mb-2">
@@ -510,7 +561,7 @@
                             <div class="info-container rounded-lg pa-2">
                                 <div class="d-flex justify-space-around align-center">
                                     <div class="text-center">
-                                        <div class="text-caption text-white opacity-80">Repeat Order</div>
+                                        <div class="text-caption text-white opacity-80">RO</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{
                                             mvo.totalRepeatOrder }}</div>
                                     </div>
@@ -923,7 +974,7 @@
                                     <v-icon color="primary" size="24">mdi-star-circle</v-icon>
                                     <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.totalRepeatOrder }}
                                     </div>
-                                    <div class="text-caption">Total Repeat Order</div>
+                                    <div class="text-caption">RO</div>
                                 </v-card>
                             </v-col>
                             <v-col cols="6" sm="4">
@@ -987,7 +1038,7 @@
                                     </v-row>
                                 </v-card>
                             </v-col>
-                            <v-col cols="12">
+                            <!-- <v-col cols="12">
                                 <v-card flat color="blue-grey-lighten-5" class="pa-3">
                                     <div class="text-subtitle-2 font-weight-bold mb-2">
                                         <v-icon class="mr-1" color="primary">mdi-account-network</v-icon>
@@ -998,41 +1049,41 @@
                                             <div class="text-caption text-grey">Upline 1</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_1 ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 2</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_2 ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 3</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_3 ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 4</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_4 ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 5</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_5 ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="12" sm="6">
                                             <div class="text-caption text-grey">Upline 6</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.upline_6 ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                     </v-row>
                                 </v-card>
-                            </v-col>
+                            </v-col> -->
                         </v-row>
                     </v-col>
                 </v-row>
@@ -1566,15 +1617,15 @@ export default {
             await this.fetchDashboardData();
         },
 
-        // applyDateFilter() {
-        //     if (this.dateRange.start_date && this.dateRange.end_date) {
-        //         if (new Date(this.dateRange.start_date) > new Date(this.dateRange.end_date)) {
-        //             alert('Tanggal mulai tidak boleh lebih besar dari tanggal selesai');
-        //             return;
-        //         }
-        //     }
-        //     this.fetchDashboardData();
-        // },
+        applyDateFilter() {
+            if (this.dateRange.start_date && this.dateRange.end_date) {
+                if (new Date(this.dateRange.start_date) > new Date(this.dateRange.end_date)) {
+                    alert('Tanggal mulai tidak boleh lebih besar dari tanggal selesai');
+                    return;
+                }
+            }
+            this.fetchDashboardData();
+        },
 
         resetDateFilter() {
             const today = new Date();
