@@ -118,8 +118,10 @@ export default {
           ["mdi-domain", "Data Cabang", "/admin/provinsi"],
           // ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
+          // ["mdi-file-document-alert", "Pending Approval Documen", "/admin/pendingapprovaldocumen"],
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
+          ["mdi-trending-down", "Downline", "/admin/downline"],
           ["mdi-chat", "Chat", "/admin/chat"],
           ["mdi-book-open", "Tutorial", "/admin/tutorial"],
         ],
@@ -130,6 +132,7 @@ export default {
         "Document Belum Approve",
         "Akun Belum Approve",
         "Store",
+        "Downline",
         "Chat",
         "Tutorial",
 
