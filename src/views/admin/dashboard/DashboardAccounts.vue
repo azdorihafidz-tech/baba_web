@@ -1,11 +1,23 @@
 <template>
     <div>
-
         <!-- ================= DESKTOP VIEW ================= -->
+        <v-row dense class="mb-2 mt-1">
+            <v-col cols="6">
+                <v-text-field v-model="dateRange.start" label="Mulai" type="date" density="compact" variant="outlined"
+                    hide-details></v-text-field>
+            </v-col>
+            <v-col cols="6">
+                <v-text-field v-model="dateRange.end" label="Selesai" type="date" density="compact" variant="outlined"
+                    hide-details></v-text-field>
+            </v-col>
+        </v-row>
+        <v-divider></v-divider>
+
         <div class="d-none d-md-block">
 
             <!-- ===== SUMMARY CARD ===== -->
             <v-row class="mb-4">
+
 
                 <!-- TOTAL -->
                 <v-col cols="12" md="4">
@@ -97,6 +109,38 @@
                     </v-row>
                 </v-card-text>
             </v-card>
+
+            <!-- ===== JABATAN CARDS (FILTERED) ===== -->
+            <v-card class="mb-4">
+                <v-card-title class="d-flex align-center justify-space-between">
+                    <span>Akun Terbaru</span>
+
+                </v-card-title>
+
+                <v-card-text>
+                    <v-row>
+                        <v-col v-for="(jabatan, index) in filteredJabatanList" :key="index" cols="12" sm="6" md="4"
+                            lg="3">
+                            <v-card hover @click="handleShowJabatanDetailFiltered(jabatan.name)"
+                                :color="getJabatanColor(index)" dark style="cursor:pointer;" class="jabatan-card">
+                                <v-card-text class="text-center">
+                                    <v-icon size="40" class="mb-2">mdi-calendar-account</v-icon>
+                                    <div class="text-h5 mb-2">{{ jabatan.count }}</div>
+                                    <div class="text-subtitle-1 font-weight-bold">{{ jabatan.name }}</div>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+
+                        <v-col v-if="filteredJabatanList.length === 0" cols="12">
+                            <div class="text-center pa-4">
+                                <v-icon size="64" color="grey">mdi-calendar-remove</v-icon>
+                                <div class="text-h6 mt-2">Tidak ada data pada periode ini</div>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+            </v-card>
+
             <!-- ===== STATISTICS ===== -->
             <v-card class="mb-4">
                 <v-card-title>
@@ -262,6 +306,33 @@
                 </v-card-text>
             </v-card>
 
+            <!-- ===== JABATAN CARDS MOBILE (FILTERED) ===== -->
+            <v-card class="mb-3">
+                <v-card-title class="text-subtitle-1 font-weight-bold pb-0">
+                    Akun Terbaru
+                </v-card-title>
+                <v-card-text class="pa-2">
+                    <v-row dense>
+                        <v-col v-for="(jabatan, index) in filteredJabatanList" :key="index" cols="6">
+                            <v-card hover @click="handleShowJabatanDetailFiltered(jabatan.name)"
+                                :color="getJabatanColor(index)" dark style="cursor:pointer;" class="jabatan-card">
+                                <v-card-text class="text-center pa-2">
+                                    <v-icon size="24" class="mb-1">mdi-calendar-account</v-icon>
+                                    <div class="text-h6 mb-0">{{ jabatan.count }}</div>
+                                    <div class="text-caption font-weight-bold text-truncate">{{ jabatan.name }}</div>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+                        <v-col v-if="filteredJabatanList.length === 0" cols="12">
+                            <div class="text-center pa-4">
+                                <v-icon size="40" color="grey">mdi-calendar-remove</v-icon>
+                                <div class="text-caption mt-2">Tidak ada data</div>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+            </v-card>
+
             <!-- ===== STATISTICS MOBILE ===== -->
             <v-card class="mb-3">
                 <v-card-title class="text-subtitle-1 font-weight-bold">
@@ -337,7 +408,9 @@
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
                         <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
-                            :items-per-page="10" class="elevation-1 bg-grey-lighten-4" density="comfortable">
+                            :items-per-page="10" class="elevation-1 bg-grey-lighten-4 text-no-wrap"
+                            density="comfortable">
+
                             <!-- No data template -->
                             <template v-slot:no-data>
                                 <div class="text-center pa-4">
@@ -401,6 +474,10 @@ export default {
     emits: ["show-detail"],
 
     data() {
+        const today = new Date();
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(today.getMonth() - 3);
+
         return {
             mvoTypeId: null,
 
@@ -414,6 +491,11 @@ export default {
 
             akunRawData: [],
             jabatanList: [],
+
+            dateRange: {
+                start: threeMonthsAgo.toISOString().split('T')[0],
+                end: today.toISOString().split('T')[0]
+            },
 
             // Array warna untuk card jabatan
             jabatanColors: [
@@ -454,6 +536,16 @@ export default {
                 { title: "Jabatan", key: "jabatan", sortable: true },
                 { title: "Total Document", key: "total_document", sortable: true },
                 { title: "Total Bintang", key: "total_bintang", sortable: true },
+                { title: "Total RO", key: "total_ro", sortable: true },
+                { title: "Tanggal Aktiv", key: "tanggal_daftar", sortable: true },
+                { title: "MVO", key: "upline_1", sortable: true },
+                { title: "REGIONAL", key: "upline_2", sortable: true },
+                { title: "FO", key: "upline_3", sortable: true },
+                { title: "GM", key: "upline_4", sortable: true },
+                { title: "SUPPLIER", key: "upline_5", sortable: true },
+                { title: "DIST", key: "upline_6", sortable: true },
+                // { title: "SELL", key: "upline_7", sortable: true },
+
             ],
         };
     },
@@ -468,6 +560,34 @@ export default {
                 (item.cabang && item.cabang.toLowerCase().includes(search)) ||
                 (item.jabatan && item.jabatan.toLowerCase().includes(search))
             );
+        }
+    },
+
+    computed: {
+        filteredDetailData() {
+            if (!this.detailSearch) return this.detailData;
+            const search = this.detailSearch.toLowerCase();
+            return this.detailData.filter(item =>
+                (item.username && item.username.toLowerCase().includes(search)) ||
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.cabang && item.cabang.toLowerCase().includes(search)) ||
+                (item.jabatan && item.jabatan.toLowerCase().includes(search))
+            );
+        },
+        filteredJabatanList() {
+            if (!this.akunRawData) return [];
+
+            const start = new Date(this.dateRange.start);
+            const end = new Date(this.dateRange.end);
+            end.setHours(23, 59, 59, 999);
+
+            const filtered = this.akunRawData.filter(item => {
+                if (!item.tanggal_daftar) return false;
+                const itemDate = new Date(item.tanggal_daftar);
+                return itemDate >= start && itemDate <= end;
+            });
+
+            return this.processJabatanDataFromArray(filtered);
         }
     },
 
@@ -563,10 +683,13 @@ export default {
             }
         },
         processJabatanData() {
+            this.jabatanList = this.processJabatanDataFromArray(this.akunRawData);
+        },
+        processJabatanDataFromArray(dataArray) {
             // Group akun by jabatan
             const jabatanMap = {};
 
-            this.akunRawData.forEach(akun => {
+            dataArray.forEach(akun => {
                 const jabatan = akun.jabatan || 'Unknown';
 
                 if (!jabatanMap[jabatan]) {
@@ -582,7 +705,7 @@ export default {
             // Convert to array and sort by custom order
             const order = ['MVO', 'REGIONAL', 'FO', 'GM', 'SUPPLIER', 'DIST', 'SELL'];
 
-            this.jabatanList = Object.values(jabatanMap)
+            return Object.values(jabatanMap)
                 .sort((a, b) => {
                     const nameA = (a.name || '').toUpperCase();
                     const nameB = (b.name || '').toUpperCase();
@@ -616,6 +739,29 @@ export default {
                 jabatan: jabatanName,
                 data
             });
+        },
+        handleShowJabatanDetailFiltered(jabatanName) {
+            const start = new Date(this.dateRange.start);
+            const end = new Date(this.dateRange.end);
+            end.setHours(23, 59, 59, 999);
+
+            const data = this.akunRawData.filter(akun => {
+                if ((akun.jabatan || 'Unknown') !== jabatanName) return false;
+                if (!akun.tanggal_daftar) return false;
+                const itemDate = new Date(akun.tanggal_daftar);
+                return itemDate >= start && itemDate <= end;
+            });
+
+            this.detailData = data.map((item, index) => ({
+                ...item,
+                no: index + 1
+            }));
+
+            this.detailTitle = `Akun - ${jabatanName} (${this.dateRange.start} s/d ${this.dateRange.end})`;
+            this.detailType = 'jabatan_filtered';
+            this.detailDialog = true;
+
+            this.$emit('show-detail', { type: 'jabatan_filtered', jabatan: jabatanName, data });
         },
         getJabatanColor(index) {
             // Return color from array based on index, cycle if more jabatan than colors
