@@ -268,8 +268,8 @@
 
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
-                        <v-data-table :headers="tableHeaders" :items="detailData" :search="detailSearch"
-                            :items-per-page="10" class="elevation-1 bg-grey-lighten-4" density="comfortable">
+                        <v-data-table :headers="tableHeaders" :items="processedDetailData" :items-per-page="10"
+                            class="elevation-1 bg-grey-lighten-4" density="comfortable">
                             <!-- Status Column with Chip -->
                             <template v-slot:item.status_inputan="{ item }">
                                 <v-chip :color="getStatusColor(item.status_inputan)" size="small" dark>
@@ -289,8 +289,8 @@
 
                     <!-- Mobile View -->
                     <div class="d-block d-md-none">
-                        <v-card v-for="(item, index) in filteredDetailData" :key="index" class="mb-3" variant="outlined"
-                            :color="getStatusColor(item.status_inputan)">
+                        <v-card v-for="(item, index) in processedDetailData" :key="index" class="mb-3"
+                            variant="outlined" :color="getStatusColor(item.status_inputan)">
                             <v-card-text>
                                 <div class="d-flex justify-space-between align-center mb-2">
                                     <div class="font-weight-bold text-truncate">{{ item.nama }}</div>
@@ -308,7 +308,7 @@
                                 </div>
                             </v-card-text>
                         </v-card>
-                        <div v-if="filteredDetailData.length === 0" class="text-center pa-4">
+                        <div v-if="processedDetailData.length === 0" class="text-center pa-4">
                             <v-icon size="64" color="grey">mdi-file-document-outline</v-icon>
                             <div class="text-caption mt-2">No documents found</div>
                         </div>
@@ -379,16 +379,19 @@ export default {
     },
 
     computed: {
-        filteredDetailData() {
-            if (!this.detailSearch) return this.detailData;
-            const search = this.detailSearch.toLowerCase();
-            return this.detailData.filter(item =>
-                (item.code && item.code.toLowerCase().includes(search)) ||
-                (item.nama && item.nama.toLowerCase().includes(search)) ||
-                (item.province_code && item.province_code.toLowerCase().includes(search)) ||
-                (item.jabatan && item.jabatan.toLowerCase().includes(search))
-            );
-        }
+        processedDetailData() {
+            let data = this.detailData;
+            if (this.detailSearch) {
+                const search = this.detailSearch.toLowerCase();
+                data = this.detailData.filter(item =>
+                    (item.code && item.code.toLowerCase().includes(search)) ||
+                    (item.nama && item.nama.toLowerCase().includes(search)) ||
+                    (item.province_code && item.province_code.toLowerCase().includes(search)) ||
+                    (item.jabatan && item.jabatan.toLowerCase().includes(search))
+                );
+            }
+            return data.map((item, index) => ({ ...item, no: index + 1 }));
+        },
     },
 
     created() {
@@ -559,7 +562,7 @@ export default {
             const headers = this.tableHeaders;
 
             // ===== Mapping data sesuai header =====
-            const data = this.detailData.map(row => {
+            const data = this.processedDetailData.map(row => {
 
                 let obj = {};
 

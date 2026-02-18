@@ -238,9 +238,8 @@
                     <!-- Desktop View -->
                     <div class="d-none d-md-block">
                         <!-- ✅ Pakai sortedDetailData bukan detailData -->
-                        <v-data-table :headers="tableHeaders" :items="sortedDetailData" :search="detailSearch"
-                            :items-per-page="10" class="elevation-1 text-no-wrap bg-grey-lighten-4"
-                            density="comfortable">
+                        <v-data-table :headers="tableHeaders" :items="processedDetailData" :items-per-page="10"
+                            class="elevation-1 text-no-wrap bg-grey-lighten-4" density="comfortable">
                             <!-- No data template -->
                             <template v-slot:no-data>
                                 <div class="text-center pa-4">
@@ -254,7 +253,7 @@
                     <!-- Mobile View -->
                     <div class="d-block d-md-none">
                         <!-- ✅ filteredDetailData sudah include sortByJabatan -->
-                        <v-card v-for="(item, index) in filteredDetailData" :key="index" class="mb-3"
+                        <v-card v-for="(item, index) in processedDetailData" :key="index" class="mb-3"
                             variant="outlined">
                             <v-card-text>
                                 <div class="d-flex justify-space-between align-center mb-2">
@@ -265,7 +264,7 @@
                                 <div class="text-caption">Cabang: {{ item.cabang }}</div>
                             </v-card-text>
                         </v-card>
-                        <div v-if="filteredDetailData.length === 0" class="text-center pa-4">
+                        <div v-if="processedDetailData.length === 0" class="text-center pa-4">
                             <v-icon size="64" color="grey">mdi-account-outline</v-icon>
                             <div class="text-caption mt-2">No data found</div>
                         </div>
@@ -397,22 +396,18 @@ export default {
             );
         },
 
-        // ✅ Untuk Desktop v-data-table: data sudah di-sort by jabatan
-        sortedDetailData() {
-            return this.sortByJabatan(this.detailData);
-        },
-
-        // ✅ Untuk Mobile list: data di-sort by jabatan + filter search
-        filteredDetailData() {
-            const sorted = this.sortByJabatan(this.detailData);
-            if (!this.detailSearch) return sorted;
-            const search = this.detailSearch.toLowerCase();
-            return sorted.filter(item =>
-                (item.username && item.username.toLowerCase().includes(search)) ||
-                (item.nama && item.nama.toLowerCase().includes(search)) ||
-                (item.cabang && item.cabang.toLowerCase().includes(search)) ||
-                (item.jabatan && item.jabatan.toLowerCase().includes(search))
-            );
+        processedDetailData() {
+            let data = this.sortByJabatan(this.detailData);
+            if (this.detailSearch) {
+                const search = this.detailSearch.toLowerCase();
+                data = data.filter(item =>
+                    (item.username && item.username.toLowerCase().includes(search)) ||
+                    (item.nama && item.nama.toLowerCase().includes(search)) ||
+                    (item.cabang && item.cabang.toLowerCase().includes(search)) ||
+                    (item.jabatan && item.jabatan.toLowerCase().includes(search))
+                );
+            }
+            return data.map((item, index) => ({ ...item, no: index + 1 }));
         },
     },
 
@@ -577,7 +572,7 @@ export default {
 
             const headers = this.tableHeaders;
             // ✅ Export pakai sortedDetailData agar urutan jabatan ikut tersimpan di Excel
-            const data = this.sortedDetailData.map(row => {
+            const data = this.processedDetailData.map(row => {
                 let obj = {};
                 headers.forEach(h => {
                     obj[h.title] = row[h.key] ?? "-";
