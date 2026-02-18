@@ -139,7 +139,7 @@
                         <v-card class="h-100 top-star-card position-relative overflow-hidden" elevation="6"
                             @click="openMvoDetail(mvo)" style="cursor: pointer;">
                             <!-- Decorative Background -->
-                            <div class="card-gradient-bg" :style="getMvoCardGradient(mvo.ranking - 1)"></div>
+                            <div class="card-gradient-bg" :style="getMvoBackground(mvo)"></div>
                             <div class="card-shine"></div>
 
                             <v-card-text class="position-relative pa-5" style="z-index: 2;">
@@ -536,7 +536,7 @@
                 <v-col v-for="mvo in filteredRankedMvoList" :key="mvo.id" cols="12" sm="6">
                     <v-card class="top-star-card position-relative overflow-hidden" elevation="4"
                         @click="openMvoDetail(mvo)" style="cursor: pointer;">
-                        <div class="card-gradient-bg" :style="getMvoCardGradient(mvo.ranking - 1)"></div>
+                        <div class="card-gradient-bg" :style="getMvoBackground(mvo)"></div>
                         <div class="card-shine"></div>
                         <v-card-text class="position-relative pa-4" style="z-index: 2;">
                             <div class="rank-ribbon">
@@ -569,7 +569,7 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Downline</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ mvo.totalDownlines
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                 </div>
                                 <v-divider class="my-1 border-opacity-25" color="white"></v-divider>
@@ -619,7 +619,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                            }}</v-chip>
+                                }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -702,7 +702,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                            }}</v-chip>
+                                }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -989,7 +989,7 @@
                                 <v-card flat color="grey-lighten-4" class="pa-3 text-center">
                                     <v-icon color="info" size="24">mdi-file-document</v-icon>
                                     <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.documents?.length || 0
-                                    }}
+                                        }}
                                     </div>
                                     <div class="text-caption">Total Dokumen</div>
                                 </v-card>
@@ -1020,7 +1020,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Jaringan</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.jaringan_mvo
-                                            }}
+                                                }}
                                             </div>
                                         </v-col>
                                         <v-col cols="6">
@@ -1032,7 +1032,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Alamat</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.alamat || '-'
-                                            }}
+                                                }}
                                             </div>
                                         </v-col>
                                     </v-row>
@@ -1470,18 +1470,15 @@ export default {
             return 'background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);'; // Dark
         },
 
-        getMvoCardGradient(index) {
+        getMvoBackground(mvo) {
+            if (mvo.provinsi && mvo.provinsi.warna) {
+                return `background: linear-gradient(135deg, ${mvo.provinsi.warna} 0%, #1a1a1a 100%);`;
+            }
+            const index = (mvo.ranking || 1) - 1;
             if (index === 0) return 'background: linear-gradient(135deg, #8E24AA 0%, #4A148C 100%);'; // Purple (Rank 1)
             if (index === 1) return 'background: linear-gradient(135deg, #1E88E5 0%, #0D47A1 100%);'; // Blue (Rank 2)
             if (index === 2) return 'background: linear-gradient(135deg, #00897B 0%, #004D40 100%);'; // Teal (Rank 3)
-            return 'background: linear-gradient(135deg, #546E7A 0%, #263238 100%);'; // Blue Grey (Others)
-        },
-
-        getMvoCardGradient(index) {
-            if (index === 0) return 'background: linear-gradient(135deg, #8E24AA 0%, #4A148C 100%);'; // Purple (Rank 1)
-            if (index === 1) return 'background: linear-gradient(135deg, #1E88E5 0%, #0D47A1 100%);'; // Blue (Rank 2)
-            if (index === 2) return 'background: linear-gradient(135deg, #00897B 0%, #004D40 100%);'; // Teal (Rank 3)
-            return 'background: linear-gradient(135deg, #546E7A 0%, #263238 100%);'; // Blue Grey (Default untuk Rank 4+)
+            return 'background: linear-gradient(135deg, #546E7A 0%, #263238 100%);'; // Blue Grey (Default)
         },
 
         getRoleColor(role) {
