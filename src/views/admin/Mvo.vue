@@ -122,7 +122,8 @@
 
             <template v-slot:item.repeat_order="{ item }">
               <v-chip color="primary" size="small" variant="outlined">
-                {{ item.repeat_order || '-' }}
+                {{ item.repeat_order !== null && item.repeat_order !== '' && item.repeat_order !== undefined ?
+                  item.repeat_order : '-' }}
               </v-chip>
             </template>
 
@@ -619,13 +620,13 @@
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field label="Tanggal Input Dokumen" type="date"
-                      v-model="documentEditModel.tanggal_repeat_order" class="mb-2" :rules="[requiredRule]"
-                      variant="outlined" density="comfortable" prepend-inner-icon="mdi-calendar" />
+                      v-model="documentEditModel.tanggal_repeat_order" class="mb-2" variant="outlined"
+                      density="comfortable" prepend-inner-icon="mdi-calendar" />
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-text-field label="Range Point" v-model.number="documentEditModel.repeat_order" type="number"
                       min="0" step="0.01" class="mb-2" hint="Masukkan range point" persistent-hint
-                      :rules="[requiredRule]" variant="outlined" density="comfortable"
+                      :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
                       prepend-inner-icon="mdi-chart-line" />
                   </v-col>
                 </v-row>
@@ -1072,7 +1073,7 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field label="Range Point" v-model.number="documentAddModel.repeat_order" type="number" min="0"
-                step="0.01" class="mb-2" hint="Masukkan range point" persistent-hint :rules="[requiredRule]"
+                step="0.01" class="mb-2" hint="Masukkan range point" persistent-hint :rules="[rangePointOptionalRule]"
                 variant="outlined" density="comfortable" prepend-inner-icon="mdi-chart-line" />
             </v-col>
           </v-row>
@@ -1179,7 +1180,7 @@ export default {
           { key: "no", title: "No", sortable: false },
           { key: "code", title: "Kode", fixed: 'start', width: '80px' },
           // { key: "nomor_id", title: "Nomor ID" },
-          { key: "no_id", title: "No ID" },
+          { key: "no_id", title: "No ID", fixed: 'start', width: '80px' },
           { key: "nama", title: "Nama", fixed: 'start', width: '80px' },
           { key: "nama_panggilan", title: "Nama Panggilan" },
           { key: "tempat_lahir", title: "Tempat Lahir" },
@@ -1278,6 +1279,17 @@ export default {
   },
 
   computed: {
+    // TAMBAHKAN computed baru ini:
+    rangePointOptionalRule() {
+      return value => {
+        if (value === null || value === undefined || value === '') return true; // boleh kosong
+        const num = Number(value);
+        if (isNaN(num)) return 'Harus berupa angka';
+        if (num < 0) return 'Range Point tidak boleh kurang dari 0';
+        return true;
+      };
+    },
+
     rangePointRule() {
       return value => {
         if (value === null || value === undefined || value === '') {
@@ -2029,7 +2041,6 @@ export default {
       if (!this.documentAddModel.file_name ||
         !this.documentAddModel.pointbintang ||
         !this.documentAddModel.tanggal_repeat_order ||
-        !this.documentAddModel.repeat_order ||
         !this.documentAddModel.file) {
         this.showSnackbar("Semua field harus diisi", 'error');
         return;
@@ -2041,8 +2052,10 @@ export default {
         return;
       }
 
-      const rangePoint = Number(this.documentAddModel.repeat_order);
-      if (isNaN(rangePoint) || rangePoint < 0) { // Hapus || rangePoint > 200
+      const rangePoint = this.documentAddModel.repeat_order !== '' && this.documentAddModel.repeat_order !== null && this.documentAddModel.repeat_order !== undefined
+        ? Number(this.documentAddModel.repeat_order)
+        : null;
+      if (rangePoint !== null && (isNaN(rangePoint) || rangePoint < 0)) {
         this.showSnackbar("Range Point tidak boleh kurang dari 0", 'error');
         return;
       }
@@ -2058,7 +2071,7 @@ export default {
         formData.append('file_name', this.documentAddModel.file_name);
         formData.append('pointbintang', Math.floor(point));
         formData.append('tanggal_repeat_order', this.documentAddModel.tanggal_repeat_order);
-        formData.append('repeat_order', rangePoint);
+        formData.append('repeat_order', rangePoint !== null ? rangePoint : '');
         formData.append('file_path', this.documentAddModel.file);
 
         const response = await axios.post(
