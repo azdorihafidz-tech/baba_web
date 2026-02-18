@@ -79,11 +79,19 @@
                 <v-col cols="12" md="6">
                     <v-card class="mb-4">
                         <v-card-title class="d-flex align-center">
-                            <v-icon class="mr-2">mdi-map-marker</v-icon>
-                            Grafik Pertumbuhan per Region
+                            <v-icon class="mr-2">mdi-table</v-icon>
+                            Data Pertumbuhan per Region
                         </v-card-title>
                         <v-card-text>
-                            <canvas ref="regionChart"></canvas>
+                            <v-data-table :headers="regionGrowthHeaders" :items="filteredRegionGrowthData"
+                                :items-per-page="5" density="compact" class="elevation-1">
+                                <template v-slot:item.bulan="{ item }">
+                                    {{ formatMonth(item.bulan) }}
+                                </template>
+                                <template v-slot:item.total_ro="{ item }">
+                                    <b>{{ item.total_ro }}</b>
+                                </template>
+                            </v-data-table>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -156,11 +164,19 @@
 
             <v-card>
                 <v-card-title class="pa-3">
-                    <v-icon class="mr-2">mdi-map-marker</v-icon>
-                    Pertumbuhan per Region
+                    <v-icon class="mr-2">mdi-table</v-icon>
+                    Data Pertumbuhan per Region
                 </v-card-title>
                 <v-card-text class="pa-3">
-                    <canvas ref="regionChartMobile"></canvas>
+                    <v-data-table :headers="regionGrowthHeaders" :items="filteredRegionGrowthData" :items-per-page="5"
+                        density="compact" class="elevation-1">
+                        <template v-slot:item.bulan="{ item }">
+                            {{ formatMonth(item.bulan) }}
+                        </template>
+                        <template v-slot:item.total_ro="{ item }">
+                            <b>{{ item.total_ro }}</b>
+                        </template>
+                    </v-data-table>
                 </v-card-text>
             </v-card>
         </div>
@@ -189,9 +205,12 @@ export default {
                 end: this.getDefaultEndDate()
             },
             overallChartInstance: null,
-            regionChartInstance: null,
             overallChartMobileInstance: null,
-            regionChartMobileInstance: null,
+            regionGrowthHeaders: [
+                { title: 'Bulan', key: 'bulan', align: 'start' },
+                { title: 'Region', key: 'province_code', align: 'start' },
+                { title: 'Total RO', key: 'total_ro', align: 'end' },
+            ],
         };
     },
     created() {
@@ -334,17 +353,9 @@ export default {
                 this.overallChartInstance.destroy();
                 this.overallChartInstance = null;
             }
-            if (this.regionChartInstance) {
-                this.regionChartInstance.destroy();
-                this.regionChartInstance = null;
-            }
             if (this.overallChartMobileInstance) {
                 this.overallChartMobileInstance.destroy();
                 this.overallChartMobileInstance = null;
-            }
-            if (this.regionChartMobileInstance) {
-                this.regionChartMobileInstance.destroy();
-                this.regionChartMobileInstance = null;
             }
         },
         renderCharts() {
@@ -354,16 +365,10 @@ export default {
             if (this.$refs.overallChart) {
                 this.renderOverallChart(this.$refs.overallChart, false);
             }
-            if (this.$refs.regionChart) {
-                this.renderRegionChart(this.$refs.regionChart, false);
-            }
 
             // Mobile charts
             if (this.$refs.overallChartMobile) {
                 this.renderOverallChart(this.$refs.overallChartMobile, true);
-            }
-            if (this.$refs.regionChartMobile) {
-                this.renderRegionChart(this.$refs.regionChartMobile, true);
             }
         },
         renderOverallChart(canvas, isMobile) {
@@ -441,113 +446,6 @@ export default {
                 this.overallChartMobileInstance = chart;
             } else {
                 this.overallChartInstance = chart;
-            }
-        },
-        renderRegionChart(canvas, isMobile) {
-            const ctx = canvas.getContext('2d');
-
-            // Group data by region
-            const regionMap = {};
-            this.filteredRegionGrowthData.forEach(item => {
-                const region = item.province_code;
-                const month = this.formatMonth(item.bulan);
-                const value = parseInt(item.total_ro || 0);
-
-                if (!regionMap[region]) {
-                    regionMap[region] = {};
-                }
-                regionMap[region][month] = value;
-            });
-
-            // Get all unique months
-            const allMonths = [...new Set(this.filteredRegionGrowthData.map(item => this.formatMonth(item.bulan)))];
-
-            // Create datasets for each region
-            const datasets = Object.keys(regionMap).map((region, index) => {
-                const data = allMonths.map(month => regionMap[region][month] || 0);
-                return {
-                    label: region,
-                    data: data,
-                    backgroundColor: this.getRegionColor(index),
-                    borderColor: this.getRegionColor(index).replace('0.8', '1'),
-                    borderWidth: 2,
-                    borderRadius: 6,
-                    barThickness: isMobile ? 15 : 30,
-                };
-            });
-
-            const chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: allMonths,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: isMobile ? 1.2 : 2,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: {
-                                    size: isMobile ? 9 : 11
-                                },
-                                padding: isMobile ? 8 : 12,
-                                boxWidth: isMobile ? 12 : 15
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            titleFont: {
-                                size: 14
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            callbacks: {
-                                label: function (context) {
-                                    return context.dataset.label + ': ' + context.parsed.y + ' RO';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            stacked: false,
-                            ticks: {
-                                font: {
-                                    size: isMobile ? 10 : 12
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        x: {
-                            stacked: false,
-                            ticks: {
-                                font: {
-                                    size: isMobile ? 9 : 11
-                                },
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-
-            if (isMobile) {
-                this.regionChartMobileInstance = chart;
-            } else {
-                this.regionChartInstance = chart;
             }
         },
         exportGrowthData() {
