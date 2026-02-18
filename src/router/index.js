@@ -56,6 +56,15 @@ const routes = [
         },
       },
       {
+        path: "strukturhierarkiakun",
+        name: "StrukturHierarkiAkun",
+        component: () => import("@/views/admin/StrukturHierarkiAkun.vue"),
+        meta: {
+          title: "Struktur Hierarki || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "provinsi",
         name: "Provinsi",
         component: () => import("@/views/admin/Provinsi.vue"),

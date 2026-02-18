@@ -116,6 +116,7 @@ export default {
           ["mdi-account-alert", "Akun Belum Approve", "/admin/mvobelumapprove"],
           // ["mdi-badge-account", "Master Jabatan", "/admin/jabatan"],
           ["mdi-domain", "Data Cabang", "/admin/provinsi"],
+          ["mdi-domain", "Struktur Hierarki Akun", "/admin/strukturhierarkiakun"],
           // ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
