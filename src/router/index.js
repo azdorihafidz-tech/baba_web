@@ -180,6 +180,15 @@ const routes = [
           requiresAuth: true,
         },
       },
+      {
+        path: "Downline",
+        name: "Downline",
+        component: () => import("@/views/admin/Downline.vue"),
+        meta: {
+          title: "Downline || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
     ],
   },
 ];
