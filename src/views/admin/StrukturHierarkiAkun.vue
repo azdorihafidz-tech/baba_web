@@ -4,8 +4,7 @@
     <!-- ── TOP HEADER ─────────────────────────────────────────────────────── -->
     <div class="page-header">
       <div class="header-left">
-        <h1 class="page-title">Struktur Hierarki</h1>
-        <p class="page-sub">Visualisasi pohon organisasi akun</p>
+        <h1 class="page-title">Data Hierarki akun</h1>
       </div>
       <div class="header-right">
         <div class="total-chip">Total: {{ rawData.length }} akun</div>
@@ -16,9 +15,14 @@
 
     <!-- ── ROLE STAT CARDS ─────────────────────────────────────────────────── -->
     <div class="stat-row">
-      <div v-for="role in ROLE_ORDER" :key="role" class="stat-card" :style="{ borderTopColor: ROLE_COLORS[role] }">
-        <div class="stat-card-label" :style="{ color: ROLE_COLORS[role] }">{{ role }}</div>
-        <div class="stat-card-value" :style="{ color: ROLE_COLORS[role] }">
+      <div v-for="role in ROLE_ORDER" :key="role" class="stat-card"
+        :class="{ 'stat-card--active': activeRoleFilter === role }" :style="{
+          borderTopColor: ROLE_COLORS[role],
+          background: activeRoleFilter === role ? ROLE_COLORS[role] : ''
+        }" @click="onRoleCardClick(role)">
+        <div class="stat-card-label" :style="{ color: activeRoleFilter === role ? '#ffffff' : ROLE_COLORS[role] }">{{
+          role }}</div>
+        <div class="stat-card-value" :style="{ color: activeRoleFilter === role ? '#ffffff' : ROLE_COLORS[role] }">
           {{ roleCounts[role] ?? 0 }}
         </div>
       </div>
@@ -31,7 +35,14 @@
       <div class="tree-panel">
         <!-- Tree topbar -->
         <div class="tree-topbar">
-          <span class="tree-topbar-title">Pohon Hierarki</span>
+          <span class="tree-topbar-title">
+            Pohon Hierarki
+            <span v-if="activeRoleFilter" class="active-filter-chip"
+              :style="{ background: ROLE_COLORS[activeRoleFilter] + '22', color: ROLE_COLORS[activeRoleFilter], borderColor: ROLE_COLORS[activeRoleFilter] + '55' }">
+              {{ activeRoleFilter }}
+              <span class="chip-close" @click.stop="onRoleCardClick(activeRoleFilter)">✕</span>
+            </span>
+          </span>
           <div class="search-box" :class="{ focused: searchFocused }">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8" />
@@ -63,11 +74,12 @@
         <div v-else class="tree-scroll">
           <template v-if="filteredRoots.length">
             <TreeNode v-for="node in filteredRoots" :key="node.id" :node="node" :depth="0" :selected-id="selectedId"
-              :filtered-ids="filteredIds" :search-active="searchQuery.trim().length > 0"
-              :collapse-signal="collapseSignal" :expand-signal="expandSignal" @select="onSelect" />
+              :filtered-ids="filteredIds" :role-filtered-ids="roleFilteredIds"
+              :search-active="searchQuery.trim().length > 0" :collapse-signal="collapseSignal"
+              :expand-signal="expandSignal" @select="onSelect" />
           </template>
           <div v-else class="center-state">
-            <span style="color:#4a5568;font-size:13px">Tidak ada hasil</span>
+            <span>Tidak ada hasil</span>
           </div>
         </div>
       </div>
@@ -78,7 +90,9 @@
 
         <template v-if="selected">
           <div class="detail-avatar-row">
-            <div class="detail-avatar" :style="{ background: roleGradient(selected.jabatan) }">
+            <img v-if="selected.path_gambar_profile" :src="getImageUrl(selected.path_gambar_profile)"
+              class="detail-avatar-img" alt="Profile" />
+            <div v-else class="detail-avatar" :style="{ background: roleGradient(selected.jabatan) }">
               {{ initials(selected.nama) }}
             </div>
           </div>
@@ -154,7 +168,6 @@ import Cookies from 'js-cookie';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ROLE_ORDER = ['MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'SELLER'];
-
 const ROLE_COLORS = {
   'MVO': '#ef4444',
   'REGIONAL': '#f97316',
@@ -177,6 +190,7 @@ const searchFocused = ref(false);
 const filteredIds = ref(new Set());
 const collapseSignal = ref(0);
 const expandSignal = ref(0);
+const activeRoleFilter = ref(null);
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const roleCounts = computed(() => {
@@ -188,9 +202,20 @@ const roleCounts = computed(() => {
   return counts;
 });
 
+const roleFilteredIds = computed(() => {
+  if (!activeRoleFilter.value) return null;
+  const ids = new Set();
+  rawData.value.forEach(n => {
+    if (n.jabatan?.toUpperCase() === activeRoleFilter.value) ids.add(n.id);
+  });
+  return ids;
+});
+
 const filteredRoots = computed(() => {
-  if (!searchQuery.value.trim()) return treeRoots.value;
-  return treeRoots.value.filter(r => hasDesc(r, filteredIds.value));
+  const roots = treeRoots.value;
+  if (!searchQuery.value.trim() && !activeRoleFilter.value) return roots;
+  if (searchQuery.value.trim()) return roots.filter(r => hasDesc(r, filteredIds.value));
+  return roots.filter(r => hasDesc(r, roleFilteredIds.value));
 });
 
 // ─── API ──────────────────────────────────────────────────────────────────────
@@ -249,11 +274,24 @@ function hasDesc(node, ids) {
 function onSearch() {
   const q = searchQuery.value.trim();
   filteredIds.value = q ? collectMatchIds(treeRoots.value, q) : new Set();
+  if (q) activeRoleFilter.value = null;
 }
 
 function clearSearch() {
   searchQuery.value = '';
   filteredIds.value = new Set();
+}
+
+// ─── Role Card Filter ─────────────────────────────────────────────────────────
+function onRoleCardClick(role) {
+  if (activeRoleFilter.value === role) {
+    activeRoleFilter.value = null;
+  } else {
+    activeRoleFilter.value = role;
+    expandSignal.value++;
+    searchQuery.value = '';
+    filteredIds.value = new Set();
+  }
 }
 
 // ─── Collapse / Expand All ────────────────────────────────────────────────────
@@ -267,6 +305,13 @@ function onSelect(node) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith('http') || path.startsWith('https')) return path;
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  return `https://babaapi.teknosof.com/project/public/${cleanPath}`;
+}
+
 function getParentName(node) {
   if (!node.parent_id) return '—';
   const parent = rawData.value.find(r => r.id === node.parent_id);
@@ -284,12 +329,12 @@ function roleColor(role) {
 
 function roleGradient(role) {
   const c = roleColor(role);
-  return `linear-gradient(135deg, ${c}cc, ${c}44)`;
+  return `linear-gradient(135deg, ${c}dd, ${c}88)`;
 }
 
 function badgeStyle(role) {
   const c = roleColor(role);
-  return { background: c + '22', color: c, border: `1px solid ${c}45` };
+  return { background: c + '18', color: c, border: `1px solid ${c}40` };
 }
 
 function formatDate(dt) {
@@ -305,6 +350,7 @@ const TreeNode = defineComponent({
     depth: Number,
     selectedId: [String, Number],
     filteredIds: Object,
+    roleFilteredIds: Object,
     searchActive: Boolean,
     collapseSignal: Number,
     expandSignal: Number,
@@ -313,11 +359,11 @@ const TreeNode = defineComponent({
   setup(props, { emit }) {
     const open = ref(Number(props.node?.depth ?? 0) < 2);
 
-    // Watch for global collapse/expand signals
     let prevCollapse = props.collapseSignal;
     let prevExpand = props.expandSignal;
 
     function isVisible() {
+      if (props.roleFilteredIds) return hasDescLocal(props.node, props.roleFilteredIds);
       if (!props.searchActive) return true;
       return hasDescLocal(props.node, props.filteredIds);
     }
@@ -333,7 +379,6 @@ const TreeNode = defineComponent({
     }
 
     return () => {
-      // React to collapse/expand signals
       if (props.collapseSignal !== prevCollapse) {
         prevCollapse = props.collapseSignal;
         open.value = false;
@@ -349,15 +394,20 @@ const TreeNode = defineComponent({
       const hasChildren = node.children?.length > 0;
       const isSelected = String(props.selectedId) === String(node.id);
       const isMatch = props.searchActive && props.filteredIds.has(node.id);
+      const isRoleMatch = props.roleFilteredIds ? props.roleFilteredIds.has(node.id) : false;
       const color = ROLE_COLORS[node.jabatan?.toUpperCase()] || '#6b7280';
 
       return h('div', { class: 'tnode-wrap' }, [
         h('div', {
-          class: ['tnode-row', isSelected && 'tnode-row--sel', isMatch && 'tnode-row--match'],
+          class: [
+            'tnode-row',
+            isSelected && 'tnode-row--sel',
+            isMatch && 'tnode-row--match',
+            isRoleMatch && 'tnode-row--role-match',
+          ],
           style: { paddingLeft: `${14 + props.depth * 24}px` },
           onClick: () => emit('select', node),
         }, [
-          // Chevron
           h('div', {
             class: ['tnode-toggle', !hasChildren && 'tnode-toggle--empty'],
             onClick: hasChildren ? toggle : undefined,
@@ -370,22 +420,25 @@ const TreeNode = defineComponent({
             : null
           ),
 
-          // Badge
           h('span', {
             class: 'tnode-badge',
-            style: { background: color + '22', color, border: `1px solid ${color}40` },
+            style: { background: color + '18', color, border: `1px solid ${color}40` },
           }, node.jabatan),
 
-          // Name
-          h('span', { class: ['tnode-name', isMatch && 'tnode-name--match'] }, node.nama),
+          h('span', {
+            class: [
+              'tnode-name',
+              isMatch && 'tnode-name--match',
+              isRoleMatch && 'tnode-name--role-match',
+              isSelected && 'tnode-name--sel',
+            ],
+          }, node.nama),
 
-          // Count badge
           Number(node.jumlah_bawahan) > 0
             ? h('span', { class: 'tnode-count' }, node.jumlah_bawahan)
             : null,
         ]),
 
-        // Children
         hasChildren && open.value
           ? h('div', null,
             node.children.map(child =>
@@ -395,6 +448,7 @@ const TreeNode = defineComponent({
                 depth: props.depth + 1,
                 selectedId: props.selectedId,
                 filteredIds: props.filteredIds,
+                roleFilteredIds: props.roleFilteredIds,
                 searchActive: props.searchActive,
                 collapseSignal: props.collapseSignal,
                 expandSignal: props.expandSignal,
@@ -422,14 +476,28 @@ onMounted(fetchData);
   padding: 0;
 }
 
+/* ── Variables ────────────────────────────────────────────────────────────── */
+.page {
+  --bg-page: #f0f2f7;
+  --bg-panel: #ffffff;
+  --bg-panel-alt: #f8f9fc;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #9ca3af;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
 /* ── Page ─────────────────────────────────────────────────────────────────── */
 .page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #0b0d12;
+  background: var(--bg-page);
   font-family: 'Outfit', sans-serif;
-  color: #e2e8f0;
+  color: var(--text-primary);
   overflow: hidden;
 }
 
@@ -438,21 +506,19 @@ onMounted(fetchData);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px 12px;
+  padding: 16px 24px 14px;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-sm);
 }
 
 .page-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  color: #f1f5f9;
-  letter-spacing: -0.3px;
-}
-
-.page-sub {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 2px;
+  color: var(--text-primary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 .header-right {
@@ -463,66 +529,84 @@ onMounted(fetchData);
 
 .total-chip {
   font-size: 12px;
-  color: #94a3b8;
-  background: #151923;
-  border: 1px solid #1e2535;
+  color: #374151;
+  background: #f3f4f6;
+  border: 1px solid var(--border-strong);
   padding: 5px 14px;
   border-radius: 20px;
   font-family: 'JetBrains Mono', monospace;
 }
 
 .hdr-btn {
-  background: #151923;
-  border: 1px solid #1e2535;
-  color: #94a3b8;
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 6px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.5px;
   transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
 }
 
 .hdr-btn:hover {
-  background: #1e2535;
-  color: #e2e8f0;
+  background: #f3f4f6;
+  border-color: #6b7280;
+  color: var(--text-primary);
 }
 
 .hdr-btn--open {
-  background: #1a2540;
-  border-color: #2a3a60;
-  color: #60a5fa;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(29, 78, 216, 0.25);
 }
 
 .hdr-btn--open:hover {
-  background: #1e2d4d;
-  color: #93c5fd;
+  background: #1e40af;
+  border-color: #1e40af;
 }
 
 /* ── Stat Row ─────────────────────────────────────────────────────────────── */
 .stat-row {
   display: flex;
-  gap: 12px;
-  padding: 0 24px 14px;
+  gap: 10px;
+  padding: 14px 24px;
   flex-shrink: 0;
 }
 
 .stat-card {
   flex: 1;
-  background: #101420;
-  border: 1px solid #1e2535;
-  border-top-width: 2.5px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-top-width: 3px;
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   min-width: 0;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card--active {
+  box-shadow: var(--shadow-md), 0 0 0 2px rgba(0, 0, 0, 0.1) inset;
 }
 
 .stat-card-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
+  color: var(--text-muted);
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -530,7 +614,7 @@ onMounted(fetchData);
 }
 
 .stat-card-value {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   line-height: 1;
@@ -541,8 +625,8 @@ onMounted(fetchData);
   display: flex;
   flex: 1;
   min-height: 0;
-  gap: 0;
   padding: 0 24px 24px;
+  gap: 0;
 }
 
 /* ── Tree Panel ───────────────────────────────────────────────────────────── */
@@ -550,11 +634,12 @@ onMounted(fetchData);
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #101420;
-  border: 1px solid #1e2535;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   margin-right: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
 .tree-topbar {
@@ -562,34 +647,65 @@ onMounted(fetchData);
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid #1e2535;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  background: var(--bg-panel-alt);
 }
 
 .tree-topbar-title {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Active Filter Chip ───────────────────────────────────────────────────── */
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
   font-weight: 600;
-  color: #cbd5e1;
+  padding: 2px 8px 2px 9px;
+  border-radius: 10px;
+  border: 1px solid;
+  letter-spacing: 0.2px;
+}
+
+.chip-close {
+  font-size: 9px;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0 1px;
+  transition: opacity 0.12s;
+}
+
+.chip-close:hover {
+  opacity: 1;
 }
 
 .search-box {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: hsl(223, 24%, 6%);
-  border: 1px solid #1e2535;
+  background: var(--bg-page);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
   padding: 6px 12px;
   width: 240px;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .search-box.focused {
   border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .search-box svg {
-  color: #4a5568;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -597,7 +713,7 @@ onMounted(fetchData);
   background: transparent;
   border: none;
   outline: none;
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-size: 13px;
   font-family: inherit;
   flex: 1;
@@ -605,13 +721,13 @@ onMounted(fetchData);
 }
 
 .search-box input::placeholder {
-  color: #4a5568;
+  color: var(--text-muted);
 }
 
 .search-all-btn {
-  background: #1e2535;
+  background: #e5e7eb;
   border: none;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 4px;
@@ -622,17 +738,17 @@ onMounted(fetchData);
 }
 
 .search-all-btn:hover {
-  background: #252d3d;
-  color: #e2e8f0;
+  background: #d1d5db;
+  color: var(--text-primary);
 }
 
 /* ── Tree Scroll ──────────────────────────────────────────────────────────── */
 .tree-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 6px 0;
+  padding: 4px 0;
   scrollbar-width: thin;
-  scrollbar-color: #1e2535 transparent;
+  scrollbar-color: #d1d5db transparent;
 }
 
 .tree-scroll::-webkit-scrollbar {
@@ -640,7 +756,7 @@ onMounted(fetchData);
 }
 
 .tree-scroll::-webkit-scrollbar-thumb {
-  background: #1e2535;
+  background: #d1d5db;
   border-radius: 2px;
 }
 
@@ -652,19 +768,19 @@ onMounted(fetchData);
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 13px;
   padding: 48px;
 }
 
 .error-state {
-  color: #f87171;
+  color: #ef4444;
 }
 
 .spinner {
   width: 26px;
   height: 26px;
-  border: 3px solid #1e2535;
+  border: 3px solid #e5e7eb;
   border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
@@ -677,9 +793,9 @@ onMounted(fetchData);
 }
 
 .retry-btn {
-  background: #1e2535;
-  border: 1px solid #252d3d;
-  color: #94a3b8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
   padding: 6px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -689,8 +805,8 @@ onMounted(fetchData);
 }
 
 .retry-btn:hover {
-  background: #252d3d;
-  color: #e2e8f0;
+  background: #dbeafe;
+  border-color: #93c5fd;
 }
 
 /* ── Tree Nodes ───────────────────────────────────────────────────────────── */
@@ -698,26 +814,34 @@ onMounted(fetchData);
   width: 100%;
 }
 
+/* ─── PERBAIKAN UTAMA: spacing & selected indicator ─────────────────────── */
 .tnode-row {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  padding-right: 14px;
+  gap: 12px;               /* jarak antar elemen lebih besar */
+  padding-top: 11px;
+  padding-bottom: 11px;
+  padding-right: 20px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.12s, box-shadow 0.12s;
   position: relative;
-  min-height: 34px;
+  min-height: 46px;
   user-select: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tnode-row:last-child {
+  border-bottom: none;
 }
 
 .tnode-row:hover {
-  background: #141824;
+  background: #f3f4f6;
 }
 
+/* ── SELECTED STATE: biru solid, garis kiri tebal, nama bold biru ───────── */
 .tnode-row--sel {
-  background: #19223a !important;
+  background: #eff6ff !important;
+  box-shadow: inset 0 0 0 0 transparent;
 }
 
 .tnode-row--sel::before {
@@ -726,13 +850,14 @@ onMounted(fetchData);
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
-  background: #3b82f6;
-  border-radius: 0 2px 2px 0;
+  width: 4px;              /* lebih tebal dari sebelumnya */
+  background: #2563eb;
+  border-radius: 0 3px 3px 0;
+  box-shadow: 2px 0 8px rgba(37, 99, 235, 0.35);
 }
 
 .tnode-row--match {
-  background: #1a1d10 !important;
+  background: #fefce8 !important;
 }
 
 .tnode-row--match::before {
@@ -741,26 +866,41 @@ onMounted(fetchData);
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 4px;
   background: #f59e0b;
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 3px 3px 0;
+}
+
+.tnode-row--role-match {
+  background: #f0fdf4 !important;
+}
+
+.tnode-row--role-match::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #10b981;
+  border-radius: 0 3px 3px 0;
 }
 
 .tnode-toggle {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4a5568;
+  color: var(--text-muted);
   flex-shrink: 0;
-  border-radius: 4px;
-  transition: background 0.12s;
+  border-radius: 5px;
+  transition: background 0.12s, color 0.12s;
 }
 
 .tnode-toggle:not(.tnode-toggle--empty):hover {
-  background: #252d3d;
-  color: #94a3b8;
+  background: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .tnode-toggle--empty {
@@ -769,52 +909,69 @@ onMounted(fetchData);
 
 .tnode-badge {
   font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
+  font-weight: 700;
+  padding: 3px 10px;
   border-radius: 10px;
   white-space: nowrap;
   flex-shrink: 0;
-  letter-spacing: 0.15px;
+  letter-spacing: 0.4px;
+  min-width: 90px;         /* lebar tetap agar nama selalu mulai di posisi sama */
+  text-align: center;
 }
 
 .tnode-name {
-  font-size: 13px;
-  color: #cbd5e1;
+  font-size: 13.5px;
+  color: var(--text-secondary);
   font-weight: 400;
-  flex: 1;
+  flex: 1;                 /* ambil semua sisa ruang → count terdorong ke kanan */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.12s, font-weight 0.12s;
+}
+
+/* ── Nama biru & bold saat selected ──────────────────────────────────────── */
+.tnode-name--sel {
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
 }
 
 .tnode-name--match {
-  color: #fbbf24;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.tnode-name--role-match {
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .tnode-count {
   font-size: 11px;
   font-family: 'JetBrains Mono', monospace;
-  color: #4a5568;
-  background: #0b0d12;
-  border: 1px solid #1e2535;
-  padding: 1px 7px;
+  color: var(--text-muted);
+  background: #f3f4f6;
+  border: 1px solid var(--border-strong);
+  padding: 2px 10px;
   border-radius: 10px;
   flex-shrink: 0;
+  min-width: 32px;
+  text-align: center;
 }
 
 /* ── Detail Panel ─────────────────────────────────────────────────────────── */
 .detail-panel {
   width: 300px;
   flex-shrink: 0;
-  background: #101420;
-  border: 1px solid #1e2535;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  box-shadow: var(--shadow-sm);
   scrollbar-width: thin;
-  scrollbar-color: #1e2535 transparent;
+  scrollbar-color: #d1d5db transparent;
 }
 
 .detail-panel::-webkit-scrollbar {
@@ -822,18 +979,19 @@ onMounted(fetchData);
 }
 
 .detail-panel::-webkit-scrollbar-thumb {
-  background: #1e2535;
+  background: #d1d5db;
   border-radius: 2px;
 }
 
 .detail-header-bar {
   padding: 14px 18px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  letter-spacing: 0.9px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  border-bottom: 1px solid #1e2535;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel-alt);
   flex-shrink: 0;
 }
 
@@ -850,16 +1008,24 @@ onMounted(fetchData);
   justify-content: center;
   font-size: 20px;
   font-weight: 700;
-  color: #fff;
+  color: #ffffff;
   letter-spacing: 1px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.detail-avatar-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .detail-name {
   padding: 0 18px 6px;
   font-size: 18px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--text-primary);
 }
 
 .detail-meta {
@@ -872,31 +1038,32 @@ onMounted(fetchData);
 
 .meta-badge {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 2px 9px;
   border-radius: 10px;
+  letter-spacing: 0.4px;
 }
 
 .dot-sep {
-  color: #2d3748;
+  color: #d1d5db;
 }
 
 .meta-small {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
 }
 
 .detail-stats {
   display: flex;
-  border-top: 1px solid #1e2535;
-  border-bottom: 1px solid #1e2535;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .stat-block {
   flex: 1;
   padding: 14px 18px;
-  border-right: 1px solid #1e2535;
+  border-right: 1px solid var(--border);
 }
 
 .stat-block:last-child {
@@ -905,9 +1072,9 @@ onMounted(fetchData);
 
 .stat-lbl {
   font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.7px;
-  color: #4a5568;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
   text-transform: uppercase;
   margin-bottom: 5px;
 }
@@ -915,20 +1082,20 @@ onMounted(fetchData);
 .stat-val {
   font-size: 26px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #1d4ed8;
   font-family: 'JetBrains Mono', monospace;
   line-height: 1;
 }
 
 .detail-row {
   display: flex;
-  border-bottom: 1px solid #1e2535;
+  border-bottom: 1px solid var(--border);
 }
 
 .detail-cell {
   flex: 1;
   padding: 12px 18px;
-  border-right: 1px solid #1e2535;
+  border-right: 1px solid var(--border);
 }
 
 .detail-cell:last-child {
@@ -937,16 +1104,16 @@ onMounted(fetchData);
 
 .cell-lbl {
   font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.7px;
-  color: #4a5568;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
   text-transform: uppercase;
   margin-bottom: 5px;
 }
 
 .cell-val {
   font-size: 12.5px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-weight: 500;
   word-break: break-word;
 }
@@ -963,9 +1130,9 @@ onMounted(fetchData);
 
 .bawahan-title {
   font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.7px;
-  color: #4a5568;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
   text-transform: uppercase;
   margin-bottom: 9px;
 }
@@ -974,7 +1141,7 @@ onMounted(fetchData);
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 6px 9px;
+  padding: 7px 9px;
   border-radius: 7px;
   cursor: pointer;
   transition: background 0.12s;
@@ -982,7 +1149,7 @@ onMounted(fetchData);
 }
 
 .bawahan-item:hover {
-  background: #0b0d12;
+  background: #f3f4f6;
 }
 
 .bawahan-dot {
@@ -995,7 +1162,7 @@ onMounted(fetchData);
 .bawahan-name {
   flex: 1;
   font-size: 12.5px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1003,7 +1170,7 @@ onMounted(fetchData);
 
 .bawahan-badge {
   font-size: 9.5px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 2px 7px;
   border-radius: 9px;
   white-space: nowrap;
@@ -1016,7 +1183,7 @@ onMounted(fetchData);
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #4a5568;
+  color: var(--text-muted);
   font-size: 12px;
   text-align: center;
   padding: 24px;
@@ -1024,6 +1191,5 @@ onMounted(fetchData);
 
 .empty-hand {
   font-size: 36px;
-  filter: grayscale(0.3);
 }
 </style>
