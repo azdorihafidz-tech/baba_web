@@ -595,7 +595,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-select label="Rating Star" v-model="documentEditModel.pointbintang"
-                      :items="[1, 2, 3, 4, 5, 6, 7, 8]" class="mb-2" :rules="[requiredRule, pointbintangRule]" required>
+                      :items="[0, 1, 2, 3, 4, 5, 6, 7, 8]" class="mb-2" :rules="[pointbintangRule]" required>
                       <template v-slot:selection="{ item }">
                         <div class="d-flex align-center">
                           <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
@@ -1043,8 +1043,8 @@
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-select label="Rating Star" v-model="documentAddModel.pointbintang" :items="[1, 2, 3, 4, 5, 6, 7, 8]"
-                class="mb-2" :rules="[requiredRule, pointbintangRule]" required>
+              <v-select label="Rating Star" v-model="documentAddModel.pointbintang" :items="[0, 1, 2, 3, 4, 5, 6, 7, 8]"
+                class="mb-2" :rules="[pointbintangRule]" required>
                 <template v-slot:selection="{ item }">
                   <div class="d-flex align-center">
                     <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
@@ -2039,7 +2039,7 @@ export default {
 
     async addDocument() {
       if (!this.documentAddModel.file_name ||
-        !this.documentAddModel.pointbintang ||
+        (this.documentAddModel.pointbintang === null || this.documentAddModel.pointbintang === undefined || this.documentAddModel.pointbintang === '') ||
         !this.documentAddModel.tanggal_repeat_order ||
         !this.documentAddModel.file) {
         this.showSnackbar("Semua field harus diisi", 'error');
