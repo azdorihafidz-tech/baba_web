@@ -1324,7 +1324,7 @@ export default {
             dashboardData: {
                 top_star: [],
                 dashboard_star: [],
-                leaderboard_per_bulan: {},
+                akumulasi: {},
                 leaderboard_per_daerah: {},
                 akun_per_mvo: []
             },
@@ -1341,7 +1341,7 @@ export default {
                 { title: 'ALL', key: 'ALL' },
                 { title: 'MVO', key: 'MVO' },
                 { title: 'REGIONAL', key: 'REGIONAL' },
-                { title: 'Founder', key: 'FO' },
+                { title: 'FO', key: 'FO' },
                 { title: 'GM', key: 'GM' },
                 { title: 'SUPPLIER', key: 'SUPPLIER' },
                 { title: 'Distributor', key: 'DIST' },
@@ -1358,23 +1358,47 @@ export default {
         },
 
         filteredLeaderboardBulanData() {
-            let data = this.currentLeaderboardBulanData || [];
+            let data = [];
+
+            // Handle array vs object structure for akumulasi
+            if (Array.isArray(this.dashboardData.akumulasi)) {
+                data = [...this.dashboardData.akumulasi];
+            } else {
+                data = [...(this.currentLeaderboardBulanData || [])];
+            }
+
             if (this.filterRoleBulan !== 'ALL') {
                 data = data.filter(item => item.role === this.filterRoleBulan);
             }
-            return data.map((item, index) => ({ ...item, ranking: index + 1 }));
+
+            // Sort by total_ro descending
+            data.sort((a, b) => {
+                const roA = parseInt(a.total_ro || a.total_repeat_order || 0);
+                const roB = parseInt(b.total_ro || b.total_repeat_order || 0);
+                return roB - roA;
+            });
+
+            return data.map((item, index) => ({
+                ...item,
+                ranking: index + 1,
+                // Map fields from API response to table headers
+                nama: item.nama || item.nama_atasan,
+                total_ro: item.total_ro || item.total_repeat_order
+            }));
         },
 
         availableLeaderboardMonths() {
-            if (!this.dashboardData.leaderboard_per_bulan) return [];
-            return Object.keys(this.dashboardData.leaderboard_per_bulan).sort();
+            if (!this.dashboardData.akumulasi) return [];
+            // If it's an array, we don't have months keys
+            if (Array.isArray(this.dashboardData.akumulasi)) return [];
+            return Object.keys(this.dashboardData.akumulasi).sort();
         },
 
         currentLeaderboardBulanData() {
-            if (!this.selectedLeaderboardMonth || !this.dashboardData.leaderboard_per_bulan) {
+            if (!this.selectedLeaderboardMonth || !this.dashboardData.akumulasi || Array.isArray(this.dashboardData.akumulasi)) {
                 return [];
             }
-            return this.dashboardData.leaderboard_per_bulan[this.selectedLeaderboardMonth] || [];
+            return this.dashboardData.akumulasi[this.selectedLeaderboardMonth] || [];
         },
 
         filteredMobileDashboardStar() {
@@ -1413,9 +1437,21 @@ export default {
         rankedMvoList() {
             if (!this.dashboardData.akun_per_mvo) return [];
 
+            let akumulasiData = [];
+            if (Array.isArray(this.dashboardData.akumulasi)) {
+                akumulasiData = this.dashboardData.akumulasi;
+            } else if (this.dashboardData.akumulasi && typeof this.dashboardData.akumulasi === 'object') {
+                Object.values(this.dashboardData.akumulasi).forEach(monthData => {
+                    if (Array.isArray(monthData)) {
+                        akumulasiData = akumulasiData.concat(monthData);
+                    }
+                });
+            }
+
             return this.dashboardData.akun_per_mvo.map(mvo => {
-                const totalRepeatOrder = (mvo.documents || []).reduce((sum, doc) => {
-                    return sum + parseInt(doc.repeat_order || 0);
+                const mvoAkumulasiEntries = akumulasiData.filter(item => String(item.id_atasan) === String(mvo.id));
+                const totalRepeatOrder = mvoAkumulasiEntries.reduce((sum, item) => {
+                    return sum + parseInt(item.total_repeat_order || item.total_ro || 0);
                 }, 0);
 
                 const totalDownlines = (mvo.downlines || []).length;
@@ -1504,7 +1540,7 @@ export default {
             switch (role) {
                 case 'MVO': return 'MVO';
                 case 'REGIONAL': return 'Regional';
-                case 'FO': return 'Founder';
+                case 'FO': return 'FO';
                 case 'GM': return 'GM';
                 case 'SUPPLIER': return 'Supplier';
                 case 'DIST': return 'Distributor';
@@ -1652,7 +1688,7 @@ export default {
 
         getRoleLabelFromCode(code) {
             if (code.includes('REGIONAL')) return 'Regional';
-            if (code.includes('FO')) return 'Founder';
+            if (code.includes('FO')) return 'FO';
             if (code.includes('GM')) return 'GM';
             if (code.includes('SUPPLIER')) return 'Supplier';
             if (code.includes('DIST')) return 'Distributor';
