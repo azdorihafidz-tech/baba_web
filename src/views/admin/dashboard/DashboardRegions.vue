@@ -451,13 +451,13 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.teknosof.com/api/dashboard/akun`;
+                url = `https://babaapi.babaparfume.id/api/dashboard/akun`;
             } else {
                 if (!this.cabang) {
                     console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
-                url = `https://babaapi.teknosof.com/api/dashboard/akun/${this.cabang}`;
+                url = `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
             }
 
             try {
@@ -494,7 +494,7 @@ export default {
                     this.detailData = [];
 
                     const res = await axios.get(
-                        `https://babaapi.teknosof.com/api/dashboard/akun/${regionName}`,
+                        `https://babaapi.babaparfume.id/api/dashboard/akun/${regionName}`,
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
 

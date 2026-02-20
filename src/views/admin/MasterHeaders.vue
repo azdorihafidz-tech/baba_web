@@ -563,7 +563,7 @@ export default {
         cleanPath = cleanPath.substring(1);
       }
 
-      const baseUrl = 'https://babaapi.teknosof.com/project/public';
+      const baseUrl = 'https://babaapi.babaparfume.id/project/public';
       let imageUrl;
 
       if (cleanPath.startsWith('uploads/header/')) {
@@ -736,7 +736,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.teknosof.com/api/gambar-header", {
+        .get("https://babaapi.babaparfume.id/api/gambar-header", {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -828,7 +828,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://babaapi.teknosof.com/api/gambar-header",
+          "https://babaapi.babaparfume.id/api/gambar-header",
           formData,
           {
             headers: {
@@ -867,7 +867,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`https://babaapi.teknosof.com/api/gambar-header/${id}`, {
+        .get(`https://babaapi.babaparfume.id/api/gambar-header/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -927,7 +927,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.teknosof.com/api/gambar-header/${this.modelEdit.id}`,
+          `https://babaapi.babaparfume.id/api/gambar-header/${this.modelEdit.id}`,
           formData,
           {
             headers: {
@@ -969,7 +969,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.teknosof.com/api/gambar-header/${id}`, {
+        .delete(`https://babaapi.babaparfume.id/api/gambar-header/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

@@ -573,7 +573,7 @@ export default {
 
       try {
         const response = await fetch(
-          `https://babaapi.teknosof.com/project/public/api/dokumentasi/${item.id}/download`,
+          `https://babaapi.babaparfume.id/project/public/api/dokumentasi/${item.id}/download`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -728,7 +728,7 @@ export default {
         cleanPath = cleanPath.substring(1);
       }
 
-      const baseUrl = 'https://babaapi.teknosof.com/project/public';
+      const baseUrl = 'https://babaapi.babaparfume.id/project/public';
       let fileUrl;
 
       if (cleanPath.startsWith('uploads/')) {
@@ -960,7 +960,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://babaapi.teknosof.com/api/dokumentasi",
+          "https://babaapi.babaparfume.id/api/dokumentasi",
           formData,
           {
             headers: {
@@ -992,7 +992,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.teknosof.com/api/dokumentasi", {
+        .get("https://babaapi.babaparfume.id/api/dokumentasi", {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1073,7 +1073,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`https://babaapi.teknosof.com/api/dokumentasi/${id}`, {
+        .get(`https://babaapi.babaparfume.id/api/dokumentasi/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1145,7 +1145,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.teknosof.com/api/dokumentasi/${this.modelEdit.id}`,
+          `https://babaapi.babaparfume.id/api/dokumentasi/${this.modelEdit.id}`,
           formData,
           {
             headers: {
@@ -1183,7 +1183,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.teknosof.com/api/dokumentasi/${id}`, {
+        .delete(`https://babaapi.babaparfume.id/api/dokumentasi/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

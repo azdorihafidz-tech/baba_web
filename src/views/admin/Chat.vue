@@ -345,7 +345,7 @@ export default {
   methods: {
     createApiInstance() {
       const token = localStorage.getItem("token") || Cookies.get("token") || "";
-      const base = "https://babaapi.teknosof.com/chat-rooms/api";
+      const base = "https://babaparfume.id/chat-rooms/api";
       this.api = axios.create({
         baseURL: base,
         headers: { Authorization: token ? `Bearer ${token}` : "" },
@@ -416,7 +416,7 @@ export default {
       if (this.socket) return;
       const rawToken =
         localStorage.getItem("token") || Cookies.get("token") || null;
-      const host = "https://babaapi.teknosof.com";
+      const host = "https://babaparfume.id";
       const path = "/chat-rooms/socket.io";
       this.socket = io(host, {
         path,

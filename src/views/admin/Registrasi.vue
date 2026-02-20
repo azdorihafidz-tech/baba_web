@@ -354,7 +354,7 @@ export default {
     },
 
     mounted() {
-        console.log('Provinsi API Endpoint:', 'https://babaapi.teknosof.com/api/provinsi')
+        console.log('Provinsi API Endpoint:', 'https://babaapi.babaparfume.id/api/provinsi')
         this.debugRouteInfo()
         this.fetchProvinsiData()
         this.getAllMvoType()
@@ -431,7 +431,7 @@ export default {
             this.loadingDistributor = true
 
             const res = await axios.post(
-                'https://babaapi.teknosof.com/api/get/distributor',
+                'https://babaapi.babaparfume.id/api/get/distributor',
                 {
                     cabang: this.inputRegister.cabang,
                     upline_1: this.inputRegister.upline_1, // ✅ MVO
@@ -454,7 +454,7 @@ export default {
             this.loadingSupplier = true
 
             const res = await axios.post(
-                'https://babaapi.teknosof.com/api/get/supplier',
+                'https://babaapi.babaparfume.id/api/get/supplier',
                 {
                     cabang: this.inputRegister.cabang,
                     upline_1: this.inputRegister.upline_1, // ✅ MVO
@@ -478,7 +478,7 @@ export default {
             try {
 
                 const res = await axios.post(
-                    'https://babaapi.teknosof.com/api/get/gm',
+                    'https://babaapi.babaparfume.id/api/get/gm',
                     {
                         cabang: this.inputRegister.cabang,
                         upline_1: this.inputRegister.upline_1, // ✅ MVO
@@ -506,7 +506,7 @@ export default {
             try {
 
                 const res = await axios.post(
-                    'https://babaapi.teknosof.com/api/get/founder',
+                    'https://babaapi.babaparfume.id/api/get/founder',
                     {
                         cabang: this.inputRegister.cabang,
                         upline_1: this.inputRegister.upline_1, // ✅ tambahkan ini
@@ -531,7 +531,7 @@ export default {
             this.loadingRegional = true
 
             const res = await axios.post(
-                'https://babaapi.teknosof.com/api/get/regional',
+                'https://babaapi.babaparfume.id/api/get/regional',
                 {
                     cabang: this.inputRegister.cabang,
                     upline_1: code
@@ -550,7 +550,7 @@ export default {
             this.loadingMvo = true
 
             const res = await axios.post(
-                'https://babaapi.teknosof.com/api/get/mvo',
+                'https://babaapi.babaparfume.id/api/get/mvo',
                 { cabang }
             )
 
@@ -567,7 +567,7 @@ export default {
             try {
                 console.log('Fetching provinsi data from API...')
 
-                const response = await axios.get('https://babaapi.teknosof.com/api/provinsi', {
+                const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -615,7 +615,7 @@ export default {
             try {
                 console.log('Fetching mvotype data from API...')
 
-                const response = await axios.get('https://babaapi.teknosof.com/api/mvo-type', {
+                const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -744,8 +744,8 @@ export default {
             }
 
             const apiUrls = [
-                'https://babaapi.teknosof.com/api/user',
-                'https://babaapi.teknosof.com/api/user'
+                'https://babaapi.babaparfume.id/api/user',
+                'https://babaapi.babaparfume.id/api/user'
             ]
 
             const requestConfig = {

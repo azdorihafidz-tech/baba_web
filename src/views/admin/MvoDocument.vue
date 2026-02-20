@@ -705,7 +705,7 @@ export default {
       this.isFoLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", {
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -853,7 +853,7 @@ export default {
 
     getFullFileUrl(filePath) {
       if (!filePath) return '';
-      return `https://babaapi.teknosof.com/project/public/${filePath}`;
+      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
     },
 
     handleImageError(event) {
@@ -957,7 +957,7 @@ export default {
       this.isMvoLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", {
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -987,7 +987,7 @@ export default {
       this.isTableLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.teknosof.com/api/mvo-document", {
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -1041,7 +1041,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("https://babaapi.teknosof.com/api/mvo-document", formData, {
+        const response = await axios.post("https://babaapi.babaparfume.id/api/mvo-document", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
@@ -1075,7 +1075,7 @@ export default {
       this.isButtonLoading = true;
 
       try {
-        const response = await axios.delete(`https://babaapi.teknosof.com/api/mvo-document/${id}`, {
+        const response = await axios.delete(`https://babaapi.babaparfume.id/api/mvo-document/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1107,7 +1107,7 @@ export default {
 
       this.isButtonLoading = true;
       try {
-        const response = await axios.put(`https://babaapi.teknosof.com/api/mvo-documents/${id}/approve`, {}, {
+        const response = await axios.put(`https://babaapi.babaparfume.id/api/mvo-documents/${id}/approve`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1371,7 +1371,7 @@ export default {
 
       try {
         const response = await axios.post(
-          `https://babaapi.teknosof.com/api/mvo-document/${this.modelEdit.id}`,
+          `https://babaapi.babaparfume.id/api/mvo-document/${this.modelEdit.id}`,
           formData,
           {
             headers: {

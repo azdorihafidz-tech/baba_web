@@ -1579,7 +1579,7 @@ export default {
 
         getMvoImageUrl(mvo) {
             if (mvo.provinsi && mvo.provinsi.foto_mvo) {
-                return `https://babaapi.teknosof.com/project/public/${mvo.provinsi.foto_mvo}`;
+                return `https://babaapi.babaparfume.id/project/public/${mvo.provinsi.foto_mvo}`;
             }
             return 'https://via.placeholder.com/300x300?text=No+Image';
         },
@@ -1593,7 +1593,7 @@ export default {
 
             this.isLoading = true;
             try {
-                let url = "https://babaapi.teknosof.com/api/dashboard/star";
+                let url = "https://babaapi.babaparfume.id/api/dashboard/star";
                 const params = new URLSearchParams();
 
                 if (this.dateRange.start_date) {

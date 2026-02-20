@@ -346,7 +346,7 @@ export default {
       try {
         const token = Cookies.get("token");
         const response = await axios.get(
-          "https://babaapi.teknosof.com/api/mvo",
+          "https://babaapi.babaparfume.id/api/mvo",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -364,7 +364,7 @@ export default {
     async getAllMvoType() {
       try {
         const response = await axios.get(
-          "https://babaapi.teknosof.com/api/mvo-type"
+          "https://babaapi.babaparfume.id/api/mvo-type"
         );
 
         if (response.data.status === "success" && response.data.data) {
@@ -384,7 +384,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const res = await axios.post(
-          "https://babaapi.teknosof.com/api/cekApprovalBawahan",
+          "https://babaapi.babaparfume.id/api/cekApprovalBawahan",
           { code: codeLogin },
           {
             headers: {
@@ -413,7 +413,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const response = await axios.post(
-          "https://babaapi.teknosof.com/api/approve",
+          "https://babaapi.babaparfume.id/api/approve",
           {
             code: codeLogin,
             id: this.idToApprove,

@@ -321,7 +321,7 @@ export default {
             this.isTableLoading = true;
             try {
                 const response = await axios.get(
-                    `https://babaapi.teknosof.com/api/downline/${this.mvo_id}`,
+                    `https://babaapi.babaparfume.id/api/downline/${this.mvo_id}`,
                     { headers }
                 );
 

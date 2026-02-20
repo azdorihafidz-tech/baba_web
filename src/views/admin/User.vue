@@ -755,7 +755,7 @@ export default {
     async getDistributorAdd(code) {
       this.loadingDistributorAdd = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/distributor', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
           upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3,
           upline_4: this.modelAdd.upline_4, upline_5: code
@@ -770,7 +770,7 @@ export default {
     async getSupplierAdd(code) {
       this.loadingSupplierAdd = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/supplier', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
           upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3, upline_4: code
         });
@@ -784,7 +784,7 @@ export default {
     async getGmAdd(code) {
       this.loadingGmAdd = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/gm', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
           upline_2: this.modelAdd.upline_2, upline_3: code
         });
@@ -798,7 +798,7 @@ export default {
     async getFounderAdd(code) {
       this.loadingFounderAdd = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/founder', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', {
           cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: code
         });
         this.founderOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
@@ -811,7 +811,7 @@ export default {
     async getRegionalAdd(code) {
       this.loadingRegionalAdd = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/regional', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', {
           cabang: this.modelAdd.cabang, upline_1: code
         });
         this.regionalOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
@@ -824,7 +824,7 @@ export default {
     async getMvoAdd(cabang) {
       this.loadingMvoAdd = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/mvo', { cabang });
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/mvo', { cabang });
         this.mvoOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data MVO', 'error');
@@ -869,7 +869,7 @@ export default {
     async getDistributorEdit(code) {
       this.loadingDistributorEdit = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/distributor', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', {
           cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
           upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3,
           upline_4: this.modelEdit.upline_4, upline_5: code
@@ -884,7 +884,7 @@ export default {
     async getSupplierEdit(code) {
       this.loadingSupplierEdit = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/supplier', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', {
           cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
           upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: code
         });
@@ -898,7 +898,7 @@ export default {
     async getGmEdit(code) {
       this.loadingGmEdit = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/gm', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', {
           cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
           upline_2: this.modelEdit.upline_2, upline_3: code
         });
@@ -912,7 +912,7 @@ export default {
     async getFounderEdit(code) {
       this.loadingFounderEdit = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/founder', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', {
           cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: code
         });
         this.founderOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
@@ -925,7 +925,7 @@ export default {
     async getRegionalEdit(code) {
       this.loadingRegionalEdit = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/regional', {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', {
           cabang: this.modelEdit.cabang, upline_1: code
         });
         this.regionalOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
@@ -938,7 +938,7 @@ export default {
     async getMvoEdit(cabang) {
       this.loadingMvoEdit = true;
       try {
-        const res = await axios.post('https://babaapi.teknosof.com/api/get/mvo', { cabang });
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/mvo', { cabang });
         this.mvoOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
       } catch (err) {
         this.showSnackbar('Gagal memuat data MVO', 'error');
@@ -950,7 +950,7 @@ export default {
     async fetchProvinsiData() {
       this.loadingProvinsi = true;
       try {
-        const response = await axios.get('https://babaapi.teknosof.com/api/provinsi', {
+        const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           timeout: 10000
         });
@@ -981,7 +981,7 @@ export default {
     async getAllMvoType() {
       try {
         const response = await axios.get(
-          'https://babaapi.teknosof.com/api/mvo-type',
+          'https://babaapi.babaparfume.id/api/mvo-type',
           {
             headers: {
               'Content-Type': 'application/json',
@@ -1174,7 +1174,7 @@ export default {
       const isSuperadmin =
         userLogin?.mvo_type_id?.toString().toLowerCase() === 'superadmin';
 
-      axios.get("https://babaapi.teknosof.com/api/user", {
+      axios.get("https://babaapi.babaparfume.id/api/user", {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
@@ -1277,8 +1277,8 @@ export default {
       }
 
       const apiUrls = [
-        'https://babaapi.teknosof.com/api/user',
-        'https://babaapi.teknosof.com/api/user'
+        'https://babaapi.babaparfume.id/api/user',
+        'https://babaapi.babaparfume.id/api/user'
       ];
 
       const requestConfig = {
@@ -1359,7 +1359,7 @@ export default {
         return parts[0].trim();
       };
 
-      axios.get(`https://babaapi.teknosof.com/api/user/${id}`, {
+      axios.get(`https://babaapi.babaparfume.id/api/user/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
@@ -1449,8 +1449,8 @@ export default {
       formData.append('_method', 'PUT');
 
       const apiUrls = [
-        `https://babaapi.teknosof.com/api/user/${this.modelEdit.id}`,
-        `https://babaapi.teknosof.com/api/user/${this.modelEdit.id}`
+        `https://babaapi.babaparfume.id/api/user/${this.modelEdit.id}`,
+        `https://babaapi.babaparfume.id/api/user/${this.modelEdit.id}`
       ];
 
       const requestConfig = {
@@ -1523,7 +1523,7 @@ export default {
       }
 
       this.isButtonLoading = true;
-      axios.delete(`https://babaapi.teknosof.com/api/user/${id}`, {
+      axios.delete(`https://babaapi.babaparfume.id/api/user/${id}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       })
         .then((response) => {
@@ -1549,7 +1549,7 @@ export default {
       this.expandedMobileCard = null;
       this.isButtonLoading = true;
 
-      axios.post(`https://babaapi.teknosof.com/api/user/aktivasi/${id}`, {}, {
+      axios.post(`https://babaapi.babaparfume.id/api/user/aktivasi/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       })
         .then((response) => {

@@ -245,7 +245,7 @@ export default {
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
-      const httpsUrl = `https://babaapi.teknosof.com/project/public/${cleanPath}`;
+      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
 
       return httpsUrl;
     },
@@ -274,7 +274,7 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
+          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
         } catch (httpsError) {
           console.warn('Main - HTTPS failed, trying HTTP:', httpsError.message);
 
@@ -282,7 +282,7 @@ export default {
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
+            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
           } else {
             throw httpsError;
           }
@@ -405,10 +405,11 @@ export default {
     async fetchSongs() {
       this.loadingSongs = true;
       try {
-        const response = await axios.get('https://babaapi.teknosof.com/api/lagu');
+        const response = await axios.get('https://babaparfume.id/api/lagu');
 
         if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
           this.songs = response.data.data;
+          console.log('Fetched songs:', this.songs);
 
           if (this.songs.length > 0) {
             const savedSongId = localStorage.getItem('currentSongId');
@@ -440,10 +441,10 @@ export default {
       if (!song || !this.$refs.audioPlayer) return;
 
       const urlPatterns = [
-        `https://babaapi.teknosof.com/${song.file_lagu}`,
-        `https://babaapi.teknosof.com/project/public/${song.file_lagu}`,
-        `https://babaapi.teknosof.com/storage/${song.file_lagu}`,
-        `https://babaapi.teknosof.com/public/${song.file_lagu}`,
+        `https://babaparfume.id/${song.file_lagu}`,
+        `https://babaparfume.id/project/public/${song.file_lagu}`,
+        `https://babaparfume.id/storage/${song.file_lagu}`,
+        `https://babaparfume.id/public/${song.file_lagu}`,
       ];
 
       const audioUrl = urlPatterns[patternIndex];
