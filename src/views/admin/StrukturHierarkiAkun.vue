@@ -116,7 +116,7 @@
             </div>
           </div>
 
-          <div class="detail-row" style="border-bottom:none;">
+          <!-- <div class="detail-row" style="border-bottom:none;">
             <div class="dcell">
               <div class="dcell-lbl">DEPTH</div>
               <div class="dcell-val">Kedalaman {{ selected.depth }}</div>
@@ -125,7 +125,7 @@
               <div class="dcell-lbl">BERGABUNG</div>
               <div class="dcell-val">{{ formatDate(selected.tanggal_bergabung) }}</div>
             </div>
-          </div>
+          </div> -->
 
           <div v-if="selected.children?.length" class="bawahan-section">
             <div class="bawahan-title">BAWAHAN LANGSUNG ({{ selected.children.length }})</div>
@@ -253,7 +253,9 @@ function getImageUrl(path) {
   return `https://babaapi.babaparfume.id/project/public/${path.startsWith('/') ? path.substring(1) : path}`;
 }
 function getParentName(node) {
-  if (!node.parent_id) return '—';
+  if (!node.parent_id) {
+    return (node.jabatan?.toUpperCase() === 'MVO') ? 'OWNER' : '—';
+  }
   return rawData.value.find(r => r.id === node.parent_id)?.nama ?? '—';
 }
 function initials(name) {
