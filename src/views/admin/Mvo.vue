@@ -1038,11 +1038,19 @@
         <v-card-text class="dialog-content">
           <v-row>
             <v-col cols="12">
+              <v-select label="Tipe Dokumen" v-model="documentAddModel.document_type"
+                :items="[{ title: 'Dokumen Star', value: 'star' }, { title: 'Dokumen User', value: 'user' }]"
+                item-title="title" item-value="value" class="mb-2 mt-4" variant="outlined" density="comfortable"
+                prepend-inner-icon="mdi-file-document-outline" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
               <v-text-field label="Nama File" v-model="documentAddModel.file_name" class="mb-2 mt-4"
                 :rules="[requiredRule]" />
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-if="documentAddModel.document_type === 'star'">
             <v-col cols="12">
               <v-select label="Rating Star" v-model="documentAddModel.pointbintang" :items="[0, 1, 2, 3, 4, 5, 6, 7, 8]"
                 class="mb-2" :rules="[pointbintangRule]" required>
@@ -1072,7 +1080,7 @@
                 class="mb-2" :rules="[requiredRule]" variant="outlined" density="comfortable"
                 prepend-inner-icon="mdi-calendar" />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="6" v-if="documentAddModel.document_type === 'star'">
               <v-text-field label="Range Point" v-model.number="documentAddModel.repeat_order" type="number" min="0"
                 step="0.01" class="mb-2" hint="Masukkan range point. Isi 0 jika yang diupload dokumen biasa"
                 persistent-hint :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
@@ -1263,6 +1271,7 @@ export default {
       // Document models
       documentAddModel: {
         mvo_id: "",
+        document_type: "star",  // TAMBAH INI
         file_name: "",
         pointbintang: "",
         tanggal_repeat_order: "",
@@ -1271,6 +1280,7 @@ export default {
       },
       documentEditModel: {
         id: "",
+        document_type: "star",  // TAMBAH INI
         file_name: "",
         pointbintang: "",
         tanggal_repeat_order: "",
@@ -2020,6 +2030,7 @@ export default {
 
       this.documentAddModel = {
         mvo_id: mvoId,
+        document_type: "star",  // TAMBAH INI
         file_name: "",
         pointbintang: "",
         tanggal_repeat_order: today,
@@ -2040,6 +2051,11 @@ export default {
     },
 
     async addDocument() {
+      if (this.documentAddModel.document_type === 'user') {
+        this.documentAddModel.pointbintang = 0;
+        this.documentAddModel.repeat_order = 0;
+      }
+
       if (!this.documentAddModel.file_name ||
         (this.documentAddModel.pointbintang === null || this.documentAddModel.pointbintang === undefined || this.documentAddModel.pointbintang === '') ||
         !this.documentAddModel.tanggal_repeat_order ||
