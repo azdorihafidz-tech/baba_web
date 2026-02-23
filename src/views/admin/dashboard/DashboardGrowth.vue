@@ -89,7 +89,7 @@
                 </v-col>
             </v-row>
             <!-- TABLE: Akun Growth per Jabatan (Desktop) -->
-            <v-card class="mt-4">
+            <!-- <v-card class="mt-4">
                 <v-card-title class="d-flex align-center justify-space-between flex-wrap gap-2">
                     <div class="d-flex align-center">
                         <v-icon class="mr-2">mdi-account-group</v-icon>
@@ -111,12 +111,12 @@
                         <template #item.jabatan="{ item }" {{ item.jabatan }}>
                             <v-chip color="primary" size="small">{{ item.jabatan }}</v-chip>
                         </template>
-                        <template #item.total_akun="{ item }">
+<template #item.total_akun="{ item }">
                             <div class="text-center font-weight-bold">{{ item.total_akun }}</div>
                         </template>
-                    </v-data-table>
-                </v-card-text>
-            </v-card>
+</v-data-table>
+</v-card-text>
+</v-card> -->
         </div>
 
         <!-- Mobile View -->
@@ -193,7 +193,7 @@
                 </v-card-text>
             </v-card>
             <!-- TABLE: Akun Growth per Jabatan (Mobile) -->
-            <v-card class="mt-3">
+            <!-- <v-card class="mt-3">
                 <v-card-title class="pa-3 d-flex align-center">
                     <v-icon class="mr-2">mdi-account-group</v-icon>
                     Akun Growth per Jabatan
@@ -222,7 +222,7 @@
                         </v-card-text>
                     </v-card>
                 </v-card-text>
-            </v-card>
+            </v-card> -->
         </div>
     </div>
 </template>

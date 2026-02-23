@@ -224,7 +224,8 @@ export default {
       currentUserCode: localStorage.getItem("mvo_id") || "",
       items: [],
       mvoTypeList: [],
-      allMvoData: [], // Data semua MVO dari API
+      allMvoData: [],
+      superadminTypeId: null, // ID mvo_type yang merupakan superadmin, di-set dari getAllMvoType()
       itemsBreadcrumb: [
         {
           title: "Dashboard",
@@ -239,20 +240,10 @@ export default {
       ],
 
       headers: [
-        // { key: "username", title: "Username" },
-        // { key: "aktivasi", title: "Aktivasi" },
         { key: "nama", title: "Nama" },
         { key: "no_id", title: "No ID" },
         { key: "cabang", title: "Cabang" },
-        // { key: "jlh_bintang", title: "Bintang" },
-        // { key: "mvo_type_id", title: "Tipe MVO" },
-        // { key: "nohp", title: "No HP" },
         { key: "alamat", title: "Alamat" },
-        // { key: "tgl_lahir", title: "Tanggal Lahir" },
-        // { key: "jenis_kelamin", title: "Jenis Kelamin" },
-        // { key: "nama_panggilan", title: "Nama Panggilan" },
-        // { key: "tempat_lahir", title: "Tempat Lahir" },
-        // { key: "path_gambar_profile", title: "Gambar Profile" },
         { key: "upline_6", title: "DISTRIBUTOR" },
         { key: "upline_5", title: "SUPPILER" },
         { key: "upline_4", title: "GENERAL MANAGER" },
@@ -272,14 +263,18 @@ export default {
 
   computed: {
     filteredItems() {
-      // Filter out superadmin first
+      // Filter superadmin berdasarkan mvo_type_id yang didapat dari API mvo-type
+      // Jika superadminTypeId belum di-load, fallback ke cek nama
       let itemsWithoutSuperadmin = this.items.filter(i => {
+        if (this.superadminTypeId !== null) {
+          return String(i.mvo_type_id) !== String(this.superadminTypeId);
+        }
+        // Fallback sementara selagi mvo-type belum selesai di-load
         return i.nama && i.nama.toLowerCase() !== 'superadmin';
       });
 
       // Filter out fully approved items (all approval columns are filled)
       itemsWithoutSuperadmin = itemsWithoutSuperadmin.filter(i => {
-        // Check if all approval_upline fields that have corresponding upline are filled
         const hasUpline1 = i.upline_1 && i.upline_1 !== '-';
         const hasUpline2 = i.upline_2 && i.upline_2 !== '-';
         const hasUpline3 = i.upline_3 && i.upline_3 !== '-';
@@ -296,7 +291,6 @@ export default {
         const approval6Filled = i.approval_upline_6 && i.approval_upline_6 !== '-' && i.approval_upline_6 !== null;
         const approval7Filled = i.approval_upline_7 && i.approval_upline_7 !== '-' && i.approval_upline_7 !== null;
 
-        // Check if all required approvals are filled
         const allApprovalsFilled =
           (!hasUpline1 || approval1Filled) &&
           (!hasUpline2 || approval2Filled) &&
@@ -306,11 +300,10 @@ export default {
           (!hasUpline6 || approval6Filled) &&
           (!hasUpline7 || approval7Filled);
 
-        // Only show items that are NOT fully approved
         return !allApprovalsFilled;
       });
 
-      // Then apply search filter
+      // Apply search filter
       return itemsWithoutSuperadmin.filter(i => {
         const s = this.search.toLowerCase();
         return (
@@ -350,7 +343,6 @@ export default {
     },
     getMyLevel(item) {
       if (!this.currentUserCode) return 0;
-      // Check upline_1 to upline_7
       for (let i = 1; i <= 7; i++) {
         const uplineVal = item[`upline_${i}`];
         if (uplineVal && String(uplineVal).includes(this.currentUserCode)) {
@@ -409,6 +401,15 @@ export default {
 
         if (response.data.status === "success" && response.data.data) {
           this.mvoTypeList = response.data.data;
+
+          // Cari ID mvo_type yang namanya mengandung 'superadmin' (case-insensitive)
+          const superadminType = this.mvoTypeList.find(t =>
+            t.nama?.toLowerCase().includes('superadmin')
+          );
+          if (superadminType) {
+            this.superadminTypeId = superadminType.id;
+            console.log('superadminTypeId:', this.superadminTypeId);
+          }
 
           if (this.items.length > 0) {
             this.items = this.mapUserWithBintang(this.items);
