@@ -305,8 +305,9 @@ export default {
             topBintangHeaders: [
                 { title: "Rank", key: "rank", align: "center", width: 80 },
                 { title: "Akun Details", key: "mvo_name" },
-                { title: "code", key: "code" },
-                { title: "cabang", key: "cabang" },
+                { title: "No Id", key: "no_id" },
+                { title: "Code", key: "code" },
+                { title: "Cabang", key: "cabang" },
                 { title: "Total Bintang", key: "total_bintang", align: "center" },
                 { title: "Jumlah RO", key: "jumlah_ro", align: "center" },
             ],

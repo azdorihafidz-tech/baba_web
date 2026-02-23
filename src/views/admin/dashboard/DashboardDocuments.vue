@@ -369,6 +369,7 @@ export default {
                 { title: "No", key: "no", sortable: false, width: "60px" },
                 { title: "Code", key: "code", sortable: true },
                 { title: "Nama", key: "nama", sortable: true },
+                { title: "No Id", key: "no_id", sortable: true },
                 { title: "Province Code", key: "province_code", sortable: true },
                 { title: "Point Bintang", key: "pointbintang", sortable: true },
                 { title: "Repeat Order", key: "repeat_order", sortable: true },

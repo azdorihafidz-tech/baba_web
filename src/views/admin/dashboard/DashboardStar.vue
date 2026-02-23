@@ -69,8 +69,9 @@
                                 </div>
 
                                 <v-chip size="small" color="white" variant="outlined" class="text-white">
-                                    {{ item.code }}
+                                    No ID: {{ item.no_id }}
                                 </v-chip>
+
                             </div>
 
                             <!-- Info Section -->
@@ -171,8 +172,9 @@
                                     </div>
 
                                     <v-chip size="x-small" color="white" variant="outlined" class="text-white">
-                                        {{ mvo.province_code }}
+                                        {{ mvo.province_code }} | No ID: {{ mvo.no_id }}
                                     </v-chip>
+                                    <br>
                                 </div>
 
                                 <!-- Info Section -->
@@ -1107,16 +1109,17 @@
                     <v-data-table :headers="[
                         { title: 'Kode', key: 'code', width: '120px' },
                         { title: 'Nama', key: 'nama', width: '150px' },
+                        { title: 'No Id', key: 'no_id', width: '150px' },
                         { title: 'Role', key: 'role', align: 'center', width: '100px' },
                         { title: 'No HP', key: 'nohp', width: '120px' },
                         { title: 'Tempat Lahir', key: 'tempat_lahir', width: '120px' },
                         { title: 'Alamat', key: 'alamat', width: '150px' },
-                        { title: 'Upline 1', key: 'upline_1', width: '200px' },
-                        { title: 'Upline 2', key: 'upline_2', width: '200px' },
-                        { title: 'Upline 3', key: 'upline_3', width: '200px' },
-                        { title: 'Upline 4', key: 'upline_4', width: '200px' },
-                        { title: 'Upline 5', key: 'upline_5', width: '200px' },
-                        { title: 'Upline 6', key: 'upline_6', width: '200px' }
+                        { title: 'MVO', key: 'upline_1', width: '200px' },
+                        { title: 'Regional', key: 'upline_2', width: '200px' },
+                        { title: 'Founder', key: 'upline_3', width: '200px' },
+                        { title: 'General Manager', key: 'upline_4', width: '200px' },
+                        { title: 'Supplier', key: 'upline_5', width: '200px' },
+                        { title: 'Dist', key: 'upline_6', width: '200px' }
                     ]" :items="selectedMvoData.downlines || []" :search="searchMvoDetail" :items-per-page="10"
                         class="bg-grey-lighten-4 text-no-wrap">
                         <template v-slot:item.role="{ item }">

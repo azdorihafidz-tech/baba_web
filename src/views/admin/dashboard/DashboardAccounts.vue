@@ -531,6 +531,7 @@ export default {
                 { title: "No", key: "no", sortable: false, width: "60px" },
                 { title: "Username", key: "username", sortable: true },
                 { title: "Nama", key: "nama", sortable: true },
+                { title: "No Id", key: "id_bawaan", sortable: true },
                 { title: "Cabang", key: "cabang", sortable: true },
                 { title: "Jabatan", key: "jabatan", sortable: true },
                 { title: "Total Document", key: "total_document", sortable: true },
