@@ -571,7 +571,7 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Downline</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ mvo.totalDownlines
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                 </div>
                                 <v-divider class="my-1 border-opacity-25" color="white"></v-divider>
@@ -621,7 +621,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                            }}</v-chip>
+                                }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -704,7 +704,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                            }}</v-chip>
+                                }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -991,7 +991,7 @@
                                 <v-card flat color="grey-lighten-4" class="pa-3 text-center">
                                     <v-icon color="info" size="24">mdi-file-document</v-icon>
                                     <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.documents?.length || 0
-                                    }}
+                                        }}
                                     </div>
                                     <div class="text-caption">Total Dokumen</div>
                                 </v-card>
@@ -1022,7 +1022,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Jaringan</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.jaringan_mvo
-                                            }}
+                                                }}
                                             </div>
                                         </v-col>
                                         <v-col cols="6">
@@ -1034,7 +1034,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Alamat</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.alamat || '-'
-                                            }}
+                                                }}
                                             </div>
                                         </v-col>
                                     </v-row>
@@ -1582,7 +1582,7 @@ export default {
 
         getMvoImageUrl(mvo) {
             if (mvo.provinsi && mvo.provinsi.foto_mvo) {
-                return `https://babaapi.teknosof.com/project/public/${mvo.provinsi.foto_mvo}`;
+                return `https://babaapi.babaparfume.id/project/public/${mvo.provinsi.foto_mvo}`;
             }
             return 'https://via.placeholder.com/300x300?text=No+Image';
         },
@@ -1596,7 +1596,7 @@ export default {
 
             this.isLoading = true;
             try {
-                let url = "https://babaapi.teknosof.com/api/dashboard/star";
+                let url = "https://babaapi.babaparfume.id/api/dashboard/star";
                 const params = new URLSearchParams();
 
                 if (this.dateRange.start_date) {

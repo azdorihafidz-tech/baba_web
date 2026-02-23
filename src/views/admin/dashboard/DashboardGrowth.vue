@@ -378,7 +378,7 @@ export default {
             if (!token) return;
 
             try {
-                const response = await axios.get("https://babaapi.teknosof.com/api/provinsi", {
+                const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -407,13 +407,13 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.teknosof.com/api/dashboard/growth`;
+                url = `https://babaapi.babaparfume.id/api/dashboard/growth`;
             } else {
                 if (!this.cabang) {
                     console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
-                url = `https://babaapi.teknosof.com/api/dashboard/growth/${this.cabang}`;
+                url = `https://babaapi.babaparfume.id/api/dashboard/growth/${this.cabang}`;
             }
 
             const params = {

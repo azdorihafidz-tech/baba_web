@@ -502,7 +502,7 @@ export default {
 
       this.isTableLoading = true;
       try {
-        const response = await axios.get("https://babaapi.teknosof.com/api/mvo-document", { headers });
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", { headers });
 
         if (response.data.status === "success") {
           this.datatable.items = response.data.data || [];
@@ -523,7 +523,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", { headers });
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
         if (response.data.status === "success") {
           this.allMvoData = response.data.data;
           console.log("All MVO Data loaded:", this.allMvoData.length, "items");
@@ -767,7 +767,7 @@ export default {
     },
 
     getFullFileUrl(filePath) {
-      return `https://babaapi.teknosof.com/project/public/${filePath}`;
+      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
     },
 
     viewFile(filePath) {
@@ -926,7 +926,7 @@ export default {
 
         // Kirim request ke API dengan FormData
         const response = await axios.post(
-          "https://babaapi.teknosof.com/api/approveDokumen",
+          "https://babaapi.babaparfume.id/api/approveDokumen",
           formData,
           {
             headers: {

@@ -283,10 +283,10 @@ const selectSong = (song) => {
     audioPlayer.value.src = ''
 
     const urlPatterns = [
-      `https://babaapi.teknosof.com/${song.file_lagu}`,
-      `https://babaapi.teknosof.com/project/public/${song.file_lagu}`,
-      `https://babaapi.teknosof.com/storage/${song.file_lagu}`,
-      `https://babaapi.teknosof.com/public/${song.file_lagu}`,
+      `https://babaapi.babaparfume.id/${song.file_lagu}`,
+      `https://babaapi.babaparfume.id/project/public/${song.file_lagu}`,
+      `https://babaapi.babaparfume.id/storage/${song.file_lagu}`,
+      `https://babaapi.babaparfume.id/public/${song.file_lagu}`,
     ]
 
     const audioUrl = urlPatterns[parseInt(workingPattern)] || urlPatterns[0]
@@ -312,10 +312,10 @@ const togglePlay = async () => {
     if (!audioPlayer.value.src || audioPlayer.value.error) {
       const workingPattern = localStorage.getItem('workingAudioPattern') || '0'
       const urlPatterns = [
-        `https://babaapi.teknosof.com/${currentSong.value.file_lagu}`,
-        `https://babaapi.teknosof.com/project/public/${currentSong.value.file_lagu}`,
-        `https://babaapi.teknosof.com/storage/${currentSong.value.file_lagu}`,
-        `https://babaapi.teknosof.com/public/${currentSong.value.file_lagu}`,
+        `https://babaapi.babaparfume.id/${currentSong.value.file_lagu}`,
+        `https://babaapi.babaparfume.id/project/public/${currentSong.value.file_lagu}`,
+        `https://babaapi.babaparfume.id/storage/${currentSong.value.file_lagu}`,
+        `https://babaapi.babaparfume.id/public/${currentSong.value.file_lagu}`,
       ]
 
       const audioUrl = urlPatterns[parseInt(workingPattern)]
@@ -426,7 +426,7 @@ const fetchHeaderData = async (token, userCabang = null) => {
     let headerResponse
 
     try {
-      headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header')
+      headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
     } catch (httpsError) {
       console.warn('Login - HTTPS header request failed, trying HTTP:', httpsError.message)
 
@@ -434,7 +434,7 @@ const fetchHeaderData = async (token, userCabang = null) => {
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/gambar-header')
+        headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
       } else {
         throw httpsError
       }
@@ -525,7 +525,7 @@ const handleLogin = async () => {
     let response
 
     try {
-      response = await apiClient.post('https://babaapi.teknosof.com/api/login', loginData)
+      response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
     } catch (httpsError) {
       console.warn('HTTPS failed, trying HTTP:', httpsError.message)
 
@@ -533,7 +533,7 @@ const handleLogin = async () => {
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        response = await apiClient.post('https://babaapi.teknosof.com/api/login', loginData)
+        response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
       } else {
         throw httpsError
       }

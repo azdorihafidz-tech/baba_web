@@ -391,7 +391,7 @@ export default {
 
             try {
                 // Build URL with query parameters
-                let url = "https://babaapi.teknosof.com/api/dashboard";
+                let url = "https://babaapi.babaparfume.id/api/dashboard";
                 const params = new URLSearchParams();
 
                 if (this.dateRange.start_date) {
