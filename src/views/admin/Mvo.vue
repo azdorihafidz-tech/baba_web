@@ -531,13 +531,13 @@
             <div class="detail-section mb-6" v-if="detailViewMode === 'children'">
               <h3 class="detail-section-title">
                 <v-icon class="mr-2" color="#FFD700">mdi-account-supervisor</v-icon>
-                Detail Bawahan
+                Detail Downline
                 <v-chip color="info" size="small" class="ml-3">
                   {{ relatedMvoData.length }} Data
                 </v-chip>
               </h3>
 
-              <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Bawahan..."
+              <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Downline..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
               <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="detailHeaders"
@@ -561,7 +561,7 @@
 
                 <template v-slot:item.action="{ item }">
                   <div class="d-flex justify-center">
-                    <v-tooltip text="Detail Bawahan" color="#125C13" location="top start"
+                    <v-tooltip text="Detail Downline" color="#125C13" location="top start"
                       v-if="item.bawahan && item.bawahan.length > 0">
                       <template v-slot:activator="{ props }">
                         <v-btn size="small" color="warning" @click="showChildDetail(item.id)"
@@ -694,7 +694,7 @@
               </v-tab>
               <v-tab value="children" v-if="detailViewMode === 'children'">
                 <v-icon start>mdi-account-supervisor</v-icon>
-                Bawahan ({{ relatedMvoData.length }})
+                Downline ({{ relatedMvoData.length }})
               </v-tab>
             </v-tabs>
 
@@ -882,13 +882,13 @@
               <!-- Children Tab -->
               <v-window-item value="children" v-if="detailViewMode === 'children'">
                 <!-- Search -->
-                <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Bawahan..."
+                <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Downline..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
                 <!-- No Children -->
                 <div v-if="getCurrentDetailData().length === 0" class="text-center pa-4">
                   <v-icon size="64" color="grey">mdi-account-off</v-icon>
-                  <p class="text-grey mt-2">Tidak ada data Bawahan</p>
+                  <p class="text-grey mt-2">Tidak ada data Downline</p>
                 </div>
 
                 <!-- Children Cards -->
@@ -985,7 +985,7 @@
                           <v-btn v-if="child.bawahan && child.bawahan.length > 0" size="small" color="warning"
                             @click.stop="showChildDetail(child.id)" :loading="isLoadingParentDetail" class="text-white">
                             <v-icon start size="16">mdi-account-arrow-down</v-icon>
-                            Bawahan
+                            Downline
                           </v-btn>
                         </div>
                       </v-card-text>
@@ -1493,7 +1493,7 @@ export default {
 
       try {
         const response = await axios.delete(
-          `https://babaapi.babaparfume.id/api/mvo/${id}`,
+          `https://babaapi.teknosof.com/api/mvo/${id}`,
           { headers }
         );
 
@@ -1645,7 +1645,7 @@ export default {
       // Kondisi 2: Dokumen dari MVO sendiri - langsung bisa approve
       // (tidak perlu validasi tambahan, sudah di-handle di canApproveDocument)
 
-      const endpoint = `https://babaapi.babaparfume.id/api/superadmin/${id}/approvedoc`;
+      const endpoint = `https://babaapi.teknosof.com/api/superadmin/${id}/approvedoc`;
       const successMessage = "Dokumen berhasil disetujui oleh Superadmin";
 
       this.isDocumentButtonLoading = true;
@@ -1764,10 +1764,10 @@ export default {
       let successMessage = '';
 
       if (this.mvo_type_id === 'mvo') {
-        endpoint = `https://babaapi.babaparfume.id/api/mvo/${id}/approve`;
+        endpoint = `https://babaapi.teknosof.com/api/mvo/${id}/approve`;
         successMessage = "Data berhasil disetujui oleh MVO";
       } else if (this.mvo_type_id === 'superadmin') {
-        endpoint = `https://babaapi.babaparfume.id/api/superadmin/${id}/approve`;
+        endpoint = `https://babaapi.teknosof.com/api/superadmin/${id}/approve`;
         successMessage = "Data berhasil disetujui oleh Superadmin";
       } else {
         this.showSnackbar("Anda tidak memiliki akses untuk approve", 'error');
@@ -1868,7 +1868,7 @@ export default {
 
       this.isTableLoading = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo", { headers });
 
         if (response.data.status === "success") {
           const allItems = response.data.data;
@@ -1919,7 +1919,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-type", { headers });
+        const response = await axios.get("https://babaapi.teknosof.com/api/mvo-type", { headers });
         if (response.data.status === "success") {
           this.mvoTypes = response.data.data;
         }
@@ -1952,7 +1952,7 @@ export default {
     },
 
     getFullFileUrl(filePath) {
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      return `https://babaapi.teknosof.com/project/public/${filePath}`;
     },
 
     getMvoCodeById(mvoId) {
@@ -1966,7 +1966,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
+          `https://babaapi.teknosof.com/api/mvo-document/${id}`,
           { headers }
         );
 
@@ -1995,7 +1995,7 @@ export default {
 
       this.isLoadingDocuments = true;
       try {
-        const response = await axios.get(`https://babaapi.babaparfume.id/api/mvo-document`, { headers });
+        const response = await axios.get(`https://babaapi.teknosof.com/api/mvo-document`, { headers });
         if (response.data.status === "success") {
           this.documentItems = response.data.data.filter(doc => doc.mvo_id == mvoId) || [];
         } else {
@@ -2077,7 +2077,7 @@ export default {
         formData.append('file_path', this.documentAddModel.file);
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/mvo-document",
+          "https://babaapi.teknosof.com/api/mvo-document",
           formData,
           {
             headers: {
@@ -2145,7 +2145,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
+          `https://babaapi.teknosof.com/api/mvo-document/${id}`,
           formData,
           {
             headers: {
@@ -2176,7 +2176,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.delete(`https://babaapi.babaparfume.id/api/mvo-document/${id}`, { headers });
+        const response = await axios.delete(`https://babaapi.teknosof.com/api/mvo-document/${id}`, { headers });
 
         if (response.data.status === "success") {
           this.showSnackbar(response.data.message || "Dokumen berhasil dihapus");
@@ -2274,7 +2274,7 @@ export default {
       const headers = this.getAuthHeaders();
       if (!headers) return;
 
-      const printUrl = `https://babaapi.babaparfume.id/api/mvo/${id}/print`;
+      const printUrl = `https://babaapi.teknosof.com/api/mvo/${id}/print`;
 
       try {
         const response = await axios.get(printUrl, {

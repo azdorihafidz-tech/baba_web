@@ -3,7 +3,7 @@
 
   <!-- Desktop View -->
   <div class="d-none d-md-block">
-    <CardDataTable title="DATA Bawahan - MENUNGGU APPROVE">
+    <CardDataTable title="DATA Downline - MENUNGGU APPROVE">
       <!-- SEARCH -->
       <template #search>
         <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
@@ -30,32 +30,33 @@
 
           <!-- ACTION -->
           <template #item.action="{ item }">
-            <v-btn color="success" size="small" @click="showApproveDialog(item.id)">
-              Approve
+            <v-btn :color="isUserApproved(item) ? 'grey' : 'success'" size="small"
+              @click="!isUserApproved(item) && showApproveDialog(item.id)" :disabled="isUserApproved(item)">
+              {{ isUserApproved(item) ? 'Sudah Approve' : 'Approve' }}
             </v-btn>
           </template>
 
           <!-- APPROVAL COLUMNS - Convert nomor_id to nama -->
           <template #item.approval_upline_1="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_1) }}
+            {{ getApprovalStatusDisplay(item, 1) }}
           </template>
           <template #item.approval_upline_2="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_2) }}
+            {{ getApprovalStatusDisplay(item, 2) }}
           </template>
           <template #item.approval_upline_3="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_3) }}
+            {{ getApprovalStatusDisplay(item, 3) }}
           </template>
           <template #item.approval_upline_4="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_4) }}
+            {{ getApprovalStatusDisplay(item, 4) }}
           </template>
           <template #item.approval_upline_5="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_5) }}
+            {{ getApprovalStatusDisplay(item, 5) }}
           </template>
           <template #item.approval_upline_6="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_6) }}
+            {{ getApprovalStatusDisplay(item, 6) }}
           </template>
           <template #item.approval_upline_7="{ item }">
-            {{ getNamaByNomorId(item.approval_upline_7) }}
+            {{ getApprovalStatusDisplay(item, 7) }}
           </template>
         </v-data-table>
       </template>
@@ -66,8 +67,8 @@
   <div class="d-block d-md-none">
     <v-card class="mobile-header-card mb-4">
       <v-card-text>
-        <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Cari Bawahan..." single-line hide-details
-          variant="outlined" class="search-field-mobile" />
+        <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Cari Downline..." single-line
+          hide-details variant="outlined" class="search-field-mobile" />
       </v-card-text>
     </v-card>
 
@@ -75,7 +76,7 @@
 
     <div v-if="filteredItems.length === 0 && !loading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-account-search</v-icon>
-      <p class="text-grey mt-2">Tidak ada data Bawahan ditemukan</p>
+      <p class="text-grey mt-2">Tidak ada data Downline ditemukan</p>
     </div>
 
     <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
@@ -85,7 +86,7 @@
       <v-card-text class="mobile-card-header">
         <v-row no-gutters align="center">
           <v-col cols="2" class="text-center">
-            <span class="font-weight-bold">{{ index + 1 }}</span>
+            <span class="mobile-number">{{ index + 1 }}</span>
           </v-col>
           <v-col cols="8" class="pl-3">
             <div class="mobile-mvo-name">{{ item.nama }}</div>
@@ -160,16 +161,20 @@
               </v-col>
             </v-row>
             <v-row class="mb-1" v-if="item.approval_upline_7">
-              <v-col cols="5" class="detail-label text-caption">Seller:</v-col>
+              <v-col cols="5" class="detail-label text-caption">Reseller:</v-col>
               <v-col cols="7" class="detail-value text-caption">
                 <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_7) }}</v-chip>
               </v-col>
             </v-row>
 
-            <v-divider class="my-3"></v-divider>
-            <v-btn block color="success" @click.stop="showApproveDialog(item.id)">
-              Approve
-            </v-btn>
+            <v-divider class="mb-3"></v-divider>
+            <div class="mobile-actions">
+              <v-btn size="small" :color="isUserApproved(item) ? 'grey' : 'success'"
+                @click.stop="!isUserApproved(item) && showApproveDialog(item.id)" class="mb-2"
+                prepend-icon="mdi-check-circle" style="min-width: 120px;" :disabled="isUserApproved(item)">
+                {{ isUserApproved(item) ? 'Sudah Approve' : 'Approve' }}
+              </v-btn>
+            </div>
           </v-card-text>
         </div>
       </v-expand-transition>
@@ -180,7 +185,7 @@
   <v-dialog v-model="isShowDialogApprove" max-width="500">
     <v-card>
       <v-card-title class="text-h5">Konfirmasi Approve</v-card-title>
-      <v-card-text>Apakah anda yakin ingin menyetujui data Bawahan ini?</v-card-text>
+      <v-card-text>Apakah anda yakin ingin menyetujui data Downline ini?</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="grey-darken-1" variant="text" @click="isShowDialogApprove = false">Batal</v-btn>
@@ -216,6 +221,7 @@ export default {
         text: "",
         color: "",
       },
+      currentUserCode: localStorage.getItem("mvo_id") || "",
       items: [],
       mvoTypeList: [],
       allMvoData: [], // Data semua MVO dari API
@@ -226,7 +232,7 @@ export default {
           href: "/admin/dashboard",
         },
         {
-          title: "Approval Bawahan",
+          title: "Approval Downline",
           disabled: true,
           href: "#",
         },
@@ -342,11 +348,45 @@ export default {
         };
       });
     },
+    getMyLevel(item) {
+      if (!this.currentUserCode) return 0;
+      // Check upline_1 to upline_7
+      for (let i = 1; i <= 7; i++) {
+        const uplineVal = item[`upline_${i}`];
+        if (uplineVal && String(uplineVal).includes(this.currentUserCode)) {
+          return i;
+        }
+      }
+      return 0;
+    },
+    isUserApproved(item) {
+      const level = this.getMyLevel(item);
+      if (level === 0) return false;
+      const approvalVal = item[`approval_upline_${level}`];
+      return !!approvalVal && approvalVal !== '-';
+    },
+    getApprovalStatusDisplay(item, level) {
+      const approvalVal = item[`approval_upline_${level}`];
+      const uplineVal = item[`upline_${level}`];
+
+      if (approvalVal && approvalVal !== '-' && approvalVal !== null) {
+        return this.getNamaByNomorId(approvalVal);
+      }
+
+      if (!uplineVal || uplineVal === '-') {
+        return '-';
+      }
+
+      const myLevel = this.getMyLevel(item);
+      if (myLevel === 0) return 'Belum Approve';
+
+      return level >= myLevel ? 'Belum Approve' : '-';
+    },
     async getAllMvo() {
       try {
         const token = Cookies.get("token");
         const response = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo",
+          "https://babaapi.teknosof.com/api/mvo",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -364,7 +404,7 @@ export default {
     async getAllMvoType() {
       try {
         const response = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo-type"
+          "https://babaapi.teknosof.com/api/mvo-type"
         );
 
         if (response.data.status === "success" && response.data.data) {
@@ -384,7 +424,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const res = await axios.post(
-          "https://babaapi.babaparfume.id/api/cekApprovalBawahan",
+          "https://babaapi.teknosof.com/api/cekApprovalBawahan",
           { code: codeLogin },
           {
             headers: {
@@ -413,7 +453,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/approve",
+          "https://babaapi.teknosof.com/api/approve",
           {
             code: codeLogin,
             id: this.idToApprove,
@@ -477,6 +517,10 @@ export default {
   margin-top: 8px;
 }
 
+.mobile-number {
+  font-weight: bold;
+}
+
 /* Mobile MVO Cards */
 .mobile-mvo-card {
   border: 1px solid #e0e0e0;
@@ -527,6 +571,17 @@ export default {
   align-items: center;
 }
 
+.mobile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mobile-actions .v-btn {
+  flex: 1;
+  min-width: auto;
+}
+
 .rotate-180 {
   transform: rotate(180deg);
 }
@@ -561,6 +616,18 @@ export default {
 
   .mobile-mvo-name {
     font-size: 14px;
+  }
+
+  .mobile-actions .v-btn {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 960px) {
+  .mobile-actions .v-btn {
+    font-size: 12px;
+    padding: 0 8px;
   }
 }
 </style>

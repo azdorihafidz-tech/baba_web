@@ -436,7 +436,7 @@ export default {
 
                 // SUPERADMIN → Semua data
                 url =
-                    `https://babaapi.babaparfume.id/api/dashboard/document`;
+                    `https://babaapi.teknosof.com/api/dashboard/document`;
 
             } else {
 
@@ -449,7 +449,7 @@ export default {
                 }
 
                 url =
-                    `https://babaapi.babaparfume.id/api/dashboard/document/${this.cabang}`;
+                    `https://babaapi.teknosof.com/api/dashboard/document/${this.cabang}`;
             }
 
             // ================= CALL API =================

@@ -245,7 +245,7 @@ export default {
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
-      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      const httpsUrl = `https://babaapi.teknosof.com/project/public/${cleanPath}`;
 
       return httpsUrl;
     },
@@ -274,7 +274,7 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
         } catch (httpsError) {
           console.warn('Main - HTTPS failed, trying HTTP:', httpsError.message);
 
@@ -282,7 +282,7 @@ export default {
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
           } else {
             throw httpsError;
           }

@@ -7,7 +7,7 @@
         <v-tab value="dashboard-overview">DASHBOARD OVERVIEW</v-tab>
         <v-tab value="dashboard-accounts">DASHBOARD AKUN</v-tab>
         <v-tab value="dashboard-documents">DASHBOARD DOCUMENTS</v-tab>
-        <v-tab value="dashboard-regions">DASHBOARD REGIONS</v-tab>
+        <v-tab value="dashboard-regions">DASHBOARD MVO</v-tab>
         <v-tab value="dashboard-star">DASHBOARD STAR</v-tab>
         <v-tab value="dashboard-growth">DASHBOARD GROWTH</v-tab>
       </v-tabs>

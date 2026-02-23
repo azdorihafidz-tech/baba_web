@@ -16,7 +16,7 @@
                     </div>
 
                     <div class="text-h6 mt-2">
-                        Total Regions with Akun
+                        Total MVO
                     </div>
                 </v-card-text>
             </v-card>
@@ -25,14 +25,14 @@
             <v-card class="mb-4">
                 <v-card-title class="d-flex align-center">
                     <v-icon class="mr-2">mdi-shield-account</v-icon>
-                    Akun per Region
+                    Akun per MVO
                 </v-card-title>
 
                 <v-divider></v-divider>
 
                 <v-card-text>
                     <div class="d-flex align-center justify-space-between mb-4">
-                        <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search Region"
+                        <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search MVO"
                             single-line hide-details variant="outlined" density="compact"
                             style="max-width: 300px;"></v-text-field>
 
@@ -121,7 +121,7 @@
                         <v-col v-if="regionCardData.length === 0" cols="12">
                             <div class="text-center pa-4">
                                 <v-icon size="64" color="grey">mdi-map-marker-outline</v-icon>
-                                <div class="text-h6 mt-2">No region data available</div>
+                                <div class="text-h6 mt-2">No MVO data available</div>
                             </div>
                         </v-col>
                     </v-row>
@@ -144,7 +144,7 @@
                     </div>
 
                     <div class="text-body-1 mt-1">
-                        Total Regions
+                        Total MVO
                     </div>
                 </v-card-text>
             </v-card>
@@ -153,12 +153,12 @@
             <v-card class="mb-3">
                 <v-card-title class="text-subtitle-1 font-weight-bold pa-3">
                     <v-icon size="20" class="mr-2">mdi-shield-account</v-icon>
-                    Akun per Region
+                    Akun per MVO
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text class="pa-0">
                     <div class="pa-3 pb-0">
-                        <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search Region"
+                        <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search MVO"
                             single-line hide-details variant="outlined" density="compact"></v-text-field>
                     </div>
                     <v-list density="compact">
@@ -337,7 +337,7 @@ export default {
 
             // Table Headers for region table
             regionTableHeaders: [
-                { title: "Region", key: "region", sortable: true, width: "200px" },
+                { title: "MVO", key: "region", sortable: true, width: "200px" },
                 { title: "Total Accounts", key: "total_accounts", sortable: true, align: "center", width: "150px" },
                 { title: "Percentage", key: "percentage", sortable: true, width: "300px" },
             ],
@@ -451,13 +451,13 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.babaparfume.id/api/dashboard/akun`;
+                url = `https://babaapi.teknosof.com/api/dashboard/akun`;
             } else {
                 if (!this.cabang) {
                     console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
-                url = `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
+                url = `https://babaapi.teknosof.com/api/dashboard/akun/${this.cabang}`;
             }
 
             try {
@@ -494,7 +494,7 @@ export default {
                     this.detailData = [];
 
                     const res = await axios.get(
-                        `https://babaapi.babaparfume.id/api/dashboard/akun/${regionName}`,
+                        `https://babaapi.teknosof.com/api/dashboard/akun/${regionName}`,
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
 

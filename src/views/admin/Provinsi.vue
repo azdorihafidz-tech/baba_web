@@ -101,7 +101,7 @@
                 <v-row no-gutters align="center">
                     <v-col cols="1" class="text-center">
                         <span class="mobile-number">{{ ((currentMobilePage - 1) * itemsPerMobilePage) + index + 1
-                        }}</span>
+                            }}</span>
                     </v-col>
 
                     <v-col cols="9" class="pl-3">
@@ -482,7 +482,7 @@ export default {
     data() {
         return {
             // Base URL untuk gambar
-            baseImageUrl: 'https://babaapi.babaparfume.id/project/public/',
+            baseImageUrl: 'https://babaapi.teknosof.com/project/public/',
 
             // Mobile specific properties
             expandedMobileCard: null,
@@ -812,7 +812,7 @@ export default {
 
             this.isTableLoading = true;
             axios
-                .get("https://babaapi.babaparfume.id/api/provinsi", {
+                .get("https://babaapi.teknosof.com/api/provinsi", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -890,7 +890,7 @@ export default {
 
             axios
                 .post(
-                    "https://babaapi.babaparfume.id/api/provinsi",
+                    "https://babaapi.teknosof.com/api/provinsi",
                     formData,
                     {
                         headers: {
@@ -932,7 +932,7 @@ export default {
             this.isShowDialogEdit = true;
 
             axios
-                .get(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .get(`https://babaapi.teknosof.com/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -1014,7 +1014,7 @@ export default {
 
             axios
                 .post(
-                    `https://babaapi.babaparfume.id/api/provinsi/${this.modelEdit.id}`,
+                    `https://babaapi.teknosof.com/api/provinsi/${this.modelEdit.id}`,
                     formData,
                     {
                         headers: {
@@ -1059,7 +1059,7 @@ export default {
 
             this.isButtonLoading = true;
             axios
-                .delete(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .delete(`https://babaapi.teknosof.com/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: "application/json",

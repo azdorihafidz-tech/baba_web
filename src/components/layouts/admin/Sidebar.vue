@@ -134,6 +134,7 @@ export default {
         "Store",
         "Chat",
         "Tutorial",
+        "Struktur Akun",
 
       ],
       linkMenu: [],

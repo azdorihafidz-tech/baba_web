@@ -98,7 +98,7 @@
                         <v-col cols="2" class="text-center">
                             <v-avatar color="#1a1a1a" size="36">
                                 <span class="text-caption font-weight-bold" style="color: #FFD700;">{{ index + 1
-                                    }}</span>
+                                }}</span>
                             </v-avatar>
                         </v-col>
                         <v-col cols="8" class="pl-3">
@@ -321,7 +321,7 @@ export default {
             this.isTableLoading = true;
             try {
                 const response = await axios.get(
-                    `https://babaapi.babaparfume.id/api/downline/${this.mvo_id}`,
+                    `https://babaapi.teknosof.com/api/downline/${this.mvo_id}`,
                     { headers }
                 );
 

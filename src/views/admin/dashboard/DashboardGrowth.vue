@@ -18,11 +18,11 @@
                             <v-text-field v-model="dateRange.end" label="Tanggal Akhir" type="date" variant="outlined"
                                 density="default" @update:model-value="fetchGrowthData"></v-text-field>
                         </v-col>
-                        <!-- <v-col cols="12" class="text-right">
+                        <v-col cols="12" class="text-right">
                             <v-btn color="success" prepend-icon="mdi-microsoft-excel" @click="exportGrowthData">
                                 Export Data
                             </v-btn>
-                        </v-col> -->
+                        </v-col>
                     </v-row>
                 </v-card-text>
             </v-card>
@@ -36,7 +36,7 @@
                         <div class="text-subtitle-1">Total Pertumbuhan (RO)</div>
                     </v-card-text>
                 </v-card>
-                <!-- 
+
                 <v-card color="warning" dark class="flex-grow-1"
                     @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)" style="cursor: pointer;">
                     <v-card-text class="text-center">
@@ -44,7 +44,7 @@
                         <div class="text-h4">{{ getRegionGrowth() }}</div>
                         <div class="text-subtitle-1">Pertumbuhan Region (RO)</div>
                     </v-card-text>
-                </v-card> -->
+                </v-card>
             </v-row>
             <!-- <v-row class="ga-4" align="stretch">
             <v-card color="#FFD700" dark hover class="flex-grow-1" @click="openTopStarDialog" style="cursor: pointer">
@@ -64,7 +64,7 @@
         </v-row> -->
 
             <v-row>
-                <v-col cols="12">
+                <v-col cols="12" md="6">
                     <v-card class="mb-4">
                         <v-card-title class="d-flex align-center">
                             <v-icon class="mr-2">mdi-chart-line</v-icon>
@@ -75,8 +75,8 @@
                         </v-card-text>
                     </v-card>
                 </v-col>
-            </v-row>
-            <!-- <v-col cols="12" md="6">
+
+                <v-col cols="12" md="6">
                     <v-card class="mb-4">
                         <v-card-title class="d-flex align-center">
                             <v-icon class="mr-2">mdi-map-marker</v-icon>
@@ -86,13 +86,14 @@
                             <canvas ref="regionChart"></canvas>
                         </v-card-text>
                     </v-card>
-                </v-col> -->
-            <!-- TABLE: Pertumbuhan Daerah (Desktop) -->
-            <!-- <v-card class="mt-4">
+                </v-col>
+            </v-row>
+            <!-- TABLE: Akun Growth per Jabatan (Desktop) -->
+            <v-card class="mt-4">
                 <v-card-title class="d-flex align-center justify-space-between flex-wrap gap-2">
                     <div class="d-flex align-center">
                         <v-icon class="mr-2">mdi-account-group</v-icon>
-                        Pertumbuhan Daerah
+                        Akun Growth per Jabatan
                     </div>
                     <div class="d-flex align-center gap-2">
                         <v-text-field v-model="searchJabatan" prepend-inner-icon="mdi-magnify" label="Search"
@@ -110,12 +111,12 @@
                         <template #item.jabatan="{ item }" {{ item.jabatan }}>
                             <v-chip color="primary" size="small">{{ item.jabatan }}</v-chip>
                         </template>
-<template #item.total_akun="{ item }">
+                        <template #item.total_akun="{ item }">
                             <div class="text-center font-weight-bold">{{ item.total_akun }}</div>
                         </template>
-</v-data-table>
-</v-card-text>
-</v-card> -->
+                    </v-data-table>
+                </v-card-text>
+            </v-card>
         </div>
 
         <!-- Mobile View -->
@@ -191,11 +192,11 @@
                     <canvas ref="regionChartMobile"></canvas>
                 </v-card-text>
             </v-card>
-            <!-- TABLE: Pertumbuhan Daerah (Mobile) -->
+            <!-- TABLE: Akun Growth per Jabatan (Mobile) -->
             <v-card class="mt-3">
                 <v-card-title class="pa-3 d-flex align-center">
                     <v-icon class="mr-2">mdi-account-group</v-icon>
-                    Pertumbuhan Daerah
+                    Akun Growth per Jabatan
                 </v-card-title>
                 <v-card-text class="pa-3">
                     <div class="d-flex mb-3 gap-2">
@@ -256,16 +257,10 @@ export default {
             regionChartMobileInstance: null,
 
             jabatanHeaders: [
-                { title: 'NO', key: 'no', align: 'start' },
                 { title: 'Bulan', key: 'bulan', align: 'start' },
                 { title: 'Province', key: 'province', align: 'start' },
-                { title: 'MVO', key: 'mvo', align: 'center' },
-                { title: 'REGIONAL', key: 'regional', align: 'center' },
-                { title: 'FO', key: 'fo', align: 'center' },
-                { title: 'DIST', key: 'dist', align: 'center' },
-                { title: 'GM', key: 'gm', align: 'center' },
-                { title: 'SUPPLIER', key: 'supplier', align: 'center' },
-                { title: 'SELLER', key: 'sell', align: 'center' },
+                { title: 'Jabatan', key: 'jabatan', align: 'center' },
+                { title: 'Total Akun', key: 'total_akun', align: 'center' },
             ],
         };
 
@@ -383,7 +378,7 @@ export default {
             if (!token) return;
 
             try {
-                const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", {
+                const response = await axios.get("https://babaapi.teknosof.com/api/provinsi", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -412,13 +407,13 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.babaparfume.id/api/dashboard/growth`;
+                url = `https://babaapi.teknosof.com/api/dashboard/growth`;
             } else {
                 if (!this.cabang) {
                     console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
-                url = `https://babaapi.babaparfume.id/api/dashboard/growth/${this.cabang}`;
+                url = `https://babaapi.teknosof.com/api/dashboard/growth/${this.cabang}`;
             }
 
             const params = {

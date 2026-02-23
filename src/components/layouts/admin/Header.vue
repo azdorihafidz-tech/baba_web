@@ -228,8 +228,8 @@ export default {
         let mvoTypeResponse;
 
         try {
-          console.log('🔐 Trying HTTPS: https://babaapi.babaparfume.id/api/mvo-type');
-          mvoTypeResponse = await apiClient.get('https://babaapi.babaparfume.id/api/mvo-type');
+          console.log('🔐 Trying HTTPS: https://babaapi.teknosof.com/api/mvo-type');
+          mvoTypeResponse = await apiClient.get('https://babaapi.teknosof.com/api/mvo-type');
           console.log('✅ HTTPS request successful');
         } catch (httpsError) {
           console.warn('❌ HTTPS MVO Type request failed:', httpsError.message);
@@ -328,7 +328,7 @@ export default {
       }
 
       const cleanPath = pathGambarProfile.startsWith('/') ? pathGambarProfile.substring(1) : pathGambarProfile;
-      return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      return `https://babaapi.teknosof.com/project/public/${cleanPath}`;
     },
 
     showHeaderInfo() {
@@ -388,7 +388,7 @@ export default {
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
-      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      const httpsUrl = `https://babaapi.teknosof.com/project/public/${cleanPath}`;
       console.log('Generated HTTPS URL:', httpsUrl);
 
       return httpsUrl;
@@ -399,7 +399,7 @@ export default {
       console.warn('❌ Header image failed to load:', event.target.src);
 
       if (this.headerData?.foto_ruang_kota && event.target.src.includes('https://')) {
-        const httpUrl = event.target.src.replace('https://babaapi.babaparfume.id/project/public/', 'https://babaapi.babaparfume.id/project/public/');
+        const httpUrl = event.target.src.replace('https://babaapi.teknosof.com/project/public/', 'https://babaapi.teknosof.com/project/public/');
         console.log('🔄 Trying HTTP fallback for header image:', httpUrl);
         event.target.src = httpUrl;
       } else {
@@ -481,8 +481,8 @@ export default {
         let headerResponse;
 
         try {
-          console.log('🔐 Trying HTTPS: https://babaapi.babaparfume.id/api/provinsi');
-          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+          console.log('🔐 Trying HTTPS: https://babaapi.teknosof.com/api/provinsi');
+          headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
           console.log('✅ HTTPS request successful');
         } catch (httpsError) {
           console.warn('❌ HTTPS header request failed:', httpsError.message);
@@ -492,8 +492,8 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            console.log('🔓 Trying HTTP: https://babaapi.babaparfume.id/api/provinsi');
-            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+            console.log('🔓 Trying HTTP: https://babaapi.teknosof.com/api/provinsi');
+            headerResponse = await apiClient.get('https://babaapi.teknosof.com/api/provinsi');
             console.log('✅ HTTP request successful');
           } else {
             throw httpsError;
@@ -670,7 +670,7 @@ export default {
 
         try {
           console.log('Attempting HTTPS logout...');
-          await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
+          await apiClient.post('https://babaapi.teknosof.com/api/logout', {});
           logoutSuccess = true;
           console.log('HTTPS logout successful');
         } catch (httpsError) {
@@ -682,7 +682,7 @@ export default {
 
             try {
               console.log('Attempting HTTP logout...');
-              await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
+              await apiClient.post('https://babaapi.teknosof.com/api/logout', {});
               logoutSuccess = true;
               console.log('HTTP logout successful');
             } catch (httpError) {

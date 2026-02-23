@@ -4,7 +4,7 @@
     <!-- ── TOP HEADER ─────────────────────────────────────────────────────── -->
     <div class="page-header">
       <div class="header-left">
-        <h1 class="page-title">Data Hierarki akun</h1>
+        <h1 class="page-title">Struktur akun</h1>
       </div>
       <div class="header-right">
         <div class="total-chip">Total: {{ rawData.length }} akun</div>
@@ -17,9 +17,10 @@
     <div class="stat-row">
       <div v-for="role in ROLE_ORDER" :key="role" class="stat-card" :style="{
         borderTopColor: ROLE_COLORS[role],
-        background: activeRoleFilter === role ? ROLE_COLORS[role] : '#fff',
+        background: activeRoleFilter === role ? ROLE_COLORS[role] : '#18181b',
       }" @click="onRoleCardClick(role)">
-        <div class="stat-label" :style="{ color: activeRoleFilter === role ? '#fff' : ROLE_COLORS[role] }">{{ role }}
+        <div class="stat-label" :style="{ color: activeRoleFilter === role ? '#fff' : ROLE_COLORS[role] }">{{
+          getDisplayRole(role) }}
         </div>
         <div class="stat-value" :style="{ color: activeRoleFilter === role ? '#fff' : ROLE_COLORS[role] }">{{
           roleCounts[role] ?? 0 }}</div>
@@ -36,9 +37,9 @@
             akun Hierarki
             <v-chip v-if="activeRoleFilter" size="x-small" closable
               :style="{ background: ROLE_COLORS[activeRoleFilter] + '22', color: ROLE_COLORS[activeRoleFilter], border: `1px solid ${ROLE_COLORS[activeRoleFilter]}55` }"
-              @click:close="onRoleCardClick(activeRoleFilter)">{{ activeRoleFilter }}</v-chip>
+              @click:close="onRoleCardClick(activeRoleFilter)">{{ getDisplayRole(activeRoleFilter) }}</v-chip>
           </span>
-          <v-text-field v-model="searchQuery" density="compact" variant="outlined" hide-details
+          <v-text-field v-model="searchQuery" density="compact" variant="outlined" hide-details theme="dark"
             placeholder="Cari nama..." prepend-inner-icon="mdi-magnify" style="max-width:260px; flex-shrink:0;"
             @update:modelValue="onSearch">
             <template #append-inner>
@@ -86,7 +87,7 @@
 
           <div class="detail-name">{{ selected.nama }}</div>
           <div class="detail-meta">
-            <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ selected.jabatan }}</span>
+            <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.jabatan) }}</span>
             <span class="dot">·</span>
             <span class="meta-small">ID: {{ selected.no_id }}</span>
             <span class="dot">·</span>
@@ -95,7 +96,7 @@
 
           <div class="detail-stats">
             <div class="dstat-block">
-              <div class="dstat-lbl">BAWAHAN LANGSUNG</div>
+              <div class="dstat-lbl">Downline LANGSUNG</div>
               <div class="dstat-val">{{ selected.children?.length ?? 0 }}</div>
             </div>
             <div class="dstat-block">
@@ -106,7 +107,7 @@
 
           <div class="detail-row">
             <div class="dcell">
-              <div class="dcell-lbl">ATASAN</div>
+              <div class="dcell-lbl">UPLINE</div>
               <div class="dcell-val">{{ getParentName(selected) }}</div>
             </div>
             <div class="dcell">
@@ -128,11 +129,11 @@
           </div> -->
 
           <div v-if="selected.children?.length" class="bawahan-section">
-            <div class="bawahan-title">BAWAHAN LANGSUNG ({{ selected.children.length }})</div>
+            <div class="bawahan-title">Downline LANGSUNG ({{ selected.children.length }})</div>
             <div v-for="b in selected.children" :key="b.id" class="bawahan-item" @click="onSelect(b)">
               <div class="bawahan-dot" :style="{ background: roleColor(b.jabatan) }"></div>
               <span class="bawahan-name">{{ b.nama }}</span>
-              <span class="meta-badge" :style="badgeStyle(b.jabatan)">{{ b.jabatan }}</span>
+              <span class="meta-badge" :style="badgeStyle(b.jabatan)">{{ getDisplayRole(b.jabatan) }}</span>
             </div>
           </div>
         </template>
@@ -195,7 +196,7 @@ async function fetchData() {
   loading.value = true; error.value = null;
   try {
     const token = Cookies.get('token');
-    const res = await axios.get('https://babaapi.babaparfume.id/api/mvo/pohon-struktur', {
+    const res = await axios.get('https://babaapi.teknosof.com/api/mvo/pohon-struktur', {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     rawData.value = res.data.data ?? [];
@@ -250,7 +251,7 @@ function closeMobileDetail() { mobileDetailOpen.value = false; }
 function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith('http') || path.startsWith('https')) return path;
-  return `https://babaapi.babaparfume.id/project/public/${path.startsWith('/') ? path.substring(1) : path}`;
+  return `https://babaapi.teknosof.com/project/public/${path.startsWith('/') ? path.substring(1) : path}`;
 }
 function getParentName(node) {
   if (!node.parent_id) {
@@ -266,6 +267,11 @@ function roleColor(role) { return ROLE_COLORS[role?.toUpperCase()] || '#6b7280';
 function roleGradient(role) { const c = roleColor(role); return `linear-gradient(135deg, ${c}dd, ${c}88)`; }
 function badgeStyle(role) { const c = roleColor(role); return { background: c + '18', color: c, border: `1px solid ${c}40` }; }
 function formatDate(dt) { if (!dt) return '—'; return dt.split(' ')[0]; }
+
+function getDisplayRole(role) {
+  if (!role) return '';
+  return role.toString().toUpperCase() === 'SELLER' ? 'RESELLER' : role;
+}
 
 // ─── TreeNode ─────────────────────────────────────────────────────────────────
 const TreeNode = defineComponent({
@@ -305,9 +311,9 @@ const TreeNode = defineComponent({
       const color = ROLE_COLORS[node.jabatan?.toUpperCase()] || '#6b7280';
 
       let rowBg = 'transparent';
-      if (isSelected) rowBg = '#eff6ff';
-      else if (isMatch) rowBg = '#fefce8';
-      else if (isRoleMatch) rowBg = '#f0fdf4';
+      if (isSelected) rowBg = 'rgba(37, 99, 235, 0.15)';
+      else if (isMatch) rowBg = 'rgba(245, 158, 11, 0.15)';
+      else if (isRoleMatch) rowBg = 'rgba(16, 185, 129, 0.15)';
 
       let leftColor = 'transparent';
       if (isSelected) leftColor = '#2563eb';
@@ -319,7 +325,7 @@ const TreeNode = defineComponent({
         padding: `11px 20px 11px ${18 + props.depth * 24}px`,
         cursor: 'pointer', minHeight: '46px', userSelect: 'none',
         background: rowBg, borderLeft: `4px solid ${leftColor}`,
-        borderBottom: '1px solid rgba(0,0,0,0.05)', boxSizing: 'border-box',
+        borderBottom: '1px solid rgba(255,255,255,0.05)', boxSizing: 'border-box',
         transition: 'background 0.12s',
       };
 
@@ -332,14 +338,14 @@ const TreeNode = defineComponent({
 
       const nameSty = {
         fontSize: '13.5px',
-        color: isSelected ? '#1d4ed8' : (isMatch ? '#92400e' : '#374151'),
+        color: isSelected ? '#60a5fa' : (isMatch ? '#fbbf24' : '#e5e7eb'),
         fontWeight: isSelected ? '600' : (isMatch || isRoleMatch ? '500' : '400'),
         flex: '1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: '0',
       };
 
       const countSty = {
         fontSize: '11px', fontFamily: "'JetBrains Mono', monospace",
-        color: '#9ca3af', background: '#f3f4f6', border: '1px solid rgba(0,0,0,0.12)',
+        color: '#9ca3af', background: '#27272a', border: '1px solid rgba(255,255,255,0.12)',
         padding: '2px 10px', borderRadius: '10px', flexShrink: '0', minWidth: '34px', textAlign: 'center',
       };
 
@@ -347,7 +353,7 @@ const TreeNode = defineComponent({
         h('div', {
           style: rowStyle,
           onClick: () => emit('select', node),
-          onMouseenter: e => { if (!isSelected && !isMatch && !isRoleMatch) e.currentTarget.style.background = '#f3f4f6'; },
+          onMouseenter: e => { if (!isSelected && !isMatch && !isRoleMatch) e.currentTarget.style.background = '#27272a'; },
           onMouseleave: e => { e.currentTarget.style.background = rowBg; },
         }, [
           h('div', {
@@ -357,7 +363,7 @@ const TreeNode = defineComponent({
             width: 10, height: 10, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '3',
             style: { transform: open.value ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.17s ease', display: 'block' },
           }, [h('path', { d: 'M9 18l6-6-6-6' })]) : null),
-          h('span', { style: badgeSty }, node.jabatan),
+          h('span', { style: badgeSty }, getDisplayRole(node.jabatan)),
           h('span', { style: nameSty }, node.nama),
           Number(node.jumlah_bawahan) > 0 ? h('span', { style: countSty }, String(node.jumlah_bawahan)) : null,
         ]),
@@ -412,7 +418,7 @@ onMounted(fetchData);
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #f0f2f7;
+  background: #09090b;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
@@ -421,8 +427,8 @@ onMounted(fetchData);
   align-items: center;
   justify-content: space-between;
   padding: 14px 24px;
-  background: #fff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #18181b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
@@ -430,7 +436,7 @@ onMounted(fetchData);
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  color: #111827;
+  color: #f3f4f6;
 }
 
 /* ── Stat cards ──────────────────────────────────────────────────────────── */
@@ -450,7 +456,7 @@ onMounted(fetchData);
 .stat-card {
   flex: 1;
   min-width: 120px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-top-width: 3px;
   border-radius: 10px;
   padding: 14px 16px;
@@ -494,8 +500,8 @@ onMounted(fetchData);
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   overflow: hidden;
   min-width: 0;
@@ -506,9 +512,9 @@ onMounted(fetchData);
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
-  background: #f8f9fc;
+  background: #27272a;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -516,7 +522,7 @@ onMounted(fetchData);
 .topbar-title {
   font-size: 13px;
   font-weight: 700;
-  color: #111827;
+  color: #f3f4f6;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -526,7 +532,7 @@ onMounted(fetchData);
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: #4b5563 transparent;
 }
 
 .tree-scroll::-webkit-scrollbar {
@@ -534,7 +540,7 @@ onMounted(fetchData);
 }
 
 .tree-scroll::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #4b5563;
   border-radius: 2px;
 }
 
@@ -559,14 +565,14 @@ onMounted(fetchData);
 .detail-panel {
   width: 300px;
   flex-shrink: 0;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: #4b5563 transparent;
 }
 
 .detail-panel::-webkit-scrollbar {
@@ -574,7 +580,7 @@ onMounted(fetchData);
 }
 
 .detail-panel::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #4b5563;
   border-radius: 2px;
 }
 
@@ -584,8 +590,8 @@ onMounted(fetchData);
   font-weight: 700;
   color: #9ca3af;
   letter-spacing: 1.5px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-  background: #f8f9fc;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: #27272a;
   flex-shrink: 0;
 }
 
@@ -599,7 +605,7 @@ onMounted(fetchData);
   padding: 0 18px 6px;
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: #f3f4f6;
 }
 
 .detail-meta {
@@ -619,7 +625,7 @@ onMounted(fetchData);
 }
 
 .dot {
-  color: #d1d5db;
+  color: #4b5563;
 }
 
 .meta-small {
@@ -630,14 +636,14 @@ onMounted(fetchData);
 
 .detail-stats {
   display: flex;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dstat-block {
   flex: 1;
   padding: 14px 18px;
-  border-right: 1px solid rgba(0, 0, 0, 0.07);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dstat-block:last-child {
@@ -663,13 +669,13 @@ onMounted(fetchData);
 
 .detail-row {
   display: flex;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dcell {
   flex: 1;
   padding: 12px 18px;
-  border-right: 1px solid rgba(0, 0, 0, 0.07);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dcell:last-child {
@@ -687,7 +693,7 @@ onMounted(fetchData);
 
 .dcell-val {
   font-size: 12.5px;
-  color: #374151;
+  color: #e5e7eb;
   font-weight: 500;
   word-break: break-word;
 }
@@ -723,7 +729,7 @@ onMounted(fetchData);
 }
 
 .bawahan-item:hover {
-  background: #f3f4f6;
+  background: #27272a;
 }
 
 .bawahan-dot {
@@ -736,7 +742,7 @@ onMounted(fetchData);
 .bawahan-name {
   flex: 1;
   font-size: 12.5px;
-  color: #374151;
+  color: #e5e7eb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -808,18 +814,18 @@ onMounted(fetchData);
 
 .total-chip {
   font-size: 12px;
-  color: #374151;
-  background: #f3f4f6;
-  border: 1px solid var(--border-strong);
+  color: #e5e7eb;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 5px 14px;
   border-radius: 20px;
   font-family: 'JetBrains Mono', monospace;
 }
 
 .hdr-btn {
-  background: #ffffff;
-  border: 1px solid var(--border-strong);
-  color: var(--text-secondary);
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
   font-size: 12px;
   font-weight: 600;
   padding: 6px 16px;
