@@ -1039,7 +1039,7 @@
           <v-row>
             <v-col cols="12">
               <v-select label="Tipe Dokumen" v-model="documentAddModel.document_type"
-                :items="[{ title: 'Dokumen Star', value: 'star' }, { title: 'Dokumen User', value: 'user' }]"
+                :items="[{ title: 'Dokumen Star', value: 'star' }, { title: 'Dokumen Biasa', value: 'user' }]"
                 item-title="title" item-value="value" class="mb-2 mt-4" variant="outlined" density="comfortable"
                 prepend-inner-icon="mdi-file-document-outline" />
             </v-col>
