@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Desktop View -->
-        <div class="d-none d-md-block">
+        <div v-if="$vuetify.display.mdAndUp">
             <!-- Date Filter Desktop -->
             <v-card class="mb-4">
                 <v-card-title class="d-flex align-center">
@@ -18,11 +18,11 @@
                             <v-text-field v-model="dateRange.end" label="Tanggal Akhir" type="date" variant="outlined"
                                 density="default" @update:model-value="fetchGrowthData"></v-text-field>
                         </v-col>
-                        <v-col cols="12" class="text-right">
+                        <!-- <v-col cols="12" class="text-right">
                             <v-btn color="success" prepend-icon="mdi-microsoft-excel" @click="exportGrowthData">
                                 Export Data
                             </v-btn>
-                        </v-col>
+                        </v-col> -->
                     </v-row>
                 </v-card-text>
             </v-card>
@@ -42,7 +42,7 @@
                     <v-card-text class="text-center">
                         <v-icon size="48" class="mb-2">mdi-map-marker-multiple</v-icon>
                         <div class="text-h4">{{ getRegionGrowth() }}</div>
-                        <div class="text-subtitle-1">Pertumbuhan Region (RO)</div>
+                        <div class="text-subtitle-1">Pertumbuhan MVO (RO)</div>
                     </v-card-text>
                 </v-card>
             </v-row>
@@ -68,7 +68,7 @@
                     <v-card class="mb-4">
                         <v-card-title class="d-flex align-center">
                             <v-icon class="mr-2">mdi-chart-line</v-icon>
-                            Grafik Pertumbuhan Keseluruhan
+                            Grafik Pertumbuhan Nasional
                         </v-card-title>
                         <v-card-text>
                             <canvas ref="overallChart"></canvas>
@@ -80,7 +80,7 @@
                     <v-card class="mb-4">
                         <v-card-title class="d-flex align-center">
                             <v-icon class="mr-2">mdi-map-marker</v-icon>
-                            Grafik Pertumbuhan per Region
+                            Grafik Pertumbuhan MVO
                         </v-card-title>
                         <v-card-text>
                             <canvas ref="regionChart"></canvas>
@@ -120,7 +120,7 @@
         </div>
 
         <!-- Mobile View -->
-        <div class="d-block d-md-none">
+        <div v-if="$vuetify.display.smAndDown">
             <!-- Date Filter Mobile -->
             <v-card class="mb-3">
                 <v-card-title class="d-flex align-center pa-3 text-subtitle-1">
@@ -324,6 +324,9 @@ export default {
 
                 return itemDate >= startDate && itemDate <= endDate;
             });
+        },
+        isDesktop() {
+            return this.$vuetify.display.mdAndUp;
         }
     },
     watch: {
@@ -333,6 +336,11 @@ export default {
             });
         },
         filteredRegionGrowthData() {
+            this.$nextTick(() => {
+                this.renderCharts();
+            });
+        },
+        isDesktop() {
             this.$nextTick(() => {
                 this.renderCharts();
             });

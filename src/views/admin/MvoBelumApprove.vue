@@ -369,10 +369,7 @@ export default {
         return '-';
       }
 
-      const myLevel = this.getMyLevel(item);
-      if (myLevel === 0) return 'Belum Approve';
-
-      return level >= myLevel ? 'Belum Approve' : '-';
+      return 'Belum Approve';
     },
     async getAllMvo() {
       try {
