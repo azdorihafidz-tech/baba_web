@@ -93,9 +93,6 @@
             <div class="text-caption text-grey">{{ item.no_id }}</div>
             <div class="d-flex align-center mt-1">
               <v-chip size="x-small" color="primary" class="mr-1">{{ item.cabang }}</v-chip>
-              <div class="d-flex">
-                <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="14">mdi-star</v-icon>
-              </div>
             </div>
           </v-col>
           <v-col cols="2" class="text-center">
@@ -111,60 +108,83 @@
         <div v-show="expandedMobileCard === item.id">
           <v-divider></v-divider>
           <v-card-text class="mobile-card-details">
+            <!-- Data Diri -->
+            <h4 class="text-subtitle-2 mb-2 text-primary">Data Downline</h4>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Nama:</v-col>
+              <v-col cols="8" class="detail-value">{{ item.nama || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">No ID:</v-col>
+              <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Cabang:</v-col>
+              <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
+            </v-row>
             <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Alamat:</v-col>
               <v-col cols="8" class="detail-value">{{ item.alamat || '-' }}</v-col>
             </v-row>
-            <v-row class="mb-2" v-if="item.upline_1">
-              <v-col cols="4" class="detail-label">Upline 1:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.upline_1 }}</v-col>
+
+            <!-- Upline -->
+            <v-divider class="my-3"></v-divider>
+            <h4 class="text-subtitle-2 mb-2 text-primary">Struktur Upline</h4>
+            <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Distributor:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ item.upline_6 }}</v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Supplier:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ item.upline_5 }}</v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">General Manager:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ item.upline_4 }}</v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Founder:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ item.upline_3 }}</v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Regional:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ item.upline_2 }}</v-col>
+            </v-row>
+            <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">MVO:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ item.upline_1 }}</v-col>
             </v-row>
 
             <!-- Approval Information -->
             <v-divider class="my-3"></v-divider>
             <h4 class="text-subtitle-2 mb-2 text-primary">Status Approval</h4>
-
-            <v-row class="mb-1" v-if="item.approval_upline_1">
-              <v-col cols="5" class="detail-label text-caption">MVO:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_1) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval Distributor:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 6) }}</v-col>
             </v-row>
-            <v-row class="mb-1" v-if="item.approval_upline_2">
-              <v-col cols="5" class="detail-label text-caption">Regional:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_2) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval Supplier:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 5) }}</v-col>
             </v-row>
-            <v-row class="mb-1" v-if="item.approval_upline_3">
-              <v-col cols="5" class="detail-label text-caption">Founder:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_3) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval GM:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 4) }}</v-col>
             </v-row>
-            <v-row class="mb-1" v-if="item.approval_upline_4">
-              <v-col cols="5" class="detail-label text-caption">GM:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_4) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval Founder:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 3) }}</v-col>
             </v-row>
-            <v-row class="mb-1" v-if="item.approval_upline_5">
-              <v-col cols="5" class="detail-label text-caption">Supplier:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_5) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval Regional:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 2) }}</v-col>
             </v-row>
-            <v-row class="mb-1" v-if="item.approval_upline_6">
-              <v-col cols="5" class="detail-label text-caption">Distributor:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_6) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval MVO:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 1) }}</v-col>
             </v-row>
-            <v-row class="mb-1" v-if="item.approval_upline_7">
-              <v-col cols="5" class="detail-label text-caption">Reseller:</v-col>
-              <v-col cols="7" class="detail-value text-caption">
-                <v-chip size="x-small" color="success">{{ getNamaByNomorId(item.approval_upline_7) }}</v-chip>
-              </v-col>
+            <v-row class="mb-1" v-if="item.upline_7 && item.upline_7 !== '-'">
+              <v-col cols="5" class="detail-label text-caption">Approval Reseller:</v-col>
+              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 7) }}</v-col>
             </v-row>
 
             <v-divider class="mb-3"></v-divider>
