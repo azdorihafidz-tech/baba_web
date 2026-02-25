@@ -1049,51 +1049,51 @@ export default {
 
 /* Mobile Cards Styles */
 .mobile-header-card {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%);
-  border: 2px solid #FFD700;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-field-mobile {
+  margin-top: 8px;
 }
 
 .mobile-document-card {
-  border-left: 4px solid #FFD700;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  background: #ffffff;
 }
 
 .mobile-document-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-color: #FFD700;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
 .mobile-card-expanded {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+  border-color: #FFD700 !important;
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
 }
 
 .mobile-card-header {
-  padding: 12px;
+  padding: 16px !important;
 }
 
 .mobile-number {
-  background: linear-gradient(135deg, #1a1a1a, #FFD700);
-  color: #FFD700;
   font-weight: bold;
-  padding: 8px 12px;
-  border-radius: 50%;
-  font-size: 14px;
 }
 
 .mobile-document-name {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: bold;
   color: #1a1a1a;
-  line-height: 1.3;
   margin-bottom: 4px;
 }
 
 .mobile-document-code {
   font-size: 12px;
-  color: #666;
-  line-height: 1.2;
+  color: #9e9e9e;
 }
 
 .mobile-status-preview {
@@ -1101,27 +1101,30 @@ export default {
 }
 
 .mobile-card-details {
-  padding: 16px;
+  padding: 16px !important;
   background-color: #f8f9fa;
 }
 
 .mobile-info-section {
-  background-color: #ffffff;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background-color: transparent;
+  padding: 0;
+  border: none;
+  margin-bottom: 16px;
 }
 
 .detail-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #6c757d;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 4px;
 }
 
 .detail-value {
-  font-size: 13px;
-  font-weight: 500;
-  color: #212529;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
 }
 
 .mobile-actions {
@@ -1140,20 +1143,36 @@ export default {
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  .pending-approval-management {
-    padding: 8px;
+  .mobile-document-card {
+    margin-left: 8px;
+    margin-right: 8px;
   }
 
-  .mobile-info-section {
-    padding: 10px;
+  .mobile-header-card {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  .detail-label,
+  .detail-value {
+    font-size: 12px;
   }
 
   .mobile-document-name {
     font-size: 14px;
   }
 
-  .mobile-document-code {
-    font-size: 11px;
+  .mobile-actions .v-btn {
+    font-size: 12px;
+    padding: 0 8px;
   }
+}
+
+:deep(.v-progress-circular) {
+  color: #FFD700 !important;
+}
+
+:deep(.v-progress-linear) {
+  border-radius: 4px;
 }
 </style>
