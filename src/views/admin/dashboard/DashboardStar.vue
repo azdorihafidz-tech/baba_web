@@ -48,7 +48,15 @@
 
                             <div class="text-center mb-4 mt-2">
                                 <v-avatar size="72" class="mb-3 border-2 border-white elevation-3" color="white">
-                                    <span class="text-h4 font-weight-bold text-grey-darken-3">
+                                    <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                        <template v-slot:placeholder>
+                                            <v-row class="fill-height ma-0" align="center" justify="center">
+                                                <v-progress-circular indeterminate
+                                                    color="grey-lighten-2"></v-progress-circular>
+                                            </v-row>
+                                        </template>
+                                    </v-img>
+                                    <span v-else class="text-h4 font-weight-bold text-grey-darken-3">
                                         {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
                                     </span>
                                 </v-avatar>
@@ -74,13 +82,13 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80 mb-1">Total RO</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_repeat_order
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                     <div class="vertical-divider"></div>
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80 mb-1">Transaksi</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_transaksi_ro
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -148,7 +156,7 @@
                                         <div class="text-center">
                                             <div class="text-caption text-white opacity-80 mb-1">Downline</div>
                                             <div class="text-h6 font-weight-bold text-white lh-1">{{ mvo.totalDownlines
-                                            }}</div>
+                                                }}</div>
                                         </div>
                                     </div>
                                     <v-divider class="my-2 border-opacity-25" color="white"></v-divider>
@@ -216,7 +224,15 @@
 
                                 <div class="text-center mb-4 mt-2">
                                     <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white">
-                                        <span class="text-h4 font-weight-bold text-grey-darken-3">
+                                        <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                            <template v-slot:placeholder>
+                                                <v-row class="fill-height ma-0" align="center" justify="center">
+                                                    <v-progress-circular indeterminate
+                                                        color="grey-lighten-2"></v-progress-circular>
+                                                </v-row>
+                                            </template>
+                                        </v-img>
+                                        <span v-else class="text-h4 font-weight-bold text-grey-darken-3">
                                             {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
                                         </span>
                                     </v-avatar>
@@ -235,7 +251,7 @@
                                         <div class="text-center">
                                             <div class="text-caption text-white opacity-80 mb-1">Total RO</div>
                                             <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
-                                                }}</div>
+                                            }}</div>
                                         </div>
                                         <div class="vertical-divider"></div>
                                         <div class="text-center">
@@ -367,7 +383,15 @@
                             </div>
                             <div class="text-center mb-3 mt-1">
                                 <v-avatar size="60" class="mb-2 border-2 border-white elevation-2" color="white">
-                                    <span class="text-h5 font-weight-bold text-grey-darken-3">
+                                    <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                        <template v-slot:placeholder>
+                                            <v-row class="fill-height ma-0" align="center" justify="center">
+                                                <v-progress-circular indeterminate
+                                                    color="grey-lighten-2"></v-progress-circular>
+                                            </v-row>
+                                        </template>
+                                    </v-img>
+                                    <span v-else class="text-h5 font-weight-bold text-grey-darken-3">
                                         {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
                                     </span>
                                 </v-avatar>
@@ -386,14 +410,14 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Total RO</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_repeat_order
-                                        }}
+                                            }}
                                         </div>
                                     </div>
                                     <div class="vertical-divider" style="height: 25px;"></div>
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Transaksi</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_transaksi_ro
-                                        }}
+                                            }}
                                         </div>
                                     </div>
                                 </div>
@@ -518,7 +542,15 @@
 
                                 <div class="text-center mb-4 mt-2">
                                     <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white">
-                                        <span class="text-h4 font-weight-bold text-grey-darken-3">
+                                        <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                            <template v-slot:placeholder>
+                                                <v-row class="fill-height ma-0" align="center" justify="center">
+                                                    <v-progress-circular indeterminate
+                                                        color="grey-lighten-2"></v-progress-circular>
+                                                </v-row>
+                                            </template>
+                                        </v-img>
+                                        <span v-else class="text-h4 font-weight-bold text-grey-darken-3">
                                             {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
                                         </span>
                                     </v-avatar>
@@ -537,7 +569,7 @@
                                         <div class="text-center">
                                             <div class="text-caption text-white opacity-80 mb-1">Total RO</div>
                                             <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
-                                                }}</div>
+                                            }}</div>
                                         </div>
                                         <div class="vertical-divider"></div>
                                         <div class="text-center">
@@ -595,7 +627,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                            }}</v-chip>
+                                }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -667,7 +699,7 @@
                                 <v-card flat color="grey-lighten-4" class="pa-3 text-center">
                                     <v-icon color="info" size="24">mdi-file-document</v-icon>
                                     <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.documents?.length || 0
-                                    }}
+                                        }}
                                     </div>
                                     <div class="text-caption">Total Dokumen</div>
                                 </v-card>
@@ -698,7 +730,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Jaringan</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.jaringan_mvo
-                                            }}
+                                                }}
                                             </div>
                                         </v-col>
                                         <v-col cols="6">
@@ -710,7 +742,7 @@
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Alamat</div>
                                             <div class="text-body-2 font-weight-medium">{{ selectedMvoData.alamat || '-'
-                                            }}
+                                                }}
                                             </div>
                                         </v-col>
                                     </v-row>
@@ -758,21 +790,21 @@
                             </v-chip>
                         </template>
                         <template v-slot:item.upline_1="{ item }"><span class="text-caption">{{ item.upline_1 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_2="{ item }"><span class="text-caption">{{ item.upline_2 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_3="{ item }"><span class="text-caption">{{ item.upline_3 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_4="{ item }"><span class="text-caption">{{ item.upline_4 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_5="{ item }"><span class="text-caption">{{ item.upline_5 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_6="{ item }"><span class="text-caption">{{ item.upline_6 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.tempat_lahir="{ item }"><span class="text-caption">{{ item.tempat_lahir ||
                             '-' }}</span></template>
                         <template v-slot:item.alamat="{ item }"><span class="text-caption">{{ item.alamat || '-'
-                        }}</span></template>
+                                }}</span></template>
                     </v-data-table>
                 </div>
 
@@ -1157,6 +1189,13 @@ export default {
                 return `https://babaapi.babaparfume.id/project/public/${mvo.provinsi.foto_mvo}`;
             }
             return 'https://via.placeholder.com/300x300?text=No+Image';
+        },
+
+        getProfileImageUrl(item) {
+            if (item.path_gambar_profile) {
+                return `https://babaapi.babaparfume.id/project/public/${item.path_gambar_profile}`;
+            }
+            return null;
         },
 
         getRoleColorFromCode(code) {
