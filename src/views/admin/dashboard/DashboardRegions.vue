@@ -86,7 +86,7 @@
             <!-- ===== REGION CARDS SECTION ===== -->
             <v-card>
                 <v-card-title>
-                    Region
+                    MVO
                 </v-card-title>
 
                 <v-divider></v-divider>
