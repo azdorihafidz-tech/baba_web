@@ -219,8 +219,8 @@
                                                         </v-avatar>
                                                         <div class="flex-grow-1">
                                                             <div class="text-caption text-grey">Jabatan</div>
-                                                            <div class="text-h6 font-weight-medium mt-1">
-                                                                {{ editedData.mvo_type_id }}
+                                                            <div class="text-h6 font-weight-medium mt-1 text-white">
+                                                                {{ jabatanLabel }}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -309,6 +309,8 @@ export default {
                 password: '',
                 password_confirmation: ''
             },
+            mvoTypes: [], // tambahkan ini
+
 
             isLoading: true,
             formValid: false,
@@ -349,10 +351,28 @@ export default {
             return 'https://ui-avatars.com/api/?name=' +
                 encodeURIComponent(this.userData?.nama || 'User') +
                 '&background=d4af37&color=000&size=400';
+        },
+        jabatanLabel() {
+            if (!this.editedData.mvo_type_id || this.mvoTypes.length === 0) return '-';
+            const found = this.mvoTypes.find(m => m.id === Number(this.editedData.mvo_type_id));
+            return found ? found.jabatan : '-';
         }
     },
 
     methods: {
+        async fetchMvoTypes() {
+            try {
+                const token = Cookies.get('token');
+                const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (response.data?.status === 'success') {
+                    this.mvoTypes = response.data.data;
+                }
+            } catch (error) {
+                console.error('Error fetching MVO types:', error);
+            }
+        },
         async changePassword() {
             // Validasi form
             const { valid } = await this.$refs.formPassword.validate();
@@ -453,7 +473,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('https://https://babaapi.babaparfume.id/api/user/profile', {
+                const response = await axios.get('https://babaapi.babaparfume.id/api/user/profile', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -482,7 +502,7 @@ export default {
                 }
 
                 const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-                return `https://https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+                return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
             }
 
             return this.defaultProfileImage;
@@ -518,6 +538,8 @@ export default {
     mounted() {
         console.log('Profil page mounted');
         this.loadUserData();
+        this.fetchMvoTypes(); // tambahkan ini
+
     }
 };
 </script>
