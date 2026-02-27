@@ -155,22 +155,22 @@ export default {
                     {
                         id: 1,
                         judul: "TUTORIAL WEBSITE OFFICIAL BABA PARFUME",
-                        link_gdrive: "https://drive.usercontent.google.com/download?id=1nNku_w9ndhmntXSco1SvoulBlLUnEZhG&export=download&authuser=0&confirm=t&uuid=35b27a66-7a60-417a-8a2f-f68f86b45987&at=APcXIO0pLH9X5akrOmV-T9Jo6LPx:1769841687850"
+                        link_gdrive: "https://drive.usercontent.google.com/download?id=1znbd3mlKwMMkgiDPZrgmRVa0M73Sl1Cp&export=download&authuser=0&confirm=t&uuid=0a4c557b-792f-4933-bfc1-6ed45d63e03d&at=APcXIO12guv-QV9y3IqEOJby7_D4:1772159742445"
                     },
                     {
                         id: 2,
                         judul: "TUTORIAL APLIKASI BABA PARFUM (USER)",
-                        link_gdrive: "https://drive.usercontent.google.com/download?id=1LqEI0tG1T84z6LjMDZULF8Wg6DU363hh&export=download&authuser=0&confirm=t&uuid=231aae4a-d274-4517-ab6b-ae991880aa26&at=APcXIO1nzGF1t7JB4EQeuIEj3V8F:1769841682889"
+                        link_gdrive: "https://drive.usercontent.google.com/download?id=11Zh3XWav6v64n2OknIjp2S68OtF_1Nj3&export=download&authuser=0&confirm=t&uuid=e58d25d3-84dd-45ed-af9a-506fe7be8bfa&at=APcXIO3bv1AQ4hOAWdp25C1iFOUz:1772159674685"
                     },
                     {
                         id: 3,
                         judul: "TUTORIAL APLIKASI BABA PARFUM (ADMIN)",
-                        link_gdrive: "https://drive.usercontent.google.com/download?id=1pce0URW7SDEsr2B_d77Z-U0aPx91bFRe&export=download&authuser=0&confirm=t&uuid=720f81a2-b3cc-4f63-b15a-2e08415f914b&at=APcXIO1IdrYTcSjVBtqBJdU-OduG:1769841673601"
+                        link_gdrive: "https://drive.usercontent.google.com/download?id=1SVCroHlZImEE3BqwshsvkFNRUkiGHgj0&export=download&authuser=0&confirm=t&uuid=18e56d65-f6eb-4ef6-ba49-b403af59b87f&at=APcXIO2Nu14A0Qsqsaor9nZoeVhC:1772159627954"
                     },
                     {
                         id: 4,
                         judul: "TUTORIAL APLIKASI WEBSITE ADMIN PANEL BABA PARFUME",
-                        link_gdrive: "https://drive.usercontent.google.com/download?id=1DU8FMMqYggEQo7CGoDn5Rpz2X5UnA4He&export=download&authuser=0&confirm=t&uuid=9227c472-b835-408d-b4ee-7d7ae3c381d6&at=APcXIO059vxY5P35vXv2ExnPg69s:1769841685889"
+                        link_gdrive: "https://drive.usercontent.google.com/download?id=1gDhXpCXh3jft1eb2oodYip71jMkPpqDl&export=download&authuser=0&confirm=t&uuid=6c0d4e3c-27a8-418b-a495-8d03dc83fd26&at=APcXIO1Nj3pQ72SBpTjfPJ4ir45U:1772159710604"
                     }
                 ],
             },
