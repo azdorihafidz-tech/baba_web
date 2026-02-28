@@ -540,7 +540,6 @@ export default {
     },
 
     handleImageError() {
-      console.log('Image failed to load');
       this.contentSnackbar.snackbar = true;
       this.contentSnackbar.text = "Gambar tidak dapat dimuat";
       this.contentSnackbar.color = this.app.colors.secondary;
@@ -550,7 +549,6 @@ export default {
     constructImageUrl(imagePath) {
       if (!imagePath) return null;
 
-      console.log('Original image path:', imagePath);
 
       // Jika sudah berupa URL lengkap
       if (imagePath.startsWith('http')) {
@@ -578,12 +576,10 @@ export default {
         imageUrl = `${baseUrl}/uploads/header/${cleanPath}`;
       }
 
-      console.log('Constructed image URL:', imageUrl);
       return imageUrl;
     },
 
     showImageDialog(imagePath) {
-      console.log('showImageDialog called with imagePath:', imagePath);
 
       if (!imagePath) {
         this.showError("Path gambar tidak tersedia");
@@ -601,7 +597,6 @@ export default {
         imageUrl = this.constructImageUrl(imagePath);
       }
 
-      console.log('Final image URL for dialog:', imageUrl);
 
       if (imageUrl) {
         this.imagePreviewUrl = imageUrl;
@@ -613,7 +608,6 @@ export default {
 
     // Event handler untuk file input
     previewAddImage(event) {
-      console.log('previewAddImage called');
 
       // Reset error
       this.modelAdd.gambar_file_error = "";
@@ -630,7 +624,6 @@ export default {
         file = this.modelAdd.gambar_file;
       }
 
-      console.log('Selected file:', file);
 
       if (file) {
         // Validasi tipe file
@@ -656,7 +649,6 @@ export default {
           this.modelAdd.preview_url = e.target.result;
         };
         reader.onerror = (e) => {
-          console.error('FileReader error:', e);
           this.modelAdd.gambar_file_error = "Error membaca file";
           this.modelAdd.preview_url = null;
         };
@@ -670,7 +662,6 @@ export default {
     },
 
     previewEditImage(event) {
-      console.log('previewEditImage called');
 
       // Dapatkan file dari berbagai kemungkinan struktur event
       let file = null;
@@ -684,7 +675,6 @@ export default {
         file = this.modelEdit.gambar_file;
       }
 
-      console.log('Selected file for edit:', file);
 
       if (file) {
         // Validasi tipe file
@@ -713,7 +703,6 @@ export default {
           this.modelEdit.preview_url = e.target.result;
         };
         reader.onerror = (e) => {
-          console.error('FileReader error:', e);
           this.contentSnackbar.snackbar = true;
           this.contentSnackbar.text = "Error membaca file";
           this.contentSnackbar.color = this.app.colors.secondary;
@@ -743,11 +732,9 @@ export default {
           },
         })
         .then((response) => {
-          console.log('API Response:', response.data);
 
           if (response.data.status === "success") {
             this.datatable.items = response.data.data.map(item => {
-              console.log('Processing item:', item);
 
               // Konstruksi URL gambar yang benar
               const imageUrl = this.constructImageUrl(item.path_gambar_header);
@@ -760,13 +747,11 @@ export default {
               };
             });
 
-            console.log('Processed items:', this.datatable.items);
           } else {
             this.showSnackbar(response, true);
           }
         })
         .catch((error) => {
-          console.error('Get data error:', error);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -822,9 +807,7 @@ export default {
 
         formData.append('cabang', this.modelAdd.cabang.trim());
 
-        console.log('Sending FormData:');
         for (let pair of formData.entries()) {
-          console.log(pair[0], ':', pair[1]);
         }
 
         const response = await axios.post(
@@ -839,14 +822,12 @@ export default {
           }
         );
 
-        console.log('Add response:', response.data);
 
         this.getAllGambarHeader();
         this.isShowDialogAdd = false;
         this.showSnackbar(response, false);
 
       } catch (error) {
-        console.error('Add gambar header error:', error);
         this.showSnackbar(error.response || error, true);
       } finally {
         this.isButtonLoading = false;
@@ -874,7 +855,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log('Edit data response:', response.data);
 
           if (response.data.status === "success") {
             this.modelEdit.id = response.data.data.id;
@@ -884,14 +864,12 @@ export default {
             const imageUrl = this.constructImageUrl(response.data.data.path_gambar_header);
             this.modelEdit.current_image_url = imageUrl;
 
-            console.log('Edit dialog image URL:', imageUrl);
           } else {
             this.showSnackbar(response, true);
             this.isShowDialogEdit = false;
           }
         })
         .catch((error) => {
-          console.error('Edit load error:', error);
           this.showSnackbar(error.response || error, true);
           this.isShowDialogEdit = false;
         });
@@ -921,9 +899,7 @@ export default {
         formData.append('cabang', this.modelEdit.cabang.trim());
         formData.append('_method', 'POST');
 
-        console.log('Update FormData:');
         for (let pair of formData.entries()) {
-          console.log(pair[0], ':', pair[1]);
         }
 
         const response = await axios.post(
@@ -938,14 +914,12 @@ export default {
           }
         );
 
-        console.log('Update response:', response.data);
 
         this.getAllGambarHeader();
         this.isShowDialogEdit = false;
         this.showSnackbar(response, false);
 
       } catch (error) {
-        console.error('Update error:', error);
         this.showSnackbar(error.response || error, true);
       } finally {
         this.isButtonLoading = false;
@@ -980,7 +954,6 @@ export default {
           this.showSnackbar(response, false);
         })
         .catch((error) => {
-          console.error('Delete error:', error);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -991,12 +964,10 @@ export default {
   },
 
   created() {
-    console.log('Gambar Header component created, loading initial data...');
     this.getAllGambarHeader();
   },
 
   mounted() {
-    console.log('Gambar Header component mounted');
   },
 
   watch: {

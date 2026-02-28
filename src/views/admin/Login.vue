@@ -265,7 +265,6 @@ const fetchSongs = async () => {
       }
     }
   } catch (error) {
-    console.error('Error fetching songs:', error)
     showSnackbar('Gagal memuat daftar lagu', 'error')
   } finally {
     loadingSongs.value = false
@@ -379,16 +378,13 @@ const onAudioEnded = () => {
 }
 
 const onAudioError = (e) => {
-  console.error('Audio error:', e)
   isPlaying.value = false
 }
 
 const onCanPlay = () => {
-  console.log('Audio can play')
 }
 
 const onLoadStart = () => {
-  console.log('Audio loading')
 }
 
 const seekAudio = (event) => {
@@ -428,7 +424,6 @@ const fetchHeaderData = async (token, userCabang = null) => {
     try {
       headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
     } catch (httpsError) {
-      console.warn('Login - HTTPS header request failed, trying HTTP:', httpsError.message)
 
       if (httpsError.code === 'ERR_NETWORK' ||
         httpsError.message.includes('certificate') ||
@@ -470,7 +465,6 @@ const fetchHeaderData = async (token, userCabang = null) => {
       localStorage.setItem('headerData', JSON.stringify(headerData))
       return headerData
     } else {
-      console.warn('Login - No valid header data found in response')
 
       if (userCabang) {
         const fallbackHeaderData = {
@@ -485,7 +479,6 @@ const fetchHeaderData = async (token, userCabang = null) => {
     }
 
   } catch (error) {
-    console.error('Login - Error fetching header data:', error)
 
     if (userCabang) {
       const errorFallbackData = {
@@ -527,7 +520,6 @@ const handleLogin = async () => {
     try {
       response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
     } catch (httpsError) {
-      console.warn('HTTPS failed, trying HTTP:', httpsError.message)
 
       if (httpsError.code === 'ERR_NETWORK' ||
         httpsError.message.includes('certificate') ||
@@ -563,12 +555,10 @@ const handleLogin = async () => {
       if (isSuperadmin) {
         // Jika superadmin, hapus mvo_id dari localStorage
         localStorage.removeItem('mvo_id')
-        console.log('Superadmin login: mvo_id cleared')
       } else {
         // Jika bukan superadmin, simpan mvo_id seperti biasa
         if (response.data.data.user.mvo) {
           localStorage.setItem('mvo_id', response.data.data.user.mvo.code)
-          console.log('Non-superadmin login: mvo_id saved')
         }
       }
       // END LOGIKA CLEAR MVO_ID
@@ -589,7 +579,6 @@ const handleLogin = async () => {
 
       const supportedRoles = ['SALES', 'KEUANGAN', 'DIREKSI', 'ADMIN']
       if (!supportedRoles.includes(peran)) {
-        console.warn(`Peran '${peran}' tidak didukung, menggunakan DIREKSI sebagai fallback`)
         peran = 'DIREKSI'
       }
 
@@ -603,7 +592,6 @@ const handleLogin = async () => {
       if (headerData) {
         showSnackbar(`Selamat datang ${userData.nama || userData.username}! - ${headerData.cabang || ''}`)
       } else {
-        console.warn('Header data tidak berhasil diambil')
         showSnackbar(`Selamat datang ${userData.nama || userData.username}!`)
       }
 
@@ -616,7 +604,6 @@ const handleLogin = async () => {
               showSnackbar(`🎵 Memutar: ${currentSong.value.judul_lagu}`, 'success')
             })
             .catch(err => {
-              console.warn('Auto-play blocked by browser:', err)
             })
         }, 500)
       }
@@ -631,7 +618,7 @@ const handleLogin = async () => {
       if (isSuperadmin) {
         router.push('/admin/dashboard')
       } else {
-        router.push('/admin/mvo')
+        router.push('/admin/dashboard')
       }
 
     } else {
@@ -639,7 +626,6 @@ const handleLogin = async () => {
     }
 
   } catch (error) {
-    console.error('Login error:', error)
 
     let message = 'Login gagal'
 
@@ -687,19 +673,15 @@ const goToRegister = () => {
 
     router.push({ name: 'PublicRegistrasi' })
       .then(() => {
-        console.log('Navigated to register')
       })
       .catch(error => {
-        console.error('Navigation error:', error)
         router.push('/admin/registrasi')
           .catch(fallbackError => {
-            console.error('Fallback navigation failed:', fallbackError)
             showSnackbar('Gagal membuka halaman registrasi', 'error')
           })
       })
 
   } catch (error) {
-    console.error('Exception in goToRegister:', error)
     showSnackbar('Terjadi kesalahan saat membuka registrasi', 'error')
   }
 }
@@ -712,9 +694,7 @@ const openDownloadLink = () => {
     // buka di tab baru
     window.open(url, '_blank')
 
-    console.log('Download link opened')
   } catch (error) {
-    console.error('Exception in openDownloadLink:', error)
     showSnackbar('Gagal membuka link download', 'error')
   }
 }
@@ -729,7 +709,6 @@ onMounted(() => {
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
     router.push('/admin/user').catch(err => {
-      console.log('Already logged in redirect error:', err)
     })
   }
 

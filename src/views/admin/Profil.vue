@@ -370,7 +370,6 @@ export default {
                     this.mvoTypes = response.data.data;
                 }
             } catch (error) {
-                console.error('Error fetching MVO types:', error);
             }
         },
         async changePassword() {
@@ -417,7 +416,6 @@ export default {
                 }
 
             } catch (error) {
-                console.error(error);
 
                 const msg =
                     error.response?.data?.message ||
@@ -452,12 +450,10 @@ export default {
                 if (storedUser) {
                     this.userData = JSON.parse(storedUser);
                     this.editedData = { ...this.userData };
-                    console.log('User data loaded:', this.userData);
                 } else {
                     await this.fetchUserDataFromAPI();
                 }
             } catch (error) {
-                console.error('Error loading user data:', error);
                 this.showSnackbar('Gagal memuat data profil', 'error');
             } finally {
                 this.isLoading = false;
@@ -485,7 +481,6 @@ export default {
                     localStorage.setItem('user', JSON.stringify(this.userData));
                 }
             } catch (error) {
-                console.error('Error fetching user data from API:', error);
 
                 if (error.response?.status === 401) {
                     this.$router.push('/admin/login');
@@ -509,7 +504,6 @@ export default {
         },
 
         onImageError(event) {
-            console.warn('Profile image failed to load, using default');
             event.target.src = this.defaultProfileImage;
         },
 
@@ -536,7 +530,6 @@ export default {
     },
 
     mounted() {
-        console.log('Profil page mounted');
         this.loadUserData();
         this.fetchMvoTypes(); // tambahkan ini
 

@@ -455,7 +455,6 @@ export default {
                 url = `https://babaapi.babaparfume.id/api/dashboard/akun`;
             } else {
                 if (!this.cabang) {
-                    console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
                 url = `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
@@ -478,7 +477,6 @@ export default {
                     }
                 }
             } catch (err) {
-                console.error("Fetch dashboard error:", err);
             }
         },
 
@@ -519,7 +517,6 @@ export default {
                         });
                     }
                 } catch (err) {
-                    console.error("Fetch region detail error:", err);
                     this.detailTitle = `Error loading data for ${regionName}`;
                 }
             } else {

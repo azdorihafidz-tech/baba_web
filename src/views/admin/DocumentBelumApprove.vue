@@ -506,8 +506,6 @@ export default {
 
         if (response.data.status === "success") {
           this.datatable.items = response.data.data || [];
-          console.log("Documents loaded:", this.datatable.items.length, "items");
-          console.log("Sample document data:", this.datatable.items[0]);
         } else {
           this.showSnackbar(response.data.message || "Error loading data", "error");
         }
@@ -526,15 +524,11 @@ export default {
         const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
         if (response.data.status === "success") {
           this.allMvoData = response.data.data;
-          console.log("All MVO Data loaded:", this.allMvoData.length, "items");
-          console.log("Sample MVO data:", this.allMvoData.slice(0, 3));
 
           // Debug: cari MVO dengan ID yang login
           const loggedInMvo = this.allMvoData.find(item => item.code === this.mvo_id);
-          console.log("Logged in MVO found:", loggedInMvo);
         }
       } catch (error) {
-        console.error("Error loading MVO data:", error);
       }
     },
 
@@ -654,8 +648,6 @@ export default {
      * Mendapatkan kode MVO user yang sedang login
      */
     getLoggedInMvoCode() {
-      console.log("=== getLoggedInMvoCode ===");
-      console.log("mvo_id from localStorage:", this.mvo_id);
 
       // Di localStorage, mvo_id sudah berupa code (MVO-JKT-001)
       // Jadi langsung return saja
@@ -792,17 +784,13 @@ export default {
     canApproveDocument(item) {
       // Jika sudah approved semua, tidak bisa approve lagi
       if (item.status_inputan?.toLowerCase() === 'approved') {
-        console.log(`Dokumen ${item.id} sudah approved semua`);
         return false;
       }
 
       // Ambil kode MVO user yang login
       const loggedInMvoCode = this.getLoggedInMvoCode();
-      console.log(`\n=== canApproveDocument for Doc ${item.id} ===`);
-      console.log(`Logged in MVO Code: ${loggedInMvoCode}`);
 
       if (!loggedInMvoCode) {
-        console.log("Tidak ada kode MVO untuk user yang login");
         return false;
       }
 
@@ -815,16 +803,12 @@ export default {
         }
       }
 
-      console.log(`Highest level with upline: ${highestLevel}`);
 
       // Loop dari level tertinggi ke terendah untuk cek approval
       for (let level = highestLevel; level >= 1; level--) {
         const approvalField = `approval_doc_upline_${level}`;
         const uplineField = `upline_${level}`;
 
-        console.log(`\nChecking level ${level}:`);
-        console.log(`  upline: ${item[uplineField]}`);
-        console.log(`  approval: ${item[approvalField]}`);
 
         // Jika upline ada dan approval masih null
         if (item[uplineField] && item[approvalField] === null) {
@@ -832,16 +816,12 @@ export default {
           // Format: "MVO-JKT-001 - Rudi Hartono" → "MVO-JKT-001"
           const uplineCode = item[uplineField].split(' - ')[0].trim();
 
-          console.log(`  Extracted upline code: ${uplineCode}`);
-          console.log(`  Comparison: ${uplineCode} === ${loggedInMvoCode}`);
 
           // Cek apakah user yang login adalah orang di level ini
           if (uplineCode === loggedInMvoCode) {
-            console.log(`✓ User dapat approve di level ${level}`);
             return true;
           } else {
             // Bukan giliran user ini
-            console.log(`✗ Menunggu approval dari ${uplineCode}, bukan ${loggedInMvoCode}`);
             return false;
           }
         }
@@ -850,7 +830,6 @@ export default {
       }
 
       // Jika semua sudah approve
-      console.log("Semua level sudah approve");
       return false;
     },
 
@@ -884,12 +863,6 @@ export default {
         const loggedInMvoCode = this.getLoggedInMvoCode(); // Code user yang login
         const documentId = item.id;
 
-        console.log("=== APPROVAL DEBUG INFO ===");
-        console.log("Document Item:", item);
-        console.log("Document MVO ID:", item.mvo_id);
-        console.log("Document ID:", documentId);
-        console.log("Document MVO Code:", documentMvoCode);
-        console.log("Logged in MVO Code:", loggedInMvoCode);
 
         // Validasi data sebelum kirim
         if (!documentMvoCode || documentMvoCode === 'Unknown') {
@@ -919,9 +892,7 @@ export default {
         formData.append('code', loggedInMvoCode); // Gunakan code user yang login
         formData.append('id', String(documentId));
 
-        console.log("FormData to send:");
         for (let pair of formData.entries()) {
-          console.log(`  ${pair[0]}: ${pair[1]} (type: ${typeof pair[1]})`);
         }
 
         // Kirim request ke API dengan FormData
@@ -936,9 +907,6 @@ export default {
           }
         );
 
-        console.log("=== API RESPONSE ===");
-        console.log("Status:", response.status);
-        console.log("Data:", response.data);
 
         if (response.data.status === "success") {
           this.showSnackbar("Dokumen berhasil disetujui!", "success");
@@ -953,11 +921,6 @@ export default {
           this.showSnackbar(response.data.message || "Gagal menyetujui dokumen", "error");
         }
       } catch (error) {
-        console.error("=== APPROVAL ERROR ===");
-        console.error("Error:", error);
-        console.error("Error Response:", error.response?.data);
-        console.error("Error Status:", error.response?.status);
-        console.error("Error Headers:", error.response?.headers);
 
         const errorMessage = error.response?.data?.message ||
           error.response?.data?.error ||
@@ -975,21 +938,14 @@ export default {
     this.mvo_type_id = localStorage.getItem("mvo_type_id") || "";
     this.mvo_id = localStorage.getItem("mvo_id") || ""; // Ambil mvo_id dari localStorage
 
-    console.log("=== INITIALIZATION ===");
-    console.log("Logged in MVO ID (code):", this.mvo_id);
-    console.log("Logged in MVO Type:", this.mvo_type_id);
 
     // Load MVO data first, then load documents
     await this.getAllMvo();
     await this.getPendingApprovalDocuments();
 
-    console.log("\n=== CHECKING APPROVAL STATUS ===");
     // Check each document
     this.datatable.items.forEach((item, index) => {
-      console.log(`\n--- Document ${index + 1} (ID: ${item.id}) ---`);
-      console.log("File:", item.file_name);
       const canApprove = this.canApproveDocument(item);
-      console.log("Can Approve:", canApprove);
     });
   },
 };

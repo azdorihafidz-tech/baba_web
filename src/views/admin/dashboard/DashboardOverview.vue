@@ -416,7 +416,6 @@ export default {
                 }
 
             } catch (err) {
-                console.error("Error fetch dashboard:", err);
             } finally {
                 this.isLoading = false;
             }

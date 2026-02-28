@@ -651,7 +651,6 @@ export default {
 
     // Dialog management
     showDialogFormAddDocument() {
-      console.log('showDialogFormAddDocument dipanggil');
       this.isShowDialogAdd = true;
       this.clearAddForm(); // Panggil clear form dulu
       this.getAllMvo();
@@ -659,14 +658,10 @@ export default {
 
       // Double check setelah clear
       setTimeout(() => {
-        console.log('Setelah dialog terbuka:');
-        console.log('- selectedMvo:', this.selectedMvo);
-        console.log('- modelAdd.fo_id:', this.modelAdd.fo_id);
       }, 100);
     },
 
     clearAddForm() {
-      console.log('clearAddForm dipanggil');
 
       this.modelAdd = {
         fo_id: "",
@@ -689,9 +684,6 @@ export default {
       this.selectedHierarchy = [];
       this.addExpandedLevels = new Set();
 
-      console.log('Form di-clear:');
-      console.log('- selectedMvo:', this.selectedMvo);
-      console.log('- modelAdd.fo_id:', this.modelAdd.fo_id);
     },
 
     // FO Filter Methods
@@ -728,8 +720,6 @@ export default {
       this.selectedFo = foId;
       this.modelAdd.fo_id = foId;  // SET FO_ID
 
-      console.log('FO Selected:', foId);
-      console.log('modelAdd.fo_id:', this.modelAdd.fo_id);
 
       if (!foId) {
         this.modelAdd.fo_id = "";
@@ -784,14 +774,10 @@ export default {
     },
 
     onMvoSelected(mvoId) {
-      console.log('onMvoSelected dipanggil dengan:', mvoId); // Debug log
 
       this.selectedMvo = mvoId;
       this.modelAdd.mvo_id = mvoId; // SINKRONKAN DENGAN modelAdd.mvo_id
 
-      console.log('Setelah sinkronisasi:');
-      console.log('- selectedMvo:', this.selectedMvo);
-      console.log('- modelAdd.mvo_id:', this.modelAdd.mvo_id);
 
       if (!mvoId) {
         this.distOptions = [];
@@ -905,44 +891,31 @@ export default {
     },
 
     validateAddForm() {
-      console.log('=== VALIDASI FORM START ===');
-      console.log('selectedMvo:', this.selectedMvo, typeof this.selectedMvo);
-      console.log('modelAdd.fo_id:', this.modelAdd.fo_id, typeof this.modelAdd.fo_id);
-      console.log('modelAdd.file_name:', this.modelAdd.file_name);
-      console.log('modelAdd.file:', this.modelAdd.file);
-      console.log('modelAdd.pointbintang:', this.modelAdd.pointbintang);
 
       // Cek dengan detail
       // const foIdEmpty = !this.modelAdd.fo_id || this.modelAdd.fo_id === "" || this.modelAdd.fo_id === null || this.modelAdd.fo_id === undefined;
-      // console.log('foIdEmpty check:', foIdEmpty);
 
       // if (foIdEmpty) {
-      //   console.log('❌ FO ID validation failed');
       //   this.showSnackbar("FO harus dipilih", 'error');
       //   return false;
       // }
 
       if (!this.modelAdd.file_name || this.modelAdd.file_name.trim() === "") {
-        console.log('❌ File name validation failed');
         this.showSnackbar("Nama File harus diisi", 'error');
         return false;
       }
 
       if (!this.modelAdd.file) {
-        console.log('❌ File validation failed');
         this.showSnackbar("File harus dipilih", 'error');
         return false;
       }
 
       // Validasi poin per bintang maksimal 5
       if (this.modelAdd.pointbintang && (isNaN(this.modelAdd.pointbintang) || this.modelAdd.pointbintang < 0 || this.modelAdd.pointbintang > 5)) {
-        console.log('❌ Point validation failed');
         this.showSnackbar("Poin Per Bintang harus berupa angka antara 0-5", 'error');
         return false;
       }
 
-      console.log('✅ Form validation passed!');
-      console.log('=== VALIDASI FORM END ===');
       return true;
     },
 
@@ -971,7 +944,6 @@ export default {
           this.foOptions = [];
         }
       } catch (error) {
-        console.error("Error fetching MVO:", error);
       } finally {
         this.isMvoLoading = false;
       }
@@ -1019,11 +991,6 @@ export default {
       this.isButtonLoading = true;
 
       // Debug log sebelum kirim
-      console.log('Data yang akan dikirim:');
-      console.log('fo_id:', this.modelAdd.fo_id);
-      console.log('file_name:', this.modelAdd.file_name);
-      console.log('file:', this.modelAdd.file);
-      console.log('pointbintang:', this.modelAdd.pointbintang);
 
       const formData = new FormData();
       formData.append('mvo_id', this.selectedFo || this.modelAdd.fo_id);
@@ -1035,9 +1002,7 @@ export default {
       }
 
       // Debug FormData
-      console.log('FormData contents:');
       for (let [key, value] of formData.entries()) {
-        console.log(key, value);
       }
 
       try {
@@ -1052,7 +1017,6 @@ export default {
         this.isShowDialogAdd = false;
         this.showSnackbar(response.data.message || "Dokumen MVO berhasil ditambah");
       } catch (error) {
-        console.error('Error details:', error.response?.data || error);
         this.showSnackbar(error.response?.data?.message || "Harap isi poin dengan nilai maksimal 5", 'error');
       } finally {
         this.isButtonLoading = false;
@@ -1127,7 +1091,6 @@ export default {
 
     // Dialog Edit Management
     showDialogFormEditDocument(item) {
-      console.log('Edit dokumen:', item);
 
       // Close mobile expansion
       this.expandedMobileCard = null;
@@ -1306,8 +1269,6 @@ export default {
     },
 
     validateEditForm() {
-      console.log('=== VALIDASI FORM EDIT START ===');
-      console.log('modelEdit:', this.modelEdit);
 
       if (!this.modelEdit.mvo_id || this.modelEdit.mvo_id === "") {
         this.showSnackbar("MVO harus dipilih", 'error');
@@ -1325,7 +1286,6 @@ export default {
         return false;
       }
 
-      console.log('✅ Form edit validation passed!');
       return true;
     },
 
@@ -1343,12 +1303,6 @@ export default {
 
       this.isButtonLoading = true;
 
-      console.log('Data yang akan di-update:');
-      console.log('ID:', this.modelEdit.id);
-      console.log('mvo_id:', this.modelEdit.mvo_id);
-      console.log('file_name:', this.modelEdit.file_name);
-      console.log('file:', this.modelEdit.file);
-      console.log('pointbintang:', this.modelEdit.pointbintang);
 
       const formData = new FormData();
       formData.append('mvo_id', this.selectedFoEdit || this.modelEdit.mvo_id);
@@ -1364,9 +1318,7 @@ export default {
       }
 
       // Debug FormData
-      console.log('FormData contents for update:');
       for (let [key, value] of formData.entries()) {
-        console.log(key, value);
       }
 
       try {
@@ -1386,7 +1338,6 @@ export default {
         this.showSnackbar(response.data.message || "Dokumen MVO berhasil diupdate");
         this.clearEditForm();
       } catch (error) {
-        console.error('Error updating document:', error.response?.data || error);
         this.showSnackbar(error.response?.data?.message || "Error updating document", 'error');
       } finally {
         this.isButtonLoading = false;

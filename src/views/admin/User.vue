@@ -92,6 +92,11 @@
             </v-chip>
           </template>
 
+          <!-- Kolom Tanggal Registrasi -->
+          <template v-slot:item.created_at="{ item }">
+            {{ formatDate(item.created_at) }}
+          </template>
+
           <!-- Kolom Jabatan -->
           <template v-slot:item.jabatan="{ item }">
             {{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-' }}
@@ -645,6 +650,7 @@ export default {
           { key: "upline_2", title: "REGIONAL" },
           { key: "upline_1", title: "MVO" },
           { key: "aktivasi", title: "Aktivasi", align: "center" },
+          { key: "created_at", title: "Tanggal Registrasi", align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" }
         ],
         items: [],
@@ -696,6 +702,10 @@ export default {
   },
 
   methods: {
+    formatDate(dateString) {
+      if (!dateString) return '';
+      return new Date(dateString).toLocaleDateString('id-ID');
+    },
     getNamaAfterStrip(value) {
       if (!value) return '';
 
@@ -1557,7 +1567,6 @@ export default {
           this.showSnackbar('Status aktivasi berhasil diubah', 'success');
         })
         .catch((error) => {
-          console.log('error x', error);
           this.showSnackbar(error.response?.data?.message, 'error');
         })
         .finally(() => {

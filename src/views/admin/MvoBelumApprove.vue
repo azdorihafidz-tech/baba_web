@@ -407,7 +407,6 @@ export default {
           this.allMvoData = response.data.data;
         }
       } catch (error) {
-        console.error("Gagal memuat data MVO", error);
       }
     },
     async getAllMvoType() {
@@ -425,7 +424,6 @@ export default {
           );
           if (superadminType) {
             this.superadminTypeId = superadminType.id;
-            console.log('superadminTypeId:', this.superadminTypeId);
           }
 
           if (this.items.length > 0) {
@@ -433,7 +431,6 @@ export default {
           }
         }
       } catch (error) {
-        console.error("Gagal memuat data jabatan", error);
       }
     },
     async loadData() {
@@ -454,7 +451,6 @@ export default {
         const fetchedItems = res.data.data || [];
         this.items = this.mapUserWithBintang(fetchedItems);
       } catch (err) {
-        console.error(err);
       } finally {
         this.loading = false;
       }
@@ -487,7 +483,6 @@ export default {
         this.isShowDialogApprove = false;
         this.loadData();
       } catch (err) {
-        console.error(err);
         this.showSnackbar(err.response?.data?.message || "Gagal approve", "error");
       } finally {
         this.isButtonLoading = false;

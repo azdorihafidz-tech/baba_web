@@ -199,7 +199,6 @@ export default {
       const mvoTypeId = this.getCurrentUserMvoTypeId();
 
       if (!mvoTypeId) {
-        console.log('No mvo_type_id found');
         return null;
       }
 
@@ -209,12 +208,9 @@ export default {
         const token = Cookies.get("token");
 
         if (!token) {
-          console.log('No token available for MVO Type request');
           return null;
         }
 
-        console.log('🔍 Fetching MVO Type data from API...');
-        console.log('🆔 MVO Type ID:', mvoTypeId);
 
         const apiClient = axios.create({
           timeout: 15000,
@@ -228,32 +224,25 @@ export default {
         let mvoTypeResponse;
 
         try {
-          console.log('🔐 Trying HTTPS: https://babaapi.babaparfume.id/api/mvo-type');
           mvoTypeResponse = await apiClient.get('https://babaapi.babaparfume.id/api/mvo-type');
-          console.log('✅ HTTPS request successful');
         } catch (httpsError) {
-          console.warn('❌ HTTPS MVO Type request failed:', httpsError.message);
 
           if (httpsError.code === 'ERR_NETWORK' ||
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            console.log('🔓 Trying HTTP: http://babaapi.teknosof.com/api/mvo-type');
             mvoTypeResponse = await apiClient.get('http://babaapi.teknosof.com/api/mvo-type');
-            console.log('✅ HTTP request successful');
           } else {
             throw httpsError;
           }
         }
 
-        console.log('📊 MVO Type API response:', mvoTypeResponse.data);
 
         if (mvoTypeResponse.data && mvoTypeResponse.data.status === 'success') {
           const mvoTypes = mvoTypeResponse.data.data;
 
           if (Array.isArray(mvoTypes) && mvoTypes.length > 0) {
-            console.log('📚 Available MVO Types:', mvoTypes);
 
             // Cari MVO Type berdasarkan ID
             const matchedMvoType = mvoTypes.find(type =>
@@ -261,7 +250,6 @@ export default {
             );
 
             if (matchedMvoType && matchedMvoType.name) {
-              console.log('🎯 Matched MVO Type:', matchedMvoType);
               this.currentUserMvoTypeName = matchedMvoType.name;
 
               // Simpan ke localStorage untuk cache
@@ -269,7 +257,6 @@ export default {
 
               return matchedMvoType.name;
             } else {
-              console.warn('⚠️ No matching MVO Type found for ID:', mvoTypeId);
               this.currentUserMvoTypeName = `ID: ${mvoTypeId}`;
               return null;
             }
@@ -279,7 +266,6 @@ export default {
         return null;
 
       } catch (error) {
-        console.error('❌ Error fetching MVO Type data:', error);
         // Fallback: tampilkan ID jika gagal fetch
         this.currentUserMvoTypeName = `ID: ${mvoTypeId}`;
         return null;
@@ -294,25 +280,19 @@ export default {
     },
 
     loadMvoTypeFromStorage() {
-      console.log('Loading MVO Type name from storage...');
 
       try {
         const storedMvoTypeName = localStorage.getItem('mvoTypeName');
         if (storedMvoTypeName) {
           this.currentUserMvoTypeName = storedMvoTypeName;
-          console.log('MVO Type name loaded from storage:', storedMvoTypeName);
         }
       } catch (error) {
-        console.error('Error loading MVO Type name from storage:', error);
       }
     },
 
     goToProfile() {
-      console.log('Navigating to profile page...');
       this.$router.push({ name: 'Profil' }).catch(error => {
-        console.warn('Named route failed, trying path:', error);
         this.$router.push('/admin/Profil').catch(pathError => {
-          console.error('Navigation to profile failed:', pathError);
           this.showSnackbar('Gagal membuka halaman profil', 'error');
         });
       });
@@ -342,7 +322,6 @@ export default {
           return JSON.parse(userData);
         }
       } catch (error) {
-        console.error('Error getting current user:', error);
       }
       return null;
     },
@@ -368,7 +347,6 @@ export default {
           });
         }
       } catch (error) {
-        console.error('Error getting last update time:', error);
       }
       return 'Tidak diketahui';
     },
@@ -376,64 +354,48 @@ export default {
     // Get full URL for header image - DITAMBAHKAN
     getHeaderImageUrl(fotoRuangKota) {
       if (!fotoRuangKota) {
-        console.log('No image path provided');
         return '';
       }
 
-      console.log('Original image path:', fotoRuangKota);
 
       if (fotoRuangKota.startsWith('http://') || fotoRuangKota.startsWith('https://')) {
-        console.log('Full URL detected:', fotoRuangKota);
         return fotoRuangKota;
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
       const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
-      console.log('Generated HTTPS URL:', httpsUrl);
 
       return httpsUrl;
     },
 
     // Handle header image loading errors - DITAMBAHKAN
     onHeaderImageError(event) {
-      console.warn('❌ Header image failed to load:', event.target.src);
 
       if (this.headerData?.foto_ruang_kota && event.target.src.includes('https://')) {
         const httpUrl = event.target.src.replace('https://babaapi.babaparfume.id/project/public/', 'https://babaapi.babaparfume.id/project/public/');
-        console.log('🔄 Trying HTTP fallback for header image:', httpUrl);
         event.target.src = httpUrl;
       } else {
-        console.error('❌ Both HTTPS and HTTP failed for header image');
       }
     },
 
     // Handle successful image load - DITAMBAHKAN
     onHeaderImageLoad(event) {
-      console.log('✅ Header image loaded successfully:', event.target.src);
     },
 
     // Debug method untuk melihat URL yang di-generate - DITAMBAHKAN
     debugImageUrl() {
       if (this.headerData?.foto_ruang_kota) {
         const fullUrl = this.getHeaderImageUrl(this.headerData.foto_ruang_kota);
-        console.log('🔍 Debug Image URL:');
-        console.log('📁 Original path:', this.headerData.foto_ruang_kota);
-        console.log('🌐 Full URL:', fullUrl);
-        console.log('🏢 Code:', this.headerData.code);
-        console.log('👤 User code:', this.getUserCode());
 
         const img = new Image();
         img.onload = () => {
-          console.log('✅ Image is accessible');
           this.showSnackbar('✅ Gambar dapat diakses', 'success');
         };
         img.onerror = () => {
-          console.error('❌ Image is not accessible');
           this.showSnackbar('❌ Gambar tidak dapat diakses', 'error');
         };
         img.src = fullUrl;
       } else {
-        console.log('❌ No image path available for debugging');
         this.showSnackbar('❌ Tidak ada path gambar untuk di-debug', 'info');
       }
     },
@@ -444,12 +406,9 @@ export default {
         if (userData) {
           const user = JSON.parse(userData);
           // User menyimpan "cabang", kita gunakan itu untuk matching dengan "code" di API
-          console.log('👤 User data:', user);
-          console.log('📍 User cabang/code:', user.cabang || user.code);
           return user.cabang || user.code || null;
         }
       } catch (error) {
-        console.error('Error getting user code:', error);
       }
       return null;
     },
@@ -461,13 +420,10 @@ export default {
         const token = Cookies.get("token");
 
         if (!token) {
-          console.log('No token available for header request');
           return null;
         }
 
         const userCode = this.getUserCode();
-        console.log('🔍 Fetching header data from API...');
-        console.log('👤 User code:', userCode);
 
         const apiClient = axios.create({
           timeout: 20000,
@@ -481,45 +437,32 @@ export default {
         let headerResponse;
 
         try {
-          console.log('🔐 Trying HTTPS: https://babaapi.babaparfume.id/api/provinsi');
           headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
-          console.log('✅ HTTPS request successful');
         } catch (httpsError) {
-          console.warn('❌ HTTPS header request failed:', httpsError.message);
 
           if (httpsError.code === 'ERR_NETWORK' ||
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            console.log('🔓 Trying HTTP: https://babaapi.babaparfume.id/api/provinsi');
             headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
-            console.log('✅ HTTP request successful');
           } else {
             throw httpsError;
           }
         }
 
-        console.log('📊 Header API response:', headerResponse.data);
 
         let headerData = null;
 
-        console.log('🔄 Processing response structure...');
-        console.log('📈 Response status:', headerResponse.data.status);
-        console.log('📋 Response data type:', typeof headerResponse.data.data);
-        console.log('💾 Response data:', headerResponse.data.data);
 
         if (headerResponse.data && headerResponse.data.status === 'success') {
           if (Array.isArray(headerResponse.data.data) && headerResponse.data.data.length > 0) {
-            console.log('📚 Processing array data, all items:', headerResponse.data.data);
 
             const availableCode = headerResponse.data.data.map(item => item.code).filter(Boolean);
-            console.log('🏢 Available codes in API:', availableCode);
 
             let matchedHeader = null;
 
             if (userCode) {
-              console.log('🔍 Mencari match untuk user code:', userCode);
 
               matchedHeader = headerResponse.data.data.find(header =>
                 header.code &&
@@ -527,17 +470,12 @@ export default {
               );
 
               if (matchedHeader) {
-                console.log('🎯 Perfect match found for code:', userCode);
-                console.log('✅ Matched header:', matchedHeader);
               } else {
-                console.log('⚠️ No exact match found for code:', userCode);
-                console.log('🔍 Available code for comparison:', availableCode);
               }
             }
 
             if (!matchedHeader && headerResponse.data.data.length > 0) {
               matchedHeader = headerResponse.data.data[0];
-              console.log('🔄 Using first header as fallback:', matchedHeader);
             }
 
             if (matchedHeader) {
@@ -545,23 +483,19 @@ export default {
                 code: matchedHeader.code || userCode || 'Code Tidak Ditemukan',
                 foto_ruang_kota: matchedHeader.foto_ruang_kota || null
               };
-              console.log('✨ Processed header data from matched header:', headerData);
             }
           }
         }
 
         if (headerData) {
-          console.log('💾 Final processed header data:', headerData)
 
           localStorage.setItem('headerData', JSON.stringify(headerData))
           this.headerData = headerData
-          console.log('✅ Header data berhasil diambil dan disimpan:', headerData)
 
           this.$forceUpdate()
 
           return headerData
         } else {
-          console.warn('❌ No valid header data found in any response structure')
 
           if (userCode) {
             const fallbackHeaderData = {
@@ -570,7 +504,6 @@ export default {
             };
             localStorage.setItem('headerData', JSON.stringify(fallbackHeaderData));
             this.headerData = fallbackHeaderData;
-            console.log('🔄 Created fallback header data:', fallbackHeaderData);
             this.$forceUpdate();
             return fallbackHeaderData;
           }
@@ -579,7 +512,6 @@ export default {
         }
 
       } catch (error) {
-        console.error('❌ Error fetching header data:', error)
 
         const userCode = this.getUserCode();
         if (userCode) {
@@ -589,7 +521,6 @@ export default {
           };
           localStorage.setItem('headerData', JSON.stringify(errorFallbackData));
           this.headerData = errorFallbackData;
-          console.log('🛡️ Created error fallback header data:', errorFallbackData);
           this.$forceUpdate();
           this.showSnackbar('Gagal memuat gambar header, menggunakan data code user', 'warning');
           return errorFallbackData;
@@ -606,7 +537,6 @@ export default {
       this.isRefreshing = true;
 
       try {
-        console.log('🔄 Manual refresh initiated...');
         const newHeaderData = await this.fetchHeaderData();
 
         if (newHeaderData) {
@@ -618,7 +548,6 @@ export default {
           this.showSnackbar('⚠️ Tidak dapat memperbarui data header', 'warning');
         }
       } catch (error) {
-        console.error('Error refreshing header:', error);
         this.showSnackbar('❌ Gagal memperbarui data header', 'error');
       } finally {
         this.isRefreshing = false;
@@ -626,33 +555,27 @@ export default {
     },
 
     loadHeaderDataFromStorage() {
-      console.log('Loading header data from storage...');
 
       try {
         const storedHeaderData = localStorage.getItem('headerData');
         if (storedHeaderData) {
           this.headerData = JSON.parse(storedHeaderData);
-          console.log('Header data loaded from storage:', this.headerData);
           this.$forceUpdate();
         } else {
-          console.log('No header data found in storage, fetching from API...');
           this.fetchHeaderData();
         }
       } catch (error) {
-        console.error('Error loading header data from storage:', error);
         this.fetchHeaderData();
       }
     },
 
     async handleLogout() {
-      console.log('Logout attempt started...');
       this.isLoggingOut = true;
 
       try {
         const token = Cookies.get("token");
 
         if (!token) {
-          console.log('No token found, performing local logout...');
           this.performLocalLogout();
           return;
         }
@@ -669,35 +592,26 @@ export default {
         let logoutSuccess = false;
 
         try {
-          console.log('Attempting HTTPS logout...');
           await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
           logoutSuccess = true;
-          console.log('HTTPS logout successful');
         } catch (httpsError) {
-          console.warn('HTTPS logout failed, trying HTTP:', httpsError.message);
 
           if (httpsError.code === 'ERR_NETWORK' ||
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
             try {
-              console.log('Attempting HTTP logout...');
               await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
               logoutSuccess = true;
-              console.log('HTTP logout successful');
             } catch (httpError) {
-              console.error('HTTP logout also failed:', httpError.message);
-              console.log('Performing local logout due to API failure...');
             }
           } else {
-            console.error('Logout API error:', httpsError.message);
           }
         }
 
         this.performLocalLogout(logoutSuccess);
 
       } catch (error) {
-        console.error('Unexpected logout error:', error);
         this.performLocalLogout(false);
       } finally {
         this.isLoggingOut = false;
@@ -705,12 +619,16 @@ export default {
     },
 
     performLocalLogout(apiSuccess = true) {
-      console.log('Performing local logout...');
 
       Cookies.remove("token");
       localStorage.removeItem("peran");
       localStorage.removeItem("user");
       localStorage.removeItem("headerData");
+      localStorage.removeItem("workingAudioPattern");
+      localStorage.removeItem("mvo_type_id");
+      localStorage.removeItem("token");
+      localStorage.removeItem("mvo_id");
+      localStorage.removeItem("mvoTypeName");
 
       this.headerData = null;
       this.currentUserName = '';
@@ -725,9 +643,7 @@ export default {
 
       setTimeout(() => {
         this.$router.push({ name: "Login" }).catch(error => {
-          console.warn('Named route failed, trying path:', error);
           this.$router.push("/admin/login").catch(pathError => {
-            console.error('All navigation attempts failed:', pathError);
             window.location.href = '/admin/login';
           });
         });
@@ -749,12 +665,10 @@ export default {
         try {
           if (event.newValue) {
             this.headerData = JSON.parse(event.newValue);
-            console.log('Header data updated from storage:', this.headerData);
           } else {
             this.headerData = null;
           }
         } catch (error) {
-          console.error('Error parsing header data from storage:', error);
         }
       } else if (event.key === 'user') {
         this.currentUserName = this.getCurrentUserName();
@@ -770,17 +684,14 @@ export default {
             this.currentUserMvoTypeName = event.newValue;
           }
         } catch (error) {
-          console.error('Error parsing MVO Type name from storage:', error);
         }
       }
     }
   },
 
   mounted() {
-    console.log('Header component mounted');
 
     if (!this.isLoggedIn()) {
-      console.log('User not logged in, redirecting to login...');
       this.$router.push({ name: "Login" }).catch(() => {
         this.$router.push("/admin/login");
       });
@@ -796,12 +707,10 @@ export default {
     this.loadHeaderDataFromStorage();
 
     setTimeout(() => {
-      console.log('Fetching fresh header data from API...');
       this.fetchHeaderData();
 
       // Fetch MVO Type name
       if (this.currentUserMvoTypeId) {
-        console.log('Fetching MVO Type name from API...');
         this.fetchMvoTypeName();
       }
     }, 500);

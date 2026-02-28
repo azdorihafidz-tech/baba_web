@@ -549,7 +549,6 @@ export default {
     //     return;
     //   }
 
-    //   console.log('downloadDokumentasi called with item:', item);
 
     //   try {
     //     const link = document.createElement("a");
@@ -560,7 +559,6 @@ export default {
     //     link.click();
     //     document.body.removeChild(link);
     //   } catch (error) {
-    //     console.error("Download failed:", error);
     //   }
     // },
 
@@ -595,7 +593,6 @@ export default {
 
         window.URL.revokeObjectURL(url);
       } catch (error) {
-        console.error("Download failed:", error);
       }
     },
 
@@ -618,7 +615,6 @@ export default {
           minute: '2-digit'
         });
       } catch (error) {
-        console.error('Error formatting date:', error);
         return dateString;
       }
     },
@@ -708,7 +704,6 @@ export default {
     },
 
     handleMediaError() {
-      console.log('Media failed to load');
       this.contentSnackbar.snackbar = true;
       this.contentSnackbar.text = "File tidak dapat dimuat";
       this.contentSnackbar.color = this.app.colors.secondary;
@@ -717,7 +712,6 @@ export default {
     constructFileUrl(filePath) {
       if (!filePath) return null;
 
-      console.log('Original file path:', filePath);
 
       if (filePath.startsWith('http')) {
         return filePath;
@@ -739,12 +733,10 @@ export default {
         fileUrl = `${baseUrl}/uploads/dokumentasi/${cleanPath}`;
       }
 
-      console.log('Constructed file URL:', fileUrl);
       return fileUrl;
     },
 
     showMediaDialog(item) {
-      console.log('showMediaDialog called with item:', item);
 
       if (!item.file_path) {
         this.showError("Path file tidak tersedia");
@@ -755,7 +747,6 @@ export default {
 
       const fileUrl = this.constructFileUrl(item.file_path);
 
-      console.log('Final file URL for dialog:', fileUrl);
 
       if (fileUrl) {
         this.mediaPreviewUrl = fileUrl;
@@ -772,7 +763,6 @@ export default {
     },
 
     previewAddFile(event) {
-      console.log('previewAddFile called with event:', event);
 
       this.modelAdd.file_dok_error = "";
 
@@ -798,7 +788,6 @@ export default {
         return;
       }
 
-      console.log('Selected file:', file);
 
       if (file && file instanceof File) {
         const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
@@ -833,16 +822,13 @@ export default {
           this.modelAdd.preview_url = e.target.result;
         };
         reader.onerror = (e) => {
-          console.error('FileReader error:', e);
           this.modelAdd.file_dok_error = "Error membaca file";
           this.modelAdd.preview_url = null;
         };
         reader.readAsDataURL(file);
 
         this.modelAdd.file_dok = file;
-        console.log('File saved to modelAdd.file_dok:', this.modelAdd.file_dok);
       } else {
-        console.log('No valid file found, clearing preview');
         this.modelAdd.preview_url = null;
         this.modelAdd.file_type = null;
         this.modelAdd.tipe_file = "";
@@ -850,7 +836,6 @@ export default {
     },
 
     previewEditFile(event) {
-      console.log('previewEditFile called with event:', event);
 
       let file = null;
 
@@ -873,7 +858,6 @@ export default {
         return;
       }
 
-      console.log('Selected file for edit:', file);
 
       if (file && file instanceof File) {
         const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
@@ -909,7 +893,6 @@ export default {
           this.modelEdit.preview_url = e.target.result;
         };
         reader.onerror = (e) => {
-          console.error('FileReader error:', e);
           this.contentSnackbar.snackbar = true;
           this.contentSnackbar.text = "Error membaca file";
           this.contentSnackbar.color = this.app.colors.secondary;
@@ -918,9 +901,7 @@ export default {
         reader.readAsDataURL(file);
 
         this.modelEdit.file_dokumentasi = file;
-        console.log('File saved to modelEdit.file_dokumentasi:', this.modelEdit.file_dokumentasi);
       } else {
-        console.log('No valid file found, clearing preview');
         this.modelEdit.preview_url = null;
         this.modelEdit.file_type = null;
       }
@@ -954,9 +935,7 @@ export default {
         // Tambahkan created_at dengan nilai yang diminta
         formData.append('created_at', '2025-09-29T03:13:52.000000Z');
 
-        console.log('Sending FormData for add:');
         for (let pair of formData.entries()) {
-          console.log(pair[0], ':', pair[1]);
         }
 
         const response = await axios.post(
@@ -976,7 +955,6 @@ export default {
         this.showSnackbar(response, false);
 
       } catch (error) {
-        console.error('Add dokumentasi error:', error);
         this.showSnackbar(error.response || error, true);
       } finally {
         this.isButtonLoading = false;
@@ -999,11 +977,9 @@ export default {
           },
         })
         .then((response) => {
-          console.log('API Response:', response.data);
 
           if (response.data.status === "success") {
             this.datatable.items = response.data.data.map(item => {
-              console.log('Processing item:', item);
 
               const fileUrl = this.constructFileUrl(item.file_path);
 
@@ -1018,13 +994,11 @@ export default {
               };
             });
 
-            console.log('Processed items:', this.datatable.items);
           } else {
             this.showSnackbar(response, true);
           }
         })
         .catch((error) => {
-          console.error('Get data error:', error);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -1039,12 +1013,10 @@ export default {
       this.modelAdd.tipe_file_error = "";
       this.modelAdd.keterangan_error = "";
 
-      console.log('Validating form with file_dok:', this.modelAdd.file_dok);
 
       if (!this.modelAdd.file_dok || !(this.modelAdd.file_dok instanceof File)) {
         this.modelAdd.file_dok_error = "File dokumentasi harus diisi";
         isValid = false;
-        console.log('File validation failed');
       }
 
       if (!this.modelAdd.tipe_file) {
@@ -1057,7 +1029,6 @@ export default {
         isValid = false;
       }
 
-      console.log('Form validation result:', isValid);
       return isValid;
     },
 
@@ -1080,7 +1051,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log('Edit data response:', response.data);
 
           if (response.data.status === "success") {
             this.modelEdit.id = response.data.data.id;
@@ -1093,14 +1063,12 @@ export default {
 
             this.modelEdit.current_file_type = response.data.data.tipe_file === 'foto' ? 'image' : 'video';
 
-            console.log('Edit dialog file URL:', fileUrl);
           } else {
             this.showSnackbar(response, true);
             this.isShowDialogEdit = false;
           }
         })
         .catch((error) => {
-          console.error('Edit load error:', error);
           this.showSnackbar(error.response || error, true);
           this.isShowDialogEdit = false;
         });
@@ -1139,9 +1107,7 @@ export default {
         // Untuk update, kita tidak perlu mengirim created_at kecuali ingin mengubahnya
         // formData.append('created_at', '2025-09-29T03:13:52.000000Z');
 
-        console.log('Sending FormData for update:');
         for (let pair of formData.entries()) {
-          console.log(pair[0], ':', pair[1]);
         }
 
         const response = await axios.post(
@@ -1161,7 +1127,6 @@ export default {
         this.showSnackbar(response, false);
 
       } catch (error) {
-        console.error('Update error:', error);
         this.showSnackbar(error.response || error, true);
       } finally {
         this.isButtonLoading = false;
@@ -1194,7 +1159,6 @@ export default {
           this.showSnackbar(response, false);
         })
         .catch((error) => {
-          console.error('Delete error:', error);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -1205,12 +1169,10 @@ export default {
   },
 
   created() {
-    console.log('Dokumentasi component created, loading initial data...');
     this.getAllDokumentasi();
   },
 
   mounted() {
-    console.log('Dokumentasi component mounted');
   },
 
   watch: {

@@ -211,14 +211,9 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = Cookies.get("token");
 
-  console.log("Navigating to:", to.path);
-  console.log("Route name:", to.name);
-  console.log("Has token:", !!token);
-  console.log("Requires auth:", to.meta.requiresAuth);
 
   // Jika sudah login dan mencoba akses login/registrasi
   if ((to.name === "Login" || to.name === "PublicRegistrasi") && token) {
-    console.log("Already logged in, redirecting to dashboard");
     next({ name: "Dashboard" });
     return;
   }
@@ -230,20 +225,17 @@ router.beforeEach((to, from, next) => {
     to.name !== "Login" &&
     to.name !== "PublicRegistrasi"
   ) {
-    console.log("Authentication required, redirecting to login");
     next({ name: "Login" });
     return;
   }
 
   // Jika akses route utama /admin
   if (to.name === "Main") {
-    console.log("Accessing main route, redirecting to dashboard");
     next({ name: "Dashboard" });
     return;
   }
 
   // Lanjutkan navigasi normal
-  console.log("Continuing normal navigation");
   next();
 });
 

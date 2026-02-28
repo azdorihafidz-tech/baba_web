@@ -443,9 +443,6 @@ export default {
 
                 // NON SUPERADMIN → Wajib ada cabang
                 if (!this.cabang) {
-                    console.warn(
-                        "Cabang user tidak ada → API tidak dipanggil"
-                    );
                     return;
                 }
 
@@ -472,11 +469,6 @@ export default {
                 }
 
             } catch (err) {
-
-                console.error(
-                    "Fetch dashboard error:",
-                    err
-                );
             }
         },
         handleShowDetail(type) {

@@ -354,7 +354,6 @@ export default {
     },
 
     mounted() {
-        console.log('Provinsi API Endpoint:', 'https://babaapi.babaparfume.id/api/provinsi')
         this.debugRouteInfo()
         this.fetchProvinsiData()
         this.getAllMvoType()
@@ -493,7 +492,6 @@ export default {
                 }))
 
             } catch (err) {
-                console.error(err)
                 this.showSnackbar('Gagal memuat data GM', 'error')
             }
 
@@ -520,7 +518,6 @@ export default {
                 }))
 
             } catch (err) {
-                console.error(err)
                 this.showSnackbar('Gagal memuat data Founder', 'error')
             }
 
@@ -565,7 +562,6 @@ export default {
             this.loadingProvinsi = true
 
             try {
-                console.log('Fetching provinsi data from API...')
 
                 const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
                     headers: {
@@ -575,7 +571,6 @@ export default {
                     timeout: 10000
                 })
 
-                console.log('Provinsi API response:', response.data)
 
                 if (response.data.status === 'success' && response.data.data) {
                     this.cabangOptions = response.data.data.map(provinsi => ({
@@ -583,14 +578,11 @@ export default {
                         value: provinsi.code,
                     }))
 
-                    console.log('Provinsi options loaded:', this.cabangOptions.length, 'items')
                 } else {
-                    console.error('Invalid provinsi API response structure')
                     this.showSnackbar('Gagal memuat data provinsi', 'error')
                 }
 
             } catch (error) {
-                console.error('Error fetching provinsi data:', error)
 
                 let message = 'Gagal memuat data provinsi'
 
@@ -613,7 +605,6 @@ export default {
         async getAllMvoType() {
 
             try {
-                console.log('Fetching mvotype data from API...')
 
                 const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
                     headers: {
@@ -623,7 +614,6 @@ export default {
                     timeout: 10000
                 })
 
-                console.log('mvotype API response:', response.data)
 
                 if (response.data.status === 'success' && response.data.data) {
                     // 🔥 mapping ke format select
@@ -639,14 +629,11 @@ export default {
                         }));
 
 
-                    console.log('mvotype options loaded:', this.jabatanOptions.length, 'items')
                 } else {
-                    console.error('Invalid mvotype API response structure')
                     this.showSnackbar('Gagal memuat data mvotype', 'error')
                 }
 
             } catch (error) {
-                console.error('Error fetching mvotype data:', error)
 
                 let message = 'Gagal memuat data mvotype'
 
@@ -710,7 +697,6 @@ export default {
         },
 
         async handleRegister() {
-            console.log('Register attempt with new API')
 
             this.isButtonLoading = true
 
@@ -761,10 +747,8 @@ export default {
 
             for (const apiUrl of apiUrls) {
                 try {
-                    console.log(`Trying API: ${apiUrl}`)
 
                     const response = await axios.post(apiUrl, formData, requestConfig)
-                    console.log('Register success:', response.data)
 
                     if (response.status === 200 || response.status === 201) {
                         this.showSnackbar('Registrasi berhasil!', 'success')
@@ -803,7 +787,6 @@ export default {
                     }
 
                 } catch (error) {
-                    console.error(`Error at ${apiUrl}:`, error)
                     lastError = error
 
                     if (error.response) break
@@ -815,7 +798,6 @@ export default {
                         error.message?.includes('SSL') ||
                         error.message?.includes('Network Error')
                     ) {
-                        console.log('SSL/Network error, trying next URL...')
                         continue
                     }
 
@@ -856,17 +838,14 @@ export default {
         },
 
         goToLogin() {
-            console.log('Navigating to login page...')
 
             try {
                 if (this.isButtonLoading) return
 
                 this.$router.push({ name: 'Login' })
                     .then(() => {
-                        console.log('Successfully navigated to login page')
                     })
                     .catch(error => {
-                        console.error('Navigation error:', error)
                         this.$router.push('/admin/login')
                             .catch(fallbackError => {
                                 console.error('Fallback navigation failed:', fallbackError)
@@ -875,15 +854,11 @@ export default {
                     })
 
             } catch (error) {
-                console.error('Exception in goToLogin:', error)
                 this.showSnackbar('Terjadi kesalahan saat membuka login', 'error')
             }
         },
 
         debugRouteInfo() {
-            console.log('Current route:', this.$router.currentRoute.value)
-            console.log('Router instance:', this.$router)
-            console.log('Available routes:', this.$router.getRoutes())
         }
     }
 }

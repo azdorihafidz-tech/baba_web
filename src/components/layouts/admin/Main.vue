@@ -199,8 +199,6 @@ export default {
       const currentPath = this.$route.path;
       const currentName = this.$route.name;
 
-      console.log('Current Route Path:', currentPath);
-      console.log('Current Route Name:', currentName);
 
       return currentPath === '/admin/Chat' ||
         currentPath === '/admin/chat' ||
@@ -215,7 +213,6 @@ export default {
     '$route'(to, from) {
       // Music continues playing in background even on Chat page
       // Only the UI is hidden, audio keeps playing
-      console.log('Route changed to:', to.path, '- Music continues playing');
     }
   },
 
@@ -230,7 +227,6 @@ export default {
           return user.cabang || user.code || null;
         }
       } catch (error) {
-        console.error('Error getting user code:', error);
       }
       return null;
     },
@@ -256,7 +252,6 @@ export default {
       try {
         const token = Cookies.get("token");
         if (!token) {
-          console.log('Main - No token available');
           return null;
         }
 
@@ -276,7 +271,6 @@ export default {
         try {
           headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
         } catch (httpsError) {
-          console.warn('Main - HTTPS failed, trying HTTP:', httpsError.message);
 
           if (httpsError.code === 'ERR_NETWORK' ||
             httpsError.message.includes('certificate') ||
@@ -295,25 +289,16 @@ export default {
             let matchedHeader = null;
 
             if (userCode) {
-              console.log('🔍 Mencari match untuk user code:', userCode);
-              console.log('📋 Available data:', headerResponse.data.data.map(h => ({ code: h.code, name: h.name })));
 
               matchedHeader = headerResponse.data.data.find(header =>
                 header.code &&
                 header.code.toUpperCase().trim() === userCode.toUpperCase().trim()
               );
 
-              if (matchedHeader) {
-                console.log('✅ MATCH FOUND! User:', userCode, '-> API Code:', matchedHeader.code);
-              } else {
-                console.log('❌ NO MATCH! User code:', userCode, 'not found in API codes:',
-                  headerResponse.data.data.map(h => h.code).join(', '));
-              }
             }
 
             if (!matchedHeader && headerResponse.data.data.length > 0) {
               matchedHeader = headerResponse.data.data[0];
-              console.log('⚠️ Using FALLBACK (first item):', matchedHeader.code);
             }
 
             if (matchedHeader) {
@@ -350,7 +335,6 @@ export default {
         }
 
       } catch (error) {
-        console.error('Main - Error fetching header data:', error);
 
         const userCode = this.getUserCode();
         if (userCode) {
@@ -378,7 +362,6 @@ export default {
           this.fetchHeaderData();
         }
       } catch (error) {
-        console.error('Main - Error loading from storage:', error);
         this.fetchHeaderData();
       }
     },
@@ -396,7 +379,6 @@ export default {
             this.headerData = null;
           }
         } catch (error) {
-          console.error('Main - Error parsing updated header data:', error);
         }
       }
     },
@@ -409,7 +391,6 @@ export default {
 
         if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
           this.songs = response.data.data;
-          console.log('Fetched songs:', this.songs);
 
           if (this.songs.length > 0) {
             const savedSongId = localStorage.getItem('currentSongId');
@@ -430,7 +411,6 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Error fetching songs:', error);
         this.showMusicSnackbar('Gagal memuat lagu', 'error');
       } finally {
         this.loadingSongs = false;
@@ -448,7 +428,6 @@ export default {
       ];
 
       const audioUrl = urlPatterns[patternIndex];
-      console.log(`Trying audio URL (pattern ${patternIndex}):`, audioUrl);
 
       const audioPlayer = this.$refs.audioPlayer;
 
@@ -467,7 +446,6 @@ export default {
 
       // Handle load error - try next pattern
       const errorHandler = () => {
-        console.error(`Failed to load audio from pattern ${patternIndex}`);
 
         // Try next pattern
         if (patternIndex < urlPatterns.length - 1) {
@@ -476,13 +454,11 @@ export default {
         } else {
           // All patterns failed
           this.showMusicSnackbar('Gagal memuat audio. File tidak ditemukan.', 'error');
-          console.error('All audio URL patterns failed for:', song.file_lagu);
         }
       };
 
       // Handle successful load
       const loadedHandler = () => {
-        console.log(`Successfully loaded audio from pattern ${patternIndex}`);
         // Save working pattern
         localStorage.setItem('workingAudioPattern', patternIndex.toString());
         audioPlayer.removeEventListener('error', errorHandler);
@@ -546,7 +522,6 @@ export default {
           this.showMusicSnackbar(`▶ ${this.currentSong.judul_lagu}`, 'success');
         } catch (err) {
           this.isPlaying = false;
-          console.error('Play error:', err);
 
           if (err.name === 'NotAllowedError') {
             this.showMusicSnackbar('Klik lagi untuk play', 'warning');
@@ -597,29 +572,20 @@ export default {
     },
 
     onAudioError(e) {
-      console.error('Audio error event:', e);
 
       if (this.$refs.audioPlayer && this.$refs.audioPlayer.error) {
         const error = this.$refs.audioPlayer.error;
-        console.error('Audio error details:', {
-          code: error.code,
-          message: error.message
-        });
 
         switch (error.code) {
           case 1:
-            console.error('Audio loading aborted');
             break;
           case 2:
-            console.error('Network error while loading audio');
             this.showMusicSnackbar('Koneksi bermasalah', 'error');
             break;
           case 3:
-            console.error('Audio decoding error');
             this.showMusicSnackbar('File audio rusak', 'error');
             break;
           case 4:
-            console.error('Audio format not supported');
             break;
         }
       }
@@ -651,10 +617,8 @@ export default {
   },
 
   mounted() {
-    console.log('Main - Component mounted');
 
     if (!this.isLoggedIn()) {
-      console.log('Main - User not logged in');
       return;
     }
 

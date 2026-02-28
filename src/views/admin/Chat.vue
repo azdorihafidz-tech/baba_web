@@ -714,7 +714,6 @@ export default {
           this.provinsiList = response.data.data;
         else this.provinsiList = [];
       } catch (error) {
-        console.error("Gagal memuat daftar provinsi:", error);
         this.provinsiList = [];
       } finally {
         this.loadingProvinsi = false;

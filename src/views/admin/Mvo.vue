@@ -152,6 +152,10 @@
               {{ item.upline_6 && item.upline_6 !== '-' ? item.upline_6 : '-' }}
             </template>
 
+            <template v-slot:item.created_at="{ item }">
+              {{ formatDate(item.created_at) }}
+            </template>
+
           </v-data-table>
         </template>
       </CardDataTable>
@@ -1188,10 +1192,11 @@ export default {
         search: "",
         headers: [
           { key: "no", title: "No", sortable: false },
-          { key: "code", title: "Kode", fixed: 'start', width: '80px' },
-          // { key: "nomor_id", title: "Nomor ID" },
-          { key: "no_id", title: "No ID", fixed: 'start', width: '80px' },
-          { key: "nama", title: "Nama", fixed: 'start', width: '80px' },
+
+          { key: "code", title: "Kode", fixed: 'start', width: 100 },
+          { key: "no_id", title: "No ID", fixed: 'start', width: 120 },
+          { key: "nama", title: "Nama", fixed: 'start', width: 180 },
+
           { key: "nama_panggilan", title: "Nama Panggilan" },
           { key: "tempat_lahir", title: "Tempat Lahir" },
           { key: "tgl_lahir", title: "Tanggal Lahir" },
@@ -1206,12 +1211,12 @@ export default {
           { key: "upline_3", title: "Founder" },
           { key: "upline_2", title: "Regional" },
           { key: "upline_1", title: "MVO" },
-          // { key: "status_inputan_2", title: "Status Admin", sortable: false, align: "center" },
-          // { key: "approve", title: "Approve", sortable: false, align: "center" },
+
+          { key: "created_at", title: "Tanggal Aktivasi", align: "center" },
+
           { key: "detail", title: "Detail", sortable: false, align: "center" },
           { key: "print", title: "Print", sortable: false, align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" },
-
         ],
         items: [],
       },
@@ -1887,7 +1892,6 @@ export default {
           const mvo_type_id = localStorage.getItem("mvo_type_id");
           let items = response.data.data;
           const userCabang = this.getUserCabang();
-          console.log('user cabanng x', userCabang);
           this.datatable.items = items.filter(item => {
             // Jika superadmin → tampilkan semua
             if (mvo_type_id === "superadmin") {
@@ -1934,7 +1938,6 @@ export default {
           this.mvoTypes = response.data.data;
         }
       } catch (error) {
-        console.error("Error loading MVO types:", error);
       }
     },
 
@@ -2012,7 +2015,6 @@ export default {
           this.documentItems = [];
         }
       } catch (error) {
-        console.error("Error loading documents:", error);
         this.documentItems = [];
       } finally {
         this.isLoadingDocuments = false;

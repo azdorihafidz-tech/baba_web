@@ -624,7 +624,6 @@ export default {
 
         // Show image in dialog
         showImageDialog(imagePath, title = 'Preview Gambar') {
-            console.log('showImageDialog called with imagePath:', imagePath);
 
             if (!imagePath) {
                 this.contentSnackbar.snackbar = true;
@@ -639,7 +638,6 @@ export default {
             // Gunakan method getImageUrl untuk mendapatkan URL yang benar
             const imageUrl = this.getImageUrl(imagePath);
 
-            console.log('Final image URL for dialog:', imageUrl);
 
             this.imagePreviewUrl = imageUrl;
             this.imagePreviewTitle = title;
@@ -676,7 +674,6 @@ export default {
             const files = event.target.files || event;
             const file = files && files.length > 0 ? files[0] : null;
 
-            console.log('onFileChangeAdd called:', { type, file });
 
             if (file) {
                 // Simpan file object yang sebenarnya
@@ -713,7 +710,6 @@ export default {
             const files = event.target.files || event;
             const file = files && files.length > 0 ? files[0] : null;
 
-            console.log('onFileChangeEdit called:', { type, file });
 
             if (file) {
                 // Simpan file object yang sebenarnya
@@ -820,7 +816,6 @@ export default {
                 .then((response) => {
                     if (response.data.status === "success") {
                         this.datatable.items = response.data.data;
-                        console.log('Data loaded:', this.datatable.items);
                     } else {
                         this.contentSnackbar.snackbar = true;
                         this.contentSnackbar.text = response.data.message || "Error loading data";
@@ -828,7 +823,6 @@ export default {
                     }
                 })
                 .catch((error) => {
-                    console.error('Error loading data:', error);
                     this.contentSnackbar.snackbar = true;
                     this.contentSnackbar.text = error.response?.data?.message || "Error loading data";
                     this.contentSnackbar.color = this.app.colors.secondary;
@@ -874,18 +868,14 @@ export default {
             // PERBAIKAN: Gunakan file object yang disimpan dari fileAdd
             if (this.fileAdd.ruang) {
                 formData.append('foto_ruang_kota', this.fileAdd.ruang);
-                console.log('Adding foto_ruang_kota:', this.fileAdd.ruang);
             }
 
             if (this.fileAdd.mvo) {
                 formData.append('foto_mvo', this.fileAdd.mvo);
-                console.log('Adding foto_mvo:', this.fileAdd.mvo);
             }
 
             // Log FormData untuk debugging
-            console.log('FormData contents:');
             for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ', pair[1]);
             }
 
             axios
@@ -908,7 +898,6 @@ export default {
                     this.contentSnackbar.color = this.app.colors.primary;
                 })
                 .catch((error) => {
-                    console.error('Error adding code:', error);
                     this.contentSnackbar.snackbar = true;
                     this.contentSnackbar.text = error.response?.data?.message || "Error adding Code";
                     this.contentSnackbar.color = this.app.colors.secondary;
@@ -998,18 +987,14 @@ export default {
             // PERBAIKAN: Gunakan file object yang disimpan dari fileEdit
             if (this.fileEdit.ruang) {
                 formData.append('foto_ruang_kota', this.fileEdit.ruang);
-                console.log('Updating foto_ruang_kota:', this.fileEdit.ruang);
             }
 
             if (this.fileEdit.mvo) {
                 formData.append('foto_mvo', this.fileEdit.mvo);
-                console.log('Updating foto_mvo:', this.fileEdit.mvo);
             }
 
             // Log FormData untuk debugging
-            console.log('FormData contents for update:');
             for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ', pair[1]);
             }
 
             axios
@@ -1032,7 +1017,6 @@ export default {
                     this.clearEditForm();
                 })
                 .catch((error) => {
-                    console.error('Error updating code:', error);
                     this.contentSnackbar.snackbar = true;
                     this.contentSnackbar.text = error.response?.data?.message || "Error updating Cabang";
                     this.contentSnackbar.color = this.app.colors.secondary;

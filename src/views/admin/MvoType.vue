@@ -522,13 +522,11 @@ export default {
         .then((response) => {
           if (response.data.status === "success") {
             this.datatable.items = response.data.data;
-            console.log('Data Tipe Akun berhasil dimuat:', this.datatable.items.length, 'item');
           } else {
             this.showSnackbar(response, true);
           }
         })
         .catch((error) => {
-          console.error('Error loading Tipe Akun:', error);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -566,14 +564,12 @@ export default {
         },
       })
         .then((response) => {
-          console.log('Response add Tipe Akun:', response.data);
           this.getAllMvoType();
           this.isShowDialogAdd = false;
           this.showSnackbar(response, false);
           this.clearAddForm();
         })
         .catch((error) => {
-          console.error('Error add Tipe Akun:', error.response);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -594,7 +590,6 @@ export default {
       this.clearEditForm();
       this.isShowDialogEdit = true;
 
-      console.log('Mengambil data Tipe Akun dengan ID:', id);
 
       axios.get(`https://babaapi.babaparfume.id/api/mvo-type/${id}`, {
         headers: {
@@ -604,7 +599,6 @@ export default {
         .then((response) => {
           if (response.data.status === "success") {
             const data = response.data.data;
-            console.log('Data Tipe Akun yang diterima:', data);
 
             this.modelEdit.id = data.id;
             this.modelEdit.name = data.name;
@@ -617,7 +611,6 @@ export default {
           }
         })
         .catch((error) => {
-          console.error('Error saat mengambil data Tipe Akun:', error);
           this.showSnackbar(error.response || error, true);
           this.isShowDialogEdit = false;
         });
@@ -643,7 +636,6 @@ export default {
         jlh_bintang: this.modelEdit.jlh_bintang,
       };
 
-      console.log('Data yang akan dikirim untuk update Tipe Akun:', payload);
 
       this.isButtonLoading = true;
       axios.put(`https://babaapi.babaparfume.id/api/mvo-type/${this.modelEdit.id}`, payload, {
@@ -654,14 +646,12 @@ export default {
         },
       })
         .then((response) => {
-          console.log('Response update Tipe Akun:', response.data);
           this.getAllMvoType();
           this.showSnackbar(response, false);
           this.isShowDialogEdit = false;
           this.clearEditForm();
         })
         .catch((error) => {
-          console.error('Error update Tipe Akun:', error.response);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -692,12 +682,10 @@ export default {
         },
       })
         .then((response) => {
-          console.log('Response delete Tipe Akun:', response.data);
           this.getAllMvoType();
           this.showSnackbar(response, false);
         })
         .catch((error) => {
-          console.error('Error delete Tipe Akun:', error.response);
           this.showSnackbar(error.response || error, true);
         })
         .finally(() => {
@@ -708,12 +696,10 @@ export default {
   },
 
   created() {
-    console.log('Tipe Akun component created, loading initial data...');
     this.getAllMvoType();
   },
 
   mounted() {
-    console.log('Tipe Akun component mounted');
   },
 
   watch: {

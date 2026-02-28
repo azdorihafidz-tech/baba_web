@@ -406,7 +406,6 @@ export default {
                     }
                 }
             } catch (error) {
-                console.error("Error fetching province colors:", error);
             }
         },
         async fetchData() {
@@ -418,7 +417,6 @@ export default {
                 url = `https://babaapi.babaparfume.id/api/dashboard/growth`;
             } else {
                 if (!this.cabang) {
-                    console.warn("Cabang user tidak ada → API tidak dipanggil");
                     return;
                 }
                 url = `https://babaapi.babaparfume.id/api/dashboard/growth/${this.cabang}`;
@@ -441,7 +439,6 @@ export default {
                     this.akunGrowthPerJabatan = response.data.akun_growth_per_jabatan || [];
                 }
             } catch (error) {
-                console.error("Error fetching dashboard data:", error);
             }
         },
         getTotalGrowth() {
