@@ -1050,8 +1050,7 @@
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-text-field label="Nama File" v-model="documentAddModel.file_name" class="mb-2 mt-4"
-                :rules="[requiredRule]" />
+              <v-text-field label="Nama File" v-model="documentAddModel.file_name" class="mb-2 mt-4" />
             </v-col>
           </v-row>
           <v-row v-if="documentAddModel.document_type === 'star'">
@@ -2053,31 +2052,25 @@ export default {
     },
 
     async addDocument() {
-      if (this.documentAddModel.document_type === 'user') {
-        this.documentAddModel.pointbintang = 0;
-        this.documentAddModel.repeat_order = 0;
+
+      // OPTIONAL pointbintang
+      let point = null;
+      if (this.documentAddModel.pointbintang !== '' && this.documentAddModel.pointbintang !== null) {
+        point = Number(this.documentAddModel.pointbintang);
+        if (isNaN(point) || point < 0 || point > 8) {
+          this.showSnackbar("Poin per bintang harus antara 0 sampai 8", 'error');
+          return;
+        }
       }
 
-      if (!this.documentAddModel.file_name ||
-        (this.documentAddModel.pointbintang === null || this.documentAddModel.pointbintang === undefined || this.documentAddModel.pointbintang === '') ||
-        !this.documentAddModel.tanggal_repeat_order ||
-        !this.documentAddModel.file) {
-        this.showSnackbar("Semua field harus diisi", 'error');
-        return;
-      }
-
-      const point = Number(this.documentAddModel.pointbintang);
-      if (isNaN(point) || point < 0 || point > 8) {
-        this.showSnackbar("Poin per bintang harus antara 0 sampai 8", 'error');
-        return;
-      }
-
-      const rangePoint = this.documentAddModel.repeat_order !== '' && this.documentAddModel.repeat_order !== null && this.documentAddModel.repeat_order !== undefined
-        ? Number(this.documentAddModel.repeat_order)
-        : null;
-      if (rangePoint !== null && (isNaN(rangePoint) || rangePoint < 0)) {
-        this.showSnackbar("Range Point tidak boleh kurang dari 0", 'error');
-        return;
+      // OPTIONAL repeat_order
+      let rangePoint = null;
+      if (this.documentAddModel.repeat_order !== '' && this.documentAddModel.repeat_order !== null) {
+        rangePoint = Number(this.documentAddModel.repeat_order);
+        if (isNaN(rangePoint) || rangePoint < 0) {
+          this.showSnackbar("Range Point tidak boleh kurang dari 0", 'error');
+          return;
+        }
       }
 
       const headers = this.getAuthHeaders();
@@ -2087,12 +2080,29 @@ export default {
 
       try {
         const formData = new FormData();
+
         formData.append('mvo_id', this.documentAddModel.mvo_id);
-        formData.append('file_name', this.documentAddModel.file_name);
-        formData.append('pointbintang', Math.floor(point));
-        formData.append('tanggal_repeat_order', this.documentAddModel.tanggal_repeat_order);
-        formData.append('repeat_order', rangePoint !== null ? rangePoint : '');
-        formData.append('file_path', this.documentAddModel.file);
+
+        // Kirim hanya jika ada
+        if (this.documentAddModel.file_name) {
+          formData.append('file_name', this.documentAddModel.file_name);
+        }
+
+        if (point !== null) {
+          formData.append('pointbintang', Math.floor(point));
+        }
+
+        if (this.documentAddModel.tanggal_repeat_order) {
+          formData.append('tanggal_repeat_order', this.documentAddModel.tanggal_repeat_order);
+        }
+
+        if (rangePoint !== null) {
+          formData.append('repeat_order', rangePoint);
+        }
+
+        if (this.documentAddModel.file) {
+          formData.append('file_path', this.documentAddModel.file);
+        }
 
         const response = await axios.post(
           "https://babaapi.babaparfume.id/api/mvo-document",
@@ -2108,13 +2118,13 @@ export default {
         await this.getMvoDocuments(this.getDocumentMvoId());
         this.isShowDialogAddDocument = false;
         this.showSnackbar(response.data.message || "Dokumen berhasil ditambah");
+
       } catch (error) {
         this.showSnackbar(error.response?.data?.message || "Error adding document", 'error');
       } finally {
         this.isDocumentButtonLoading = false;
       }
     },
-
     handleEditDocumentFileChange(event) {
       if (event && event.length > 0) {
         this.documentEditModel.file = event[0];
