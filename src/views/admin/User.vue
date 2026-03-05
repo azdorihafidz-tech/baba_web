@@ -290,7 +290,7 @@
           <div class="input-box-title">STRUKTUR UPLINE</div>
           <v-row>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-combobox label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
+              <v-select label="Jabatan" v-model="modelAdd.mvo_type_id" :items="jabatanOptions" item-title="text"
                 item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
@@ -439,7 +439,7 @@
           <div class="input-box-title">STRUKTUR UPLINE</div>
           <v-row>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-              <v-combobox label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
+              <v-select label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
                 item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
