@@ -52,7 +52,7 @@
                         </div>
                         <div class="box-glass">
                             <div class="input-box-title">STRUKTUR UPLINE</div>
-                            <v-combobox v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
+                            <v-select v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
                                 item-title="text" item-value="value" :return-object="false" density="compact"
                                 prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass"
                                 color="amber" base-color="grey-lighten-1" clearable />
