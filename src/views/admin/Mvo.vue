@@ -193,12 +193,12 @@
               <div class="mobile-mvo-code">
                 <strong>{{ item.code }}</strong>
               </div>
-              <div class="mobile-status-preview">
+              <!-- <div class="mobile-status-preview">
                 <v-chip :color="item.status_inputan === 'approved' ? 'success' : 'warning'" size="x-small"
                   variant="flat">
                   {{ item.status_inputan === 'approved' ? 'Disetujui' : 'Menunggu' }}
                 </v-chip>
-              </div>
+              </div> -->
             </v-col>
 
             <v-col cols="2" class="text-center">
@@ -266,33 +266,33 @@
                   <v-col cols="8" class="detail-value">{{ item.province_code || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 1:</v-col>
+                  <v-col cols="4" class="detail-label">MVO:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_1 || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 2:</v-col>
+                  <v-col cols="4" class="detail-label">REGIONAL:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_2 || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 3:</v-col>
+                  <v-col cols="4" class="detail-label">FOUNDER:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_3 || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 4:</v-col>
+                  <v-col cols="4" class="detail-label">GENERAL MANAGER:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_4 || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 5:</v-col>
+                  <v-col cols="4" class="detail-label">SUPPLIER:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_5 || '-' }}</v-col>
                 </v-row>
                 <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Upline 6:</v-col>
+                  <v-col cols="4" class="detail-label">DISTRIBUTOR:</v-col>
                   <v-col cols="8" class="detail-value">{{ item.upline_6 || '-' }}</v-col>
                 </v-row>
               </div>
 
               <!-- Status Approval Section -->
-              <div class="mobile-info-section mb-3">
+              <!-- <div class="mobile-info-section mb-3">
                 <h4 class="text-subtitle-2 mb-2 text-primary">
                   <v-icon size="16" class="mr-1">mdi-check-decagram</v-icon>
                   Status Approval
@@ -326,7 +326,7 @@
                     </v-chip>
                   </v-col>
                 </v-row>
-              </div>
+              </div> -->
 
               <!-- Action Buttons -->
               <v-divider class="mb-3"></v-divider>
@@ -436,7 +436,7 @@
                   </v-chip>
                 </template>
 
-                <template v-slot:item.status_inputan_2="{ item }">
+                <!-- <template v-slot:item.status_inputan_2="{ item }">
                   <v-chip
                     :color="item.status_inputan_2 === 'approved' ? 'success' : (item.status_inputan === 'approved' ? 'warning' : 'grey')"
                     size="small" variant="flat">
@@ -450,7 +450,7 @@
                       Pending MVO
                     </template>
                   </v-chip>
-                </template>
+                </template> -->
 
                 <template v-slot:item.mvo_code="{ item }">
                   {{ getMvoCodeById(item.mvo_id) }}
@@ -827,7 +827,7 @@
                       </v-col>
                     </v-row>
 
-                    <v-row class="mb-3" no-gutters>
+                    <!-- <v-row class="mb-3" no-gutters>
                       <v-col cols="5">
                         <div class="text-caption text-grey">Status Admin:</div>
                       </v-col>
@@ -846,7 +846,7 @@
                           </template>
                         </v-chip>
                       </v-col>
-                    </v-row>
+                    </v-row> -->
 
                     <!-- Document Actions -->
                     <v-divider class="mb-3"></v-divider>
