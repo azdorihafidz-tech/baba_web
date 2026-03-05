@@ -6,7 +6,7 @@
         <v-btn class="text-white font-semibold add-button" @click="showDialogFormAddCode()"
             :class="{ 'mobile-add-button': $vuetify.display.mobile }">
             <v-icon start style="color: #FFD700;">mdi-account-plus</v-icon>
-            <span class="ml-2">{{ $vuetify.display.mobile ? 'Tambah Code' : 'Tambah Data Cabang' }}</span>
+            <span class="ml-2">{{ $vuetify.display.mobile ? 'Tambah Data Cabang' : 'Tambah Data Cabang' }}</span>
         </v-btn>
     </div>
 
@@ -255,7 +255,7 @@
         </div>
     </div>
 
-    <!-- Dialog Tambah Code -->
+    <!-- Dialog Data Cabang Dsain mobile -->
     <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '800'" scrollable>
         <v-card class="custom-dialog">
             <v-card-title class="dialog-header">
@@ -487,10 +487,10 @@ export default {
             // Mobile specific properties
             expandedMobileCard: null,
             currentMobilePage: 1,
-            itemsPerMobilePage: 5,
+            itemsPerMobilePage: 1000,
 
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 1000,
             contentSnackbar: {
                 snackbar: false,
                 text: "",

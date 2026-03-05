@@ -14,7 +14,6 @@
             <v-col cols="12" md="4">
                 <v-card color="grey-darken-4" elevation="4">
                     <v-card-text class="text-center pa-6">
-                        <!-- Avatar dengan Upload Button -->
                         <div class="position-relative d-inline-block mb-4">
                             <v-avatar size="180" class="border-4 border-amber">
                                 <v-img :src="getProfileImageUrl()" :alt="userData?.nama" cover @error="onImageError">
@@ -27,7 +26,6 @@
                             </v-avatar>
                         </div>
 
-                        <!-- User Info -->
                         <h3 class="text-h5 font-weight-bold text-white mb-2">
                             {{ userData?.nama || 'Nama Tidak Tersedia' }}
                         </h3>
@@ -37,7 +35,6 @@
 
                         <v-divider class="my-4 border-opacity-25"></v-divider>
 
-                        <!-- Quick Stats -->
                         <v-row dense class="text-center">
                             <v-col cols="6">
                                 <div class="stat-item">
@@ -65,14 +62,12 @@
             <!-- Profile Details Section -->
             <v-col cols="12" md="8">
                 <v-card color="grey-darken-4" elevation="8" class="profile-card">
-                    <!-- Header -->
                     <v-card-title class="profile-header d-flex align-center justify-space-between"
                         :class="$vuetify.display.smAndDown ? 'pa-2' : 'pa-4 bg-grey-darken-3'">
 
                         <div class="d-flex align-center">
                             <v-icon icon="mdi-account-circle" color="amber" :size="$vuetify.display.smAndDown ? 16 : 20"
                                 class="mr-2"></v-icon>
-
                             <span :class="$vuetify.display.smAndDown ? 'text-caption' : 'text-h6'"
                                 class="font-weight-bold text-amber">
                                 Informasi Detail Profil
@@ -80,8 +75,6 @@
                         </div>
 
                         <div class="d-flex align-center ga-1">
-
-                            <!-- Tombol Ganti Password -->
                             <v-btn color="amber" variant="flat" :size="$vuetify.display.smAndDown ? 'x-small' : 'small'"
                                 @click="dialogPassword = true">
                                 <v-icon start size="16">mdi-lock-reset</v-icon>
@@ -93,158 +86,143 @@
                                 <v-icon icon="mdi-check-circle" size="14" class="mr-1"></v-icon>
                                 {{ userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif' }}
                             </v-chip>
-
                         </div>
                     </v-card-title>
 
                     <v-card-text class="pa-6">
-                        <v-form ref="profileForm" v-model="formValid">
-                            <v-row>
-                                <!-- Informasi Pribadi Section -->
-                                <v-col cols="12">
-                                    <div class="section-wrapper mb-6">
-                                        <h4 class="text-subtitle-1 font-weight-bold text-amber mb-3 section-title">
-                                            <v-icon start size="small">mdi-account</v-icon>
-                                            Informasi Pribadi
-                                        </h4>
-                                        <v-row>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.nama" label="Nama Lengkap"
-                                                    prepend-inner-icon="mdi-account" variant="outlined" color="amber"
-                                                    readonly :rules="[rules.required]" bg-color="grey-darken-4"
-                                                    class="profile-field" disabled></v-text-field>
-                                            </v-col>
+                        <v-row>
+                            <!-- Informasi Pribadi -->
+                            <v-col cols="12">
+                                <div class="section-wrapper mb-6">
+                                    <h4 class="text-subtitle-1 font-weight-bold text-amber mb-3 section-title">
+                                        <v-icon start size="small">mdi-account</v-icon>
+                                        Informasi Pribadi
+                                    </h4>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="editedData.nama" label="Nama Lengkap"
+                                                prepend-inner-icon="mdi-account" variant="outlined" color="amber"
+                                                bg-color="grey-darken-4" class="profile-field" disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.nama_panggilan" label="Nama Panggilan"
-                                                    prepend-inner-icon="mdi-account-heart" variant="outlined"
-                                                    color="amber" readonly bg-color="grey-darken-4"
-                                                    class="profile-field" disabled></v-text-field>
-                                            </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="editedData.nama_panggilan" label="Nama Panggilan"
+                                                prepend-inner-icon="mdi-account-heart" variant="outlined" color="amber"
+                                                bg-color="grey-darken-4" class="profile-field" disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.no_id" label="NO ID"
-                                                    prepend-inner-icon="mdi-card-account-details" variant="outlined"
-                                                    color="amber" readonly :rules="[rules.required, rules.nik]"
-                                                    bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="editedData.no_id" label="NO ID"
+                                                prepend-inner-icon="mdi-card-account-details" variant="outlined"
+                                                color="amber" bg-color="grey-darken-4" class="profile-field"
+                                                disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-select v-model="editedData.jenis_kelamin" label="Jenis Kelamin"
-                                                    prepend-inner-icon="mdi-gender-male-female" :items="genderOptions"
-                                                    variant="outlined" color="amber" readonly :rules="[rules.required]"
-                                                    bg-color="grey-darken-4" class="profile-field" disabled></v-select>
-                                            </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="editedData.jenis_kelamin" label="Jenis Kelamin"
+                                                prepend-inner-icon="mdi-gender-male-female" :items="genderOptions"
+                                                variant="outlined" color="amber" bg-color="grey-darken-4"
+                                                class="profile-field" disabled></v-select>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.tempat_lahir" label="Tempat Lahir"
-                                                    prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber"
-                                                    readonly bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="editedData.tempat_lahir" label="Tempat Lahir"
+                                                prepend-inner-icon="mdi-map-marker" variant="outlined" color="amber"
+                                                bg-color="grey-darken-4" class="profile-field" disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.tgl_lahir" label="Tanggal Lahir"
-                                                    prepend-inner-icon="mdi-calendar" type="date" variant="outlined"
-                                                    color="amber" readonly bg-color="grey-darken-4"
-                                                    class="profile-field" disabled></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                    </div>
-                                </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="editedData.tgl_lahir" label="Tanggal Lahir"
+                                                prepend-inner-icon="mdi-calendar" type="date" variant="outlined"
+                                                color="amber" bg-color="grey-darken-4" class="profile-field"
+                                                disabled></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-col>
 
-                                <!-- Informasi Kontak Section -->
-                                <v-col cols="12">
-                                    <div class="section-wrapper mb-6">
-                                        <h4 class="text-subtitle-1 font-weight-bold text-amber mb-3 section-title">
-                                            <v-icon start size="small">mdi-phone</v-icon>
-                                            Informasi Kontak
-                                        </h4>
-                                        <v-row>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="editedData.nohp" label="No. HP / WhatsApp"
-                                                    prepend-inner-icon="mdi-cellphone" variant="outlined" color="amber"
-                                                    readonly :rules="[rules.required, rules.phone]"
-                                                    bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
+                            <!-- Informasi Kontak -->
+                            <v-col cols="12">
+                                <div class="section-wrapper mb-6">
+                                    <h4 class="text-subtitle-1 font-weight-bold text-amber mb-3 section-title">
+                                        <v-icon start size="small">mdi-phone</v-icon>
+                                        Informasi Kontak
+                                    </h4>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="editedData.nohp" label="No. HP / WhatsApp"
+                                                prepend-inner-icon="mdi-cellphone" variant="outlined" color="amber"
+                                                bg-color="grey-darken-4" class="profile-field" disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="userData.username" label="Username"
-                                                    prepend-inner-icon="mdi-at" variant="outlined" color="amber"
-                                                    readonly bg-color="grey-darken-4" hint="Username tidak dapat diubah"
-                                                    persistent-hint class="profile-field" disabled></v-text-field>
-                                            </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="userData.username" label="Username"
+                                                prepend-inner-icon="mdi-at" variant="outlined" color="amber"
+                                                bg-color="grey-darken-4" hint="Username tidak dapat diubah"
+                                                persistent-hint class="profile-field" disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12">
-                                                <v-textarea v-model="editedData.alamat" label="Alamat Lengkap"
-                                                    prepend-inner-icon="mdi-home-map-marker" variant="outlined"
-                                                    color="amber" readonly rows="3" bg-color="grey-darken-4"
-                                                    class="profile-field" disabled></v-textarea>
-                                            </v-col>
-                                        </v-row>
-                                    </div>
-                                </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea v-model="editedData.alamat" label="Alamat Lengkap"
+                                                prepend-inner-icon="mdi-home-map-marker" variant="outlined"
+                                                color="amber" rows="3" bg-color="grey-darken-4" class="profile-field"
+                                                disabled></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-col>
 
-                                <!-- Informasi Akun Section -->
-                                <v-col cols="12">
-                                    <div class="section-wrapper">
-                                        <h4 class="text-subtitle-1 font-weight-bold text-amber mb-3 section-title">
-                                            <v-icon start size="small">mdi-shield-account</v-icon>
-                                            Informasi Akun
-                                        </h4>
-                                        <v-row>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="userData.cabang" label="Cabang"
-                                                    prepend-inner-icon="mdi-store" variant="outlined" color="amber"
-                                                    readonly bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
+                            <!-- Informasi Akun -->
+                            <v-col cols="12">
+                                <div class="section-wrapper">
+                                    <h4 class="text-subtitle-1 font-weight-bold text-amber mb-3 section-title">
+                                        <v-icon start size="small">mdi-shield-account</v-icon>
+                                        Informasi Akun
+                                    </h4>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="userData.cabang" label="Cabang"
+                                                prepend-inner-icon="mdi-store" variant="outlined" color="amber"
+                                                bg-color="grey-darken-4" class="profile-field" disabled></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" md="6">
-                                                <v-text-field
-                                                    :value="userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif'"
-                                                    label="Status Akun" prepend-inner-icon="mdi-check-circle"
-                                                    variant="outlined"
-                                                    :color="userData.aktivasi === '1' ? 'success' : 'error'" readonly
-                                                    bg-color="grey-darken-4" class="profile-field"
-                                                    disabled></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-card class="position-card" elevation="2">
-                                                    <div class="d-flex align-center pa-4">
-                                                        <v-avatar size="56" color="amber" class="mr-4">
-                                                            <v-icon size="32" color="white">mdi-briefcase</v-icon>
-                                                        </v-avatar>
-                                                        <div class="flex-grow-1">
-                                                            <div class="text-caption text-grey">Jabatan</div>
-                                                            <div class="text-h6 font-weight-medium mt-1 text-white">
-                                                                {{ jabatanLabel }}
-                                                            </div>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field :value="userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif'"
+                                                label="Status Akun" prepend-inner-icon="mdi-check-circle"
+                                                variant="outlined"
+                                                :color="userData.aktivasi === '1' ? 'success' : 'error'"
+                                                bg-color="grey-darken-4" class="profile-field" disabled></v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12">
+                                            <v-card class="position-card" elevation="2">
+                                                <div class="d-flex align-center pa-4">
+                                                    <v-avatar size="56" color="amber" class="mr-4">
+                                                        <v-icon size="32" color="white">mdi-briefcase</v-icon>
+                                                    </v-avatar>
+                                                    <div class="flex-grow-1">
+                                                        <div class="text-caption text-grey">Jabatan</div>
+                                                        <div class="text-h6 font-weight-medium mt-1 text-white">
+                                                            {{ jabatanLabel }}
                                                         </div>
                                                     </div>
-                                                </v-card>
-                                            </v-col>
-
-                                        </v-row>
-                                    </div>
-                                </v-col>
-                            </v-row>
-                        </v-form>
+                                                </div>
+                                            </v-card>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-col>
+                        </v-row>
                     </v-card-text>
                 </v-card>
             </v-col>
-
         </v-row>
 
         <!-- Snackbar -->
         <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="4000" location="top">
             {{ snackbar.text }}
             <template v-slot:actions>
-                <v-btn variant="text" color="white" @click="snackbar.show = false">
-                    Tutup
-                </v-btn>
+                <v-btn variant="text" color="white" @click="snackbar.show = false">Tutup</v-btn>
             </template>
         </v-snackbar>
 
@@ -258,7 +236,6 @@
 
                 <v-card-text class="pa-4">
                     <v-form ref="formPassword" v-model="formPasswordValid">
-
                         <v-text-field v-model="passwordForm.current_password" label="Password Lama" type="password"
                             prepend-inner-icon="mdi-lock" variant="outlined" color="amber" :rules="[rules.required]"
                             class="mb-2" />
@@ -270,24 +247,18 @@
                         <v-text-field v-model="passwordForm.password_confirmation" label="Konfirmasi Password Baru"
                             type="password" prepend-inner-icon="mdi-lock-check" variant="outlined" color="amber"
                             :rules="[rules.required, rules.matchPassword]" />
-
                     </v-form>
                 </v-card-text>
 
                 <v-card-actions class="pa-4">
                     <v-spacer></v-spacer>
-
-                    <v-btn variant="text" color="grey" @click="closePasswordDialog">
-                        Batal
-                    </v-btn>
-
+                    <v-btn variant="text" color="grey" @click="closePasswordDialog">Batal</v-btn>
                     <v-btn color="amber" :loading="isChangePasswordLoading" @click="changePassword">
                         Ganti Password
                     </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
     </v-container>
 </template>
 
@@ -300,23 +271,20 @@ export default {
 
     data() {
         return {
+            isLoading: true,
             dialogPassword: false,
             formPasswordValid: false,
             isChangePasswordLoading: false,
+
+            userData: null,
+            editedData: {},
+            mvoTypes: [],
 
             passwordForm: {
                 current_password: '',
                 password: '',
                 password_confirmation: ''
             },
-            mvoTypes: [], // tambahkan ini
-
-
-            isLoading: true,
-            formValid: false,
-
-            userData: null,
-            editedData: {},
 
             genderOptions: [
                 { title: 'Laki-laki', value: 'L' },
@@ -325,17 +293,8 @@ export default {
 
             rules: {
                 required: v => !!v || 'Field ini wajib diisi',
-
-                nik: v => !v || v.length === 16 || 'NIK harus 16 digit',
-
-                phone: v => !v || /^[0-9]{10,13}$/.test(v) || 'No. HP tidak valid',
-
                 minPassword: v => !v || v.length >= 3 || 'Password minimal 3 karakter',
-
-                matchPassword: v => {
-                    if (!v) return 'Field ini wajib diisi';
-                    return v === this.passwordForm.password || 'Konfirmasi password tidak sama';
-                }
+                matchPassword: v => v === this.passwordForm.password || 'Konfirmasi password tidak sama'
             },
 
             snackbar: {
@@ -369,84 +328,45 @@ export default {
                 if (response.data?.status === 'success') {
                     this.mvoTypes = response.data.data;
                 }
-            } catch (error) {
-            }
+            } catch (error) { }
         },
-        async changePassword() {
-            // Validasi form
-            const { valid } = await this.$refs.formPassword.validate();
 
+        async changePassword() {
+            const { valid } = await this.$refs.formPassword.validate();
             if (!valid) {
                 this.showSnackbar('Mohon lengkapi semua field dengan benar', 'error');
                 return;
             }
 
             this.isChangePasswordLoading = true;
-
             try {
                 const token = Cookies.get('token');
-
-                const response = await axios.put(
+                await axios.put(
                     'https://babaapi.babaparfume.id/api/me/password',
-                    {
-                        current_password: this.passwordForm.current_password,
-                        password: this.passwordForm.password,
-                        password_confirmation: this.passwordForm.password_confirmation
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
+                    this.passwordForm,
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
 
-                if (response.data) {
-                    this.showSnackbar('Password berhasil diganti', 'success');
-
-                    // Reset form
-                    this.passwordForm.current_password = '';
-                    this.passwordForm.password = '';
-                    this.passwordForm.password_confirmation = '';
-
-                    // Reset validasi form
-                    this.$refs.formPassword.reset();
-                    this.$refs.formPassword.resetValidation();
-
-                    this.dialogPassword = false;
-                }
-
+                this.showSnackbar('Password berhasil diganti', 'success');
+                this.closePasswordDialog();
             } catch (error) {
-
-                const msg =
-                    error.response?.data?.message ||
-                    'Gagal mengganti password';
-
-                this.showSnackbar(msg, 'error');
+                this.showSnackbar(error.response?.data?.message || 'Gagal mengganti password', 'error');
             } finally {
                 this.isChangePasswordLoading = false;
             }
         },
 
         closePasswordDialog() {
-            // Reset form saat dialog ditutup
-            this.passwordForm.current_password = '';
-            this.passwordForm.password = '';
-            this.passwordForm.password_confirmation = '';
-
-            if (this.$refs.formPassword) {
-                this.$refs.formPassword.reset();
-                this.$refs.formPassword.resetValidation();
-            }
-
+            this.passwordForm = { current_password: '', password: '', password_confirmation: '' };
+            this.$refs.formPassword?.reset();
+            this.$refs.formPassword?.resetValidation();
             this.dialogPassword = false;
         },
 
         async loadUserData() {
             this.isLoading = true;
-
             try {
                 const storedUser = localStorage.getItem('user');
-
                 if (storedUser) {
                     this.userData = JSON.parse(storedUser);
                     this.editedData = { ...this.userData };
@@ -463,25 +383,21 @@ export default {
         async fetchUserDataFromAPI() {
             try {
                 const token = Cookies.get('token');
-
                 if (!token) {
                     this.$router.push('/admin/login');
                     return;
                 }
 
                 const response = await axios.get('https://babaapi.babaparfume.id/api/user/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
 
-                if (response.data && response.data.status === 'success') {
+                if (response.data?.status === 'success') {
                     this.userData = response.data.data;
                     this.editedData = { ...this.userData };
                     localStorage.setItem('user', JSON.stringify(this.userData));
                 }
             } catch (error) {
-
                 if (error.response?.status === 401) {
                     this.$router.push('/admin/login');
                 }
@@ -491,15 +407,10 @@ export default {
         getProfileImageUrl() {
             if (this.userData?.path_gambar_profile) {
                 const path = this.userData.path_gambar_profile;
-
-                if (path.startsWith('http://') || path.startsWith('https://')) {
-                    return path;
-                }
-
+                if (path.startsWith('http://') || path.startsWith('https://')) return path;
                 const cleanPath = path.startsWith('/') ? path.substring(1) : path;
                 return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
             }
-
             return this.defaultProfileImage;
         },
 
@@ -509,33 +420,26 @@ export default {
 
         calculateAge() {
             if (!this.userData?.tgl_lahir) return '-';
-
             const birthDate = new Date(this.userData.tgl_lahir);
             const today = new Date();
             let age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
-
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
             return age;
         },
 
         showSnackbar(text, color = 'success') {
-            this.snackbar.text = text;
-            this.snackbar.color = color;
-            this.snackbar.show = true;
+            this.snackbar = { show: true, text, color };
         }
     },
 
     mounted() {
         this.loadUserData();
-        this.fetchMvoTypes(); // tambahkan ini
-
+        this.fetchMvoTypes();
     }
 };
 </script>
+
 <style scoped>
 .position-card {
     background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
