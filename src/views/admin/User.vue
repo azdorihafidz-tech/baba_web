@@ -204,6 +204,45 @@
               <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-'
               }}</v-col>
             </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Bintang:</v-col>
+              <v-col cols="8" class="detail-value">
+                <div class="d-flex">
+                  <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
+                    mdi-star
+                  </v-icon>
+                  <span v-if="!item.jlh_bintang || Number(item.jlh_bintang) === 0">-</span>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Distributor:</v-col>
+              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item.upline_6) || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Supplier:</v-col>
+              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item.upline_5) || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">General Manager:</v-col>
+              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item.upline_4) || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Founder:</v-col>
+              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item.upline_3) || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Regional:</v-col>
+              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item.upline_2) || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">MVO:</v-col>
+              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item.upline_1) || '-' }}</v-col>
+            </v-row>
+            <v-row class="mb-2">
+              <v-col cols="4" class="detail-label">Tgl Registrasi:</v-col>
+              <v-col cols="8" class="detail-value">{{ formatDate(item.created_at) }}</v-col>
+            </v-row>
             <v-row class="mb-3">
               <v-col cols="4" class="detail-label">Status:</v-col>
               <v-col cols="8">
