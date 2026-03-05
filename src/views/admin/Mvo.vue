@@ -122,8 +122,7 @@
 
             <template v-slot:item.repeat_order="{ item }">
               <v-chip color="primary" size="small" variant="outlined">
-                {{ item.repeat_order !== null && item.repeat_order !== '' && item.repeat_order !== undefined ?
-                  item.repeat_order : '-' }}
+                {{ formatNumber(item.repeat_order) }}
               </v-chip>
             </template>
 
@@ -452,6 +451,10 @@
                   </v-chip>
                 </template> -->
 
+                <template v-slot:item.repeat_order="{ item }">
+                  {{ formatNumber(item.repeat_order) }}
+                </template>
+
                 <template v-slot:item.mvo_code="{ item }">
                   {{ getMvoCodeById(item.mvo_id) }}
                 </template>
@@ -628,8 +631,7 @@
                       density="comfortable" prepend-inner-icon="mdi-calendar" />
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-text-field label="Range Point" v-model.number="documentEditModel.repeat_order" type="number"
-                      min="0" step="0.01" class="mb-2"
+                    <v-text-field label="Range Point" v-model="formattedRepeatOrderEdit" class="mb-2"
                       hint="Masukkan range point. Isi 0 jika yang diupload dokumen biasa" persistent-hint
                       :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
                       prepend-inner-icon="mdi-chart-line" />
@@ -768,6 +770,10 @@
                       <v-col cols="6">
                         <div class="text-caption text-grey">Poin Per Bintang:</div>
                         <div class="font-weight-medium">{{ document.pointbintang || '-' }}</div>
+                      </v-col>
+                      <v-col cols="6">
+                        <div class="text-caption text-grey">Range Point:</div>
+                        <div class="font-weight-medium">{{ formatNumber(document.repeat_order) }}</div>
                       </v-col>
                     </v-row>
 
@@ -1084,9 +1090,9 @@
                 prepend-inner-icon="mdi-calendar" />
             </v-col>
             <v-col cols="12" md="6" v-if="documentAddModel.document_type === 'star'">
-              <v-text-field label="Range Point" v-model.number="documentAddModel.repeat_order" type="number" min="0"
-                step="0.01" class="mb-2" hint="Masukkan range point. Isi 0 jika yang diupload dokumen biasa"
-                persistent-hint :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
+              <v-text-field label="Range Point" v-model="formattedRepeatOrderAdd" class="mb-2"
+                hint="Masukkan range point. Isi 0 jika yang diupload dokumen biasa" persistent-hint
+                :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
                 prepend-inner-icon="mdi-chart-line" />
             </v-col>
           </v-row>
@@ -1296,13 +1302,36 @@ export default {
 
   computed: {
     // TAMBAHKAN computed baru ini:
+    formattedRepeatOrderAdd: {
+      get() {
+        if (this.documentAddModel.repeat_order === null || this.documentAddModel.repeat_order === undefined || this.documentAddModel.repeat_order === '') {
+          return '';
+        }
+        return Number(this.documentAddModel.repeat_order).toLocaleString('id-ID');
+      },
+      set(value) {
+        const numericValue = parseInt(String(value).replace(/\./g, ''), 10);
+        this.documentAddModel.repeat_order = isNaN(numericValue) ? '' : numericValue;
+      }
+    },
+    formattedRepeatOrderEdit: {
+      get() {
+        if (this.documentEditModel.repeat_order === null || this.documentEditModel.repeat_order === undefined || this.documentEditModel.repeat_order === '') {
+          return '';
+        }
+        return Number(this.documentEditModel.repeat_order).toLocaleString('id-ID');
+      },
+      set(value) {
+        const numericValue = parseInt(String(value).replace(/\./g, ''), 10);
+        this.documentEditModel.repeat_order = isNaN(numericValue) ? '' : numericValue;
+      }
+    },
     rangePointOptionalRule() {
       return value => {
         if (value === null || value === undefined || value === '') return true; // boleh kosong
-        const num = Number(value);
+        const num = Number(String(value).replace(/\./g, ''));
         if (isNaN(num)) return 'Harus berupa angka';
-        if (num < 0) return 'Range Point tidak boleh kurang dari 0';
-        return true;
+        if (num < 0) return 'Range Point tidak boleh kurang dari 0'; return true;
       };
     },
 
@@ -1383,6 +1412,13 @@ export default {
   },
 
   methods: {
+    formatNumber(value) {
+      if (value === null || value === undefined || value === '') return '-';
+      const num = Number(value);
+      if (isNaN(num)) return value;
+      return num.toLocaleString('id-ID');
+    },
+
     getMvoStatusText(item) {
       // Cek apakah ada upline_1 (MVO)
       if (!item.upline_1) {
