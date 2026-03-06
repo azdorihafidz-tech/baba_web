@@ -190,15 +190,6 @@
               <v-col cols="4" class="detail-label">Cabang:</v-col>
               <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
             </v-row>
-            <!-- <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Otoritas:</v-col>
-              <v-col cols="8">
-                <v-chip :color="getAuthorityColor(item.mvo_type_id)"
-                  :text-color="getAuthorityTextColor(item.mvo_type_id)" size="small" variant="flat">
-                  {{ item.mvo_type_id ? item.mvo_type_id.toUpperCase() : '-' }}
-                </v-chip>
-              </v-col>
-            </v-row> -->
             <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Jabatan:</v-col>
               <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-'
@@ -321,10 +312,9 @@
               <v-textarea label="Alamat Lengkap" v-model="modelAdd.alamat" rows="2" auto-grow density="compact"
                 prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
             </v-col>
-
           </v-row>
-
         </div>
+
         <div class="box-glass">
           <div class="input-box-title">STRUKTUR UPLINE</div>
           <v-row>
@@ -417,14 +407,18 @@
     </v-card>
   </v-dialog>
 
-  <!-- Dialog Edit User -->
+  <!-- ======================================================= -->
+  <!-- Dialog Edit User — hierarki sama persis dengan form Add -->
+  <!-- ======================================================= -->
   <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '900'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
         <v-icon class="mr-2" style="color: #FFD700;">mdi-account-edit</v-icon>
         <span class="dialog-title">EDIT DATA USER</span>
       </v-card-title>
+
       <v-card-text class="dialog-content">
+        <!-- DATA PRIBADI -->
         <div class="input-box">
           <div class="input-box-title">DATA PRIBADI</div>
           <v-row>
@@ -470,68 +464,79 @@
               <v-textarea label="Alamat Lengkap" v-model="modelEdit.alamat" rows="2" auto-grow density="compact"
                 prepend-inner-icon="mdi-home" variant="outlined" color="amber" base-color="grey-lighten-1" />
             </v-col>
-
           </v-row>
-
         </div>
+
+        <!-- STRUKTUR UPLINE — menggunakan hideUplineEdit, pola identik dengan form Add -->
         <div class="box-glass">
           <div class="input-box-title">STRUKTUR UPLINE</div>
           <v-row>
+            <!-- Jabatan -->
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Jabatan" v-model="modelEdit.mvo_type_id" :items="jabatanOptions" item-title="text"
                 item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+
+            <!-- Cabang: tampil jika jabatan sudah dipilih -->
+            <v-col v-if="modelEdit.mvo_type_id" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Cabang (Provinsi)" v-model="modelEdit.cabang" :items="cabangOptions" item-title="text"
                 item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
                 color="amber" base-color="grey-lighten-1" clearable :loading="loadingProvinsi"
-                :disabled="loadingProvinsi" @update:modelValue="onCabangChangeEdit" />
+                @update:modelValue="onCabangChangeEdit" />
             </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+
+            <!-- MVO: tampil jika cabang sudah dipilih DAN jabatan bukan level 1 -->
+            <v-col v-if="modelEdit.cabang && hideUplineEdit !== 'upline_1'" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Pilih MVO" v-model="modelEdit.upline_1" :items="mvoOptionsEdit" item-title="text"
-                item-value="value" :loading="loadingMvoEdit" :disabled="!modelEdit.cabang"
-                @update:modelValue="onMvoChangeEdit" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
+                item-value="value" :loading="loadingMvoEdit" @update:modelValue="onMvoChangeEdit" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
           </v-row>
 
           <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <!-- Regional -->
+            <v-col v-if="modelEdit.upline_1 && hideUplineEdit !== 'upline_2'" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Pilih Regional" v-model="modelEdit.upline_2" :items="regionalOptionsEdit"
-                item-title="text" item-value="value" :loading="loadingRegionalEdit" :disabled="!modelEdit.upline_1"
+                item-title="text" item-value="value" :loading="loadingRegionalEdit"
                 @update:modelValue="onRegionalChangeEdit" density="compact" variant="outlined" color="amber"
                 base-color="grey-lighten-1" clearable />
             </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+
+            <!-- Founder -->
+            <v-col v-if="modelEdit.upline_2 && hideUplineEdit !== 'upline_3'" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Pilih Founder" v-model="modelEdit.upline_3" :items="founderOptionsEdit" item-title="text"
-                item-value="value" :loading="loadingFounderEdit" :disabled="!modelEdit.upline_2"
-                @update:modelValue="onFounderChangeEdit" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
+                item-value="value" :loading="loadingFounderEdit" @update:modelValue="onFounderChangeEdit"
+                density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
           </v-row>
 
           <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <!-- GM -->
+            <v-col v-if="modelEdit.upline_3 && hideUplineEdit !== 'upline_4'" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Pilih GM" v-model="modelEdit.upline_4" :items="gmOptionsEdit" item-title="text"
-                item-value="value" :loading="loadingGmEdit" :disabled="!modelEdit.upline_3"
-                @update:modelValue="onGmChangeEdit" density="compact" variant="outlined" color="amber"
-                base-color="grey-lighten-1" clearable />
+                item-value="value" :loading="loadingGmEdit" @update:modelValue="onGmChangeEdit" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+
+            <!-- Supplier -->
+            <v-col v-if="modelEdit.upline_4 && hideUplineEdit !== 'upline_5'" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Pilih Supplier" v-model="modelEdit.upline_5" :items="supplierOptionsEdit"
-                item-title="text" item-value="value" :loading="loadingSupplierEdit" :disabled="!modelEdit.upline_4"
+                item-title="text" item-value="value" :loading="loadingSupplierEdit"
                 @update:modelValue="onSupplierChangeEdit" density="compact" variant="outlined" color="amber"
                 base-color="grey-lighten-1" clearable />
             </v-col>
           </v-row>
 
           <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <!-- Distributor -->
+            <v-col v-if="modelEdit.upline_5 && hideUplineEdit !== 'upline_6'" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Pilih Distributor" v-model="modelEdit.upline_6" :items="distributorOptionsEdit"
-                item-title="text" item-value="value" :loading="loadingDistributorEdit" :disabled="!modelEdit.upline_5"
-                density="compact" variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
+                item-title="text" item-value="value" :loading="loadingDistributorEdit" density="compact"
+                variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
+
+            <!-- Username -->
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-text-field label="Username" v-model="modelEdit.username" type="text" density="compact"
                 prepend-inner-icon="mdi-at" variant="outlined" color="amber" base-color="grey-lighten-1" />
@@ -539,6 +544,7 @@
           </v-row>
 
           <v-row>
+            <!-- Password -->
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-text-field v-model="modelEdit.password" :type="visibleEdit ? 'text' : 'password'" density="compact"
                 label="Password (kosongkan jika tidak ingin diubah)" prepend-inner-icon="mdi-lock"
@@ -546,6 +552,8 @@
                 @click:append-inner="visibleEdit = !visibleEdit" variant="outlined" color="amber"
                 base-color="grey-lighten-1" />
             </v-col>
+
+            <!-- Foto Profil -->
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-file-input label="Foto Profil (kosongkan jika tidak ingin diubah)"
                 v-model="modelEdit.path_gambar_profile" accept="image/png, image/jpeg, image/jpg" variant="outlined"
@@ -553,14 +561,16 @@
                 @change="handleFotoProfileEditChange" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint />
             </v-col>
           </v-row>
-        </div>
 
-        <v-row v-if="previewFotoProfileEdit">
-          <v-col cols="12" class="text-center">
-            <v-img :src="previewFotoProfileEdit" max-width="150" height="150" class="mx-auto my-2 rounded-xl" contain />
-          </v-col>
-        </v-row>
+          <v-row v-if="previewFotoProfileEdit">
+            <v-col cols="12" class="text-center">
+              <v-img :src="previewFotoProfileEdit" max-width="150" height="150" class="mx-auto my-2 rounded-xl"
+                contain />
+            </v-col>
+          </v-row>
+        </div>
       </v-card-text>
+
       <v-card-actions class="dialog-actions">
         <v-spacer></v-spacer>
         <v-btn :color="app.colors.secondary" @click="isShowDialogEdit = false" class="ml-2">Batal</v-btn>
@@ -596,6 +606,7 @@ import CardForm from "@/components/ui/CardForm.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
+
 export default {
   components: {
     Breadcrumb,
@@ -715,19 +726,32 @@ export default {
   },
 
   computed: {
+    // -------------------------------------------------------
+    // Computed untuk form TAMBAH
+    // Menentukan field upline tertinggi yang DISEMBUNYIKAN
+    // berdasarkan level jabatan yang dipilih
+    // -------------------------------------------------------
     hideUplineAdd() {
-
       const jabatan = this.jabatanOptions.find(
         j => j.value == this.modelAdd.mvo_type_id
-      )
-
-      if (!jabatan) return null
-
-      return `upline_${jabatan.level}`
+      );
+      if (!jabatan) return null;
+      return `upline_${jabatan.level}`;
     },
+
+    // -------------------------------------------------------
+    // Computed untuk form EDIT — logika identik dengan Add
+    // -------------------------------------------------------
+    hideUplineEdit() {
+      const jabatan = this.jabatanOptions.find(
+        j => j.value == this.modelEdit.mvo_type_id
+      );
+      if (!jabatan) return null;
+      return `upline_${jabatan.level}`;
+    },
+
     filteredItems() {
       if (!this.datatable.search) return this.datatable.items;
-
       const searchTerm = this.datatable.search.toLowerCase();
       return this.datatable.items.filter(item => {
         return (
@@ -745,129 +769,47 @@ export default {
       if (!dateString) return '';
       return new Date(dateString).toLocaleDateString('id-ID');
     },
+
     getNamaAfterStrip(value) {
       if (!value) return '';
-
-      // Pecah berdasarkan " - "
       const parts = value.split(' - ');
-
-      // Ambil bagian belakang
       return parts.length > 1 ? parts[1] : value;
     },
+
     mapUserWithBintang(users) {
       return users.map(u => {
-
-        const mvo = this.mvoTypeList.find(
-          m => m.id == u.mvo_type_id
-        );
-
-        return {
-          ...u,
-          jlh_bintang: mvo ? mvo.jlh_bintang : 0
-        };
+        const mvo = this.mvoTypeList.find(m => m.id == u.mvo_type_id);
+        return { ...u, jlh_bintang: mvo ? mvo.jlh_bintang : 0 };
       });
     },
+
     // ========== ADD FORM CASCADE ==========
     onCabangChangeAdd(val) {
       this.modelAdd.upline_1 = this.modelAdd.upline_2 = this.modelAdd.upline_3 = '';
       this.modelAdd.upline_4 = this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
       this.getMvoAdd(val);
     },
-
     onMvoChangeAdd(val) {
       this.modelAdd.upline_2 = this.modelAdd.upline_3 = this.modelAdd.upline_4 = '';
       this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
       this.getRegionalAdd(val);
     },
-
     onRegionalChangeAdd(val) {
       this.modelAdd.upline_3 = this.modelAdd.upline_4 = '';
       this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
       this.getFounderAdd(val);
     },
-
     onFounderChangeAdd(val) {
       this.modelAdd.upline_4 = this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
       this.getGmAdd(val);
     },
-
     onGmChangeAdd(val) {
       this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
       this.getSupplierAdd(val);
     },
-
     onSupplierChangeAdd(val) {
       this.modelAdd.upline_6 = '';
       this.getDistributorAdd(val);
-    },
-
-    async getDistributorAdd(code) {
-      this.loadingDistributorAdd = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', {
-          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
-          upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3,
-          upline_4: this.modelAdd.upline_4, upline_5: code
-        });
-        this.distributorOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Distributor', 'error');
-      }
-      this.loadingDistributorAdd = false;
-    },
-
-    async getSupplierAdd(code) {
-      this.loadingSupplierAdd = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', {
-          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
-          upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3, upline_4: code
-        });
-        this.supplierOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Supplier', 'error');
-      }
-      this.loadingSupplierAdd = false;
-    },
-
-    async getGmAdd(code) {
-      this.loadingGmAdd = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', {
-          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1,
-          upline_2: this.modelAdd.upline_2, upline_3: code
-        });
-        this.gmOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data GM', 'error');
-      }
-      this.loadingGmAdd = false;
-    },
-
-    async getFounderAdd(code) {
-      this.loadingFounderAdd = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', {
-          cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: code
-        });
-        this.founderOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Founder', 'error');
-      }
-      this.loadingFounderAdd = false;
-    },
-
-    async getRegionalAdd(code) {
-      this.loadingRegionalAdd = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', {
-          cabang: this.modelAdd.cabang, upline_1: code
-        });
-        this.regionalOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Regional', 'error');
-      }
-      this.loadingRegionalAdd = false;
     },
 
     async getMvoAdd(cabang) {
@@ -875,124 +817,127 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/mvo', { cabang });
         this.mvoOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data MVO', 'error');
-      }
+      } catch { this.showSnackbar('Gagal memuat data MVO', 'error'); }
       this.loadingMvoAdd = false;
+    },
+    async getRegionalAdd(code) {
+      this.loadingRegionalAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', { cabang: this.modelAdd.cabang, upline_1: code });
+        this.regionalOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Regional', 'error'); }
+      this.loadingRegionalAdd = false;
+    },
+    async getFounderAdd(code) {
+      this.loadingFounderAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', { cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: code });
+        this.founderOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Founder', 'error'); }
+      this.loadingFounderAdd = false;
+    },
+    async getGmAdd(code) {
+      this.loadingGmAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', { cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: this.modelAdd.upline_2, upline_3: code });
+        this.gmOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data GM', 'error'); }
+      this.loadingGmAdd = false;
+    },
+    async getSupplierAdd(code) {
+      this.loadingSupplierAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', { cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3, upline_4: code });
+        this.supplierOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Supplier', 'error'); }
+      this.loadingSupplierAdd = false;
+    },
+    async getDistributorAdd(code) {
+      this.loadingDistributorAdd = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', { cabang: this.modelAdd.cabang, upline_1: this.modelAdd.upline_1, upline_2: this.modelAdd.upline_2, upline_3: this.modelAdd.upline_3, upline_4: this.modelAdd.upline_4, upline_5: code });
+        this.distributorOptionsAdd = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Distributor', 'error'); }
+      this.loadingDistributorAdd = false;
     },
 
     // ========== EDIT FORM CASCADE ==========
+    // Saat jabatan berubah di form Edit → reset semua upline
     onCabangChangeEdit(val) {
       this.modelEdit.upline_1 = this.modelEdit.upline_2 = this.modelEdit.upline_3 = '';
       this.modelEdit.upline_4 = this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
       this.getMvoEdit(val);
     },
-
     onMvoChangeEdit(val) {
       this.modelEdit.upline_2 = this.modelEdit.upline_3 = this.modelEdit.upline_4 = '';
       this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
       this.getRegionalEdit(val);
     },
-
     onRegionalChangeEdit(val) {
       this.modelEdit.upline_3 = this.modelEdit.upline_4 = '';
       this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
       this.getFounderEdit(val);
     },
-
     onFounderChangeEdit(val) {
       this.modelEdit.upline_4 = this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
       this.getGmEdit(val);
     },
-
     onGmChangeEdit(val) {
       this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
       this.getSupplierEdit(val);
     },
-
     onSupplierChangeEdit(val) {
       this.modelEdit.upline_6 = '';
       this.getDistributorEdit(val);
-    },
-
-    async getDistributorEdit(code) {
-      this.loadingDistributorEdit = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', {
-          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
-          upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3,
-          upline_4: this.modelEdit.upline_4, upline_5: code
-        });
-        this.distributorOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Distributor', 'error');
-      }
-      this.loadingDistributorEdit = false;
-    },
-
-    async getSupplierEdit(code) {
-      this.loadingSupplierEdit = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', {
-          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
-          upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: code
-        });
-        this.supplierOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Supplier', 'error');
-      }
-      this.loadingSupplierEdit = false;
-    },
-
-    async getGmEdit(code) {
-      this.loadingGmEdit = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', {
-          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1,
-          upline_2: this.modelEdit.upline_2, upline_3: code
-        });
-        this.gmOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data GM', 'error');
-      }
-      this.loadingGmEdit = false;
-    },
-
-    async getFounderEdit(code) {
-      this.loadingFounderEdit = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', {
-          cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: code
-        });
-        this.founderOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Founder', 'error');
-      }
-      this.loadingFounderEdit = false;
-    },
-
-    async getRegionalEdit(code) {
-      this.loadingRegionalEdit = true;
-      try {
-        const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', {
-          cabang: this.modelEdit.cabang, upline_1: code
-        });
-        this.regionalOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data Regional', 'error');
-      }
-      this.loadingRegionalEdit = false;
     },
 
     async getMvoEdit(cabang) {
       this.loadingMvoEdit = true;
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/mvo', { cabang });
-        this.mvoOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: i.code }));
-      } catch (err) {
-        this.showSnackbar('Gagal memuat data MVO', 'error');
-      }
+        this.mvoOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data MVO', 'error'); }
       this.loadingMvoEdit = false;
+    },
+    async getRegionalEdit(code) {
+      this.loadingRegionalEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', { cabang: this.modelEdit.cabang, upline_1: code });
+        this.regionalOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Regional', 'error'); }
+      this.loadingRegionalEdit = false;
+    },
+    async getFounderEdit(code) {
+      this.loadingFounderEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: code });
+        this.founderOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Founder', 'error'); }
+      this.loadingFounderEdit = false;
+    },
+    async getGmEdit(code) {
+      this.loadingGmEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: this.modelEdit.upline_2, upline_3: code });
+        this.gmOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data GM', 'error'); }
+      this.loadingGmEdit = false;
+    },
+    async getSupplierEdit(code) {
+      this.loadingSupplierEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: code });
+        this.supplierOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Supplier', 'error'); }
+      this.loadingSupplierEdit = false;
+    },
+    async getDistributorEdit(code) {
+      this.loadingDistributorEdit = true;
+      try {
+        const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: this.modelEdit.upline_4, upline_5: code });
+        this.distributorOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
+      } catch { this.showSnackbar('Gagal memuat data Distributor', 'error'); }
+      this.loadingDistributorEdit = false;
     },
 
     // ========== DATA FETCHING ==========
@@ -1003,7 +948,6 @@ export default {
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           timeout: 10000
         });
-
         if (response.data.status === 'success' && response.data.data) {
           this.cabangOptions = response.data.data.map(provinsi => ({
             text: provinsi.code,
@@ -1029,40 +973,24 @@ export default {
 
     async getAllMvoType() {
       try {
-        const response = await axios.get(
-          'https://babaapi.babaparfume.id/api/mvo-type',
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            timeout: 10000
-          }
-        );
-
+        const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          timeout: 10000
+        });
         if (response.data.status === 'success' && response.data.data) {
-
-          // ✅ Simpan full data (untuk bintang)
           this.mvoTypeList = response.data.data;
-
-          // ✅ Tetap buat dropdown jabatan
           this.jabatanOptions = response.data.data.map(item => ({
             text: item.jabatan,
             value: item.id,
-            level: Number(item.level)   // 🔥 simpan level
+            level: Number(item.level)
           }));
-
-          // 🔥 Kalau user sudah ada → mapping ulang
           if (this.datatable.items.length > 0) {
-            this.datatable.items =
-              this.mapUserWithBintang(this.datatable.items);
+            this.datatable.items = this.mapUserWithBintang(this.datatable.items);
           }
-
         } else {
           this.showSnackbar('Gagal memuat data jabatan', 'error');
         }
-
-      } catch (error) {
+      } catch {
         this.showSnackbar('Gagal memuat data jabatan', 'error');
       }
     },
@@ -1071,34 +999,24 @@ export default {
     toggleMobileDetail(itemId) {
       this.expandedMobileCard = this.expandedMobileCard === itemId ? null : itemId;
     },
-
     validatePhoneAdd(event) {
       this.modelAdd.nohp = event.target.value.replace(/[^0-9]/g, '');
     },
-
     validatePhoneEdit(event) {
       this.modelEdit.nohp = event.target.value.replace(/[^0-9]/g, '');
     },
-
-    handleFotoProfileAddChange(event) {
+    handleFotoProfileAddChange() {
       const file = this.modelAdd.path_gambar_profile;
       if (file) {
         const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         if (!allowedTypes.includes(file.type)) {
           this.showSnackbar('Format file harus PNG, JPG, atau JPEG', 'error');
-          this.modelAdd.path_gambar_profile = null;
-          this.previewFotoProfileAdd = null;
-          return;
+          this.modelAdd.path_gambar_profile = null; this.previewFotoProfileAdd = null; return;
         }
-
-        const maxSize = 2 * 1024 * 1024;
-        if (file.size > maxSize) {
+        if (file.size > 2 * 1024 * 1024) {
           this.showSnackbar('Ukuran file maksimal 2MB', 'error');
-          this.modelAdd.path_gambar_profile = null;
-          this.previewFotoProfileAdd = null;
-          return;
+          this.modelAdd.path_gambar_profile = null; this.previewFotoProfileAdd = null; return;
         }
-
         const reader = new FileReader();
         reader.onload = (e) => { this.previewFotoProfileAdd = e.target.result; };
         reader.readAsDataURL(file);
@@ -1106,26 +1024,18 @@ export default {
         this.previewFotoProfileAdd = null;
       }
     },
-
-    handleFotoProfileEditChange(event) {
+    handleFotoProfileEditChange() {
       const file = this.modelEdit.path_gambar_profile;
       if (file) {
         const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         if (!allowedTypes.includes(file.type)) {
           this.showSnackbar('Format file harus PNG, JPG, atau JPEG', 'error');
-          this.modelEdit.path_gambar_profile = null;
-          this.previewFotoProfileEdit = null;
-          return;
+          this.modelEdit.path_gambar_profile = null; this.previewFotoProfileEdit = null; return;
         }
-
-        const maxSize = 2 * 1024 * 1024;
-        if (file.size > maxSize) {
+        if (file.size > 2 * 1024 * 1024) {
           this.showSnackbar('Ukuran file maksimal 2MB', 'error');
-          this.modelEdit.path_gambar_profile = null;
-          this.previewFotoProfileEdit = null;
-          return;
+          this.modelEdit.path_gambar_profile = null; this.previewFotoProfileEdit = null; return;
         }
-
         const reader = new FileReader();
         reader.onload = (e) => { this.previewFotoProfileEdit = e.target.result; };
         reader.readAsDataURL(file);
@@ -1133,42 +1043,32 @@ export default {
         this.previewFotoProfileEdit = null;
       }
     },
-
     showSnackbar(text, color = 'success') {
       this.contentSnackbar.text = text;
       this.contentSnackbar.color = color;
       this.contentSnackbar.snackbar = true;
     },
-
     updateCurrentpageInfo(options) {
       this.currentPage = options.page;
       this.itemsPerPage = options.itemsPerPage;
     },
-
     getAuthorityColor(mvo_type_id) {
-      const colors = {
-
-      };
-      return colors[mvo_type_id] || '#FFD700';
+      return '#FFD700';
     },
-
     getAuthorityTextColor(mvo_type_id) {
       return 'white';
     },
-
     getJabatanNameById(id) {
       if (!id) return '';
       const jabatan = this.jabatanOptions.find(j => j.value == id);
       return jabatan ? jabatan.text : '';
     },
-
     showDialogFormAddUser() {
       this.isShowDialogAdd = true;
       this.clearAddForm();
       if (this.cabangOptions.length === 0) this.fetchProvinsiData();
       if (this.jabatanOptions.length === 0) this.getAllMvoType();
     },
-
     clearAddForm() {
       this.modelAdd = {
         no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
@@ -1180,7 +1080,6 @@ export default {
       this.mvoOptionsAdd = this.regionalOptionsAdd = this.founderOptionsAdd = [];
       this.gmOptionsAdd = this.supplierOptionsAdd = this.distributorOptionsAdd = [];
     },
-
     clearEditForm() {
       this.modelEdit = {
         id: "", no_id: '', nama: '', nama_panggilan: '', tempat_lahir: '', tgl_lahir: '',
@@ -1194,116 +1093,67 @@ export default {
     },
     getUserCabang() {
       try {
-        const headerData = JSON.parse(localStorage.getItem('headerData'))
-        return headerData?.cabang || null
-      } catch (e) {
-        return null
-      }
+        const headerData = JSON.parse(localStorage.getItem('headerData'));
+        return headerData?.cabang || null;
+      } catch { return null; }
     },
-
     getUserLogin() {
       try {
-        return JSON.parse(localStorage.getItem('user'))
-      } catch (e) {
-        return null
-      }
+        return JSON.parse(localStorage.getItem('user'));
+      } catch { return null; }
     },
     getAllUser() {
       const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
+      if (!token) { this.$router.push({ name: "Login" }); return; }
 
       this.isTableLoading = true;
-
       const userCabang = this.getUserCabang();
       const userLogin = this.getUserLogin();
-
-      const isSuperadmin =
-        userLogin?.mvo_type_id?.toString().toLowerCase() === 'superadmin';
+      const isSuperadmin = userLogin?.mvo_type_id?.toString().toLowerCase() === 'superadmin';
 
       axios.get("https://babaapi.babaparfume.id/api/user", {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
           if (response.data.status === "success") {
-
             let users = response.data.data;
-
-            // ❌ Buang superadmin lain (opsional)
             users = users.filter(u => u.mvo_type_id !== 'superadmin');
 
-            // ================================
-            // FILTER JIKA BUKAN SUPERADMIN
-            // ================================
             if (!isSuperadmin) {
-
-              // 1️⃣ Filter Cabang
               if (userCabang) {
                 users = users.filter(u =>
-                  u.cabang &&
-                  u.cabang.toUpperCase().trim() === userCabang.toUpperCase().trim()
+                  u.cabang && u.cabang.toUpperCase().trim() === userCabang.toUpperCase().trim()
                 );
               }
-
-              // 2️⃣ Filter Berdasarkan Upline Login
-              users = users.filter(u => {
-
-                return (
-
-                  // Kalau login MVO
-                  u.upline_1 === userLogin?.upline_1 ||
-
-                  // Regional
-                  u.upline_2 === userLogin?.upline_2 ||
-
-                  // Founder
-                  u.upline_3 === userLogin?.upline_3 ||
-
-                  // GM
-                  u.upline_4 === userLogin?.upline_4 ||
-
-                  // Supplier
-                  u.upline_5 === userLogin?.upline_5 ||
-
-                  // Distributor
-                  u.upline_6 === userLogin?.upline_6 ||
-
-                  // Atau dirinya sendiri
-                  u.id === userLogin?.id
-                );
-
-              });
-
+              users = users.filter(u => (
+                u.upline_1 === userLogin?.upline_1 ||
+                u.upline_2 === userLogin?.upline_2 ||
+                u.upline_3 === userLogin?.upline_3 ||
+                u.upline_4 === userLogin?.upline_4 ||
+                u.upline_5 === userLogin?.upline_5 ||
+                u.upline_6 === userLogin?.upline_6 ||
+                u.id === userLogin?.id
+              ));
             }
 
-            this.datatable.items =
-              this.mapUserWithBintang(users);
-
+            this.datatable.items = this.mapUserWithBintang(users);
           } else {
             this.showSnackbar(response.data.message || 'Gagal memuat data user', 'error');
           }
         })
-        .catch(() => {
-          this.showSnackbar('Gagal memuat data user', 'error');
-        })
-        .finally(() => {
-          this.isTableLoading = false;
-        });
+        .catch(() => { this.showSnackbar('Gagal memuat data user', 'error'); })
+        .finally(() => { this.isTableLoading = false; });
     },
 
     async addUser() {
       this.isButtonLoading = true;
 
-      // Helper function untuk mendapatkan text dari options
       const getUplineText = (uplineValue, optionsArray) => {
         if (!uplineValue) return '';
         const option = optionsArray.find(opt => opt.value === uplineValue);
         return option ? option.text : uplineValue;
       };
 
-      // Mapping upline dengan format "code - nama"
       const uplineMapping = {
         upline_1: getUplineText(this.modelAdd.upline_1, this.mvoOptionsAdd),
         upline_2: getUplineText(this.modelAdd.upline_2, this.regionalOptionsAdd),
@@ -1314,21 +1164,13 @@ export default {
       };
 
       const formData = new FormData();
-
-      // Append data ke FormData
       for (const [key, value] of Object.entries(this.modelAdd)) {
         if (key.startsWith('upline_') && key !== 'upline_7') {
-          // Gunakan format "code - nama"
           formData.append(key, uplineMapping[key] || '');
         } else {
           formData.append(key, value ?? '');
         }
       }
-
-      const apiUrls = [
-        'https://babaapi.babaparfume.id/api/user',
-        'https://babaapi.babaparfume.id/api/user'
-      ];
 
       const requestConfig = {
         headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' },
@@ -1338,29 +1180,17 @@ export default {
       let lastError = null;
       let success = false;
 
-      for (const apiUrl of apiUrls) {
-        try {
-          const response = await axios.post(apiUrl, formData, requestConfig);
-
-          if (response.status === 200 || response.status === 201) {
-            this.showSnackbar('User berhasil ditambahkan!', 'success');
-            this.getAllUser();
-            this.isShowDialogAdd = false;
-            this.clearAddForm();
-            success = true;
-            break;
-          }
-        } catch (error) {
-          lastError = error;
-          if (error.response) break;
-
-          if (error.code === 'ERR_CERT_DATE_INVALID' || error.code === 'ERR_NETWORK' ||
-            error.message?.includes('ERR_CERT') || error.message?.includes('SSL') ||
-            error.message?.includes('Network Error')) {
-            continue;
-          }
-          break;
+      try {
+        const response = await axios.post('https://babaapi.babaparfume.id/api/user', formData, requestConfig);
+        if (response.status === 200 || response.status === 201) {
+          this.showSnackbar('User berhasil ditambahkan!', 'success');
+          this.getAllUser();
+          this.isShowDialogAdd = false;
+          this.clearAddForm();
+          success = true;
         }
+      } catch (error) {
+        lastError = error;
       }
 
       if (!success && lastError) {
@@ -1368,111 +1198,115 @@ export default {
         if (lastError.response) {
           const status = lastError.response.status;
           const data = lastError.response.data;
-          const errorMap = {
-            400: data?.message || 'Bad Request',
-            409: data?.message || 'Data sudah ada',
-            422: JSON.stringify(data?.errors) || 'Data tidak valid',
-            500: 'Server error'
-          };
+          const errorMap = { 400: data?.message || 'Bad Request', 409: data?.message || 'Data sudah ada', 422: JSON.stringify(data?.errors) || 'Data tidak valid', 500: 'Server error' };
           message = errorMap[status] || data?.message || `Error: ${status}`;
-        } else if (lastError.code === 'ECONNABORTED') {
-          message = 'Timeout';
-        } else if (lastError.code === 'ERR_NETWORK') {
-          message = 'Network error';
-        }
+        } else if (lastError.code === 'ECONNABORTED') { message = 'Timeout'; }
+        else if (lastError.code === 'ERR_NETWORK') { message = 'Network error'; }
         this.showSnackbar(message, 'error');
       }
 
       this.isButtonLoading = false;
     },
 
-    editUser(id) {
+    async editUser(id) {
       const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
+      if (!token) { this.$router.push({ name: "Login" }); return; }
 
       this.expandedMobileCard = null;
       this.clearEditForm();
       this.isShowDialogEdit = true;
 
-      if (this.cabangOptions.length === 0) this.fetchProvinsiData();
-      if (this.jabatanOptions.length === 0) this.getAllMvoType();
+      // Pastikan jabatanOptions & cabangOptions sudah tersedia sebelum lanjut
+      if (this.cabangOptions.length === 0) await this.fetchProvinsiData();
+      if (this.jabatanOptions.length === 0) await this.getAllMvoType();
 
-      // Helper function untuk extract code dari "code - nama"
-      const extractCode = (uplineValue) => {
-        if (!uplineValue) return '';
-        // Jika formatnya "code - nama", ambil code-nya saja
-        const parts = uplineValue.split(' - ');
-        return parts[0].trim();
-      };
-
-      axios.get(`https://babaapi.babaparfume.id/api/user/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => {
-          if (response.data.status === "success") {
-            const userData = response.data.data;
-
-            this.modelEdit.id = userData.id;
-            this.modelEdit.no_id = userData.no_id || "";
-            this.modelEdit.nama = userData.nama || "";
-            this.modelEdit.nama_panggilan = userData.nama_panggilan || "";
-            this.modelEdit.tempat_lahir = userData.tempat_lahir || "";
-            this.modelEdit.tgl_lahir = userData.tgl_lahir || "";
-            this.modelEdit.jenis_kelamin = userData.jenis_kelamin || "";
-            this.modelEdit.nohp = userData.nohp || "";
-            this.modelEdit.alamat = userData.alamat || "";
-            this.modelEdit.mvo_type_id = userData.mvo_type_id ? parseInt(userData.mvo_type_id) : "";
-            this.modelEdit.username = userData.username || "";
-            this.modelEdit.password = "";
-            this.modelEdit.cabang = userData.cabang || "";
-
-            // Parse upline (extract code dari "code - nama")
-            this.modelEdit.upline_1 = extractCode(userData.upline_1);
-            this.modelEdit.upline_2 = extractCode(userData.upline_2);
-            this.modelEdit.upline_3 = extractCode(userData.upline_3);
-            this.modelEdit.upline_4 = extractCode(userData.upline_4);
-            this.modelEdit.upline_5 = extractCode(userData.upline_5);
-            this.modelEdit.upline_6 = extractCode(userData.upline_6);
-
-            this.modelEdit.path_gambar_profile = null;
-
-            if (userData.path_gambar_profile) {
-              this.previewFotoProfileEdit = userData.path_gambar_profile;
-            }
-
-            // Load cascade data untuk edit
-            if (this.modelEdit.cabang) this.getMvoEdit(this.modelEdit.cabang);
-            if (this.modelEdit.upline_1) this.getRegionalEdit(this.modelEdit.upline_1);
-            if (this.modelEdit.upline_2) this.getFounderEdit(this.modelEdit.upline_2);
-            if (this.modelEdit.upline_3) this.getGmEdit(this.modelEdit.upline_3);
-            if (this.modelEdit.upline_4) this.getSupplierEdit(this.modelEdit.upline_4);
-            if (this.modelEdit.upline_5) this.getDistributorEdit(this.modelEdit.upline_5);
-
-          } else {
-            this.showSnackbar(response.data.message || 'Gagal mengambil data user', 'error');
-            this.isShowDialogEdit = false;
-          }
-        })
-        .catch((error) => {
-          this.showSnackbar('Gagal mengambil data user', 'error');
-          this.isShowDialogEdit = false;
+      try {
+        const response = await axios.get(`https://babaapi.babaparfume.id/api/user/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (response.data.status === "success") {
+          const u = response.data.data;
+
+          // ── Isi data pribadi ──────────────────────────────────────
+          this.modelEdit.id = u.id;
+          this.modelEdit.no_id = u.no_id || '';
+          this.modelEdit.nama = u.nama || '';
+          this.modelEdit.nama_panggilan = u.nama_panggilan || '';
+          this.modelEdit.tempat_lahir = u.tempat_lahir || '';
+          this.modelEdit.tgl_lahir = u.tgl_lahir || '';
+          this.modelEdit.jenis_kelamin = u.jenis_kelamin || '';
+          this.modelEdit.nohp = u.nohp || '';
+          this.modelEdit.alamat = u.alamat || '';
+          this.modelEdit.mvo_type_id = u.mvo_type_id ? parseInt(u.mvo_type_id) : '';
+          this.modelEdit.username = u.username || '';
+          this.modelEdit.password = '';
+          this.modelEdit.cabang = u.cabang || '';
+
+          this.modelEdit.path_gambar_profile = null;
+          if (u.path_gambar_profile) this.previewFotoProfileEdit = u.path_gambar_profile;
+
+          // ── Simpan nilai upline sementara ─────────────────────────
+          const savedUpline1 = u.upline_1 || '';
+          const savedUpline2 = u.upline_2 || '';
+          const savedUpline3 = u.upline_3 || '';
+          const savedUpline4 = u.upline_4 || '';
+          const savedUpline5 = u.upline_5 || '';
+          const savedUpline6 = u.upline_6 || '';
+
+          // ── Load cascade options secara SEQUENTIAL (await satu-satu) ──
+          // Dengan cara ini, setiap options sudah tersedia saat value di-assign,
+          // sehingga dropdown langsung menampilkan pilihan yang benar tanpa klik ulang.
+
+          if (this.modelEdit.cabang) {
+            await this.getMvoEdit(this.modelEdit.cabang);
+            this.modelEdit.upline_1 = savedUpline1;
+          }
+
+          if (savedUpline1) {
+            await this.getRegionalEdit(savedUpline1);
+            this.modelEdit.upline_2 = savedUpline2;
+          }
+
+          if (savedUpline2) {
+            await this.getFounderEdit(savedUpline2);
+            this.modelEdit.upline_3 = savedUpline3;
+          }
+
+          if (savedUpline3) {
+            await this.getGmEdit(savedUpline3);
+            this.modelEdit.upline_4 = savedUpline4;
+          }
+
+          if (savedUpline4) {
+            await this.getSupplierEdit(savedUpline4);
+            this.modelEdit.upline_5 = savedUpline5;
+          }
+
+          if (savedUpline5) {
+            await this.getDistributorEdit(savedUpline5);
+            this.modelEdit.upline_6 = savedUpline6;
+          }
+
+        } else {
+          this.showSnackbar(response.data.message || 'Gagal mengambil data user', 'error');
+          this.isShowDialogEdit = false;
+        }
+      } catch {
+        this.showSnackbar('Gagal mengambil data user', 'error');
+        this.isShowDialogEdit = false;
+      }
     },
 
     async updateUser() {
       this.isButtonLoading = true;
 
-      // Helper function untuk mendapatkan text dari options
       const getUplineText = (uplineValue, optionsArray) => {
         if (!uplineValue) return '';
         const option = optionsArray.find(opt => opt.value === uplineValue);
         return option ? option.text : uplineValue;
       };
 
-      // Mapping upline dengan format "code - nama"
       const uplineMapping = {
         upline_1: getUplineText(this.modelEdit.upline_1, this.mvoOptionsEdit),
         upline_2: getUplineText(this.modelEdit.upline_2, this.regionalOptionsEdit),
@@ -1483,12 +1317,9 @@ export default {
       };
 
       const formData = new FormData();
-
-      // Append data ke FormData
       for (const [key, value] of Object.entries(this.modelEdit)) {
         if (key !== 'id') {
           if (key.startsWith('upline_') && key !== 'upline_7') {
-            // Gunakan format "code - nama"
             formData.append(key, uplineMapping[key] || '');
           } else {
             formData.append(key, value ?? '');
@@ -1496,11 +1327,6 @@ export default {
         }
       }
       formData.append('_method', 'PUT');
-
-      const apiUrls = [
-        `https://babaapi.babaparfume.id/api/user/${this.modelEdit.id}`,
-        `https://babaapi.babaparfume.id/api/user/${this.modelEdit.id}`
-      ];
 
       const requestConfig = {
         headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' },
@@ -1510,29 +1336,21 @@ export default {
       let lastError = null;
       let success = false;
 
-      for (const apiUrl of apiUrls) {
-        try {
-          const response = await axios.post(apiUrl, formData, requestConfig);
-
-          if (response.status === 200 || response.status === 201) {
-            this.showSnackbar('User berhasil diupdate!', 'success');
-            this.getAllUser();
-            this.isShowDialogEdit = false;
-            this.clearEditForm();
-            success = true;
-            break;
-          }
-        } catch (error) {
-          lastError = error;
-          if (error.response) break;
-
-          if (error.code === 'ERR_CERT_DATE_INVALID' || error.code === 'ERR_NETWORK' ||
-            error.message?.includes('ERR_CERT') || error.message?.includes('SSL') ||
-            error.message?.includes('Network Error')) {
-            continue;
-          }
-          break;
+      try {
+        const response = await axios.post(
+          `https://babaapi.babaparfume.id/api/user/${this.modelEdit.id}`,
+          formData,
+          requestConfig
+        );
+        if (response.status === 200 || response.status === 201) {
+          this.showSnackbar('User berhasil diupdate!', 'success');
+          this.getAllUser();
+          this.isShowDialogEdit = false;
+          this.clearEditForm();
+          success = true;
         }
+      } catch (error) {
+        lastError = error;
       }
 
       if (!success && lastError) {
@@ -1540,18 +1358,10 @@ export default {
         if (lastError.response) {
           const status = lastError.response.status;
           const data = lastError.response.data;
-          const errorMap = {
-            400: data?.message || 'Bad Request',
-            409: data?.message || 'Data sudah ada',
-            422: JSON.stringify(data?.errors) || 'Data tidak valid',
-            500: 'Server error'
-          };
+          const errorMap = { 400: data?.message || 'Bad Request', 409: data?.message || 'Data sudah ada', 422: JSON.stringify(data?.errors) || 'Data tidak valid', 500: 'Server error' };
           message = errorMap[status] || data?.message || `Error: ${status}`;
-        } else if (lastError.code === 'ECONNABORTED') {
-          message = 'Timeout';
-        } else if (lastError.code === 'ERR_NETWORK') {
-          message = 'Network error';
-        }
+        } else if (lastError.code === 'ECONNABORTED') { message = 'Timeout'; }
+        else if (lastError.code === 'ERR_NETWORK') { message = 'Network error'; }
         this.showSnackbar(message, 'error');
       }
 
@@ -1566,22 +1376,17 @@ export default {
 
     confirmDeleteUser(id) {
       const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
+      if (!token) { this.$router.push({ name: "Login" }); return; }
 
       this.isButtonLoading = true;
       axios.delete(`https://babaapi.babaparfume.id/api/user/${id}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       })
-        .then((response) => {
+        .then(() => {
           this.getAllUser();
           this.showSnackbar('User berhasil dihapus', 'success');
         })
-        .catch((error) => {
-          this.showSnackbar('Gagal menghapus user', 'error');
-        })
+        .catch(() => { this.showSnackbar('Gagal menghapus user', 'error'); })
         .finally(() => {
           this.isButtonLoading = false;
           this.isShowDialogDelete = false;
@@ -1590,10 +1395,7 @@ export default {
 
     aktivasiUser(id) {
       const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
+      if (!token) { this.$router.push({ name: "Login" }); return; }
 
       this.expandedMobileCard = null;
       this.isButtonLoading = true;
@@ -1601,16 +1403,12 @@ export default {
       axios.post(`https://babaapi.babaparfume.id/api/user/aktivasi/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       })
-        .then((response) => {
+        .then(() => {
           this.getAllUser();
           this.showSnackbar('Status aktivasi berhasil diubah', 'success');
         })
-        .catch((error) => {
-          this.showSnackbar(error.response?.data?.message, 'error');
-        })
-        .finally(() => {
-          this.isButtonLoading = false;
-        });
+        .catch((error) => { this.showSnackbar(error.response?.data?.message, 'error'); })
+        .finally(() => { this.isButtonLoading = false; });
     },
   },
 
@@ -1621,19 +1419,18 @@ export default {
   },
 
   watch: {
+    // Reset semua upline jika jabatan pada form Add berubah
     'modelAdd.mvo_type_id'() {
-
-      this.modelAdd.upline_1 = ''
-      this.modelAdd.upline_2 = ''
-      this.modelAdd.upline_3 = ''
-      this.modelAdd.upline_4 = ''
-      this.modelAdd.upline_5 = ''
-      this.modelAdd.upline_6 = ''
+      this.modelAdd.upline_1 = this.modelAdd.upline_2 = this.modelAdd.upline_3 = '';
+      this.modelAdd.upline_4 = this.modelAdd.upline_5 = this.modelAdd.upline_6 = '';
+    },
+    // Reset semua upline jika jabatan pada form Edit berubah
+    'modelEdit.mvo_type_id'() {
+      this.modelEdit.upline_1 = this.modelEdit.upline_2 = this.modelEdit.upline_3 = '';
+      this.modelEdit.upline_4 = this.modelEdit.upline_5 = this.modelEdit.upline_6 = '';
     },
     'datatable.search': {
-      handler() {
-        this.expandedMobileCard = null;
-      }
+      handler() { this.expandedMobileCard = null; }
     }
   }
 };
