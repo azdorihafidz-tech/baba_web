@@ -160,12 +160,12 @@ export default {
                     {
                         id: 2,
                         judul: "TUTORIAL APLIKASI BABA PARFUM (USER)",
-                        link_gdrive: "https://drive.usercontent.google.com/download?id=11Zh3XWav6v64n2OknIjp2S68OtF_1Nj3&export=download&authuser=0&confirm=t&uuid=e58d25d3-84dd-45ed-af9a-506fe7be8bfa&at=APcXIO3bv1AQ4hOAWdp25C1iFOUz:1772159674685"
+                        link_gdrive: "https://drive.usercontent.google.com/download?id=1bBGM1oJgTuKkAHJvzaVVx_Zt3fad8tGP&export=download&authuser=0&confirm=t&uuid=ad33d81b-d886-44e4-aeab-0ff8179b2e41&at=AGN2oQ0L2kAapvKVGo_KvQZEyDjQ:1772766202226"
                     },
                     {
                         id: 3,
                         judul: "TUTORIAL APLIKASI BABA PARFUM (ADMIN)",
-                        link_gdrive: "https://drive.usercontent.google.com/download?id=1SVCroHlZImEE3BqwshsvkFNRUkiGHgj0&export=download&authuser=0&confirm=t&uuid=18e56d65-f6eb-4ef6-ba49-b403af59b87f&at=APcXIO2Nu14A0Qsqsaor9nZoeVhC:1772159627954"
+                        link_gdrive: "https://drive.usercontent.google.com/download?id=1PwDRl3YLZxyJBYtL3VB7YjAvpFOJMxf4&export=download&authuser=0&confirm=t&uuid=d931e4cd-f097-44ab-b483-9eebff711a5a&at=AGN2oQ35rQ8jqkrf7KmYUxaCjDQ1:1772766156112"
                     },
                     {
                         id: 4,

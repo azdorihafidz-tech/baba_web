@@ -784,9 +784,12 @@ export default {
 
                         success = true
                         break
+                    } else {
+                        lastError = new Error(`Unexpected response status: ${response.status}`)
                     }
 
                 } catch (error) {
+                    alert('Terjadi kesalahan saat registrasi. Silakan coba lagi.')
                     lastError = error
 
                     if (error.response) break
