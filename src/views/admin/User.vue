@@ -1386,7 +1386,7 @@ export default {
           this.getAllUser();
           this.showSnackbar('User berhasil dihapus', 'success');
         })
-        .catch(() => { this.showSnackbar('Gagal menghapus user', 'error'); })
+        .catch((err) => { this.showSnackbar(err.response?.data?.message, 'error'); })
         .finally(() => {
           this.isButtonLoading = false;
           this.isShowDialogDelete = false;
