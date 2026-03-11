@@ -153,10 +153,10 @@ import { ref, computed, onMounted, defineComponent, h } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const ROLE_ORDER = ['MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'SELLER'];
+const ROLE_ORDER = ['MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
 const ROLE_COLORS = {
   'MVO': '#ef4444', 'REGIONAL': '#f97316', 'FOUNDER': '#a855f7',
-  'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'SELLER': '#6b7280',
+  'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'RESELLER': '#6b7280',
 };
 
 const rawData = ref([]);
@@ -270,7 +270,7 @@ function formatDate(dt) { if (!dt) return '—'; return dt.split(' ')[0]; }
 
 function getDisplayRole(role) {
   if (!role) return '';
-  return role.toString().toUpperCase() === 'SELLER' ? 'RESELLER' : role;
+  return role.toString().toUpperCase() === 'RESELLER' ? 'RESELLER' : role;
 }
 
 // ─── TreeNode ─────────────────────────────────────────────────────────────────
