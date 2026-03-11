@@ -375,13 +375,13 @@
           </v-row>
 
           <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <!-- <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-text-field v-model="modelAdd.password" :type="visibleAdd ? 'text' : 'password'" density="compact"
                 label="Password" prepend-inner-icon="mdi-lock"
                 :append-inner-icon="visibleAdd ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append-inner="visibleAdd = !visibleAdd" variant="outlined" color="amber"
                 base-color="grey-lighten-1" />
-            </v-col>
+            </v-col> -->
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-file-input label="Foto Profil" v-model="modelAdd.path_gambar_profile"
                 accept="image/png, image/jpeg, image/jpg" variant="outlined" density="compact"
@@ -896,7 +896,7 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/mvo', { cabang });
         this.mvoOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch { this.showSnackbar('Gagal memuat data MVO', 'error'); }
+      } catch { this.showSnackbar; }
       this.loadingMvoEdit = false;
     },
     async getRegionalEdit(code) {
@@ -904,7 +904,7 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/regional', { cabang: this.modelEdit.cabang, upline_1: code });
         this.regionalOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch { this.showSnackbar('Gagal memuat data Regional', 'error'); }
+      } catch { this.showSnackbar; }
       this.loadingRegionalEdit = false;
     },
     async getFounderEdit(code) {
@@ -912,7 +912,7 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/founder', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: code });
         this.founderOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch { this.showSnackbar('Gagal memuat data Founder', 'error'); }
+      } catch { this.showSnackbar; }
       this.loadingFounderEdit = false;
     },
     async getGmEdit(code) {
@@ -920,7 +920,7 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/gm', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: this.modelEdit.upline_2, upline_3: code });
         this.gmOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch { this.showSnackbar('Gagal memuat data GM', 'error'); }
+      } catch { this.showSnackbar; }
       this.loadingGmEdit = false;
     },
     async getSupplierEdit(code) {
@@ -928,7 +928,7 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/supplier', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: code });
         this.supplierOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch { this.showSnackbar('Gagal memuat data Supplier', 'error'); }
+      } catch { this.showSnackbar; }
       this.loadingSupplierEdit = false;
     },
     async getDistributorEdit(code) {
@@ -936,7 +936,7 @@ export default {
       try {
         const res = await axios.post('https://babaapi.babaparfume.id/api/get/distributor', { cabang: this.modelEdit.cabang, upline_1: this.modelEdit.upline_1, upline_2: this.modelEdit.upline_2, upline_3: this.modelEdit.upline_3, upline_4: this.modelEdit.upline_4, upline_5: code });
         this.distributorOptionsEdit = res.data.data.map(i => ({ text: `${i.code} - ${i.nama}`, value: `${i.code} - ${i.nama}` }));
-      } catch { this.showSnackbar('Gagal memuat data Distributor', 'error'); }
+      } catch { this.showSnackbar; }
       this.loadingDistributorEdit = false;
     },
 
@@ -954,7 +954,7 @@ export default {
             value: provinsi.code,
           }));
         } else {
-          this.showSnackbar('Gagal memuat data provinsi', 'error');
+          this.showSnackbar;
         }
       } catch (error) {
         let message = 'Gagal memuat data provinsi';
@@ -1138,10 +1138,10 @@ export default {
 
             this.datatable.items = this.mapUserWithBintang(users);
           } else {
-            this.showSnackbar(response.data.message || 'Gagal memuat data user', 'error');
+            this.showSnackbar(response.data.message);
           }
         })
-        .catch(() => { this.showSnackbar('Gagal memuat data user', 'error'); })
+        .catch(() => { this.showSnackbar; })
         .finally(() => { this.isTableLoading = false; });
     },
 
@@ -1289,11 +1289,11 @@ export default {
           }
 
         } else {
-          this.showSnackbar(response.data.message || 'Gagal mengambil data user', 'error');
+          this.showSnackbar(response.data.message);
           this.isShowDialogEdit = false;
         }
       } catch {
-        this.showSnackbar('Gagal mengambil data user', 'error');
+        this.showSnackbar;
         this.isShowDialogEdit = false;
       }
     },
