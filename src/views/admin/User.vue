@@ -1188,6 +1188,8 @@ export default {
           this.isShowDialogAdd = false;
           this.clearAddForm();
           success = true;
+        } else {
+          lastError = new Error(`Unexpected response status: ${response.status}`);
         }
       } catch (error) {
         lastError = error;
@@ -1195,13 +1197,21 @@ export default {
 
       if (!success && lastError) {
         let message = 'Tambah user gagal';
-        if (lastError.response) {
-          const status = lastError.response.status;
+        if (lastError.response && lastError.response.data) {
           const data = lastError.response.data;
-          const errorMap = { 400: data?.message || 'Bad Request', 409: data?.message || 'Data sudah ada', 422: JSON.stringify(data?.errors) || 'Data tidak valid', 500: 'Server error' };
-          message = errorMap[status] || data?.message || `Error: ${status}`;
-        } else if (lastError.code === 'ECONNABORTED') { message = 'Timeout'; }
-        else if (lastError.code === 'ERR_NETWORK') { message = 'Network error'; }
+          if (data.errors && typeof data.errors === 'object') {
+            const errorMessages = Object.values(data.errors).flat();
+            message = errorMessages.join(' ');
+          } else if (data.message) {
+            message = data.message;
+          }
+        } else if (lastError.code === 'ECONNABORTED') {
+          message = 'Koneksi timeout. Silakan coba lagi.';
+        } else if (lastError.code === 'ERR_NETWORK') {
+          message = 'Masalah jaringan. Periksa koneksi internet Anda.';
+        } else if (lastError.message) {
+          message = lastError.message;
+        }
         this.showSnackbar(message, 'error');
       }
 
@@ -1348,6 +1358,8 @@ export default {
           this.isShowDialogEdit = false;
           this.clearEditForm();
           success = true;
+        } else {
+          lastError = new Error(`Unexpected response status: ${response.status}`);
         }
       } catch (error) {
         lastError = error;
@@ -1355,13 +1367,21 @@ export default {
 
       if (!success && lastError) {
         let message = 'Update user gagal';
-        if (lastError.response) {
-          const status = lastError.response.status;
+        if (lastError.response && lastError.response.data) {
           const data = lastError.response.data;
-          const errorMap = { 400: data?.message || 'Bad Request', 409: data?.message || 'Data sudah ada', 422: JSON.stringify(data?.errors) || 'Data tidak valid', 500: 'Server error' };
-          message = errorMap[status] || data?.message || `Error: ${status}`;
-        } else if (lastError.code === 'ECONNABORTED') { message = 'Timeout'; }
-        else if (lastError.code === 'ERR_NETWORK') { message = 'Network error'; }
+          if (data.errors && typeof data.errors === 'object') {
+            const errorMessages = Object.values(data.errors).flat();
+            message = errorMessages.join(' ');
+          } else if (data.message) {
+            message = data.message;
+          }
+        } else if (lastError.code === 'ECONNABORTED') {
+          message = 'Koneksi timeout. Silakan coba lagi.';
+        } else if (lastError.code === 'ERR_NETWORK') {
+          message = 'Masalah jaringan. Periksa koneksi internet Anda.';
+        } else if (lastError.message) {
+          message = lastError.message;
+        }
         this.showSnackbar(message, 'error');
       }
 

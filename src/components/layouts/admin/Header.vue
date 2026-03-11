@@ -232,7 +232,7 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            mvoTypeResponse = await apiClient.get('http://babaapi.teknosof.com/api/mvo-type');
+            mvoTypeResponse = await apiClient.get('https://babaapi.babaparfume.id/api/mvo-type');
           } else {
             throw httpsError;
           }
