@@ -789,7 +789,6 @@ export default {
                     }
 
                 } catch (error) {
-                    alert('Terjadi kesalahan saat registrasi. Silakan coba lagi.')
                     lastError = error
 
                     if (error.response) break
@@ -809,26 +808,25 @@ export default {
             }
 
             if (!success && lastError) {
-                let message = 'Registrasi gagal'
+                let message = 'Registrasi gagal';
 
-                if (lastError.response) {
-                    const status = lastError.response.status
-                    const data = lastError.response.data
-
-                    switch (status) {
-                        case 400: message = data?.message || 'Bad Request'; break
-                        case 409: message = data?.message || 'Data sudah ada'; break
-                        case 422: message = JSON.stringify(data?.errors) || 'Data tidak valid'; break
-                        case 500: message = 'Server error'; break
-                        default: message = data?.message || `Error: ${status}`
+                if (lastError.response && lastError.response.data) {
+                    const data = lastError.response.data;
+                    if (data.errors && typeof data.errors === 'object') {
+                        const errorMessages = Object.values(data.errors).flat();
+                        message = errorMessages.join(' ');
+                    } else if (data.message) {
+                        message = data.message;
                     }
                 } else if (lastError.code === 'ECONNABORTED') {
-                    message = 'Timeout'
+                    message = 'Koneksi timeout. Silakan coba lagi.';
                 } else if (lastError.code === 'ERR_NETWORK') {
-                    message = 'Network error'
+                    message = 'Masalah jaringan. Periksa koneksi internet Anda.';
+                } else if (lastError.message) {
+                    message = lastError.message;
                 }
 
-                this.showSnackbar(message, 'error')
+                this.showSnackbar(message, 'error');
             }
 
             this.isButtonLoading = false
