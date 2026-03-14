@@ -1708,10 +1708,10 @@ export default {
           // Refresh document list untuk update status
           await this.getMvoDocuments(this.getDocumentMvoId());
         } else {
-          this.showSnackbar(response.data.message || "Gagal menyetujui dokumen", 'error');
+          this.showSnackbar(response.data.message, 'error');
         }
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error approving document", 'error');
+        this.showSnackbar(error.response?.data?.message, 'error');
       } finally {
         this.isDocumentButtonLoading = false;
       }
@@ -1832,10 +1832,10 @@ export default {
           this.showSnackbar(response.data.message || successMessage);
           await this.getAllMvo();
         } else {
-          this.showSnackbar(response.data.message || "Gagal menyetujui Data", 'error');
+          this.showSnackbar(response.data.message, 'error');
         }
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error approving Data", 'error');
+        this.showSnackbar(error.response?.data?.message, 'error');
       } finally {
         this.isButtonLoading = false;
       }
@@ -1947,10 +1947,10 @@ export default {
           });
 
         } else {
-          this.showSnackbar(response.data.message || "Error loading data", "error");
+          this.showSnackbar(response.data.message);
         }
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error loading data", "error");
+        this.showSnackbar(error.response?.data?.message);
       } finally {
         this.isTableLoading = false;
       }
@@ -2030,7 +2030,7 @@ export default {
           this.isShowDialogEditDocument = true;
         }
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error loading document", 'error');
+        this.showSnackbar(error.response?.data?.message);
       }
     },
 
@@ -2059,7 +2059,7 @@ export default {
     showDialogAddDocument() {
       const mvoId = this.getDocumentMvoId();
       if (!mvoId) {
-        this.showSnackbar("ID tidak ditemukan", 'error');
+        this.showSnackbar('error');
         return;
       }
 
@@ -2153,10 +2153,9 @@ export default {
 
         await this.getMvoDocuments(this.getDocumentMvoId());
         this.isShowDialogAddDocument = false;
-        this.showSnackbar(response.data.message || "Dokumen berhasil ditambah");
-
+        this.showSnackbar(response.data.message);
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error adding document", 'error');
+        this.showSnackbar(error.response.data.message, 'error');
       } finally {
         this.isDocumentButtonLoading = false;
       }
