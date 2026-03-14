@@ -83,13 +83,13 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80 mb-1">Total RO</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_repeat_order
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                     <div class="vertical-divider"></div>
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80 mb-1">Transaksi</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_transaksi_ro
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -168,7 +168,7 @@
                                         <div class="text-center">
                                             <div class="text-caption text-white opacity-80 mb-1">Downline</div>
                                             <div class="text-h6 font-weight-bold text-white lh-1">{{ mvo.totalDownlines
-                                            }}</div>
+                                                }}</div>
                                         </div>
                                     </div>
                                     <v-divider class="my-2 border-opacity-25" color="white"></v-divider>
@@ -275,7 +275,7 @@
                                         <div class="text-center">
                                             <div class="text-caption text-white opacity-80 mb-1">Total RO</div>
                                             <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
-                                                }}</div>
+                                            }}</div>
                                         </div>
                                         <div class="vertical-divider"></div>
                                         <div class="text-center">
@@ -298,7 +298,7 @@
         <!-- Section: Top Star Card dalam Tabel -->
         <v-card-title class="d-flex align-center">
             <v-icon class="mr-2" color="amber">mdi-star</v-icon>
-            Top Star per Role
+            Akumulasi Star Dari Downline
         </v-card-title>
 
         <v-card-text class="pb-0">
@@ -539,14 +539,14 @@
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Total RO</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_repeat_order
-                                        }}
+                                            }}
                                         </div>
                                     </div>
                                     <div class="vertical-divider" style="height: 25px;"></div>
                                     <div class="text-center">
                                         <div class="text-caption text-white opacity-80">Transaksi</div>
                                         <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_transaksi_ro
-                                        }}
+                                            }}
                                         </div>
                                     </div>
                                 </div>
@@ -651,7 +651,7 @@
                                             </span>
                                         </v-avatar>
                                         <div class="text-body-1 font-weight-bold text-white text-truncate">{{ item.nama
-                                        }}
+                                            }}
                                         </div>
                                         <v-chip size="x-small" color="white" variant="outlined" class="text-white mt-1">
                                             {{ item.province_code || '-' }} | {{ item.code }}
@@ -663,7 +663,7 @@
                                             <div class="text-center">
                                                 <div class="text-caption text-white opacity-80">Total RO</div>
                                                 <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
-                                                }}
+                                                    }}
                                                 </div>
                                             </div>
                                             <div class="vertical-divider" style="height: 25px;"></div>
@@ -769,7 +769,7 @@
             <!-- TITLE -->
             <v-card-title class="d-flex align-center">
                 <v-icon class="mr-2" color="amber">mdi-star</v-icon>
-                Top Star per Role
+                Akumulasi Star Dari Downline
             </v-card-title>
 
             <!-- FILTER -->
@@ -890,7 +890,7 @@
                         <v-list-item-subtitle class="d-flex align-center">
                             <span class="text-caption mr-2">{{ item.code }}</span>
                             <v-chip :color="getRoleColor(item.role)" dark size="x-small">{{ getRoleLabel(item.role)
-                            }}</v-chip>
+                                }}</v-chip>
                         </v-list-item-subtitle>
                         <template v-slot:append>
                             <v-chip color="amber" dark size="small">
@@ -1091,21 +1091,21 @@
                             </v-chip>
                         </template>
                         <template v-slot:item.upline_1="{ item }"><span class="text-caption">{{ item.upline_1 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_2="{ item }"><span class="text-caption">{{ item.upline_2 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_3="{ item }"><span class="text-caption">{{ item.upline_3 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_4="{ item }"><span class="text-caption">{{ item.upline_4 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_5="{ item }"><span class="text-caption">{{ item.upline_5 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.upline_6="{ item }"><span class="text-caption">{{ item.upline_6 || '-'
-                        }}</span></template>
+                                }}</span></template>
                         <template v-slot:item.tempat_lahir="{ item }"><span class="text-caption">{{ item.tempat_lahir ||
                             '-' }}</span></template>
                         <template v-slot:item.alamat="{ item }"><span class="text-caption">{{ item.alamat || '-'
-                        }}</span></template>
+                                }}</span></template>
                     </v-data-table>
                 </div>
 
@@ -1135,7 +1135,7 @@
                                             <div style="font-size:9px" class="text-grey">No HP</div>
                                             <div style="font-size:10px" class="font-weight-medium">{{ downline.nohp ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="4">
                                             <div style="font-size:9px" class="text-grey">Tempat Lahir</div>
@@ -1147,13 +1147,13 @@
                                             <div style="font-size:9px" class="text-grey">No ID</div>
                                             <div style="font-size:10px" class="font-weight-medium">{{ downline.no_id ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                         <v-col cols="12">
                                             <div style="font-size:9px" class="text-grey">Alamat</div>
                                             <div style="font-size:10px" class="font-weight-medium">{{ downline.alamat ||
                                                 '-'
-                                            }}</div>
+                                                }}</div>
                                         </v-col>
                                     </v-row>
 
