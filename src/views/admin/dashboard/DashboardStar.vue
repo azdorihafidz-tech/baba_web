@@ -47,8 +47,9 @@
                             </div>
 
                             <div class="text-center mb-4 mt-2">
-                                <v-avatar size="72" class="mb-3 border-2 border-white elevation-3" color="white">
-                                    <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white"
+                                    style="cursor:pointer" @click="openProfilePreview(item)"> <v-img
+                                        v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
                                         <template v-slot:placeholder>
                                             <v-row class="fill-height ma-0" align="center" justify="center">
                                                 <v-progress-circular indeterminate
@@ -110,8 +111,8 @@
 
             <v-card-text>
                 <v-row>
-                    <v-col v-for="mvo in filteredRankedMvoList" :key="mvo.id" cols="12" sm="6" md="4" lg="3">
-                        <v-card class="h-100 top-star-card position-relative overflow-hidden" elevation="6"
+                    <v-col v-for="mvo in filteredRankedMvoList" :key="mvo.id" cols="12" sm="6" md="4" lg="4"> <v-card
+                            class="h-100 top-star-card position-relative overflow-hidden" elevation="8"
                             @click="openMvoDetail(mvo)" style="cursor: pointer;">
                             <div class="card-gradient-bg" :style="getMvoBackground(mvo)"></div>
                             <div class="card-shine"></div>
@@ -125,8 +126,19 @@
                                 </div>
 
                                 <div class="text-center mb-4 mt-2">
-                                    <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white">
-                                        <v-img :src="getMvoImageUrl(mvo)" cover>
+                                    <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white"
+                                        style="cursor:pointer" @click="openProfilePreview(item)"><v-dialog
+                                            v-model="profilePreviewDialog" max-width="500">
+                                            <v-card>
+                                                <v-img :src="selectedProfileImage" contain max-height="500"></v-img>
+
+                                                <v-card-actions class="justify-end">
+                                                    <v-btn color="primary" @click="profilePreviewDialog = false">
+                                                        Tutup
+                                                    </v-btn>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog> <v-img :src="getMvoImageUrl(mvo)" cover>
                                             <template v-slot:placeholder>
                                                 <v-row class="fill-height ma-0" align="center" justify="center">
                                                     <v-progress-circular indeterminate
@@ -223,8 +235,20 @@
                                 </div>
 
                                 <div class="text-center mb-4 mt-2">
-                                    <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white">
-                                        <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                    <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white"
+                                        style="cursor:pointer" @click="openProfilePreview(item)"> <v-img
+                                            v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                            <v-dialog v-model="profilePreviewDialog" max-width="500">
+                                                <v-card>
+                                                    <v-img :src="selectedProfileImage" contain max-height="500"></v-img>
+
+                                                    <v-card-actions class="justify-end">
+                                                        <v-btn color="primary" @click="profilePreviewDialog = false">
+                                                            Tutup
+                                                        </v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
                                             <template v-slot:placeholder>
                                                 <v-row class="fill-height ma-0" align="center" justify="center">
                                                     <v-progress-circular indeterminate
@@ -270,6 +294,99 @@
             <div v-if="groupedLeaderboardByRole.length === 0" class="text-center pa-4 text-grey">
                 Tidak ada data untuk bulan ini
             </div>
+        </v-card-text>
+        <!-- Section: Top Star Card dalam Tabel -->
+        <v-card-title class="d-flex align-center">
+            <v-icon class="mr-2" color="amber">mdi-star</v-icon>
+            Top Star per Role
+        </v-card-title>
+
+        <v-card-text class="pb-0">
+            <div class="d-flex align-center justify-space-between mb-3">
+                <div style="width: 300px;">
+                    <v-select v-model="filterRoleTopStar" :items="roleFilterItems" label="Filter Role"
+                        variant="outlined" density="compact" hide-details></v-select>
+                </div>
+                <div style="width: 300px;">
+                    <v-text-field v-model="searchTopStar" prepend-inner-icon="mdi-magnify" label="Search"
+                        variant="outlined" density="compact" hide-details></v-text-field>
+                </div>
+            </div>
+            <div class="text-center">
+                <v-btn color="success" prepend-icon="mdi-microsoft-excel"
+                    @click="exportToExcel(filteredTopStarData, 'Top_Star_per_Role', topStarTableHeaders)">
+                    Export Excel
+                </v-btn>
+            </div>
+        </v-card-text>
+
+        <v-card-text>
+            <v-card-text>
+
+                <v-data-table class="bg-grey-lighten-4 text-no-wrap" :headers="topStarTableHeaders"
+                    :search="searchTopStar" :items="filteredTopStarData" :loading="isLoading" item-key="id"
+                    :items-per-page="10">
+
+                    <template v-slot:item.ranking="{ item }">
+                        <v-chip :color="getRankColor(item.ranking)" dark size="small">
+                            <v-icon v-if="item.ranking <= 3" left size="14">
+                                {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
+                            </v-icon>
+                            {{ item.ranking }}
+                        </v-chip>
+                    </template>
+
+                    <template v-slot:item.nama="{ item }">
+                        <div class="d-flex align-center gap-2">
+                            <v-avatar size="36" color="white" class="elevation-1">
+                                <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
+                                    <template v-slot:placeholder>
+                                        <v-progress-circular indeterminate color="grey-lighten-2"
+                                            size="16"></v-progress-circular>
+                                    </template>
+                                </v-img>
+                                <span v-else class="text-body-2 font-weight-bold text-grey-darken-3">
+                                    {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
+                                </span>
+                            </v-avatar>
+
+                            <div>
+                                <div class="font-weight-medium">{{ item.nama }}</div>
+                                <div class="text-caption text-grey">
+                                    {{ item.province_code || '-' }} | {{ item.code }}
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template v-slot:item.role="{ item }">
+                        <v-chip :color="getRoleColor(item.role)" dark size="small">
+                            {{ getRoleLabel(item.role) }}
+                        </v-chip>
+                    </template>
+
+                    <template v-slot:item.total_ro="{ item }">
+                        <div class="text-center font-weight-medium">
+                            {{ item.total_ro }}
+                        </div>
+                    </template>
+
+                    <template v-slot:item.total_bintang="{ item }">
+                        <div class="d-flex align-center justify-center">
+                            <v-chip color="amber" dark size="small">
+                                <v-icon left size="14">mdi-star</v-icon>
+                                {{ item.total_bintang || 0 }}
+                            </v-chip>
+                        </div>
+                    </template>
+
+                </v-data-table>
+
+                <div v-if="filteredTopStarData.length === 0" class="text-center pa-4 text-grey">
+                    Tidak ada data untuk bulan ini
+                </div>
+
+            </v-card-text>
         </v-card-text>
         <v-card-text>
             <!-- Section 1: Ranking Semua Akun -->
@@ -382,7 +499,19 @@
                                 <span class="font-weight-bold text-caption">#{{ index + 1 }}</span>
                             </div>
                             <div class="text-center mb-3 mt-1">
-                                <v-avatar size="60" class="mb-2 border-2 border-white elevation-2" color="white">
+                                <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white"
+                                    style="cursor:pointer" @click="openProfilePreview(item)">
+                                    <v-dialog v-model="profilePreviewDialog" max-width="500">
+                                        <v-card>
+                                            <v-img :src="selectedProfileImage" contain max-height="500"></v-img>
+
+                                            <v-card-actions class="justify-end">
+                                                <v-btn color="primary" @click="profilePreviewDialog = false">
+                                                    Tutup
+                                                </v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
                                     <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
                                         <template v-slot:placeholder>
                                             <v-row class="fill-height ma-0" align="center" justify="center">
@@ -486,109 +615,243 @@
                         </v-card-text>
                     </v-card>
                 </v-col>
-            </v-row>
-        </div>
-        <!-- <v-card-title class="d-flex align-center">
-            <v-icon class="mr-2" color="primary">mdi-calendar-month</v-icon>
-            Akumulasi Star
-        </v-card-title> -->
+                <div v-for="group in groupedLeaderboardByRole" :key="group.role" class="mb-6">
+                    <div class="d-flex align-center mb-3">
+                        <v-chip :color="group.color" label class="font-weight-bold mr-2 text-white">
+                            {{ group.label }}
+                        </v-chip>
+                        <v-divider></v-divider>
+                    </div>
+                    <v-row dense>
+                        <v-col v-for="item in group.items" :key="item.id" cols="12" sm="6">
+                            <v-card class="top-star-card position-relative overflow-hidden" elevation="4"
+                                style="cursor: pointer;" @click="openProfilePreview(item)">
+                                <div class="card-gradient-bg" :style="getMvoBackground(item)"></div>
+                                <div class="card-shine"></div>
 
-        <v-card-text class="pb-0">
-            <!-- <div class="d-flex align-center justify-space-between mb-3">
-                <div style="width: 300px;">
-                    <v-text-field v-model="searchBulan" prepend-inner-icon="mdi-magnify" label="Search"
-                        variant="outlined" density="compact" hide-details></v-text-field>
-                </div>
-                <div class="text-center">
-                    <v-btn color="success" prepend-icon="mdi-microsoft-excel" @click="exportToExcel(
-                        filteredLeaderboardBulanData,
-                        `Leaderboard_Bulan_${selectedLeaderboardMonth}`,
-                        leaderboardPerBulanHeaders
-                    )">
-                        Export Excel
-                    </v-btn>
-                </div>
-            </div> -->
-            <v-chip-group v-model="selectedLeaderboardMonth" mandatory color="primary" class="mb-4" show-arrows>
-                <v-chip v-for="bulan in availableLeaderboardMonths" :key="bulan" :value="bulan" size="small"
-                    variant="elevated">
-                    {{ formatMonth(bulan) }}
-                </v-chip>
-            </v-chip-group>
-        </v-card-text>
+                                <v-card-text class="position-relative pa-4" style="z-index: 2;">
+                                    <div class="rank-ribbon">
+                                        <v-icon v-if="item.ranking <= 3" color="amber" size="14" class="mr-1">
+                                            {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
+                                        </v-icon>
+                                        <span class="font-weight-bold text-caption">#{{ item.ranking }}</span>
+                                    </div>
 
-        <v-card-text>
-            <div v-for="group in groupedLeaderboardByRole" :key="group.role" class="mb-6">
-                <div class="d-flex align-center mb-3">
-                    <v-chip :color="group.color" label class="font-weight-bold mr-2 text-white">
-                        {{ group.label }}
-                    </v-chip>
-                    <v-divider></v-divider>
-                </div>
-
-                <v-row>
-                    <v-col v-for="item in group.items" :key="item.id" cols="12" sm="6" md="4" lg="3">
-                        <v-card class="h-100 top-star-card position-relative overflow-hidden" elevation="6">
-                            <div class="card-gradient-bg" :style="getMvoBackground(item)"></div>
-                            <div class="card-shine"></div>
-
-                            <v-card-text class="position-relative pa-5" style="z-index: 2;">
-                                <div class="rank-ribbon">
-                                    <v-icon v-if="item.ranking <= 3" color="amber" size="16" class="mr-1">
-                                        {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
-                                    </v-icon>
-                                    <span class="font-weight-bold">#{{ item.ranking }}</span>
-                                </div>
-
-                                <div class="text-center mb-4 mt-2">
-                                    <v-avatar size="80" class="mb-3 border-2 border-white elevation-3" color="white">
-                                        <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)" cover>
-                                            <template v-slot:placeholder>
-                                                <v-row class="fill-height ma-0" align="center" justify="center">
+                                    <div class="text-center mb-3 mt-1">
+                                        <v-avatar size="60" class="mb-2 border-2 border-white elevation-2">
+                                            <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)"
+                                                cover>
+                                                <template v-slot:placeholder>
                                                     <v-progress-circular indeterminate
                                                         color="grey-lighten-2"></v-progress-circular>
-                                                </v-row>
-                                            </template>
-                                        </v-img>
-                                        <span v-else class="text-h4 font-weight-bold text-grey-darken-3">
-                                            {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
-                                        </span>
-                                    </v-avatar>
-
-                                    <div class="text-h6 font-weight-bold text-white text-truncate mb-1">
-                                        {{ item.nama }}
+                                                </template>
+                                            </v-img>
+                                            <span v-else class="font-weight-bold text-body-1 text-grey-darken-3">
+                                                {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
+                                            </span>
+                                        </v-avatar>
+                                        <div class="text-body-1 font-weight-bold text-white text-truncate">{{ item.nama
+                                        }}
+                                        </div>
+                                        <v-chip size="x-small" color="white" variant="outlined" class="text-white mt-1">
+                                            {{ item.province_code || '-' }} | {{ item.code }}
+                                        </v-chip>
                                     </div>
 
-                                    <v-chip size="x-small" color="white" variant="outlined" class="text-white">
-                                        {{ item.province_code || '-' }} | {{ item.code }}
-                                    </v-chip>
-                                </div>
-
-                                <div class="info-container rounded-lg pa-3 mt-4">
-                                    <div class="d-flex justify-space-between align-center px-2">
-                                        <div class="text-center">
-                                            <div class="text-caption text-white opacity-80 mb-1">Total RO</div>
-                                            <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
-                                                }}</div>
+                                    <div class="info-container rounded-lg pa-2">
+                                        <div class="d-flex justify-space-around align-center">
+                                            <div class="text-center">
+                                                <div class="text-caption text-white opacity-80">Total RO</div>
+                                                <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
+                                                }}
+                                                </div>
+                                            </div>
+                                            <div class="vertical-divider" style="height: 25px;"></div>
+                                            <div class="text-center">
+                                                <div class="text-caption text-white opacity-80">Bintang</div>
+                                                <div class="text-h6 font-weight-bold text-white lh-1">{{
+                                                    item.total_bintang
+                                                    || 0 }}</div>
+                                            </div>
                                         </div>
-                                        <div class="vertical-divider"></div>
-                                        <div class="text-center">
-                                            <div class="text-caption text-white opacity-80 mb-1">Bintang</div>
-                                            <div class="text-h6 font-weight-bold text-white lh-1">{{
-                                                item.total_bintang || 0 }}</div>
+                                        <v-divider class="my-1 border-opacity-25" color="white"></v-divider>
+                                        <div class="text-center text-caption text-white opacity-70">Tap untuk detail
                                         </div>
                                     </div>
-                                </div>
-                            </v-card-text>
-                        </v-card>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </div>
+
+                <div v-if="groupedLeaderboardByRole.length === 0" class="text-center pa-4 text-grey">
+                    Tidak ada data untuk bulan ini
+                </div>
+            </v-row>
+
+            <!-- <v-card-text>
+                <div v-for="group in groupedLeaderboardByRole" :key="group.role" class="mb-6">
+                    <div class="d-flex align-center mb-3">
+                        <v-chip :color="group.color" label class="font-weight-bold mr-2 text-white">
+                            {{ group.label }}
+                        </v-chip>
+                        <v-divider></v-divider>
+                    </div>
+
+                    <v-row dense>
+                        <v-col v-for="item in group.items" :key="item.id" cols="12" sm="6">
+                            <v-card class="top-star-card position-relative overflow-hidden" elevation="4"
+                                style="cursor: pointer;" @click="openProfilePreview(item)">
+                                <div class="card-gradient-bg" :style="getMvoBackground(item)"></div>
+                                <div class="card-shine"></div>
+
+                                <v-card-text class="position-relative pa-4" style="z-index: 2;">
+                                    <div class="rank-ribbon">
+                                        <v-icon v-if="item.ranking <= 3" color="amber" size="14" class="mr-1">
+                                            {{ item.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
+                                        </v-icon>
+                                        <span class="font-weight-bold text-caption">#{{ item.ranking }}</span>
+                                    </div>
+
+                                    <div class="text-center mb-3 mt-1">
+                                        <v-avatar size="60" class="mb-2 border-2 border-white elevation-2">
+                                            <v-img v-if="item.path_gambar_profile" :src="getProfileImageUrl(item)"
+                                                cover>
+                                                <template v-slot:placeholder>
+                                                    <v-progress-circular indeterminate
+                                                        color="grey-lighten-2"></v-progress-circular>
+                                                </template>
+                                            </v-img>
+                                            <span v-else class="font-weight-bold text-body-1 text-grey-darken-3">
+                                                {{ item.nama ? item.nama.charAt(0).toUpperCase() : "?" }}
+                                            </span>
+                                        </v-avatar>
+                                        <div class="text-body-1 font-weight-bold text-white text-truncate">{{ item.nama
+                                            }}
+                                        </div>
+                                        <v-chip size="x-small" color="white" variant="outlined" class="text-white mt-1">
+                                            {{ item.province_code || '-' }} | {{ item.code }}
+                                        </v-chip>
+                                    </div>
+
+                                    <div class="info-container rounded-lg pa-2">
+                                        <div class="d-flex justify-space-around align-center">
+                                            <div class="text-center">
+                                                <div class="text-caption text-white opacity-80">Total RO</div>
+                                                <div class="text-h6 font-weight-bold text-white lh-1">{{ item.total_ro
+                                                    }}
+                                                </div>
+                                            </div>
+                                            <div class="vertical-divider" style="height: 25px;"></div>
+                                            <div class="text-center">
+                                                <div class="text-caption text-white opacity-80">Bintang</div>
+                                                <div class="text-h6 font-weight-bold text-white lh-1">{{
+                                                    item.total_bintang
+                                                    || 0 }}</div>
+                                            </div>
+                                        </div>
+                                        <v-divider class="my-1 border-opacity-25" color="white"></v-divider>
+                                        <div class="text-center text-caption text-white opacity-70">Tap untuk detail
+                                        </div>
+                                    </div>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </div>
+
+                <div v-if="groupedLeaderboardByRole.length === 0" class="text-center pa-4 text-grey">
+                    Tidak ada data untuk bulan ini
+                </div>
+            </v-card-text> -->
+        </div>
+        <v-card class="mb-4">
+            <!-- TITLE -->
+            <v-card-title class="d-flex align-center">
+                <v-icon class="mr-2" color="amber">mdi-star</v-icon>
+                Top Star per Role
+            </v-card-title>
+
+            <!-- FILTER -->
+            <v-card-text>
+                <v-row dense>
+
+                    <v-col cols="12">
+                        <v-select v-model="filterRoleTopStar" :items="roleFilterItems" label="Filter Role"
+                            variant="outlined" density="compact" hide-details></v-select>
                     </v-col>
-                </v-row>
-            </div>
 
-            <div v-if="groupedLeaderboardByRole.length === 0" class="text-center pa-4 text-grey">
-                Tidak ada data untuk bulan ini
-            </div>
-        </v-card-text>
+                    <v-col cols="12">
+                        <v-text-field v-model="searchTopStar" prepend-inner-icon="mdi-magnify" label="Search"
+                            variant="outlined" density="compact" hide-details></v-text-field>
+                    </v-col>
+
+                    <v-col cols="12" class="text-center">
+                        <v-btn color="success" prepend-icon="mdi-microsoft-excel"
+                            @click="exportToExcel(filteredTopStarData, 'Top_Star_per_Role', topStarTableHeaders)"
+                            size="small">
+                            Export
+                        </v-btn>
+                    </v-col>
+
+                </v-row>
+            </v-card-text>
+
+            <!-- LIST RANKING -->
+            <v-list lines="two" class="py-0">
+
+                <template v-for="(item, index) in filteredTopStarData.slice(0, 10)" :key="item.id">
+
+                    <v-list-item>
+
+                        <!-- Ranking -->
+                        <template v-slot:prepend>
+                            <v-chip :color="getRankColor(item.ranking)" dark size="small" class="mr-3 font-weight-bold"
+                                label style="width:40px; justify-content:center;">
+                                #{{ item.ranking }}
+                            </v-chip>
+                        </template>
+
+                        <!-- Nama -->
+                        <v-list-item-title class="font-weight-bold">
+                            {{ item.nama }}
+                        </v-list-item-title>
+
+                        <!-- Info -->
+                        <v-list-item-subtitle class="d-flex align-center">
+
+                            <span class="text-caption mr-2">
+                                {{ item.province_code || '-' }} | {{ item.code }}
+                            </span>
+
+                            <v-chip :color="getRoleColor(item.role)" dark size="x-small">
+                                {{ getRoleLabel(item.role) }}
+                            </v-chip>
+
+                        </v-list-item-subtitle>
+
+                        <!-- Total Star -->
+                        <template v-slot:append>
+                            <v-chip color="amber" dark size="small">
+                                <v-icon left size="14">mdi-star</v-icon>
+                                {{ item.total_bintang || 0 }}
+                            </v-chip>
+                        </template>
+
+                    </v-list-item>
+
+                    <v-divider v-if="index < filteredTopStarData.slice(0, 10).length - 1"></v-divider>
+
+                </template>
+
+                <!-- Jika tidak ada data -->
+                <div v-if="filteredTopStarData.length === 0" class="text-center pa-4 text-grey">
+                    Tidak ada data untuk bulan ini
+                </div>
+
+            </v-list>
+
+        </v-card>
         <!-- Section: Ranking Semua Akun -->
         <v-card class="mb-4">
             <v-card-title class="d-flex align-center">
@@ -665,89 +928,128 @@
             </v-card-title>
             <v-divider></v-divider>
 
-            <v-card-text class="pa-4">
+            <v-card-text class="pa-2 pa-md-4">
                 <v-row>
                     <v-col cols="12" md="4" class="text-center">
-                        <v-img :src="getMvoImageUrl(selectedMvoData)" max-height="250" contain
+
+                        <!-- FOTO -->
+                        <v-img :src="getMvoImageUrl(selectedMvoData)"
+                            :max-height="$vuetify.display.smAndDown ? 160 : 250" contain
                             class="rounded-lg mx-auto"></v-img>
-                        <v-chip :color="getRankColor(selectedMvoData.ranking)" class="mt-3" size="large">
-                            <v-icon left>
+
+                        <!-- CHIP RANK -->
+                        <v-chip :color="getRankColor(selectedMvoData.ranking)" class="mt-2"
+                            :size="$vuetify.display.smAndDown ? 'small' : 'large'">
+                            <v-icon start size="18">
                                 {{ selectedMvoData.ranking === 1 ? 'mdi-trophy' : 'mdi-medal' }}
                             </v-icon>
                             Ranking #{{ selectedMvoData.ranking }}
                         </v-chip>
+
                     </v-col>
+
                     <v-col cols="12" md="8">
                         <v-row dense>
-                            <v-col cols="6" sm="4">
-                                <v-card flat color="grey-lighten-4" class="pa-3 text-center">
-                                    <v-icon color="primary" size="24">mdi-star-circle</v-icon>
-                                    <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.totalRepeatOrder }}
+
+                            <!-- RO -->
+                            <v-col cols="4" sm="4">
+                                <v-card flat color="grey-lighten-4" class="pa-2 pa-md-3 text-center">
+                                    <v-icon color="primary" :size="$vuetify.display.smAndDown ? 18 : 24">
+                                        mdi-star-circle
+                                    </v-icon>
+                                    <div
+                                        :class="$vuetify.display.smAndDown ? 'text-body-2 font-weight-bold' : 'text-h6 font-weight-bold'">
+                                        {{ selectedMvoData.totalRepeatOrder }}
                                     </div>
                                     <div class="text-caption">RO</div>
                                 </v-card>
                             </v-col>
-                            <v-col cols="6" sm="4">
-                                <v-card flat color="grey-lighten-4" class="pa-3 text-center">
-                                    <v-icon color="success" size="24">mdi-account-group</v-icon>
-                                    <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.totalDownlines }}
+
+                            <!-- DOWNLINE -->
+                            <v-col cols="4" sm="4">
+                                <v-card flat color="grey-lighten-4" class="pa-2 pa-md-3 text-center">
+                                    <v-icon color="success" :size="$vuetify.display.smAndDown ? 18 : 24">
+                                        mdi-account-group
+                                    </v-icon>
+                                    <div
+                                        :class="$vuetify.display.smAndDown ? 'text-body-2 font-weight-bold' : 'text-h6 font-weight-bold'">
+                                        {{ selectedMvoData.totalDownlines }}
                                     </div>
-                                    <div class="text-caption">Total Downline</div>
+                                    <div class="text-caption">Downline</div>
                                 </v-card>
                             </v-col>
-                            <v-col cols="6" sm="4">
-                                <v-card flat color="grey-lighten-4" class="pa-3 text-center">
-                                    <v-icon color="info" size="24">mdi-file-document</v-icon>
-                                    <div class="text-h6 font-weight-bold mt-1">{{ selectedMvoData.documents?.length || 0
-                                    }}
+
+                            <!-- DOKUMEN -->
+                            <v-col cols="4" sm="4">
+                                <v-card flat color="grey-lighten-4" class="pa-2 pa-md-3 text-center">
+                                    <v-icon color="info" :size="$vuetify.display.smAndDown ? 18 : 24">
+                                        mdi-file-document
+                                    </v-icon>
+                                    <div
+                                        :class="$vuetify.display.smAndDown ? 'text-body-2 font-weight-bold' : 'text-h6 font-weight-bold'">
+                                        {{ selectedMvoData.documents?.length || 0 }}
                                     </div>
-                                    <div class="text-caption">Total Dokumen</div>
+                                    <div class="text-caption">Dokumen</div>
                                 </v-card>
                             </v-col>
+
+                            <!-- INFORMASI -->
                             <v-col cols="12">
-                                <v-card flat color="grey-lighten-4" class="pa-3">
+                                <v-card flat color="grey-lighten-4" class="pa-2 pa-md-3">
+
                                     <div class="text-subtitle-2 font-weight-bold mb-2">
-                                        <v-icon class="mr-1">mdi-information</v-icon>
+                                        <v-icon size="18" class="mr-1">mdi-information</v-icon>
                                         Informasi MVO
                                     </div>
+
                                     <v-row dense>
+
                                         <v-col cols="6">
-                                            <div class="text-caption text-grey">Nama Panggilan</div>
-                                            <div class="text-body-2 font-weight-medium">{{
-                                                selectedMvoData.nama_panggilan }}
+                                            <div class="text-caption text-grey">Nama</div>
+                                            <div class="text-body-2 font-weight-medium">
+                                                {{ selectedMvoData.nama_panggilan }}
                                             </div>
                                         </v-col>
+
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">No HP</div>
-                                            <div class="text-body-2 font-weight-medium">{{ selectedMvoData.nohp }}</div>
+                                            <div class="text-body-2 font-weight-medium">
+                                                {{ selectedMvoData.nohp }}
+                                            </div>
                                         </v-col>
+
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Provinsi</div>
-                                            <div class="text-body-2 font-weight-medium">{{
-                                                selectedMvoData.provinsi?.name ||
-                                                '-' }}</div>
+                                            <div class="text-body-2 font-weight-medium">
+                                                {{ selectedMvoData.provinsi?.name || '-' }}
+                                            </div>
                                         </v-col>
+
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Jaringan</div>
-                                            <div class="text-body-2 font-weight-medium">{{ selectedMvoData.jaringan_mvo
-                                            }}
+                                            <div class="text-body-2 font-weight-medium">
+                                                {{ selectedMvoData.jaringan_mvo }}
                                             </div>
                                         </v-col>
+
                                         <v-col cols="6">
                                             <div class="text-caption text-grey">Tempat Lahir</div>
-                                            <div class="text-body-2 font-weight-medium">{{ selectedMvoData.tempat_lahir
-                                                ||
-                                                '-' }}</div>
-                                        </v-col>
-                                        <v-col cols="6">
-                                            <div class="text-caption text-grey">Alamat</div>
-                                            <div class="text-body-2 font-weight-medium">{{ selectedMvoData.alamat || '-'
-                                            }}
+                                            <div class="text-body-2 font-weight-medium">
+                                                {{ selectedMvoData.tempat_lahir || '-' }}
                                             </div>
                                         </v-col>
+
+                                        <v-col cols="6">
+                                            <div class="text-caption text-grey">Alamat</div>
+                                            <div class="text-body-2 font-weight-medium">
+                                                {{ selectedMvoData.alamat || '-' }}
+                                            </div>
+                                        </v-col>
+
                                     </v-row>
                                 </v-card>
                             </v-col>
+
                         </v-row>
                     </v-col>
                 </v-row>
@@ -755,8 +1057,7 @@
 
             <v-divider></v-divider>
 
-            <!-- Downlines Section -->
-            <v-card-text class="pa-4">
+            <v-card-text class="pa-2 pa-md-4 mt-6 mt-md-8">
                 <div class="text-subtitle-1 font-weight-bold mb-3">
                     <v-icon class="mr-2" color="success">mdi-account-group</v-icon>
                     Daftar Downline ({{ selectedMvoData.downlines?.length || 0 }})
@@ -766,7 +1067,7 @@
                     variant="outlined" density="compact" hide-details class="mb-3">
                 </v-text-field>
 
-                <!-- Desktop Table -->
+                <!-- Desktop Table — TIDAK DIUBAH -->
                 <div class="d-none d-md-block">
                     <v-data-table :headers="[
                         { title: 'Kode', key: 'code', width: '120px' },
@@ -808,62 +1109,84 @@
                     </v-data-table>
                 </div>
 
-                <!-- Mobile List -->
+                <!-- ✅ DIUBAH: Mobile List — semua diperkecil -->
                 <div class="d-block d-md-none">
-                    <v-list v-if="selectedMvoData.downlines && selectedMvoData.downlines.length > 0">
-                        <v-list-item v-for="downline in filteredDownlines" :key="downline.id" class="mb-3 pa-0" border>
-                            <v-card flat width="100%">
-                                <v-card-text class="pa-3">
-                                    <div class="d-flex justify-space-between align-center mb-2">
+                    <v-list v-if="selectedMvoData.downlines && selectedMvoData.downlines.length > 0" class="pa-0">
+                        <v-list-item v-for="downline in filteredDownlines" :key="downline.id" class="mb-2 pa-0" border>
+                            <v-card flat width="100%" color="grey-lighten-5">
+                                <v-card-text class="pa-2">
+
+                                    <!-- Header: Nama + Chip Role -->
+                                    <div class="d-flex justify-space-between align-center mb-1">
                                         <div>
-                                            <div class="text-body-1 font-weight-bold">{{ downline.nama }}</div>
-                                            <div class="text-caption text-grey">{{ downline.code }}</div>
+                                            <div class="text-body-2 font-weight-bold">{{ downline.nama }}</div>
+                                            <div style="font-size:10px" class="text-grey">{{ downline.code }}</div>
                                         </div>
-                                        <v-chip :color="getRoleColorFromCode(downline.code)" size="small" dark>
+                                        <v-chip :color="getRoleColorFromCode(downline.code)" size="x-small" dark>
                                             {{ getRoleLabelFromCode(downline.code) }}
                                         </v-chip>
                                     </div>
 
-                                    <v-divider class="my-2"></v-divider>
+                                    <v-divider class="my-1"></v-divider>
 
-                                    <v-row dense>
-                                        <v-col cols="6">
-                                            <div class="text-caption text-grey">No HP</div>
-                                            <div class="text-body-2">{{ downline.nohp || '-' }}</div>
+                                    <!-- Info dasar: 3 kolom -->
+                                    <v-row dense class="mt-1">
+                                        <v-col cols="4">
+                                            <div style="font-size:9px" class="text-grey">No HP</div>
+                                            <div style="font-size:10px" class="font-weight-medium">{{ downline.nohp ||
+                                                '-'
+                                            }}</div>
                                         </v-col>
-                                        <v-col cols="6">
-                                            <div class="text-caption text-grey">Tempat Lahir</div>
-                                            <div class="text-body-2">{{ downline.tempat_lahir || '-' }}</div>
+                                        <v-col cols="4">
+                                            <div style="font-size:9px" class="text-grey">Tempat Lahir</div>
+                                            <div style="font-size:10px" class="font-weight-medium">{{
+                                                downline.tempat_lahir
+                                                || '-' }}</div>
+                                        </v-col>
+                                        <v-col cols="4">
+                                            <div style="font-size:9px" class="text-grey">No ID</div>
+                                            <div style="font-size:10px" class="font-weight-medium">{{ downline.no_id ||
+                                                '-'
+                                            }}</div>
                                         </v-col>
                                         <v-col cols="12">
-                                            <div class="text-caption text-grey">Alamat</div>
-                                            <div class="text-body-2">{{ downline.alamat || '-' }}</div>
+                                            <div style="font-size:9px" class="text-grey">Alamat</div>
+                                            <div style="font-size:10px" class="font-weight-medium">{{ downline.alamat ||
+                                                '-'
+                                            }}</div>
                                         </v-col>
                                     </v-row>
 
-                                    <v-divider class="my-2"></v-divider>
+                                    <v-divider class="my-1"></v-divider>
 
-                                    <div class="text-caption font-weight-bold mb-1">
-                                        <v-icon size="14" class="mr-1">mdi-account-network</v-icon>
+                                    <!-- Struktur Upline: 2 kolom grid -->
+                                    <div style="font-size:9px" class="font-weight-bold mb-1 text-grey-darken-2">
+                                        <v-icon size="10" class="mr-1">mdi-account-network</v-icon>
                                         Struktur Upline
                                     </div>
                                     <v-row dense>
-                                        <v-col cols="12" v-for="n in 6" :key="n">
-                                            <div class="text-caption text-grey">Upline {{ n }}</div>
-                                            <div class="text-body-2">{{ downline[`upline_${n}`] || '-' }}</div>
+                                        <v-col cols="6"
+                                            v-for="(label, idx) in ['MVO', 'Regional', 'Founder', 'General Manager', 'Supplier', 'Dist']"
+                                            :key="idx">
+                                            <div style="font-size:9px" class="text-grey">{{ label }}</div>
+                                            <div style="font-size:10px" class="font-weight-medium">{{
+                                                downline[`upline_${idx
+                                                + 1}`] || '-' }}</div>
                                         </v-col>
                                     </v-row>
+
                                 </v-card-text>
                             </v-card>
                         </v-list-item>
                     </v-list>
-                    <v-alert v-else type="info" variant="tonal" class="mt-3">
+                    <v-alert v-else type="info" variant="tonal" class="mt-3" density="compact">
                         Tidak ada downline
                     </v-alert>
                 </div>
             </v-card-text>
         </v-card>
     </v-dialog>
+
 
     <!-- Loading Overlay -->
     <v-overlay v-model="isLoading" class="align-center justify-center">
@@ -919,7 +1242,15 @@ export default {
                 { title: "Role", key: "role", align: "center" },
                 { title: "Bintang", key: "total_bintang", align: "center" },
             ],
-
+            topStarTableHeaders: [
+                { title: 'Ranking', key: 'ranking', align: 'center', width: '100px' },
+                { title: 'Nama', key: 'nama', align: 'start' },
+                { title: 'Role', key: 'role', align: 'start' },
+                { title: 'Total RO', key: 'total_ro', align: 'center' },
+                { title: 'Bintang', key: 'total_bintang', align: 'center' },
+            ],
+            searchTopStar: '',
+            filterRoleTopStar: null,
             dashboardData: {
                 top_star: [],
                 dashboard_star: [],
@@ -927,7 +1258,8 @@ export default {
                 leaderboard_per_daerah: {},
                 akun_per_mvo: []
             },
-
+            profilePreviewDialog: false,
+            selectedProfileImage: null,
             provinceColors: {},
             selectedMvoData: null,
             mvoDetailDialog: false,
@@ -947,6 +1279,38 @@ export default {
                 { title: 'Distributor', key: 'DIST' },
                 { title: 'RESELLER', key: 'SELL' }
             ];
+        },
+        filteredTopStarData() {
+
+            let data = [];
+
+            if (Array.isArray(this.dashboardData.akumulasi)) {
+                data = [...this.dashboardData.akumulasi];
+            } else {
+                data = [...(this.currentLeaderboardBulanData || [])];
+            }
+
+            data = data.map(item => ({
+                ...item,
+                nama: item.nama || item.nama_atasan,
+                total_ro: parseInt(item.total_ro || item.total_repeat_order || 0)
+            }));
+
+            // FILTER ROLE
+            if (this.filterRoleTopStar && this.filterRoleTopStar !== 'ALL') {
+                data = data.filter(item => item.role === this.filterRoleTopStar);
+            }
+
+            // SORT BY RO
+            data.sort((a, b) => b.total_ro - a.total_ro);
+
+            // RANKING
+            data = data.map((item, index) => ({
+                ...item,
+                ranking: index + 1
+            }));
+
+            return data;
         },
 
         filteredDashboardStar() {
@@ -999,7 +1363,62 @@ export default {
             }
             return this.dashboardData.akumulasi[this.selectedLeaderboardMonth] || [];
         },
+        topstarperrole() {
+            let data = [];
+            if (Array.isArray(this.dashboardData.akumulasi)) {
+                data = [...this.dashboardData.akumulasi];
+            } else {
+                data = [...(this.currentLeaderboardBulanData || [])];
+            }
 
+            // Map nama from nama_atasan if nama is missing
+            data = data.map(item => ({
+                ...item,
+                nama: item.nama || item.nama_atasan
+            }));
+
+            // Filter by search
+            if (this.searchBulan) {
+                const search = this.searchBulan.toLowerCase();
+                data = data.filter(item =>
+                    (item.nama && item.nama.toLowerCase().includes(search)) ||
+                    (item.code && item.code.toLowerCase().includes(search))
+                );
+            }
+
+            const roles = ['MVO', 'REGIONAL', 'FO', 'GM', 'SUPPLIER', 'DIST', 'SELL'];
+            const groups = {};
+
+            roles.forEach(role => {
+                groups[role] = [];
+            });
+
+            data.forEach(item => {
+                const role = item.role;
+                if (roles.includes(role)) {
+                    groups[role].push({
+                        ...item,
+                        total_ro: parseInt(item.total_ro || item.total_repeat_order || 0)
+                    });
+                }
+            });
+
+            // Sort and rank
+            roles.forEach(role => {
+                groups[role].sort((a, b) => b.total_ro - a.total_ro);
+                groups[role] = groups[role].map((item, index) => ({
+                    ...item,
+                    ranking: index + 1
+                }));
+            });
+
+            return roles.map(role => ({
+                role,
+                label: this.getRoleLabel(role),
+                items: groups[role],
+                color: this.getRoleColor(role)
+            })).filter(group => group.items.length > 0);
+        },
         groupedLeaderboardByRole() {
             let data = [];
             if (Array.isArray(this.dashboardData.akumulasi)) {
@@ -1043,10 +1462,13 @@ export default {
             // Sort and rank
             roles.forEach(role => {
                 groups[role].sort((a, b) => b.total_ro - a.total_ro);
-                groups[role] = groups[role].map((item, index) => ({
-                    ...item,
-                    ranking: index + 1
-                }));
+
+                groups[role] = groups[role]
+                    .map((item, index) => ({
+                        ...item,
+                        ranking: index + 1
+                    }))
+                    .slice(0, 8); // tampilkan hanya 8 card
             });
 
             return roles.map(role => ({
@@ -1141,6 +1563,14 @@ export default {
     },
 
     methods: {
+        openProfilePreview(item) {
+            if (!item.path_gambar_profile) return;
+
+            this.selectedProfileImage =
+                `https://babaapi.babaparfume.id/project/public/${item.path_gambar_profile}`;
+
+            this.profilePreviewDialog = true;
+        },
         getCardGradient(index) {
             if (index === 0) return 'background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);';
             if (index === 1) return 'background: linear-gradient(135deg, #C0C0C0 0%, #757575 100%);';
