@@ -504,7 +504,7 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "https://babaapi.babaparfume.id";
+const BASE_URL = "http://127.0.0.1:8000";
 
 export default {
     components: { Breadcrumb, CardDataTable },

@@ -482,7 +482,7 @@ export default {
     data() {
         return {
             // Base URL untuk gambar
-            baseImageUrl: 'https://babaapi.babaparfume.id/project/public/',
+            baseImageUrl: 'http://127.0.0.1:8000/project/public/',
 
             // Mobile specific properties
             expandedMobileCard: null,
@@ -808,7 +808,7 @@ export default {
 
             this.isTableLoading = true;
             axios
-                .get("https://babaapi.babaparfume.id/api/provinsi", {
+                .get("http://127.0.0.1:8000/api/provinsi", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -880,7 +880,7 @@ export default {
 
             axios
                 .post(
-                    "https://babaapi.babaparfume.id/api/provinsi",
+                    "http://127.0.0.1:8000/api/provinsi",
                     formData,
                     {
                         headers: {
@@ -921,7 +921,7 @@ export default {
             this.isShowDialogEdit = true;
 
             axios
-                .get(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .get(`http://127.0.0.1:8000/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -999,7 +999,7 @@ export default {
 
             axios
                 .post(
-                    `https://babaapi.babaparfume.id/api/provinsi/${this.modelEdit.id}`,
+                    `http://127.0.0.1:8000/api/provinsi/${this.modelEdit.id}`,
                     formData,
                     {
                         headers: {
@@ -1043,7 +1043,7 @@ export default {
 
             this.isButtonLoading = true;
             axios
-                .delete(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .delete(`http://127.0.0.1:8000/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: "application/json",

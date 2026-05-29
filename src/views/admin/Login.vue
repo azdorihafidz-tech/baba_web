@@ -282,10 +282,10 @@ const selectSong = (song) => {
     audioPlayer.value.src = ''
 
     const urlPatterns = [
-      `https://babaapi.babaparfume.id/${song.file_lagu}`,
-      `https://babaapi.babaparfume.id/project/public/${song.file_lagu}`,
-      `https://babaapi.babaparfume.id/storage/${song.file_lagu}`,
-      `https://babaapi.babaparfume.id/public/${song.file_lagu}`,
+      `http://127.0.0.1:8000/${song.file_lagu}`,
+      `http://127.0.0.1:8000/project/public/${song.file_lagu}`,
+      `http://127.0.0.1:8000/storage/${song.file_lagu}`,
+      `http://127.0.0.1:8000/public/${song.file_lagu}`,
     ]
 
     const audioUrl = urlPatterns[parseInt(workingPattern)] || urlPatterns[0]
@@ -311,10 +311,10 @@ const togglePlay = async () => {
     if (!audioPlayer.value.src || audioPlayer.value.error) {
       const workingPattern = localStorage.getItem('workingAudioPattern') || '0'
       const urlPatterns = [
-        `https://babaapi.babaparfume.id/${currentSong.value.file_lagu}`,
-        `https://babaapi.babaparfume.id/project/public/${currentSong.value.file_lagu}`,
-        `https://babaapi.babaparfume.id/storage/${currentSong.value.file_lagu}`,
-        `https://babaapi.babaparfume.id/public/${currentSong.value.file_lagu}`,
+        `http://127.0.0.1:8000/${currentSong.value.file_lagu}`,
+        `http://127.0.0.1:8000/project/public/${currentSong.value.file_lagu}`,
+        `http://127.0.0.1:8000/storage/${currentSong.value.file_lagu}`,
+        `http://127.0.0.1:8000/public/${currentSong.value.file_lagu}`,
       ]
 
       const audioUrl = urlPatterns[parseInt(workingPattern)]
@@ -422,14 +422,14 @@ const fetchHeaderData = async (token, userCabang = null) => {
     let headerResponse
 
     try {
-      headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
+      headerResponse = await apiClient.get('http://127.0.0.1:8000/api/gambar-header')
     } catch (httpsError) {
 
       if (httpsError.code === 'ERR_NETWORK' ||
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
+        headerResponse = await apiClient.get('http://127.0.0.1:8000/api/gambar-header')
       } else {
         throw httpsError
       }
@@ -518,14 +518,14 @@ const handleLogin = async () => {
     let response
 
     try {
-      response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
+      response = await apiClient.post('http://127.0.0.1:8000/api/login', loginData)
     } catch (httpsError) {
 
       if (httpsError.code === 'ERR_NETWORK' ||
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
+        response = await apiClient.post('http://127.0.0.1:8000/api/login', loginData)
       } else {
         throw httpsError
       }

@@ -2,27 +2,43 @@
   <div class="mvo-management">
     <Breadcrumb :items="itemsBreadcrumb" />
 
-    <!-- Remove Add button since add/edit functionality is removed -->
-    <v-btn class="text-white ml-2 font-semibold add-mvo-btn" @click="exportExcel" v-if="mvo_type_id === 'superadmin'">
-      <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
-      <span class="ml-2">Excel</span>
-    </v-btn>
+    <div class="d-flex flex-wrap align-center top-action-bar" v-if="mvo_type_id === 'superadmin'">
+      <v-btn class="text-white font-semibold add-mvo-btn" @click="exportExcel">
+        <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
+        <span class="ml-2">Excel</span>
+      </v-btn>
+
+      <!-- Import Dokumen via Excel (khusus Superadmin) -->
+      <v-btn class="text-white font-semibold add-mvo-btn" @click="triggerImportExcel" :loading="isImporting">
+        <v-icon start style="color: #FFD700;">mdi-file-import</v-icon>
+        <span class="ml-2">Import Dokumen</span>
+      </v-btn>
+
+      <v-btn class="text-white font-semibold add-mvo-btn" @click="downloadImportTemplate">
+        <v-icon start style="color: #FFD700;">mdi-file-download</v-icon>
+        <span class="ml-2">Template</span>
+      </v-btn>
+    </div>
+
+    <!-- Input file tersembunyi untuk import Excel -->
+    <input ref="excelInput" type="file" accept=".xlsx,.xls" style="display: none" @change="handleImportExcel" />
 
     <!-- Desktop View - Data Table -->
     <div class="d-none d-md-block">
       <CardDataTable :title="title">
         <template v-slot:search>
-          <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Search" single-line
-            hide-details variant="outlined" class="search-field" />
+          <v-text-field v-model="searchInput" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
+            variant="outlined" class="search-field" clearable />
         </template>
 
         <template v-slot:datatable>
-          <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" hover :headers="displayHeaders"
-            :items="datatable.items" :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
-            @update:options="updateCurrentPageInfo">
+          <v-data-table-server class="bg-grey-lighten-4 text-no-wrap custom-data-table" hover :headers="displayHeaders"
+            :items="datatable.items" :items-length="totalItems" :loading="isTableLoading"
+            :items-per-page="pagination.itemsPerPage" :page="pagination.page" :sort-by="pagination.sortBy"
+            :items-per-page-options="[10, 25, 50, 100]" @update:options="onTableOptionsUpdate">
 
             <template v-slot:item.no="{ index }">
-              {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
+              {{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}
             </template>
 
             <template v-slot:item.detail="{ item }">
@@ -37,7 +53,7 @@
               </div>
             </template>
 
-            <template v-slot:item.print="{ item }">
+            <!-- <template v-slot:item.print="{ item }">
               <div class="d-flex justify-center">
                 <v-tooltip text="Print" color="#125C13" location="top start">
                   <template v-slot:activator="{ props }">
@@ -47,7 +63,7 @@
                   </template>
                 </v-tooltip>
               </div>
-            </template>
+            </template> -->
 
             <template v-slot:item.approve="{ item }">
               <div class="d-flex justify-center">
@@ -62,7 +78,6 @@
                 </v-tooltip>
               </div>
             </template>
-
 
             <template v-slot:item.action="{ item }" v-if="mvo_type_id === 'superadmin'">
               <div class="d-flex justify-center">
@@ -84,78 +99,32 @@
               </v-chip>
             </template>
 
-            <!-- <template v-slot:item.status_inputan_2="{ item }">
-              <v-chip
-                :color="item.status_inputan_2 === 'approved' ? 'success' : (item.status_inputan === 'approved' ? 'warning' : 'grey')"
-                size="small" variant="flat">
-                <template v-if="item.status_inputan_2 === 'approved'">
-                  Disetujui
-                </template>
-                <template v-else-if="item.status_inputan === 'approved'">
-                  Menunggu
-                </template>
-                <template v-else>
-                  Pending MVO
-                </template>
-              </v-chip>
-            </template> -->
-
-            <template v-slot:item.mvo_type="{ item }">
-              {{ getMvoTypeName(item.mvo_type_id) }}
-            </template>
-
-            <template v-slot:item.province="{ item }">
-              {{ item.province_code || '-' }}
-            </template>
-
-            <template v-slot:item.tgl_lahir="{ item }">
-              {{ formatDate(item.tgl_lahir) }}
-            </template>
-
-            <template v-slot:item.pointbintang="{ item }">
-              {{ item.pointbintang || '-' }}
-            </template>
-
-            <template v-slot:item.tanggal_repeat_order="{ item }">
-              {{ formatDate(item.tanggal_repeat_order) || '-' }}
-            </template>
+            <template v-slot:item.mvo_type="{ item }">{{ getMvoTypeName(item.mvo_type_id) }}</template>
+            <template v-slot:item.province="{ item }">{{ item.province_code || '-' }}</template>
+            <template v-slot:item.tgl_lahir="{ item }">{{ formatDate(item.tgl_lahir) }}</template>
+            <template v-slot:item.pointbintang="{ item }">{{ item.pointbintang || '-' }}</template>
+            <template v-slot:item.tanggal_repeat_order="{ item }">{{ formatDate(item.tanggal_repeat_order) || '-'
+            }}</template>
+            <template v-slot:item.created_at="{ item }">{{ formatDate(item.created_at) }}</template>
 
             <template v-slot:item.repeat_order="{ item }">
-              <v-chip color="primary" size="small" variant="outlined">
-                {{ formatNumber(item.repeat_order) }}
-              </v-chip>
+              <v-chip color="primary" size="small" variant="outlined">{{ formatNumber(item.repeat_order) }}</v-chip>
             </template>
 
-            <!-- Upline columns -->
-            <template v-slot:item.upline_1="{ item }">
-              {{ item.upline_1 && item.upline_1 !== '-' ? item.upline_1 : '-' }}
-            </template>
+            <template v-slot:item.upline_1="{ item }">{{ item.upline_1 && item.upline_1 !== '-' ? item.upline_1 : '-'
+            }}</template>
+            <template v-slot:item.upline_2="{ item }">{{ item.upline_2 && item.upline_2 !== '-' ? item.upline_2 : '-'
+            }}</template>
+            <template v-slot:item.upline_3="{ item }">{{ item.upline_3 && item.upline_3 !== '-' ? item.upline_3 : '-'
+            }}</template>
+            <template v-slot:item.upline_4="{ item }">{{ item.upline_4 && item.upline_4 !== '-' ? item.upline_4 : '-'
+            }}</template>
+            <template v-slot:item.upline_5="{ item }">{{ item.upline_5 && item.upline_5 !== '-' ? item.upline_5 : '-'
+            }}</template>
+            <template v-slot:item.upline_6="{ item }">{{ item.upline_6 && item.upline_6 !== '-' ? item.upline_6 : '-'
+            }}</template>
 
-            <template v-slot:item.upline_2="{ item }">
-              {{ item.upline_2 && item.upline_2 !== '-' ? item.upline_2 : '-' }}
-            </template>
-
-            <template v-slot:item.upline_3="{ item }">
-              {{ item.upline_3 && item.upline_3 !== '-' ? item.upline_3 : '-' }}
-            </template>
-
-            <template v-slot:item.upline_4="{ item }">
-              {{ item.upline_4 && item.upline_4 !== '-' ? item.upline_4 : '-' }}
-            </template>
-
-            <template v-slot:item.upline_5="{ item }">
-              {{ item.upline_5 && item.upline_5 !== '-' ? item.upline_5 : '-' }}
-            </template>
-
-            <template v-slot:item.upline_6="{ item }">
-              {{ item.upline_6 && item.upline_6 !== '-' ? item.upline_6 : '-' }}
-            </template>
-
-            <template v-slot:item.created_at="{ item }">
-              {{ formatDate(item.created_at) }}
-            </template>
-
-          </v-data-table>
+          </v-data-table-server>
         </template>
       </CardDataTable>
     </div>
@@ -164,42 +133,29 @@
     <div class="d-block d-md-none">
       <v-card class="mobile-header-card mb-4">
         <v-card-text>
-          <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Cari akun..." single-line
-            hide-details variant="outlined" class="search-field-mobile" />
+          <v-text-field v-model="searchInput" prepend-inner-icon="mdi-magnify" label="Cari akun..." single-line
+            hide-details variant="outlined" class="search-field-mobile" clearable />
         </v-card-text>
       </v-card>
 
       <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
 
-      <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
+      <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
         <v-icon size="64" color="grey">mdi-account-search</v-icon>
         <p class="text-grey mt-2">Tidak ada akun ditemukan</p>
       </div>
 
-      <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
+      <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-mvo-card mb-3"
         @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-        <!-- Header Card - Always Visible -->
         <v-card-text class="mobile-card-header">
           <v-row no-gutters align="center">
             <v-col cols="2" class="text-center">
-              <span class="mobile-number">{{ index + 1 }}</span>
+              <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
             </v-col>
-
             <v-col cols="8" class="pl-3">
-              <div class="mobile-mvo-name">
-                <strong>{{ item.nama }}</strong>
-              </div>
-              <div class="mobile-mvo-code">
-                <strong>{{ item.code }}</strong>
-              </div>
-              <!-- <div class="mobile-status-preview">
-                <v-chip :color="item.status_inputan === 'approved' ? 'success' : 'warning'" size="x-small"
-                  variant="flat">
-                  {{ item.status_inputan === 'approved' ? 'Disetujui' : 'Menunggu' }}
-                </v-chip>
-              </div> -->
+              <div class="mobile-mvo-name"><strong>{{ item.nama }}</strong></div>
+              <div class="mobile-mvo-code"><strong>{{ item.code }}</strong></div>
             </v-col>
-
             <v-col cols="2" class="text-center">
               <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
                 mdi-chevron-down
@@ -208,161 +164,46 @@
           </v-row>
         </v-card-text>
 
-        <!-- Detail Card - Expandable -->
         <v-expand-transition>
           <div v-show="expandedMobileCard === item.id">
             <v-divider></v-divider>
             <v-card-text class="mobile-card-details">
-
-              <!-- Personal Info Section -->
-              <div class="mobile-info-section mb-3">
-                <!-- <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Nomor ID:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.nomor_id || '-' }}</v-col>
-                </v-row> -->
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">No ID:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Panggilan:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.nama_panggilan || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Tempat Lahir:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.tempat_lahir || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Tgl Lahir:</v-col>
-                  <v-col cols="8" class="detail-value">{{ formatDate(item.tgl_lahir) }}</v-col>
+              <div v-for="(section, si) in mobileMvoSections(item)" :key="si" class="mobile-info-section mb-3">
+                <v-row v-for="row in section.rows" :key="row.label" class="mb-2">
+                  <v-col cols="4" class="detail-label">{{ row.label }}:</v-col>
+                  <v-col cols="8" class="detail-value">{{ row.value }}</v-col>
                 </v-row>
               </div>
 
-              <!-- Contact Info Section -->
-              <div class="mobile-info-section mb-3">
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">No HP:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.nohp || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Alamat:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.alamat || '-' }}</v-col>
-                </v-row>
-              </div>
-
-              <!-- Business Info Section -->
-              <div class="mobile-info-section mb-3">
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Jaringan:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.jaringan_mvo || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Tipe:</v-col>
-                  <v-col cols="8" class="detail-value">{{ getMvoTypeName(item.mvo_type_id) }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">Provinsi:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.province_code || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">MVO:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_1 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">REGIONAL:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_2 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">FOUNDER:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_3 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">GENERAL MANAGER:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_4 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">SUPPLIER:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_5 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="4" class="detail-label">DISTRIBUTOR:</v-col>
-                  <v-col cols="8" class="detail-value">{{ item.upline_6 || '-' }}</v-col>
-                </v-row>
-              </div>
-
-              <!-- Status Approval Section -->
-              <!-- <div class="mobile-info-section mb-3">
-                <h4 class="text-subtitle-2 mb-2 text-primary">
-                  <v-icon size="16" class="mr-1">mdi-check-decagram</v-icon>
-                  Status Approval
-                </h4>
-
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Status MVO:</v-col>
-                  <v-col cols="7" class="detail-value">
-                    <v-chip :color="item.status_inputan === 'approved' ? 'success' : 'warning'" size="x-small"
-                      variant="flat">
-                      {{ item.status_inputan === 'approved' ? 'Disetujui' : 'Menunggu' }}
-                    </v-chip>
-                  </v-col>
-                </v-row>
-
-                <v-row class="mb-2" v-if="mvo_type_id === 'superadmin'">
-                  <v-col cols="5" class="detail-label">Status Admin:</v-col>
-                  <v-col cols="7" class="detail-value">
-                    <v-chip
-                      :color="item.status_inputan_2 === 'approved' ? 'success' : (item.status_inputan === 'approved' ? 'warning' : 'grey')"
-                      size="x-small" variant="flat">
-                      <template v-if="item.status_inputan_2 === 'approved'">
-                        Disetujui
-                      </template>
-                      <template v-else-if="item.status_inputan === 'approved'">
-                        Menunggu
-                      </template>
-                      <template v-else>
-                        Pending MVO
-                      </template>
-                    </v-chip>
-                  </v-col>
-                </v-row>
-              </div> -->
-
-              <!-- Action Buttons -->
               <v-divider class="mb-3"></v-divider>
               <div class="mobile-actions">
-                <!-- Quick Action Buttons -->
-
                 <v-btn size="small" color="info" @click.stop="showDetailMvo(item.id)" class="mr-1 mb-2"
-                  prepend-icon="mdi-information">
-                  Detail
-                </v-btn>
+                  prepend-icon="mdi-information">Detail</v-btn>
                 <v-btn size="small" color="success" @click.stop="printMvo(item.id)" class="mr-1 mb-2"
-                  prepend-icon="mdi-printer">
-                  Print
-                </v-btn>
+                  prepend-icon="mdi-printer">Print</v-btn>
 
                 <v-btn v-if="canApprove(item)" size="small" :color="getApproveButtonColor(item)"
                   @click.stop="approveMvo(item.id)" class="mr-1 mb-2" :prepend-icon="getApproveButtonIcon(item)">
                   {{ mvo_type_id === 'mvo' ? 'Approve MVO' : 'Approve Admin' }}
                 </v-btn>
 
-                <!-- Admin Actions -->
                 <template v-if="mvo_type_id === 'superadmin'">
                   <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvo(item.id)" class="mb-2"
-                    prepend-icon="mdi-delete">
-                    Hapus
-                  </v-btn>
+                    prepend-icon="mdi-delete">Hapus</v-btn>
                 </template>
               </div>
             </v-card-text>
           </div>
         </v-expand-transition>
       </v-card>
+
+      <div v-if="totalPages > 1" class="d-flex justify-center mt-3 mb-3">
+        <v-pagination v-model="pagination.page" :length="totalPages" :total-visible="5" density="comfortable"
+          @update:modelValue="loadItems" />
+      </div>
     </div>
 
-    <!-- Remove Dialog Form MVO (Add/Edit) - REMOVED COMPLETELY -->
-
-    <!-- Dialog Detail MVO with Mobile Support -->
+    <!-- Dialog Detail MVO -->
     <v-dialog v-model="isShowDialogDetail" persistent :width="$vuetify.display.mobile ? '95%' : '1400'">
       <v-card class="custom-dialog">
         <v-card-title class="dialog-header">
@@ -374,28 +215,20 @@
         </v-card-title>
 
         <v-card-text class="dialog-content">
-          <!-- Desktop View -->
+          <!-- Desktop Detail View -->
           <div class="d-none d-md-block">
-            <!-- Documents Section -->
             <div class="detail-section mb-6">
               <div class="d-flex align-center justify-space-between mb-4">
                 <h3 class="detail-section-title mb-0 d-flex align-center">
                   <v-icon class="mr-2" color="#FFD700">mdi-file-document-multiple</v-icon>
-
                   <span>Dokumen</span>
-
-                  <!-- CHIP KODE -->
                   <v-chip color="success" size="small" class="ml-3" v-if="getDocumentMvoId()">
                     {{ getDocumentMvoCode() }}
                   </v-chip>
-
-                  <!-- NAMA PEMILIK -->
-                  <span class="text-caption text-grey ml-2">
-                    {{ originalDetailMvoData?.nama || '-' }}
-                  </span>
+                  <span class="text-caption text-grey ml-2">{{ originalDetailMvoData?.nama || '-' }}</span>
                 </h3>
 
-                <v-btn color="primary" size="small" @click="showDialogAddDocument" :disabled="!getDocumentMvoId()">
+                <v-btn color="primary" size="small" @click="openAddDocumentDialog" :disabled="!getDocumentMvoId()">
                   <v-icon start>mdi-plus</v-icon>
                   Tambah Dokumen
                 </v-btn>
@@ -415,14 +248,12 @@
                   </div>
                 </template>
 
-                <!-- NEW: Template for Status MVO -->
                 <template v-slot:item.status_mvo="{ item }">
                   <v-chip :color="getMvoStatusColor(item)" size="small" variant="flat">
                     {{ getMvoStatusText(item) }}
                   </v-chip>
                 </template>
 
-                <!-- NEW: Template for Status Regional -->
                 <template v-slot:item.status_regional="{ item }">
                   <v-chip :color="getRegionalStatusColor(item)" size="small" variant="flat">
                     {{ getRegionalStatusText(item) }}
@@ -435,29 +266,8 @@
                   </v-chip>
                 </template>
 
-                <!-- <template v-slot:item.status_inputan_2="{ item }">
-                  <v-chip
-                    :color="item.status_inputan_2 === 'approved' ? 'success' : (item.status_inputan === 'approved' ? 'warning' : 'grey')"
-                    size="small" variant="flat">
-                    <template v-if="item.status_inputan_2 === 'approved'">
-                      Disetujui
-                    </template>
-                    <template v-else-if="item.status_inputan === 'approved'">
-                      Menunggu
-                    </template>
-                    <template v-else>
-                      Pending MVO
-                    </template>
-                  </v-chip>
-                </template> -->
-
-                <template v-slot:item.repeat_order="{ item }">
-                  {{ formatNumber(item.repeat_order) }}
-                </template>
-
-                <template v-slot:item.mvo_code="{ item }">
-                  {{ getMvoCodeById(item.mvo_id) }}
-                </template>
+                <template v-slot:item.repeat_order="{ item }">{{ formatNumber(item.repeat_order) }}</template>
+                <template v-slot:item.mvo_code="{ item }">{{ getMvoCodeById(item.mvo_id) }}</template>
 
                 <template v-slot:item.star_number="{ item }">
                   <v-chip color="amber" text-color="white" size="small">
@@ -469,22 +279,17 @@
                 <template v-slot:item.star_icon="{ item }">
                   <div class="d-flex justify-center">
                     <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
-                      size="small">
-                      mdi-star
-                    </v-icon>
+                      size="small">mdi-star</v-icon>
                   </div>
                 </template>
 
                 <template v-slot:item.file_path="{ item }">
                   <div class="d-flex align-center">
-                    <div v-if="isImageFile(item.file_path)" class="mr-3">
-                      <v-img :src="getFullFileUrl(item.file_path)" width="40" height="40" class="rounded" />
-                    </div>
-                    <div v-else-if="isPdfFile(item.file_path)" class="mr-3">
-                      <v-icon size="40" color="red">mdi-file-pdf-box</v-icon>
-                    </div>
-                    <div v-else class="mr-3">
-                      <v-icon size="40" color="blue">mdi-file-document</v-icon>
+                    <div class="mr-3">
+                      <v-img v-if="isImageFile(item.file_path)" :src="getFullFileUrl(item.file_path)" width="40"
+                        height="40" class="rounded" />
+                      <v-icon v-else-if="isPdfFile(item.file_path)" size="40" color="red">mdi-file-pdf-box</v-icon>
+                      <v-icon v-else size="40" color="blue">mdi-file-document</v-icon>
                     </div>
                     <div>
                       <div class="text-caption">{{ item.file_name }}</div>
@@ -503,14 +308,13 @@
                   <div class="d-flex justify-center">
                     <v-tooltip text="Edit" color="#125C13" location="top start">
                       <template v-slot:activator="{ props }">
-                        <v-btn size="small" :color="app.colors.primary" @click="editDocument(item.id)" class="mx-1"
-                          v-bind="props" icon>
+                        <v-btn size="small" :color="app.colors.primary" @click="openEditDocumentDialog(item.id)"
+                          class="mx-1" v-bind="props" icon>
                           <v-icon>mdi-pencil</v-icon>
                         </v-btn>
                       </template>
                     </v-tooltip>
 
-                    <!-- Tombol Approve hanya muncul jika canApproveDocument true -->
                     <v-tooltip v-if="canApproveDocument(item)" :text="getDocumentApproveTooltip(item)" color="#2E7D32"
                       location="top start">
                       <template v-slot:activator="{ props }">
@@ -534,14 +338,11 @@
               </v-data-table>
             </div>
 
-            <!-- Detail Section for Children (Bawahan) -->
             <div class="detail-section mb-6" v-if="detailViewMode === 'children'">
               <h3 class="detail-section-title">
                 <v-icon class="mr-2" color="#FFD700">mdi-account-supervisor</v-icon>
                 Detail Downline
-                <v-chip color="info" size="small" class="ml-3">
-                  {{ relatedMvoData.length }} Data
-                </v-chip>
+                <v-chip color="info" size="small" class="ml-3">{{ relatedMvoData.length }} Data</v-chip>
               </h3>
 
               <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Downline..."
@@ -550,21 +351,10 @@
               <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="detailHeaders"
                 :items="getCurrentDetailData()" :search="detailSearch" hide-default-footer items-per-page="-1">
 
-                <template v-slot:item.mvo_type="{ item }">
-                  {{ getMvoTypeName(item.mvo_type_id) }}
-                </template>
-
-                <template v-slot:item.province="{ item }">
-                  {{ item.province_code || '-' }}
-                </template>
-
-                <template v-slot:item.tgl_lahir="{ item }">
-                  {{ formatDate(item.tgl_lahir) }}
-                </template>
-
-                <template v-slot:item.upline_1="{ item }">
-                  {{ item.upline_1 || '-' }}
-                </template>
+                <template v-slot:item.mvo_type="{ item }">{{ getMvoTypeName(item.mvo_type_id) }}</template>
+                <template v-slot:item.province="{ item }">{{ item.province_code || '-' }}</template>
+                <template v-slot:item.tgl_lahir="{ item }">{{ formatDate(item.tgl_lahir) }}</template>
+                <template v-slot:item.upline_1="{ item }">{{ item.upline_1 || '-' }}</template>
 
                 <template v-slot:item.action="{ item }">
                   <div class="d-flex justify-center">
@@ -583,116 +373,8 @@
             </div>
           </div>
 
-          <!-- Dialog Edit Document -->
-          <v-dialog v-model="isShowDialogEditDocument" max-width="600px">
-            <v-card class="custom-dialog">
-              <v-card-title class="dialog-header">
-                <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
-                <span class="dialog-title">EDIT DOKUMEN</span>
-              </v-card-title>
-
-              <v-card-text class="dialog-content">
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field label="Nama File" v-model="documentEditModel.file_name" class="mb-2 mt-4"
-                      :rules="[requiredRule]" />
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="12">
-                    <v-select label="Rating Star" v-model="documentEditModel.pointbintang"
-                      :items="[0, 1, 2, 3, 4, 5, 6, 7, 8]" class="mb-2" :rules="[pointbintangRule]" required>
-                      <template v-slot:selection="{ item }">
-                        <div class="d-flex align-center">
-                          <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
-                          <span>{{ item.value }} Bintang</span>
-                        </div>
-                      </template>
-                      <template v-slot:item="{ item, props }">
-                        <v-list-item v-bind="props" :title="`${item.value} Bintang`">
-                          <template v-slot:prepend>
-                            <div class="d-flex align-center">
-                              <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
-                                mdi-star
-                              </v-icon>
-                            </div>
-                          </template>
-                        </v-list-item>
-                      </template>
-                    </v-select>
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field label="Tanggal Input Dokumen" type="date"
-                      v-model="documentEditModel.tanggal_repeat_order" class="mb-2" variant="outlined"
-                      density="comfortable" prepend-inner-icon="mdi-calendar" />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field label="Range Point" v-model="formattedRepeatOrderEdit" class="mb-2"
-                      hint="Masukkan range point. Isi 0 jika yang diupload dokumen biasa" persistent-hint
-                      :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
-                      prepend-inner-icon="mdi-chart-line" />
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="12">
-                    <v-file-input label="Upload File Baru (Opsional)" v-model="documentEditModel.file" class="mb-2"
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="handleEditDocumentFileChange"
-                      hint="Kosongkan jika tidak ingin mengubah file" persistent-hint />
-                  </v-col>
-                </v-row>
-
-                <!-- Preview file yang ada jika tidak upload file baru -->
-                <v-row v-if="documentEditModel.file_path && !documentEditModel.file">
-                  <v-col cols="12">
-                    <div class="mb-2">
-                      <label class="text-caption text-grey">File Saat Ini:</label>
-                      <div class="d-flex align-center mt-1">
-                        <div v-if="isImageFile(documentEditModel.file_path)" class="mr-3">
-                          <v-img :src="getFullFileUrl(documentEditModel.file_path)" width="40" height="40"
-                            class="rounded" />
-                        </div>
-                        <div v-else-if="isPdfFile(documentEditModel.file_path)" class="mr-3">
-                          <v-icon size="40" color="red">mdi-file-pdf-box</v-icon>
-                        </div>
-                        <div v-else class="mr-3">
-                          <v-icon size="40" color="blue">mdi-file-document</v-icon>
-                        </div>
-                        <div>
-                          <div class="text-body-2">{{ documentEditModel.original_file_name || 'File tidak diketahui' }}
-                          </div>
-                          <v-btn size="x-small" color="primary" variant="text"
-                            @click="viewFile(documentEditModel.file_path)">
-                            <v-icon size="14" class="mr-1">mdi-eye</v-icon>
-                            Lihat File
-                          </v-btn>
-                        </div>
-                      </div>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-
-              <v-card-actions class="dialog-actions">
-                <v-spacer></v-spacer>
-                <v-btn :color="app.colors.secondary" @click="isShowDialogEditDocument = false" class="ml-2">
-                  Batal
-                </v-btn>
-                <v-btn :color="app.colors.primary" @click="updateDocument(documentEditModel.id)"
-                  :loading="isDocumentButtonLoading" class="ml-2">
-                  Update
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- Mobile View -->
+          <!-- Mobile Detail View -->
           <div class="d-block d-md-none">
-            <!-- Mobile Navigation Tabs -->
             <v-tabs v-model="mobileDetailTab" class="mb-4" color="primary" grow>
               <v-tab value="documents">
                 <v-icon start>mdi-file-document-multiple</v-icon>
@@ -705,59 +387,41 @@
             </v-tabs>
 
             <v-window v-model="mobileDetailTab">
-              <!-- Documents Tab -->
               <v-window-item value="documents">
-                <!-- Add Document Button -->
                 <div class="mb-4">
-                  <v-btn color="primary" block @click="showDialogAddDocument" :disabled="!getDocumentMvoId()"
+                  <v-btn color="primary" block @click="openAddDocumentDialog" :disabled="!getDocumentMvoId()"
                     class="text-white">
                     <v-icon start>mdi-plus</v-icon>
                     Tambah Dokumen
                   </v-btn>
 
                   <div class="d-flex justify-center align-center mt-2 gap-2" v-if="getDocumentMvoId()">
-                    <!-- KODE -->
-                    <v-chip color="success" size="small">
-                      {{ getDocumentMvoCode() }}
-                    </v-chip>
-
-                    <!-- NAMA PEMILIK -->
-                    <span class="text-caption text-grey">
-                      {{ originalDetailMvoData?.nama || '-' }}
-                    </span>
+                    <v-chip color="success" size="small">{{ getDocumentMvoCode() }}</v-chip>
+                    <span class="text-caption text-grey">{{ originalDetailMvoData?.nama || '-' }}</span>
                   </div>
                 </div>
 
-                <!-- Document Search -->
                 <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-                <!-- Loading State -->
                 <v-progress-linear v-if="isLoadingDocuments" indeterminate color="#FFD700"
                   class="mb-4"></v-progress-linear>
 
-                <!-- No Documents -->
                 <div v-if="documentItems.length === 0 && !isLoadingDocuments" class="text-center pa-4">
                   <v-icon size="64" color="grey">mdi-file-document-off</v-icon>
                   <p class="text-grey mt-2">Tidak ada dokumen untuk data ini</p>
                 </div>
 
-                <!-- Document Cards -->
-                <v-card v-for="(document, index) in documentItems" :key="document.id" class="mobile-document-card mb-3"
+                <v-card v-for="document in documentItems" :key="document.id" class="mobile-document-card mb-3"
                   elevation="2">
                   <v-card-text>
-                    <!-- Document Header -->
                     <div class="d-flex align-center mb-3">
                       <div class="mr-3">
-                        <div v-if="isImageFile(document.file_path)">
-                          <v-img :src="getFullFileUrl(document.file_path)" width="50" height="50" class="rounded" />
-                        </div>
-                        <div v-else-if="isPdfFile(document.file_path)">
-                          <v-icon size="50" color="red">mdi-file-pdf-box</v-icon>
-                        </div>
-                        <div v-else>
-                          <v-icon size="50" color="blue">mdi-file-document</v-icon>
-                        </div>
+                        <v-img v-if="isImageFile(document.file_path)" :src="getFullFileUrl(document.file_path)"
+                          width="50" height="50" class="rounded" />
+                        <v-icon v-else-if="isPdfFile(document.file_path)" size="50"
+                          color="red">mdi-file-pdf-box</v-icon>
+                        <v-icon v-else size="50" color="blue">mdi-file-document</v-icon>
                       </div>
                       <div class="flex-grow-1">
                         <div class="font-weight-medium mb-1">{{ document.file_name }}</div>
@@ -765,7 +429,6 @@
                       </div>
                     </div>
 
-                    <!-- Document Info dengan Status Approval -->
                     <v-row class="mb-2" no-gutters>
                       <v-col cols="6">
                         <div class="text-caption text-grey">Poin Per Bintang:</div>
@@ -777,84 +440,17 @@
                       </v-col>
                     </v-row>
 
-                    <!-- Status Approval Section -->
                     <v-divider class="my-2"></v-divider>
 
-                    <!-- Status Approval Section -->
-                    <v-divider class="my-2"></v-divider>
-
-                    <!-- Status MVO -->
-                    <v-row class="mb-2" no-gutters>
+                    <v-row v-for="row in mobileDocStatusRows(document)" :key="row.label" class="mb-2" no-gutters>
                       <v-col cols="5">
-                        <div class="text-caption text-grey">Status MVO:</div>
+                        <div class="text-caption text-grey">{{ row.label }}:</div>
                       </v-col>
                       <v-col cols="7">
-                        <v-chip :color="getMvoStatusColor(document)" size="x-small" variant="flat">
-                          {{ getMvoStatusText(document) }}
-                        </v-chip>
+                        <v-chip :color="row.color" size="x-small" variant="flat">{{ row.text }}</v-chip>
                       </v-col>
                     </v-row>
 
-                    <!-- Status Regional -->
-                    <v-row class="mb-2" no-gutters>
-                      <v-col cols="5">
-                        <div class="text-caption text-grey">Status Regional:</div>
-                      </v-col>
-                      <v-col cols="7">
-                        <v-chip :color="getRegionalStatusColor(document)" size="x-small" variant="flat">
-                          {{ getRegionalStatusText(document) }}
-                        </v-chip>
-                      </v-col>
-                    </v-row>
-
-                    <!-- Status Admin -->
-                    <v-row class="mb-3" no-gutters>
-                      <v-col cols="5">
-                        <div class="text-caption text-grey">Status Admin:</div>
-                      </v-col>
-                      <v-col cols="7">
-                        <v-chip :color="getAdminStatusColor(document)" size="x-small" variant="flat">
-                          {{ getAdminStatusText(document) }}
-                        </v-chip>
-                      </v-col>
-                    </v-row>
-
-                    <v-row class="mb-3" no-gutters>
-                      <v-col cols="5">
-                        <div class="text-caption text-grey">Status:</div>
-                      </v-col>
-                      <v-col cols="7">
-                        <v-chip
-                          :color="getDocumentStatusColor(document.status_inputan, document.approval_doc_upline_1, document.upline_1)"
-                          size="x-small" variant="flat">
-                          {{ getDocumentStatusText(document.status_inputan, document.approval_doc_upline_1,
-                            document.upline_1) }}
-                        </v-chip>
-                      </v-col>
-                    </v-row>
-
-                    <!-- <v-row class="mb-3" no-gutters>
-                      <v-col cols="5">
-                        <div class="text-caption text-grey">Status Admin:</div>
-                      </v-col>
-                      <v-col cols="7">
-                        <v-chip
-                          :color="document.status_inputan_2 === 'approved' ? 'success' : (document.status_inputan === 'approved' ? 'warning' : 'grey')"
-                          size="x-small" variant="flat">
-                          <template v-if="document.status_inputan_2 === 'approved'">
-                            Disetujui
-                          </template>
-                          <template v-else-if="document.status_inputan === 'approved'">
-                            Menunggu
-                          </template>
-                          <template v-else>
-                            Pending MVO
-                          </template>
-                        </v-chip>
-                      </v-col>
-                    </v-row> -->
-
-                    <!-- Document Actions -->
                     <v-divider class="mb-3"></v-divider>
                     <div class="d-flex flex-wrap gap-2">
                       <v-btn size="small" color="success" variant="outlined"
@@ -864,14 +460,13 @@
                       </v-btn>
                     </div>
 
-                    <!-- Admin Actions -->
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                      <v-btn size="small" :color="app.colors.primary" variant="text" @click="editDocument(document.id)">
+                      <v-btn size="small" :color="app.colors.primary" variant="text"
+                        @click="openEditDocumentDialog(document.id)">
                         <v-icon start size="16">mdi-pencil</v-icon>
                         Edit
                       </v-btn>
 
-                      <!-- Tombol Approve hanya muncul jika canApproveDocument true -->
                       <v-btn v-if="canApproveDocument(document)" size="small"
                         :color="getDocumentApproveButtonColor(document)" variant="text"
                         @click="approveDocument(document.id)">
@@ -889,24 +484,19 @@
                 </v-card>
               </v-window-item>
 
-              <!-- Children Tab -->
               <v-window-item value="children" v-if="detailViewMode === 'children'">
-                <!-- Search -->
                 <v-text-field v-model="detailSearch" prepend-inner-icon="mdi-magnify" label="Cari Data Downline..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-                <!-- No Children -->
                 <div v-if="getCurrentDetailData().length === 0" class="text-center pa-4">
                   <v-icon size="64" color="grey">mdi-account-off</v-icon>
                   <p class="text-grey mt-2">Tidak ada data Downline</p>
                 </div>
 
-                <!-- Children Cards -->
                 <v-card v-for="(child, index) in getCurrentDetailData()" :key="child.id" class="mobile-child-card mb-3"
                   elevation="2" @click="toggleMobileChildDetail(child.id)"
                   :class="{ 'mobile-child-expanded': expandedMobileChild === child.id }">
 
-                  <!-- Child Header -->
                   <v-card-text class="mobile-child-header">
                     <v-row no-gutters align="center">
                       <v-col cols="2" class="text-center">
@@ -929,67 +519,19 @@
                     </v-row>
                   </v-card-text>
 
-                  <!-- Child Details - Expandable -->
                   <v-expand-transition>
                     <div v-show="expandedMobileChild === child.id">
                       <v-divider></v-divider>
                       <v-card-text class="mobile-child-details">
-                        <!-- Personal Info -->
-                        <div class="mobile-info-section mb-3">
-                          <h4 class="text-subtitle-2 mb-2 text-primary">Informasi Personal</h4>
-                          <!-- <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Nomor ID:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.nomor_id || '-' }}</v-col>
-                          </v-row> -->
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">No ID:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.no_id || '-' }}</v-col>
-                          </v-row>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Panggilan:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.nama_panggilan || '-' }}</v-col>
-                          </v-row>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Tempat Lahir:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.tempat_lahir || '-' }}</v-col>
-                          </v-row>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Tgl Lahir:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ formatDate(child.tgl_lahir) }}</v-col>
+                        <div v-for="section in mobileChildSections(child)" :key="section.title"
+                          class="mobile-info-section mb-3">
+                          <h4 class="text-subtitle-2 mb-2 text-primary">{{ section.title }}</h4>
+                          <v-row v-for="row in section.rows" :key="row.label" class="mb-1" dense>
+                            <v-col cols="4" class="text-caption text-grey">{{ row.label }}:</v-col>
+                            <v-col cols="8" class="text-body-2">{{ row.value }}</v-col>
                           </v-row>
                         </div>
 
-                        <!-- Contact Info -->
-                        <div class="mobile-info-section mb-3">
-                          <h4 class="text-subtitle-2 mb-2 text-primary">Kontak</h4>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">No HP:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.nohp || '-' }}</v-col>
-                          </v-row>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Alamat:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.alamat || '-' }}</v-col>
-                          </v-row>
-                        </div>
-
-                        <!-- Business Info -->
-                        <div class="mobile-info-section mb-3">
-                          <h4 class="text-subtitle-2 mb-2 text-primary">Bisnis</h4>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Jaringan:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.jaringan_mvo || '-' }}</v-col>
-                          </v-row>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Provinsi:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.province_code || '-' }}</v-col>
-                          </v-row>
-                          <v-row class="mb-1" dense>
-                            <v-col cols="4" class="text-caption text-grey">Upline 1:</v-col>
-                            <v-col cols="8" class="text-body-2">{{ child.upline_1 || '-' }}</v-col>
-                          </v-row>
-                        </div>
-
-                        <!-- Actions -->
                         <v-divider class="mb-3"></v-divider>
                         <div class="d-flex justify-center">
                           <v-btn v-if="child.bawahan && child.bawahan.length > 0" size="small" color="warning"
@@ -1014,20 +556,15 @@
             Kembali
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn :color="app.colors.primary" @click="closeDetailDialog" class="ml-2">
-            Tutup
-          </v-btn>
+          <v-btn :color="app.colors.primary" @click="closeDetailDialog" class="ml-2">Tutup</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="isShowDialogDelete" :max-width="$vuetify.display.mobile ? '95%' : '500px'">
       <v-card :color="app.colors.background">
-        <v-card-title class="text-h5">
-          Apakah yakin ingin menghapus data ini?
-        </v-card-title>
+        <v-card-title class="text-h5">Apakah yakin ingin menghapus data ini?</v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">Cancel</v-btn>
@@ -1038,30 +575,36 @@
       </v-card>
     </v-dialog>
 
-    <!-- Document Management Dialogs -->
-    <v-dialog v-model="isShowDialogAddDocument" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
+    <!-- Document Add/Edit Dialog (unified) -->
+    <v-dialog v-model="documentDialog.show" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
       <v-card class="custom-dialog">
         <v-card-title class="dialog-header">
-          <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
-          <span class="dialog-title">TAMBAH DOKUMEN</span>
+          <v-icon class="mr-2" style="color: #FFD700;">
+            {{ isDocEditMode ? 'mdi-pencil' : 'mdi-plus-circle' }}
+          </v-icon>
+          <span class="dialog-title">{{ isDocEditMode ? 'EDIT DOKUMEN' : 'TAMBAH DOKUMEN' }}</span>
         </v-card-title>
+
         <v-card-text class="dialog-content">
-          <v-row>
+          <v-row v-if="!isDocEditMode">
             <v-col cols="12">
-              <v-select label="Tipe Dokumen" v-model="documentAddModel.document_type"
+              <v-select label="Tipe Dokumen" v-model="documentForm.document_type"
                 :items="[{ title: 'Dokumen Star', value: 'star' }, { title: 'Dokumen Biasa', value: 'user' }]"
                 item-title="title" item-value="value" class="mb-2 mt-4" variant="outlined" density="comfortable"
                 prepend-inner-icon="mdi-file-document-outline" />
             </v-col>
           </v-row>
+
           <v-row>
             <v-col cols="12">
-              <v-text-field label="Nama File" v-model="documentAddModel.file_name" class="mb-2 mt-4" />
+              <v-text-field label="Nama File" v-model="documentForm.file_name" class="mb-2 mt-4"
+                :rules="isDocEditMode ? [requiredRule] : []" />
             </v-col>
           </v-row>
-          <v-row v-if="documentAddModel.document_type === 'star'">
+
+          <v-row v-if="showStarFields">
             <v-col cols="12">
-              <v-select label="Rating Star" v-model="documentAddModel.pointbintang" :items="[0, 1, 2, 3, 4, 5, 6, 7, 8]"
+              <v-select label="Rating Star" v-model="documentForm.pointbintang" :items="[0, 1, 2, 3, 4, 5, 6, 7, 8]"
                 class="mb-2" :rules="[pointbintangRule]" required>
                 <template v-slot:selection="{ item }">
                   <div class="d-flex align-center">
@@ -1073,9 +616,7 @@
                   <v-list-item v-bind="props" :title="`${item.value} Bintang`">
                     <template v-slot:prepend>
                       <div class="d-flex align-center">
-                        <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
-                          mdi-star
-                        </v-icon>
+                        <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">mdi-star</v-icon>
                       </div>
                     </template>
                   </v-list-item>
@@ -1083,36 +624,66 @@
               </v-select>
             </v-col>
           </v-row>
+
           <v-row>
             <v-col cols="12" md="6">
-              <v-text-field label="Tanggal Input Dokumen" type="date" v-model="documentAddModel.tanggal_repeat_order"
-                class="mb-2" :rules="[requiredRule]" variant="outlined" density="comfortable"
+              <v-text-field label="Tanggal Input Dokumen" type="date" v-model="documentForm.tanggal_repeat_order"
+                class="mb-2" :rules="isDocEditMode ? [] : [requiredRule]" variant="outlined" density="comfortable"
                 prepend-inner-icon="mdi-calendar" />
             </v-col>
-            <v-col cols="12" md="6" v-if="documentAddModel.document_type === 'star'">
-              <v-text-field label="Range Point" v-model="formattedRepeatOrderAdd" class="mb-2"
+            <v-col cols="12" md="6" v-if="showStarFields">
+              <v-text-field label="Range Point" v-model="formattedRepeatOrder" class="mb-2"
                 hint="Masukkan range point. Isi 0 jika yang diupload dokumen biasa" persistent-hint
                 :rules="[rangePointOptionalRule]" variant="outlined" density="comfortable"
                 prepend-inner-icon="mdi-chart-line" />
             </v-col>
           </v-row>
+
           <v-row>
             <v-col cols="12">
-              <v-file-input label="Upload File" v-model="documentAddModel.file" class="mb-2"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="handleDocumentFileChange" :rules="[requiredRule]" />
+              <v-file-input :label="isDocEditMode ? 'Upload File Baru (Opsional)' : 'Upload File'"
+                v-model="documentForm.file" class="mb-2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                @change="handleDocumentFileChange" :rules="isDocEditMode ? [] : [requiredRule]"
+                :hint="isDocEditMode ? 'Kosongkan jika tidak ingin mengubah file' : ''"
+                :persistent-hint="isDocEditMode" />
+            </v-col>
+          </v-row>
+
+          <v-row v-if="isDocEditMode && documentForm.file_path && !documentForm.file">
+            <v-col cols="12">
+              <div class="mb-2">
+                <label class="text-caption text-grey">File Saat Ini:</label>
+                <div class="d-flex align-center mt-1">
+                  <div class="mr-3">
+                    <v-img v-if="isImageFile(documentForm.file_path)" :src="getFullFileUrl(documentForm.file_path)"
+                      width="40" height="40" class="rounded" />
+                    <v-icon v-else-if="isPdfFile(documentForm.file_path)" size="40"
+                      color="red">mdi-file-pdf-box</v-icon>
+                    <v-icon v-else size="40" color="blue">mdi-file-document</v-icon>
+                  </div>
+                  <div>
+                    <div class="text-body-2">{{ documentForm.original_file_name || 'File tidak diketahui' }}</div>
+                    <v-btn size="x-small" color="primary" variant="text" @click="viewFile(documentForm.file_path)">
+                      <v-icon size="14" class="mr-1">mdi-eye</v-icon>
+                      Lihat File
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
             </v-col>
           </v-row>
         </v-card-text>
+
         <v-card-actions class="dialog-actions">
           <v-spacer></v-spacer>
-          <v-btn :color="app.colors.secondary" @click="isShowDialogAddDocument = false" class="ml-2">Batal</v-btn>
-          <v-btn :color="app.colors.primary" @click="addDocument()" :loading="isDocumentButtonLoading"
-            class="ml-2">Simpan</v-btn>
+          <v-btn :color="app.colors.secondary" @click="documentDialog.show = false" class="ml-2">Batal</v-btn>
+          <v-btn :color="app.colors.primary" @click="submitDocument()" :loading="isDocumentButtonLoading" class="ml-2">
+            {{ isDocEditMode ? 'Update' : 'Simpan' }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Other dialogs and snackbar -->
     <v-snackbar v-model="contentSnackbar.snackbar" :color="contentSnackbar.color">
       {{ contentSnackbar.text }}
     </v-snackbar>
@@ -1127,12 +698,34 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 
+const API_BASE = "http://127.0.0.1:8000/api";
+const FILE_BASE = "http://127.0.0.1:8000/project/public/";
+
+const UPLINE_LEVELS = [
+  { key: "upline_6", title: "Distributor", short: "DISTRIBUTOR" },
+  { key: "upline_5", title: "Supplier", short: "SUPPLIER" },
+  { key: "upline_4", title: "General Manager", short: "GENERAL MANAGER" },
+  { key: "upline_3", title: "Founder", short: "FOUNDER" },
+  { key: "upline_2", title: "Regional", short: "REGIONAL" },
+  { key: "upline_1", title: "MVO", short: "MVO" },
+];
+
+const buildEmptyDocForm = () => ({
+  id: "",
+  mvo_id: "",
+  document_type: "star",
+  file_name: "",
+  pointbintang: "",
+  tanggal_repeat_order: "",
+  repeat_order: "",
+  file: null,
+  file_path: "",
+  original_file_name: "",
+});
+
 export default {
   name: "MvoManagement",
-  components: {
-    Breadcrumb,
-    CardDataTable,
-  },
+  components: { Breadcrumb, CardDataTable },
 
   setup() {
     const app = useAppStore();
@@ -1141,67 +734,55 @@ export default {
 
   data() {
     return {
-      mobileDetailTab: 'documents',
+      UPLINE_LEVELS,
+
+      pagination: {
+        page: 1,
+        itemsPerPage: 10,
+        sortBy: [],
+      },
+      totalItems: 0,
+      searchInput: "",
+      debouncedSearch: "",
+      _searchTimer: null,
+      mvoCodeCache: {},
+
+      mobileDetailTab: "documents",
       expandedMobileChild: null,
       expandedMobileCard: null,
       detailNavigationHistory: [],
       isNavigatingBack: false,
-      allMvoData: [],
-      contentSnackbar: {
-        snackbar: false,
-        text: "",
-        color: "",
-      },
+      contentSnackbar: { snackbar: false, text: "", color: "" },
       mvo_type_id: "",
       title: "DATA AKUN",
       itemsBreadcrumb: [
-        {
-          title: "Dashboard",
-          disabled: false,
-          href: "/admin/dashboard",
-        },
-        {
-          title: "AKUN",
-          disabled: false,
-          href: "/admin/mvo",
-        },
+        { title: "Dashboard", disabled: false, href: "/admin/dashboard" },
+        { title: "AKUN", disabled: false, href: "/admin/mvo" },
       ],
 
-      // State management
-      isShowDialogEditDocument: false,
       isShowDialogDetail: false,
       isButtonLoading: false,
-      isTableLoading: true,
+      isTableLoading: false,
       isLoadingParentDetail: false,
       isShowDialogDelete: false,
 
-      // Document-related states
-      isShowDialogAddDocument: false,
       isDocumentButtonLoading: false,
       isLoadingDocuments: false,
+      isImporting: false,
 
-      // Detail navigation
       currentDetailIndex: 0,
       relatedMvoData: [],
-      detailViewMode: 'single',
+      detailViewMode: "single",
 
       documentSearch: "",
       detailSearch: "",
 
-      // Pagination
-      currentPage: 1,
-      itemsPerPage: 10,
-
-      // Data models
       datatable: {
-        search: "",
         headers: [
           { key: "no", title: "No", sortable: false },
-
-          { key: "code", title: "Kode", fixed: 'start', width: 100 },
-          { key: "no_id", title: "No ID", fixed: 'start', width: 120 },
-          { key: "nama", title: "Nama", fixed: 'start', width: 180 },
-
+          { key: "code", title: "Kode", fixed: "start", width: 100 },
+          { key: "no_id", title: "No ID", fixed: "start", width: 120 },
+          { key: "nama", title: "Nama", fixed: "start", width: 180 },
           { key: "nama_panggilan", title: "Nama Panggilan" },
           { key: "tempat_lahir", title: "Tempat Lahir" },
           { key: "tgl_lahir", title: "Tanggal Lahir" },
@@ -1210,25 +791,16 @@ export default {
           { key: "jaringan_mvo", title: "Jaringan" },
           { key: "mvo_type", title: "Tipe" },
           { key: "province", title: "Provinsi" },
-          { key: "upline_6", title: "Distributor" },
-          { key: "upline_5", title: "Supplier" },
-          { key: "upline_4", title: "General Manager" },
-          { key: "upline_3", title: "Founder" },
-          { key: "upline_2", title: "Regional" },
-          { key: "upline_1", title: "MVO" },
-
-          { key: "created_at", title: "Tanggal Aktivasi", align: "center" },
-
+          ...UPLINE_LEVELS.map(lvl => ({ key: lvl.key, title: lvl.title })),
+          { key: "created_at", title: "Tgl Aktivasi", align: "center" },
           { key: "detail", title: "Detail", sortable: false, align: "center" },
-          { key: "print", title: "Print", sortable: false, align: "center" },
+          // { key: "print", title: "Print", sortable: false, align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" },
         ],
         items: [],
       },
 
       detailHeaders: [
-        // { key: "code", title: "Kode" },
-        // { key: "nomor_id", title: "Nomor ID" },
         { key: "no_id", title: "No ID" },
         { key: "nama", title: "Nama" },
         { key: "nama_panggilan", title: "Nama Panggilan" },
@@ -1239,16 +811,9 @@ export default {
         { key: "jaringan_mvo", title: "Jaringan" },
         { key: "mvo_type", title: "Tipe" },
         { key: "province", title: "Provinsi" },
-        { key: "upline_6", title: "Distributor" },
-        { key: "upline_5", title: "Supplier" },
-        { key: "upline_4", title: "General Manager" },
-        { key: "upline_3", title: "Founder" },
-        { key: "upline_2", title: "Regional" },
-        { key: "upline_1", title: "MVO" },
-        // { key: "action", title: "Detail", sortable: false, align: "center" },
+        ...UPLINE_LEVELS.map(lvl => ({ key: lvl.key, title: lvl.title })),
       ],
 
-      // Document headers and data
       documentHeaders: [
         { key: "mvo_code", title: "Kode" },
         { key: "file_name", title: "Nama File" },
@@ -1256,9 +821,9 @@ export default {
         { key: "star_icon", title: "Rating Star", sortable: false, align: "center" },
         { key: "tanggal_repeat_order", title: "Tanggal Input", align: "center" },
         { key: "repeat_order", title: "Range Point", align: "center" },
-        { key: "status_mvo", title: "Status MVO", align: "center" },           // TAMBAH BARIS INI
-        { key: "status_regional", title: "Status Regional", align: "center" }, // TAMBAH BARIS INI
-        { key: "status_inputan", title: "Status Admin", align: "center" },     // UBAH "Status" JADI "Status Admin"
+        // { key: "status_mvo", title: "Status MVO", align: "center" },
+        // { key: "status_regional", title: "Status Regional", align: "center" },
+        { key: "status_inputan", title: "Status Admin", align: "center" },
         { key: "file_path", title: "File Preview", sortable: false, width: "200px" },
         { key: "action", title: "Actions", sortable: false, align: "center" },
       ],
@@ -1267,628 +832,92 @@ export default {
       originalDetailMvoId: null,
       originalDetailMvoData: {},
 
-      // Reference data
       mvoTypes: [],
-
-      // Detail model
       detailModel: {},
+      modelDelete: { id: "" },
 
-      // Delete model
-      modelDelete: {
-        id: "",
-      },
-
-      // Document models
-      documentAddModel: {
-        mvo_id: "",
-        document_type: "star",  // TAMBAH INI
-        file_name: "",
-        pointbintang: "",
-        tanggal_repeat_order: "",
-        repeat_order: "",
-        file: null,
-      },
-      documentEditModel: {
-        id: "",
-        document_type: "star",  // TAMBAH INI
-        file_name: "",
-        pointbintang: "",
-        tanggal_repeat_order: "",
-        repeat_order: "",
-        file: null,
-      },
+      documentDialog: { show: false, mode: "add" },
+      documentForm: buildEmptyDocForm(),
     };
   },
 
   computed: {
-    // TAMBAHKAN computed baru ini:
-    formattedRepeatOrderAdd: {
-      get() {
-        if (this.documentAddModel.repeat_order === null || this.documentAddModel.repeat_order === undefined || this.documentAddModel.repeat_order === '') {
-          return '';
-        }
-        return Number(this.documentAddModel.repeat_order).toLocaleString('id-ID');
-      },
-      set(value) {
-        const numericValue = parseInt(String(value).replace(/\./g, ''), 10);
-        this.documentAddModel.repeat_order = isNaN(numericValue) ? '' : numericValue;
-      }
-    },
-    formattedRepeatOrderEdit: {
-      get() {
-        if (this.documentEditModel.repeat_order === null || this.documentEditModel.repeat_order === undefined || this.documentEditModel.repeat_order === '') {
-          return '';
-        }
-        return Number(this.documentEditModel.repeat_order).toLocaleString('id-ID');
-      },
-      set(value) {
-        const numericValue = parseInt(String(value).replace(/\./g, ''), 10);
-        this.documentEditModel.repeat_order = isNaN(numericValue) ? '' : numericValue;
-      }
-    },
-    rangePointOptionalRule() {
-      return value => {
-        if (value === null || value === undefined || value === '') return true; // boleh kosong
-        const num = Number(String(value).replace(/\./g, ''));
-        if (isNaN(num)) return 'Harus berupa angka';
-        if (num < 0) return 'Range Point tidak boleh kurang dari 0'; return true;
-      };
+    isDocEditMode() {
+      return this.documentDialog.mode === "edit";
     },
 
-    rangePointRule() {
+    showStarFields() {
+      return this.isDocEditMode || this.documentForm.document_type === "star";
+    },
+
+    formattedRepeatOrder: {
+      get() {
+        const v = this.documentForm.repeat_order;
+        if (v === null || v === undefined || v === "") return "";
+        return Number(v).toLocaleString("id-ID");
+      },
+      set(value) {
+        const numericValue = parseInt(String(value).replace(/\./g, ""), 10);
+        this.documentForm.repeat_order = isNaN(numericValue) ? "" : numericValue;
+      },
+    },
+
+    rangePointOptionalRule() {
       return value => {
-        if (value === null || value === undefined || value === '') {
-          return 'Range Point harus diisi';
-        }
-        const num = Number(value);
-        if (isNaN(num)) {
-          return 'Harus berupa angka';
-        }
-        if (num < 0) {
-          return 'Range Point tidak boleh kurang dari 0';
-        }
-        // Hapus validasi maksimal 200
+        if (value === null || value === undefined || value === "") return true;
+        const num = Number(String(value).replace(/\./g, ""));
+        if (isNaN(num)) return "Harus berupa angka";
+        if (num < 0) return "Range Point tidak boleh kurang dari 0";
         return true;
       };
     },
 
     displayHeaders() {
-      if (this.mvo_type_id === 'superadmin') {
-        return this.datatable.headers;
-      } else if (this.mvo_type_id === 'mvo') {
-        return this.datatable.headers.filter(header =>
-          header.key !== 'status_inputan_2'
-        );
-      } else {
-        return this.datatable.headers.filter(header =>
-          header.key !== 'approve' && header.key !== 'status_inputan_2'
-        );
+      if (this.mvo_type_id === "superadmin") return this.datatable.headers;
+      if (this.mvo_type_id === "mvo") {
+        return this.datatable.headers.filter(h => h.key !== "status_inputan_2");
       }
+      return this.datatable.headers.filter(h => h.key !== "approve" && h.key !== "status_inputan_2");
     },
 
     requiredRule() {
-      return value => !!value || 'Field ini wajib diisi';
+      return value => !!value || "Field ini wajib diisi";
     },
 
     pointbintangRule() {
       return value => {
-        if (value === null || value === undefined || value === '') {
-          return 'Rising Star harus diisi';
-        }
+        if (value === null || value === undefined || value === "") return "Rising Star harus diisi";
         const num = Number(value);
-        if (isNaN(num)) {
-          return 'Harus berupa angka';
-        }
-        if (num < 0) {
-          return 'Poin tidak boleh kurang dari 0';
-        }
-        if (num > 8) {
-          return 'Poin maksimal adalah 8';
-        }
+        if (isNaN(num)) return "Harus berupa angka";
+        if (num < 0) return "Poin tidak boleh kurang dari 0";
+        if (num > 8) return "Poin maksimal adalah 8";
         return true;
       };
     },
 
-    filteredItems() {
-      if (!this.datatable.search) {
-        return this.datatable.items;
-      }
-
-      const searchTerm = this.datatable.search.toLowerCase();
-      return this.datatable.items.filter(item => {
-        return (
-          (item.nama && item.nama.toLowerCase().includes(searchTerm)) ||
-          (item.code && item.code.toLowerCase().includes(searchTerm)) ||
-          (item.nama_panggilan && item.nama_panggilan.toLowerCase().includes(searchTerm)) ||
-          // (item.nomor_id && item.nomor_id.toLowerCase().includes(searchTerm)) ||
-          (item.no_id && item.no_id.toLowerCase().includes(searchTerm)) ||
-          (item.nohp && item.nohp.toLowerCase().includes(searchTerm)) ||
-          (item.tempat_lahir && item.tempat_lahir.toLowerCase().includes(searchTerm)) ||
-          (item.jaringan_mvo && item.jaringan_mvo.toLowerCase().includes(searchTerm)) ||
-          (this.getMvoTypeName(item.mvo_type_id) && this.getMvoTypeName(item.mvo_type_id).toLowerCase().includes(searchTerm))
-        );
-      });
-    }
+    totalPages() {
+      return Math.max(1, Math.ceil(this.totalItems / this.pagination.itemsPerPage));
+    },
   },
 
   methods: {
+    // ========== UTIL ==========
     formatNumber(value) {
-      if (value === null || value === undefined || value === '') return '-';
+      if (value === null || value === undefined || value === "") return "-";
       const num = Number(value);
       if (isNaN(num)) return value;
-      return num.toLocaleString('id-ID');
-    },
-
-    getMvoStatusText(item) {
-      // Cek apakah ada upline_1 (MVO)
-      if (!item.upline_1) {
-        return 'Tidak Ada MVO';
-      }
-
-      // Cek status approval MVO (upline_1)
-      if (item.approval_doc_upline_1 === null) {
-        return 'Belum Approve';
-      } else {
-        return 'Sudah Approve';
-      }
-    },
-
-    getMvoStatusColor(item) {
-      if (!item.upline_1) {
-        return 'grey';
-      }
-
-      if (item.approval_doc_upline_1 === null) {
-        return 'warning';
-      } else {
-        return 'success';
-      }
-    },
-
-    getRegionalStatusText(item) {
-      // Cek apakah ada upline_2 (Regional)
-      if (!item.upline_2) {
-        return 'Tidak Ada Regional';
-      }
-
-      // Cek status approval Regional (upline_2)
-      if (item.approval_doc_upline_2 === null) {
-        return 'Belum Approve';
-      } else {
-        return 'Sudah Approve';
-      }
-    },
-
-    getRegionalStatusColor(item) {
-      if (!item.upline_2) {
-        return 'grey';
-      }
-
-      if (item.approval_doc_upline_2 === null) {
-        return 'warning';
-      } else {
-        return 'success';
-      }
-    },
-
-    getAdminStatusText(item) {
-      if (item.status_inputan === 'approved') {
-        return 'Sudah Approve';
-      } else {
-        return 'Belum Approve';
-      }
-    },
-
-    getAdminStatusColor(item) {
-      if (item.status_inputan === 'approved') {
-        return 'success';
-      } else {
-        return 'warning';
-      }
-    },
-
-    validateRangePoint(mode) {
-      const model = mode === 'add' ? this.documentAddModel : this.documentEditModel;
-      let value = Number(model.repeat_order);
-
-      if (isNaN(value) || model.repeat_order === '') {
-        model.repeat_order = '';
-        return;
-      }
-
-      if (value < 0) {
-        model.repeat_order = 0;
-        this.showSnackbar('Range Point tidak boleh kurang dari 0', 'warning');
-        return;
-      }
-
-      // Hapus validasi maksimal 200
-      model.repeat_order = value;
-    },
-
-    toggleMobileChildDetail(childId) {
-      if (this.expandedMobileChild === childId) {
-        this.expandedMobileChild = null;
-      } else {
-        this.expandedMobileChild = childId;
-      }
-    },
-
-    closeDetailDialog() {
-      this.isShowDialogDetail = false;
-      this.currentDetailIndex = 0;
-      this.relatedMvoData = [];
-      this.detailViewMode = 'single';
-      this.detailModel = {};
-      this.documentItems = [];
-      this.originalDetailMvoId = null;
-      this.originalDetailMvoData = {};
-      this.documentSearch = "";
-      this.detailSearch = "";
-      this.detailNavigationHistory = [];
-      this.mobileDetailTab = 'documents';
-      this.expandedMobileChild = null;
-    },
-
-    deleteMvo(id) {
-      this.isShowDialogDelete = true;
-      this.modelDelete.id = id;
-    },
-
-    async confirmDeleteMvo(id) {
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      this.isButtonLoading = true;
-
-      try {
-        const response = await axios.delete(
-          `https://babaapi.babaparfume.id/api/mvo/${id}`,
-          { headers }
-        );
-
-        this.getAllMvo();
-        this.showSnackbar(response.data.message || "Data berhasil dihapus");
-      } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error deleting", 'error');
-      } finally {
-        this.isButtonLoading = false;
-        this.isShowDialogDelete = false;
-      }
-    },
-
-
-    toggleMobileDetail(itemId) {
-      if (this.expandedMobileCard === itemId) {
-        this.expandedMobileCard = null;
-      } else {
-        this.expandedMobileCard = itemId;
-      }
-    },
-
-    updateCurrentPageInfo(options) {
-      this.currentPage = options.page;
-      this.itemsPerPage = options.itemsPerPage;
-    },
-
-    saveCurrentState() {
-      return {
-        originalDetailMvoId: this.originalDetailMvoId,
-        originalDetailMvoData: { ...this.originalDetailMvoData },
-        relatedMvoData: [...this.relatedMvoData],
-        currentDetailIndex: this.currentDetailIndex,
-        detailModel: { ...this.detailModel },
-        detailViewMode: this.detailViewMode,
-        documentItems: [...this.documentItems]
-      };
-    },
-
-    restoreState(previousState) {
-      this.originalDetailMvoId = previousState.originalDetailMvoId;
-      this.originalDetailMvoData = { ...previousState.originalDetailMvoData };
-      this.relatedMvoData = [...previousState.relatedMvoData];
-      this.currentDetailIndex = previousState.currentDetailIndex;
-      this.detailModel = { ...previousState.detailModel };
-      this.detailViewMode = previousState.detailViewMode;
-      this.documentItems = [...previousState.documentItems];
-    },
-
-    getDocumentStatusColor(status, approvalDocUpline1 = null, upline1 = null) {
-      // Kondisi 1: Dokumen dari bawahan (upline_1 ada)
-      if (upline1 !== null) {
-        // Jika status_inputan null dan approval_doc_upline_1 juga null = menunggu MVO
-        if ((!status || status === null) && (!approvalDocUpline1 || approvalDocUpline1 === null)) {
-          return 'warning'; // Kuning - Menunggu Approval MVO
-        }
-
-        // Jika status_inputan null tapi approval_doc_upline_1 sudah terisi = menunggu admin
-        if ((!status || status === null) && approvalDocUpline1 !== null) {
-          return 'info'; // Biru - Menunggu Approval Admin
-        }
-      }
-
-      // Kondisi 2: Dokumen dari MVO sendiri (upline_1 null)
-      if (upline1 === null) {
-        // Jika status_inputan null = langsung menunggu admin (tidak perlu approval MVO)
-        if (!status || status === null) {
-          return 'info'; // Biru - Menunggu Approval Admin
-        }
-      }
-
-      // Jika sudah approved
-      if (status && status.toLowerCase() === 'approved') {
-        return 'success'; // Hijau - Sudah Disetujui
-      }
-
-      switch (status?.toLowerCase()) {
-        case 'pending': return 'warning';
-        case 'rejected': return 'error';
-        default: return 'grey';
-      }
-    },
-
-    getDocumentStatusText(status, approvalDocUpline1 = null, upline1 = null) {
-      // Kondisi 1: Dokumen dari bawahan (upline_1 ada)
-      if (upline1 !== null) {
-        // Jika status_inputan null dan approval_doc_upline_1 juga null = menunggu MVO
-        if ((!status || status === null) && (!approvalDocUpline1 || approvalDocUpline1 === null)) {
-          return 'Menunggu Approval MVO';
-        }
-
-        // Jika status_inputan null tapi approval_doc_upline_1 sudah terisi = menunggu admin
-        if ((!status || status === null) && approvalDocUpline1 !== null) {
-          return 'Menunggu Approval Admin';
-        }
-      }
-
-      // Kondisi 2: Dokumen dari MVO sendiri (upline_1 null)
-      if (upline1 === null) {
-        // Jika status_inputan null = langsung menunggu admin
-        if (!status || status === null) {
-          return 'Menunggu Approval Admin';
-        }
-      }
-
-      // Jika sudah approved
-      if (status && status.toLowerCase() === 'approved') {
-        return 'Disetujui';
-      }
-
-      switch (status?.toLowerCase()) {
-        case 'pending': return 'Menunggu';
-        case 'rejected': return 'Ditolak';
-        default: return 'Tidak Diketahui';
-      }
-    },
-
-    async approveDocument(id) {
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      // Cari document dari documentItems untuk validasi
-      const document = this.documentItems.find(doc => doc.id === id);
-
-      if (!document) {
-        this.showSnackbar("Dokumen tidak ditemukan", 'error');
-        return;
-      }
-
-      // Hanya superadmin yang bisa approve
-      if (this.mvo_type_id !== 'superadmin') {
-        this.showSnackbar("Anda tidak memiliki akses untuk approve", 'error');
-        return;
-      }
-
-      // Cek apakah sudah approved
-      if (document.status_inputan === 'approved') {
-        this.showSnackbar("Dokumen sudah disetujui", 'warning');
-        return;
-      }
-
-      // Validasi berdasarkan kondisi:
-      // Kondisi 1: Dokumen dari bawahan - harus menunggu MVO approve dulu
-      if (document.upline_1 !== null && (!document.approval_doc_upline_1 || document.approval_doc_upline_1 === null)) {
-        this.showSnackbar("Menunggu approval dari MVO terlebih dahulu", 'warning');
-        return;
-      }
-
-      // Kondisi 2: Dokumen dari MVO sendiri - langsung bisa approve
-      // (tidak perlu validasi tambahan, sudah di-handle di canApproveDocument)
-
-      const endpoint = `https://babaapi.babaparfume.id/api/superadmin/${id}/approvedoc`;
-      const successMessage = "Dokumen berhasil disetujui oleh Superadmin";
-
-      this.isDocumentButtonLoading = true;
-
-      try {
-        const response = await axios.put(endpoint, {}, { headers });
-
-        if (response.data.status === "success") {
-          this.showSnackbar(response.data.message || successMessage);
-          // Refresh document list untuk update status
-          await this.getMvoDocuments(this.getDocumentMvoId());
-        } else {
-          this.showSnackbar(response.data.message, 'error');
-        }
-      } catch (error) {
-        this.showSnackbar(error.response?.data?.message, 'error');
-      } finally {
-        this.isDocumentButtonLoading = false;
-      }
-    },
-
-    canApproveDocument(document) {
-      // Hanya superadmin yang bisa approve dokumen
-      if (this.mvo_type_id === 'superadmin') {
-        // Kondisi 1: Dokumen dari bawahan (upline_1 ada)
-        // - approval_doc_upline_1 sudah terisi (MVO sudah approve)
-        // - status_inputan masih null (belum di-approve admin)
-        const condition1 = (document.status_inputan === null || document.status_inputan !== 'approved')
-          && document.approval_doc_upline_1 !== null;
-
-        // Kondisi 2: Dokumen ditambahkan oleh MVO sendiri (upline_1 null)
-        // - upline_1 = null
-        // - approval_doc_upline_1 = null
-        // - status_inputan = null
-        const condition2 = document.upline_1 === null
-          && document.approval_doc_upline_1 === null
-          && (document.status_inputan === null || document.status_inputan !== 'approved');
-
-        return condition1 || condition2;
-      }
-
-      // Role lain tidak bisa approve
-      return false;
-    },
-
-    getDocumentApproveButtonColor(document) {
-      if (this.mvo_type_id === 'mvo') {
-        // Jika sudah approved, tampilkan hijau (success), jika belum kuning (warning)
-        return document.status_inputan === 'approved' ? 'success' : 'warning';
-      } else if (this.mvo_type_id === 'superadmin') {
-        // Jika sudah approved admin, tampilkan hijau, jika belum hijau juga (siap di-approve)
-        return document.status_inputan_2 === 'approved' ? 'success' : 'success';
-      }
-      return 'grey';
-    },
-
-    getDocumentApproveButtonIcon(document) {
-      if (this.mvo_type_id === 'mvo') {
-        // Jika sudah approved: check-circle, jika belum: check
-        return document.status_inputan === 'approved' ? 'mdi-check-circle' : 'mdi-check';
-      } else if (this.mvo_type_id === 'superadmin') {
-        // Jika sudah approved admin: check-all (double check), jika belum: check-circle-outline
-        return document.status_inputan_2 === 'approved' ? 'mdi-check-all' : 'mdi-check-circle-outline';
-      }
-      return 'mdi-check';
-    },
-
-    getDocumentApproveTooltip(document) {
-      if (this.mvo_type_id === 'superadmin') {
-        // Jika sudah approved
-        if (document.status_inputan === 'approved') {
-          return 'Sudah Disetujui Admin';
-        }
-
-        // Kondisi 1: Dokumen dari bawahan (upline_1 ada)
-        if (document.upline_1 !== null) {
-          // Jika approval_doc_upline_1 belum terisi
-          if (!document.approval_doc_upline_1 || document.approval_doc_upline_1 === null) {
-            return 'Menunggu Approval MVO';
-          }
-
-          // Jika approval_doc_upline_1 sudah terisi
-          return 'Setujui sebagai Admin';
-        }
-
-        // Kondisi 2: Dokumen dari MVO sendiri (upline_1 null)
-        if (document.upline_1 === null) {
-          return 'Setujui sebagai Admin (Dokumen MVO)';
-        }
-      }
-      return 'Tidak Ada Akses';
-    },
-
-    getDocumentMvoId() {
-      return this.originalDetailMvoId || this.detailModel.id || null;
-    },
-
-    getDocumentMvoCode() {
-      if (this.originalDetailMvoData && this.originalDetailMvoData.code) {
-        return this.originalDetailMvoData.code;
-      }
-      if (this.originalDetailMvoId) {
-        const mvo = this.datatable.items.find(item => item.id == this.originalDetailMvoId);
-        return mvo ? mvo.code : 'Unknown';
-      }
-      return this.detailModel.code || 'Unknown';
-    },
-
-    async approveMvo(id) {
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      this.expandedMobileCard = null;
-
-      let endpoint = '';
-      let successMessage = '';
-
-      if (this.mvo_type_id === 'mvo') {
-        endpoint = `https://babaapi.babaparfume.id/api/mvo/${id}/approve`;
-        successMessage = "Data berhasil disetujui oleh MVO";
-      } else if (this.mvo_type_id === 'superadmin') {
-        endpoint = `https://babaapi.babaparfume.id/api/superadmin/${id}/approve`;
-        successMessage = "Data berhasil disetujui oleh Superadmin";
-      } else {
-        this.showSnackbar("Anda tidak memiliki akses untuk approve", 'error');
-        return;
-      }
-
-      try {
-        this.isButtonLoading = true;
-        const response = await axios.put(endpoint, {}, { headers });
-
-        if (response.data.status === "success") {
-          this.showSnackbar(response.data.message || successMessage);
-          await this.getAllMvo();
-        } else {
-          this.showSnackbar(response.data.message, 'error');
-        }
-      } catch (error) {
-        this.showSnackbar(error.response?.data?.message, 'error');
-      } finally {
-        this.isButtonLoading = false;
-      }
-    },
-
-    canApprove(item) {
-      if (this.mvo_type_id === 'mvo') {
-        return item.status_inputan !== 'approved';
-      } else if (this.mvo_type_id === 'superadmin') {
-        return item.status_inputan === 'approved' && item.status_inputan_2 !== 'approved';
-      }
-      return false;
-    },
-
-    getApproveButtonColor(item) {
-      if (this.mvo_type_id === 'mvo') {
-        return item.status_inputan === 'approved' ? 'success' : 'warning';
-      } else if (this.mvo_type_id === 'superadmin') {
-        return item.status_inputan_2 === 'approved' ? 'success' : 'success';
-      }
-      return 'grey';
-    },
-
-    getApproveButtonIcon(item) {
-      if (this.mvo_type_id === 'mvo') {
-        return item.status_inputan === 'approved' ? 'mdi-check-circle' : 'mdi-check';
-      } else if (this.mvo_type_id === 'superadmin') {
-        return item.status_inputan_2 === 'approved' ? 'mdi-check-all' : 'mdi-check-circle-outline';
-      }
-      return 'mdi-check';
-    },
-
-    getApproveTooltip(item) {
-      if (this.mvo_type_id === 'mvo') {
-        return item.status_inputan === 'approved' ? 'Sudah Disetujui MVO' : 'Setujui sebagai MVO';
-      } else if (this.mvo_type_id === 'superadmin') {
-        if (item.status_inputan !== 'approved') {
-          return 'Menunggu Persetujuan MVO';
-        }
-        return item.status_inputan_2 === 'approved' ? 'Sudah Disetujui Admin' : 'Setujui sebagai Admin';
-      }
-      return 'Approve';
+      return num.toLocaleString("id-ID");
     },
 
     formatDate(dateString) {
-      if (!dateString) return '';
-      return new Date(dateString).toLocaleDateString('id-ID');
+      if (!dateString) return "";
+      return new Date(dateString).toLocaleDateString("id-ID");
     },
 
-    showSnackbar(message, color = 'primary') {
+    showSnackbar(message, color = "primary") {
       this.contentSnackbar.snackbar = true;
       this.contentSnackbar.text = message;
-      this.contentSnackbar.color = color === 'primary' ? this.app.colors.primary : this.app.colors.secondary;
+      this.contentSnackbar.color = color === "primary" ? this.app.colors.primary : this.app.colors.secondary;
     },
 
     getAuthHeaders() {
@@ -1897,55 +926,265 @@ export default {
         this.$router.push({ name: "Login" });
         return null;
       }
-      return {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      };
+      return { Authorization: `Bearer ${token}`, Accept: "application/json" };
     },
 
     getUserCabang() {
       try {
-        const headerData = JSON.parse(localStorage.getItem('headerData'))
-        return headerData?.code || null
-      } catch (e) {
-        return null
+        const headerData = JSON.parse(localStorage.getItem("headerData"));
+        return headerData?.code || null;
+      } catch { return null; }
+    },
+
+    isImageFile(filePath) {
+      if (!filePath) return false;
+      const exts = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"];
+      return exts.some(ext => filePath.toLowerCase().includes(ext));
+    },
+
+    isPdfFile(filePath) {
+      return !!filePath && filePath.toLowerCase().includes(".pdf");
+    },
+
+    getFullFileUrl(filePath) {
+      return `${FILE_BASE}${filePath}`;
+    },
+
+    viewFile(filePath) {
+      window.open(this.getFullFileUrl(filePath), "_blank");
+    },
+
+    downloadFile(filePath, fileName) {
+      const link = document.createElement("a");
+      link.href = this.getFullFileUrl(filePath);
+      link.download = fileName;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    // ========== STATUS HELPERS (DOCUMENT) ==========
+    getMvoStatusText(item) {
+      if (!item.upline_1) return "Tidak Ada MVO";
+      return item.approval_doc_upline_1 === null ? "Belum Approve" : "Sudah Approve";
+    },
+    getMvoStatusColor(item) {
+      if (!item.upline_1) return "grey";
+      return item.approval_doc_upline_1 === null ? "warning" : "success";
+    },
+
+    getRegionalStatusText(item) {
+      if (!item.upline_2) return "Tidak Ada Regional";
+      return item.approval_doc_upline_2 === null ? "Belum Approve" : "Sudah Approve";
+    },
+    getRegionalStatusColor(item) {
+      if (!item.upline_2) return "grey";
+      return item.approval_doc_upline_2 === null ? "warning" : "success";
+    },
+
+    getAdminStatusText(item) {
+      return item.status_inputan === "approved" ? "Sudah Approve" : "Belum Approve";
+    },
+    getAdminStatusColor(item) {
+      return item.status_inputan === "approved" ? "success" : "warning";
+    },
+
+    getDocumentStatusColor(status, approvalDocUpline1 = null, upline1 = null) {
+      if (upline1 !== null) {
+        if ((!status || status === null) && (!approvalDocUpline1 || approvalDocUpline1 === null)) return "warning";
+        if ((!status || status === null) && approvalDocUpline1 !== null) return "info";
+      }
+      if (upline1 === null && (!status || status === null)) return "info";
+      if (status && status.toLowerCase() === "approved") return "success";
+      switch (status?.toLowerCase()) {
+        case "pending": return "warning";
+        case "rejected": return "error";
+        default: return "grey";
       }
     },
 
-    async getAllMvo() {
+    getDocumentStatusText(status, approvalDocUpline1 = null, upline1 = null) {
+      if (upline1 !== null) {
+        if ((!status || status === null) && (!approvalDocUpline1 || approvalDocUpline1 === null)) return "Menunggu Approval MVO";
+        if ((!status || status === null) && approvalDocUpline1 !== null) return "Menunggu Approval Admin";
+      }
+      if (upline1 === null && (!status || status === null)) return "Menunggu Approval Admin";
+      if (status && status.toLowerCase() === "approved") return "Disetujui";
+      switch (status?.toLowerCase()) {
+        case "pending": return "Menunggu";
+        case "rejected": return "Ditolak";
+        default: return "Tidak Diketahui";
+      }
+    },
+
+    // ========== APPROVAL: MVO RECORD ==========
+    canApprove(item) {
+      if (this.mvo_type_id === "mvo") return item.status_inputan !== "approved";
+      if (this.mvo_type_id === "superadmin") return item.status_inputan === "approved" && item.status_inputan_2 !== "approved";
+      return false;
+    },
+
+    getApproveButtonColor(item) {
+      if (this.mvo_type_id === "mvo") return item.status_inputan === "approved" ? "success" : "warning";
+      if (this.mvo_type_id === "superadmin") return "success";
+      return "grey";
+    },
+
+    getApproveButtonIcon(item) {
+      if (this.mvo_type_id === "mvo") return item.status_inputan === "approved" ? "mdi-check-circle" : "mdi-check";
+      if (this.mvo_type_id === "superadmin") return item.status_inputan_2 === "approved" ? "mdi-check-all" : "mdi-check-circle-outline";
+      return "mdi-check";
+    },
+
+    getApproveTooltip(item) {
+      if (this.mvo_type_id === "mvo") return item.status_inputan === "approved" ? "Sudah Disetujui MVO" : "Setujui sebagai MVO";
+      if (this.mvo_type_id === "superadmin") {
+        if (item.status_inputan !== "approved") return "Menunggu Persetujuan MVO";
+        return item.status_inputan_2 === "approved" ? "Sudah Disetujui Admin" : "Setujui sebagai Admin";
+      }
+      return "Approve";
+    },
+
+    async approveMvo(id) {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+      this.expandedMobileCard = null;
+
+      let endpoint = "";
+      let successMessage = "";
+      if (this.mvo_type_id === "mvo") {
+        endpoint = `${API_BASE}/mvo/${id}/approve`;
+        successMessage = "Data berhasil disetujui oleh MVO";
+      } else if (this.mvo_type_id === "superadmin") {
+        endpoint = `${API_BASE}/superadmin/${id}/approve`;
+        successMessage = "Data berhasil disetujui oleh Superadmin";
+      } else {
+        this.showSnackbar("Anda tidak memiliki akses untuk approve", "error");
+        return;
+      }
+
+      try {
+        this.isButtonLoading = true;
+        const response = await axios.put(endpoint, {}, { headers });
+        if (response.data.status === "success") {
+          this.showSnackbar(response.data.message || successMessage);
+          await this.loadItems();
+        } else {
+          this.showSnackbar(response.data.message, "error");
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message, "error");
+      } finally {
+        this.isButtonLoading = false;
+      }
+    },
+
+    // ========== APPROVAL: DOCUMENT ==========
+    canApproveDocument(document) {
+      // hanya butuh approve superadmin
+      if (this.mvo_type_id !== "superadmin") return false;
+      if (document.status_inputan === "approved") return false;
+      return true;
+    },
+
+    getDocumentApproveButtonColor(document) {
+      if (this.mvo_type_id === "mvo") return document.status_inputan === "approved" ? "success" : "warning";
+      if (this.mvo_type_id === "superadmin") return "success";
+      return "grey";
+    },
+
+    getDocumentApproveButtonIcon(document) {
+      if (this.mvo_type_id === "superadmin") return document.status_inputan_2 === "approved" ? "mdi-check-all" : "mdi-check-circle-outline";
+      return "mdi-check";
+    },
+
+    getDocumentApproveTooltip(document) {
+      if (this.mvo_type_id !== "superadmin") return "Tidak Ada Akses";
+      if (document.status_inputan === "approved") return "Sudah Disetujui Admin";
+      if (document.upline_1 !== null) {
+        if (!document.approval_doc_upline_1 || document.approval_doc_upline_1 === null) return "Menunggu Approval MVO";
+        return "Setujui sebagai Admin";
+      }
+      return "Setujui sebagai Admin (Dokumen MVO)";
+    },
+
+    async approveDocument(id) {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+
+      const document = this.documentItems.find(doc => doc.id === id);
+      if (!document) {
+        this.showSnackbar("Dokumen tidak ditemukan", "error");
+        return;
+      }
+
+      if (this.mvo_type_id !== "superadmin") {
+        this.showSnackbar("Anda tidak memiliki akses untuk approve", "error");
+        return;
+      }
+
+      if (document.status_inputan === "approved") {
+        this.showSnackbar("Dokumen sudah disetujui", "warning");
+        return;
+      }
+
+      // if (document.upline_1 !== null && (!document.approval_doc_upline_1 || document.approval_doc_upline_1 === null)) {
+      //   this.showSnackbar("Menunggu approval dari MVO terlebih dahulu", "warning");
+      //   return;
+      // }
+
+      this.isDocumentButtonLoading = true;
+      try {
+        const response = await axios.put(`${API_BASE}/superadmin/${id}/approvedoc`, {}, { headers });
+        if (response.data.status === "success") {
+          this.showSnackbar(response.data.message || "Dokumen berhasil disetujui oleh Superadmin");
+          await this.getMvoDocuments(this.getDocumentMvoId());
+        } else {
+          this.showSnackbar(response.data.message, "error");
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message, "error");
+      } finally {
+        this.isDocumentButtonLoading = false;
+      }
+    },
+
+    // ========== DATA FETCH ==========
+    cacheMvoCodes(items) {
+      if (!Array.isArray(items)) return;
+      items.forEach(it => {
+        if (it && it.id != null && it.code) {
+          this.mvoCodeCache[it.id] = it.code;
+        }
+      });
+    },
+
+    async loadItems() {
       const headers = this.getAuthHeaders();
       if (!headers) return;
 
       this.isTableLoading = true;
+      const userCabang = this.getUserCabang();
+      const sort = (this.pagination.sortBy && this.pagination.sortBy[0]) || null;
+
+      const params = {
+        page: this.pagination.page,
+        per_page: this.pagination.itemsPerPage,
+        search: this.debouncedSearch || "",
+      };
+      if (userCabang) params.user_cabang = userCabang;
+      if (sort) {
+        params.sort_by = sort.key;
+        params.sort_desc = sort.order === "desc";
+      }
+
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
-
+        const response = await axios.get(`${API_BASE}/mvo`, { headers, params });
         if (response.data.status === "success") {
-          const allItems = response.data.data;
-          this.allMvoData = allItems;
-
-          const mvo_type_id = localStorage.getItem("mvo_type_id");
-          let items = response.data.data;
-          const userCabang = this.getUserCabang();
-          this.datatable.items = items.filter(item => {
-            // Jika superadmin → tampilkan semua
-            if (mvo_type_id === "superadmin") {
-              return true;
-            }
-
-            // Jika bukan superadmin → wajib match cabang
-            if (userCabang) {
-              return (
-                item.province_code &&
-                item.province_code.toUpperCase().trim() ===
-                userCabang.toUpperCase().trim()
-              );
-            }
-
-            // Jika bukan superadmin dan tidak punya cabang → jangan tampilkan apa-apa
-            return false;
-          });
-
+          this.datatable.items = response.data.data || [];
+          this.totalItems = response.data.meta?.total ?? this.datatable.items.length;
+          this.cacheMvoCodes(this.datatable.items);
         } else {
           this.showSnackbar(response.data.message);
         }
@@ -1956,323 +1195,214 @@ export default {
       }
     },
 
-    exportExcel() {
-      const worksheet = XLSX.utils.json_to_sheet(this.datatable.items);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Data MVO dan Anggota");
-      XLSX.writeFile(workbook, `Data_MVO_dan_Anggota.xlsx`);
-    },
-
     async getMvoTypes() {
       const headers = this.getAuthHeaders();
       if (!headers) return;
-
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-type", { headers });
-        if (response.data.status === "success") {
-          this.mvoTypes = response.data.data;
-        }
-      } catch (error) {
-      }
+        const response = await axios.get(`${API_BASE}/mvo-type`, { headers });
+        if (response.data.status === "success") this.mvoTypes = response.data.data;
+      } catch { /* silent */ }
     },
 
     getMvoTypeName(mvoTypeId) {
-      const mvoType = this.mvoTypes.find(type => type.id == mvoTypeId);
-      return mvoType ? mvoType.name : '-';
-    },
-
-    getCurrentDetailData() {
-      if (this.detailViewMode === 'children' && this.relatedMvoData.length > 0) {
-        return this.relatedMvoData;
-      }
-      return [];
-    },
-
-    isImageFile(filePath) {
-      if (!filePath) return false;
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-      return imageExtensions.some(ext => filePath.toLowerCase().includes(ext));
-    },
-
-    isPdfFile(filePath) {
-      if (!filePath) return false;
-      return filePath.toLowerCase().includes('.pdf');
-    },
-
-    getFullFileUrl(filePath) {
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      const mvoType = this.mvoTypes.find(t => t.id == mvoTypeId);
+      return mvoType ? mvoType.name : "-";
     },
 
     getMvoCodeById(mvoId) {
-      const mvo = this.allMvoData.find(item => item.id == mvoId);
-      return mvo ? mvo.code : 'Unknown';
+      if (this.mvoCodeCache[mvoId]) return this.mvoCodeCache[mvoId];
+      // Fallback: dokumen yang ditampilkan saat ini selalu milik MVO yang sedang dibuka detailnya.
+      return this.originalDetailMvoData?.code || "Unknown";
     },
 
-    async editDocument(id) {
+    // ========== DELETE MVO ==========
+    deleteMvo(id) {
+      this.isShowDialogDelete = true;
+      this.modelDelete.id = id;
+    },
+
+    async confirmDeleteMvo(id) {
       const headers = this.getAuthHeaders();
       if (!headers) return;
 
+      this.isButtonLoading = true;
       try {
-        const response = await axios.get(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
-          { headers }
-        );
+        const response = await axios.delete(`${API_BASE}/mvo/${id}`, { headers });
+        this.loadItems();
+        this.showSnackbar(response.data.message || "Data berhasil dihapus");
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message || "Error deleting", "error");
+      } finally {
+        this.isButtonLoading = false;
+        this.isShowDialogDelete = false;
+      }
+    },
 
+    // ========== UI HELPERS ==========
+    toggleMobileDetail(itemId) {
+      this.expandedMobileCard = this.expandedMobileCard === itemId ? null : itemId;
+    },
+
+    toggleMobileChildDetail(childId) {
+      this.expandedMobileChild = this.expandedMobileChild === childId ? null : childId;
+    },
+
+    onTableOptionsUpdate(options) {
+      const newSort = options.sortBy || this.pagination.sortBy;
+      const pageChanged = this.pagination.page !== options.page;
+      const ippChanged = this.pagination.itemsPerPage !== options.itemsPerPage;
+      const sortChanged = JSON.stringify(this.pagination.sortBy) !== JSON.stringify(newSort);
+      if (!pageChanged && !ippChanged && !sortChanged) return;
+      this.pagination.page = sortChanged ? 1 : options.page;
+      this.pagination.itemsPerPage = options.itemsPerPage;
+      this.pagination.sortBy = newSort;
+      this.loadItems();
+    },
+
+    mobileMvoSections(item) {
+      return [
+        {
+          rows: [
+            { label: "No ID", value: item.no_id || "-" },
+            { label: "Panggilan", value: item.nama_panggilan || "-" },
+            { label: "Tempat Lahir", value: item.tempat_lahir || "-" },
+            { label: "Tgl Lahir", value: this.formatDate(item.tgl_lahir) },
+          ],
+        },
+        {
+          rows: [
+            { label: "No HP", value: item.nohp || "-" },
+            { label: "Alamat", value: item.alamat || "-" },
+          ],
+        },
+        {
+          rows: [
+            { label: "Jaringan", value: item.jaringan_mvo || "-" },
+            { label: "Tipe", value: this.getMvoTypeName(item.mvo_type_id) },
+            { label: "Provinsi", value: item.province_code || "-" },
+            ...UPLINE_LEVELS.slice().reverse().map(lvl => ({
+              label: lvl.short,
+              value: item[lvl.key] || "-",
+            })),
+          ],
+        },
+      ];
+    },
+
+    mobileChildSections(child) {
+      return [
+        {
+          title: "Informasi Personal",
+          rows: [
+            { label: "No ID", value: child.no_id || "-" },
+            { label: "Panggilan", value: child.nama_panggilan || "-" },
+            { label: "Tempat Lahir", value: child.tempat_lahir || "-" },
+            { label: "Tgl Lahir", value: this.formatDate(child.tgl_lahir) },
+          ],
+        },
+        {
+          title: "Kontak",
+          rows: [
+            { label: "No HP", value: child.nohp || "-" },
+            { label: "Alamat", value: child.alamat || "-" },
+          ],
+        },
+        {
+          title: "Bisnis",
+          rows: [
+            { label: "Jaringan", value: child.jaringan_mvo || "-" },
+            { label: "Provinsi", value: child.province_code || "-" },
+            { label: "Upline 1", value: child.upline_1 || "-" },
+          ],
+        },
+      ];
+    },
+
+    mobileDocStatusRows(document) {
+      return [
+        // { label: "Status MVO", color: this.getMvoStatusColor(document), text: this.getMvoStatusText(document) },
+        // { label: "Status Regional", color: this.getRegionalStatusColor(document), text: this.getRegionalStatusText(document) },
+        { label: "Status Admin", color: this.getAdminStatusColor(document), text: this.getAdminStatusText(document) },
+        {
+          label: "Status",
+          color: this.getDocumentStatusColor(document.status_inputan, document.approval_doc_upline_1, document.upline_1),
+          text: this.getDocumentStatusText(document.status_inputan, document.approval_doc_upline_1, document.upline_1),
+        },
+      ];
+    },
+
+    // ========== DETAIL DIALOG ==========
+    saveCurrentState() {
+      return {
+        originalDetailMvoId: this.originalDetailMvoId,
+        originalDetailMvoData: { ...this.originalDetailMvoData },
+        relatedMvoData: [...this.relatedMvoData],
+        currentDetailIndex: this.currentDetailIndex,
+        detailModel: { ...this.detailModel },
+        detailViewMode: this.detailViewMode,
+        documentItems: [...this.documentItems],
+      };
+    },
+
+    restoreState(prev) {
+      this.originalDetailMvoId = prev.originalDetailMvoId;
+      this.originalDetailMvoData = { ...prev.originalDetailMvoData };
+      this.relatedMvoData = [...prev.relatedMvoData];
+      this.currentDetailIndex = prev.currentDetailIndex;
+      this.detailModel = { ...prev.detailModel };
+      this.detailViewMode = prev.detailViewMode;
+      this.documentItems = [...prev.documentItems];
+    },
+
+    closeDetailDialog() {
+      this.isShowDialogDetail = false;
+      this.currentDetailIndex = 0;
+      this.relatedMvoData = [];
+      this.detailViewMode = "single";
+      this.detailModel = {};
+      this.documentItems = [];
+      this.originalDetailMvoId = null;
+      this.originalDetailMvoData = {};
+      this.documentSearch = "";
+      this.detailSearch = "";
+      this.detailNavigationHistory = [];
+      this.mobileDetailTab = "documents";
+      this.expandedMobileChild = null;
+    },
+
+    getDocumentMvoId() {
+      return this.originalDetailMvoId || this.detailModel.id || null;
+    },
+
+    getDocumentMvoCode() {
+      if (this.originalDetailMvoData?.code) return this.originalDetailMvoData.code;
+      if (this.originalDetailMvoId) {
+        const mvo = this.datatable.items.find(item => item.id == this.originalDetailMvoId);
+        return mvo ? mvo.code : "Unknown";
+      }
+      return this.detailModel.code || "Unknown";
+    },
+
+    getCurrentDetailData() {
+      if (this.detailViewMode === "children" && this.relatedMvoData.length > 0) return this.relatedMvoData;
+      return [];
+    },
+
+    async fetchMvoDetail(id) {
+      const headers = this.getAuthHeaders();
+      if (!headers) return null;
+      try {
+        const response = await axios.get(`${API_BASE}/mvo/${id}`, { headers });
         if (response.data.status === "success") {
-          const documentData = response.data.data;
-
-          this.documentEditModel = {
-            ...documentData,
-            original_file_name: documentData.file_name,
-            file: null
-          };
-
-          this.isShowDialogEditDocument = true;
+          const data = response.data.data || {};
+          this.cacheMvoCodes([data]);
+          this.cacheMvoCodes(data.bawahan || []);
+          return data;
         }
       } catch (error) {
         this.showSnackbar(error.response?.data?.message);
       }
-    },
-
-    async getMvoDocuments(mvoId) {
-      const headers = this.getAuthHeaders();
-      if (!headers || !mvoId) {
-        this.documentItems = [];
-        return;
-      }
-
-      this.isLoadingDocuments = true;
-      try {
-        const response = await axios.get(`https://babaapi.babaparfume.id/api/mvo-document`, { headers });
-        if (response.data.status === "success") {
-          this.documentItems = response.data.data.filter(doc => doc.mvo_id == mvoId) || [];
-        } else {
-          this.documentItems = [];
-        }
-      } catch (error) {
-        this.documentItems = [];
-      } finally {
-        this.isLoadingDocuments = false;
-      }
-    },
-
-    showDialogAddDocument() {
-      const mvoId = this.getDocumentMvoId();
-      if (!mvoId) {
-        this.showSnackbar('error');
-        return;
-      }
-
-      const today = new Date().toISOString().split('T')[0];
-
-      this.documentAddModel = {
-        mvo_id: mvoId,
-        document_type: "star",  // TAMBAH INI
-        file_name: "",
-        pointbintang: "",
-        tanggal_repeat_order: today,
-        repeat_order: "",
-        file: null,
-      };
-
-      this.isShowDialogAddDocument = true;
-    },
-
-    handleDocumentFileChange(event) {
-      if (event && event.length > 0) {
-        this.documentAddModel.file = event[0];
-        if (!this.documentAddModel.file_name) {
-          this.documentAddModel.file_name = event[0].name;
-        }
-      }
-    },
-
-    async addDocument() {
-
-      // OPTIONAL pointbintang
-      let point = null;
-      if (this.documentAddModel.pointbintang !== '' && this.documentAddModel.pointbintang !== null) {
-        point = Number(this.documentAddModel.pointbintang);
-        if (isNaN(point) || point < 0 || point > 8) {
-          this.showSnackbar("Poin per bintang harus antara 0 sampai 8", 'error');
-          return;
-        }
-      }
-
-      // OPTIONAL repeat_order
-      let rangePoint = null;
-      if (this.documentAddModel.repeat_order !== '' && this.documentAddModel.repeat_order !== null) {
-        rangePoint = Number(this.documentAddModel.repeat_order);
-        if (isNaN(rangePoint) || rangePoint < 0) {
-          this.showSnackbar("Range Point tidak boleh kurang dari 0", 'error');
-          return;
-        }
-      }
-
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      this.isDocumentButtonLoading = true;
-
-      try {
-        const formData = new FormData();
-
-        formData.append('mvo_id', this.documentAddModel.mvo_id);
-
-        // Kirim hanya jika ada
-        if (this.documentAddModel.file_name) {
-          formData.append('file_name', this.documentAddModel.file_name);
-        }
-
-        if (point !== null) {
-          formData.append('pointbintang', Math.floor(point));
-        }
-
-        if (this.documentAddModel.tanggal_repeat_order) {
-          formData.append('tanggal_repeat_order', this.documentAddModel.tanggal_repeat_order);
-        }
-
-        if (rangePoint !== null) {
-          formData.append('repeat_order', rangePoint);
-        }
-
-        if (this.documentAddModel.file) {
-          formData.append('file_path', this.documentAddModel.file);
-        }
-
-        const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/mvo-document",
-          formData,
-          {
-            headers: {
-              ...headers,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-
-        await this.getMvoDocuments(this.getDocumentMvoId());
-        this.isShowDialogAddDocument = false;
-        this.showSnackbar(response.data.message);
-      } catch (error) {
-        this.showSnackbar(error.response.data.message, 'error');
-      } finally {
-        this.isDocumentButtonLoading = false;
-      }
-    },
-    handleEditDocumentFileChange(event) {
-      if (event && event.length > 0) {
-        this.documentEditModel.file = event[0];
-        if (!this.documentEditModel.file_name || this.documentEditModel.file_name === this.documentEditModel.original_file_name) {
-          this.documentEditModel.file_name = event[0].name;
-        }
-      }
-    },
-
-    async updateDocument(id) {
-      if (!this.documentEditModel.file_name ||
-        !this.documentEditModel.pointbintang ||
-        !this.documentEditModel.tanggal_repeat_order ||
-        !this.documentEditModel.repeat_order) {
-        this.showSnackbar("Semua field harus diisi", "error");
-        return;
-      }
-
-      const point = Number(this.documentEditModel.pointbintang);
-      if (isNaN(point) || point < 0 || point > 8) {
-        this.showSnackbar("Poin per bintang harus antara 0 sampai 8", 'error');
-        return;
-      }
-
-      const rangePoint = Number(this.documentEditModel.repeat_order);
-      if (isNaN(rangePoint) || rangePoint < 0) { // Hapus || rangePoint > 200
-        this.showSnackbar("Range Point tidak boleh kurang dari 0", 'error');
-        return;
-      }
-
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      this.isDocumentButtonLoading = true;
-
-      try {
-        const formData = new FormData();
-        formData.append("mvo_id", this.documentEditModel.mvo_id);
-        formData.append("file_name", this.documentEditModel.file_name);
-        formData.append("pointbintang", Math.floor(point));
-        formData.append("tanggal_repeat_order", this.documentEditModel.tanggal_repeat_order);
-        formData.append("repeat_order", rangePoint);
-
-        if (this.documentEditModel.file) {
-          formData.append("file_path", this.documentEditModel.file);
-        }
-
-        const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/mvo-document/${id}`,
-          formData,
-          {
-            headers: {
-              ...headers,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        if (response.data.status === "success") {
-          this.showSnackbar(response.data.message || "Dokumen berhasil diupdate");
-          this.isShowDialogEditDocument = false;
-          await this.getMvoDocuments(this.getDocumentMvoId());
-        }
-      } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error updating document", "error");
-      } finally {
-        this.isDocumentButtonLoading = false;
-      }
-    },
-
-    async deleteDocument(id) {
-      if (!confirm('Apakah anda yakin ingin menghapus dokumen ini?')) {
-        return;
-      }
-
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      try {
-        const response = await axios.delete(`https://babaapi.babaparfume.id/api/mvo-document/${id}`, { headers });
-
-        if (response.data.status === "success") {
-          this.showSnackbar(response.data.message || "Dokumen berhasil dihapus");
-          await this.getMvoDocuments(this.getDocumentMvoId());
-        }
-      } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error deleting document", 'error');
-      }
-    },
-
-    viewFile(filePath) {
-      const fullUrl = this.getFullFileUrl(filePath);
-      window.open(fullUrl, '_blank');
-    },
-
-    downloadFile(filePath, fileName) {
-      const fullUrl = this.getFullFileUrl(filePath);
-      const link = document.createElement('a');
-      link.href = fullUrl;
-      link.download = fileName;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    },
-
-    navigateBack() {
-      if (this.detailNavigationHistory.length === 0) return;
-
-      this.isNavigatingBack = true;
-      const previousState = this.detailNavigationHistory.pop();
-      this.restoreState(previousState);
-      this.isNavigatingBack = false;
+      return null;
     },
 
     async showDetailMvo(id) {
@@ -2282,24 +1412,23 @@ export default {
         this.detailNavigationHistory.push(this.saveCurrentState());
       }
 
+      const detail = await this.fetchMvoDetail(id);
       this.originalDetailMvoId = id;
-      this.originalDetailMvoData = this.allMvoData.find(item => item.id == id) || {};
+      this.originalDetailMvoData = detail || {};
 
       await this.getMvoDocuments(id);
 
-      // Use bawahan from the data structure
-      const currentMvo = this.allMvoData.find(item => item.id == id);
-      const childrenData = currentMvo?.bawahan || [];
+      const childrenData = detail?.bawahan || [];
 
       if (childrenData.length > 0) {
         this.relatedMvoData = childrenData;
         this.currentDetailIndex = 0;
         this.detailModel = childrenData[0];
-        this.detailViewMode = 'children';
+        this.detailViewMode = "children";
       } else {
         this.relatedMvoData = [];
         this.detailModel = {};
-        this.detailViewMode = 'documents-only';
+        this.detailViewMode = "documents-only";
       }
 
       this.isShowDialogDetail = true;
@@ -2310,73 +1439,382 @@ export default {
       this.isShowDialogDetail = false;
 
       setTimeout(async () => {
+        const detail = await this.fetchMvoDetail(childId);
         this.originalDetailMvoId = childId;
-        this.originalDetailMvoData = this.allMvoData.find(item => item.id == childId) || {};
+        this.originalDetailMvoData = detail || {};
 
         await this.getMvoDocuments(childId);
 
-        const currentMvo = this.allMvoData.find(item => item.id == childId);
-        const childrenData = currentMvo?.bawahan || [];
+        const childrenData = detail?.bawahan || [];
 
         if (childrenData.length > 0) {
           this.relatedMvoData = childrenData;
           this.currentDetailIndex = 0;
           this.detailModel = childrenData[0];
-          this.detailViewMode = 'children';
+          this.detailViewMode = "children";
         } else {
           this.relatedMvoData = [this.originalDetailMvoData];
           this.detailModel = this.originalDetailMvoData;
-          this.detailViewMode = 'single';
+          this.detailViewMode = "single";
         }
 
         this.isShowDialogDetail = true;
       }, 100);
     },
 
+    navigateBack() {
+      if (this.detailNavigationHistory.length === 0) return;
+      this.isNavigatingBack = true;
+      const prev = this.detailNavigationHistory.pop();
+      this.restoreState(prev);
+      this.isNavigatingBack = false;
+    },
+
+    // ========== DOCUMENT CRUD ==========
+    async getMvoDocuments(mvoId) {
+      const headers = this.getAuthHeaders();
+      if (!headers || !mvoId) {
+        this.documentItems = [];
+        return;
+      }
+
+      this.isLoadingDocuments = true;
+      try {
+        const response = await axios.get(`${API_BASE}/mvo-document`, {
+          headers,
+          params: { mvo_id: mvoId },
+        });
+        this.documentItems = response.data.status === "success"
+          ? (response.data.data || [])
+          : [];
+      } catch {
+        this.documentItems = [];
+      } finally {
+        this.isLoadingDocuments = false;
+      }
+    },
+
+    openAddDocumentDialog() {
+      const mvoId = this.getDocumentMvoId();
+      if (!mvoId) {
+        this.showSnackbar("error");
+        return;
+      }
+      this.documentDialog.mode = "add";
+      this.documentForm = buildEmptyDocForm();
+      this.documentForm.mvo_id = mvoId;
+      this.documentForm.tanggal_repeat_order = new Date().toISOString().split("T")[0];
+      this.documentDialog.show = true;
+    },
+
+    async openEditDocumentDialog(id) {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+
+      try {
+        const response = await axios.get(`${API_BASE}/mvo-document/${id}`, { headers });
+        if (response.data.status === "success") {
+          const data = response.data.data;
+          this.documentDialog.mode = "edit";
+          this.documentForm = {
+            ...buildEmptyDocForm(),
+            ...data,
+            original_file_name: data.file_name,
+            file: null,
+          };
+          this.documentDialog.show = true;
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message);
+      }
+    },
+
+    handleDocumentFileChange(event) {
+      const file = Array.isArray(event) ? event[0] : event?.target?.files?.[0];
+      if (!file) return;
+      this.documentForm.file = file;
+      // Mode add: isi nama file otomatis jika kosong
+      // Mode edit: isi nama file jika kosong atau masih sama dengan original
+      const isOriginal = this.documentForm.file_name === this.documentForm.original_file_name;
+      if (!this.documentForm.file_name || (this.isDocEditMode && isOriginal)) {
+        this.documentForm.file_name = file.name;
+      }
+    },
+
+    async submitDocument() {
+      if (this.isDocEditMode) return this.updateDocument();
+      return this.addDocument();
+    },
+
+    async addDocument() {
+      let point = null;
+      if (this.documentForm.pointbintang !== "" && this.documentForm.pointbintang !== null) {
+        point = Number(this.documentForm.pointbintang);
+        if (isNaN(point) || point < 0 || point > 8) {
+          this.showSnackbar("Poin per bintang harus antara 0 sampai 8", "error");
+          return;
+        }
+      }
+
+      let rangePoint = null;
+      if (this.documentForm.repeat_order !== "" && this.documentForm.repeat_order !== null) {
+        rangePoint = Number(this.documentForm.repeat_order);
+        if (isNaN(rangePoint) || rangePoint < 0) {
+          this.showSnackbar("Range Point tidak boleh kurang dari 0", "error");
+          return;
+        }
+      }
+
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+
+      this.isDocumentButtonLoading = true;
+      try {
+        const formData = new FormData();
+        formData.append("mvo_id", this.documentForm.mvo_id);
+
+        if (this.documentForm.file_name) formData.append("file_name", this.documentForm.file_name);
+        if (point !== null) formData.append("pointbintang", Math.floor(point));
+        if (this.documentForm.tanggal_repeat_order) formData.append("tanggal_repeat_order", this.documentForm.tanggal_repeat_order);
+        if (rangePoint !== null) formData.append("repeat_order", rangePoint);
+        if (this.documentForm.file) formData.append("file_path", this.documentForm.file);
+
+        const response = await axios.post(`${API_BASE}/mvo-document`, formData, {
+          headers: { ...headers, "Content-Type": "multipart/form-data" },
+        });
+
+        await this.getMvoDocuments(this.getDocumentMvoId());
+        this.documentDialog.show = false;
+        this.showSnackbar(response.data.message);
+      } catch (error) {
+        this.showSnackbar(error.response.data.message, "error");
+      } finally {
+        this.isDocumentButtonLoading = false;
+      }
+    },
+
+    async updateDocument() {
+      if (!this.documentForm.file_name ||
+        !this.documentForm.pointbintang ||
+        !this.documentForm.tanggal_repeat_order ||
+        !this.documentForm.repeat_order) {
+        this.showSnackbar("Semua field harus diisi", "error");
+        return;
+      }
+
+      const point = Number(this.documentForm.pointbintang);
+      if (isNaN(point) || point < 0 || point > 8) {
+        this.showSnackbar("Poin per bintang harus antara 0 sampai 8", "error");
+        return;
+      }
+
+      const rangePoint = Number(this.documentForm.repeat_order);
+      if (isNaN(rangePoint) || rangePoint < 0) {
+        this.showSnackbar("Range Point tidak boleh kurang dari 0", "error");
+        return;
+      }
+
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+
+      this.isDocumentButtonLoading = true;
+      try {
+        const formData = new FormData();
+        formData.append("mvo_id", this.documentForm.mvo_id);
+        formData.append("file_name", this.documentForm.file_name);
+        formData.append("pointbintang", Math.floor(point));
+        formData.append("tanggal_repeat_order", this.documentForm.tanggal_repeat_order);
+        formData.append("repeat_order", rangePoint);
+        if (this.documentForm.file) formData.append("file_path", this.documentForm.file);
+
+        const response = await axios.post(`${API_BASE}/mvo-document/${this.documentForm.id}`, formData, {
+          headers: { ...headers, "Content-Type": "multipart/form-data" },
+        });
+
+        if (response.data.status === "success") {
+          this.showSnackbar(response.data.message || "Dokumen berhasil diupdate");
+          this.documentDialog.show = false;
+          await this.getMvoDocuments(this.getDocumentMvoId());
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message || "Error updating document", "error");
+      } finally {
+        this.isDocumentButtonLoading = false;
+      }
+    },
+
+    async deleteDocument(id) {
+      if (!confirm("Apakah anda yakin ingin menghapus dokumen ini?")) return;
+
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+
+      try {
+        const response = await axios.delete(`${API_BASE}/mvo-document/${id}`, { headers });
+        if (response.data.status === "success") {
+          this.showSnackbar(response.data.message || "Dokumen berhasil dihapus");
+          await this.getMvoDocuments(this.getDocumentMvoId());
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message || "Error deleting document", "error");
+      }
+    },
+
+    // ========== IMPORT DOKUMEN VIA EXCEL ==========
+    triggerImportExcel() {
+      // reset agar memilih file yang sama tetap memicu @change
+      if (this.$refs.excelInput) this.$refs.excelInput.value = null;
+      this.$refs.excelInput?.click();
+    },
+
+    downloadImportTemplate() {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ["Nama MVO", "Rating Star", "Range Point", "Tanggal Input", "Nama File"],
+        ["Budi Santoso", 3, 100000, "2025-01-31", "Dokumen Januari"],
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Template Dokumen");
+      XLSX.writeFile(wb, "Template_Import_Dokumen.xlsx");
+    },
+
+    // Konversi nilai tanggal dari Excel (serial number atau string) ke 'YYYY-MM-DD'
+    normalizeExcelDate(value) {
+      if (value === null || value === undefined || value === "") return "";
+      if (typeof value === "number" && XLSX.SSF) {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (parsed) {
+          const mm = String(parsed.m).padStart(2, "0");
+          const dd = String(parsed.d).padStart(2, "0");
+          return `${parsed.y}-${mm}-${dd}`;
+        }
+      }
+      return String(value).trim();
+    },
+
+    async handleImportExcel(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      this.isImporting = true;
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer);
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+        // Pemetaan header fleksibel (case-insensitive, abaikan spasi/underscore)
+        const pick = (rowObj, ...aliases) => {
+          for (const key of Object.keys(rowObj)) {
+            const norm = key.toString().trim().toLowerCase();
+            if (aliases.includes(norm)) return rowObj[key];
+          }
+          return "";
+        };
+
+        const rows = json
+          .map(r => ({
+            nama_mvo: String(pick(r, "nama mvo", "nama_mvo", "nama", "name")).trim(),
+            pointbintang: pick(r, "rating star", "pointbintang", "bintang"),
+            repeat_order: pick(r, "range point", "repeat_order", "range"),
+            tanggal_repeat_order: this.normalizeExcelDate(
+              pick(r, "tanggal input", "tanggal_repeat_order", "tanggal")
+            ),
+            file_name: pick(r, "nama file", "file_name", "file"),
+          }))
+          .filter(r => r.nama_mvo);
+
+        if (rows.length === 0) {
+          this.showSnackbar("File tidak berisi data yang valid (kolom 'Nama MVO' wajib).", "error");
+          return;
+        }
+
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+
+        const response = await axios.post(`${API_BASE}/mvo-document/import`, { rows }, { headers });
+        const d = response.data;
+
+        if (d.status === "success") {
+          let msg = d.message;
+          if (d.errors && d.errors.length) {
+            const preview = d.errors
+              .slice(0, 3)
+              .map(e => `Baris ${e.row}: ${e.message}`)
+              .join("; ");
+            msg += ` — ${preview}`;
+            if (d.errors.length > 3) msg += ` (+${d.errors.length - 3} lainnya)`;
+          }
+          this.showSnackbar(msg, d.failed > 0 ? "error" : "primary");
+          await this.loadItems();
+        } else {
+          this.showSnackbar(d.message || "Import gagal", "error");
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message || "Gagal mengimpor file Excel", "error");
+      } finally {
+        this.isImporting = false;
+        event.target.value = null;
+      }
+    },
+
+    // ========== EXPORT / PRINT ==========
+    exportExcel() {
+      const worksheet = XLSX.utils.json_to_sheet(this.datatable.items);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data MVO dan Anggota");
+      XLSX.writeFile(workbook, "Data_MVO_dan_Anggota.xlsx");
+    },
+
     async printMvo(id) {
       const headers = this.getAuthHeaders();
       if (!headers) return;
 
-      const printUrl = `https://babaapi.babaparfume.id/api/mvo/${id}/print`;
-
       try {
-        const response = await axios.get(printUrl, {
+        const response = await axios.get(`${API_BASE}/mvo/${id}/print`, {
           headers,
-          responseType: 'blob',
+          responseType: "blob",
         });
 
-        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const blob = new Blob([response.data], { type: "application/pdf" });
         const url = window.URL.createObjectURL(blob);
-
-        const printWindow = window.open(url, '_blank');
-
+        const printWindow = window.open(url, "_blank");
         if (printWindow) {
-          printWindow.onload = function () {
-            printWindow.print();
-          };
+          printWindow.onload = function () { printWindow.print(); };
         }
 
-        setTimeout(() => {
-          window.URL.revokeObjectURL(url);
-        }, 1000);
-
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
         this.showSnackbar("File print berhasil dibuka");
       } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error saat print", 'error');
+        this.showSnackbar(error.response?.data?.message || "Error saat print", "error");
       }
     },
   },
 
   created() {
     this.mvo_type_id = localStorage.getItem("mvo_type_id") || "";
-    this.getAllMvo();
+    this.loadItems();
     this.getMvoTypes();
+  },
+
+  beforeUnmount() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+  },
+
+  watch: {
+    searchInput(val) {
+      this.expandedMobileCard = null;
+      if (this._searchTimer) clearTimeout(this._searchTimer);
+      this._searchTimer = setTimeout(() => {
+        this.debouncedSearch = (val || "").trim();
+        this.pagination.page = 1;
+        this.loadItems();
+      }, 300);
+    },
   },
 };
 </script>
 
 <style scoped>
-/* Star display styling */
 .star-display {
   display: flex;
   gap: 2px;
@@ -2386,18 +1824,15 @@ export default {
   gap: 8px;
 }
 
-/* Desktop star column */
 :deep(.v-data-table) .v-icon.mdi-star {
   font-size: 16px;
   margin: 0 1px;
 }
 
-/* Mobile star styling */
 .mobile-card-details .star-display .v-icon {
   font-size: 14px;
 }
 
-/* Mobile Detail Cards Styles */
 .detail-mobile-card {
   border-left: 4px solid #FFD700;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -2453,7 +1888,6 @@ export default {
   word-break: break-word;
 }
 
-/* Responsive adjustments */
 @media (max-width: 600px) {
   .detail-card-section {
     padding: 8px;
@@ -2472,13 +1906,19 @@ export default {
   padding: 16px;
 }
 
+.top-action-bar {
+  position: relative;
+  z-index: 2;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
 .add-mvo-btn {
   background: linear-gradient(135deg, #000000, #1a1a1a);
   color: #FFD700;
   border: 2px solid #FFD700;
   border-radius: 12px;
   padding: 10px 18px;
-  margin-bottom: 20px;
 }
 
 :deep(.custom-data-table) {
@@ -2489,6 +1929,59 @@ export default {
   background-color: #888888 !important;
   color: #FFD700 !important;
   font-weight: bold;
+}
+
+/* ===== Freeze 3 kolom terakhir (Detail, Print, Actions) ke kanan ===== */
+/* Lebar tetap supaya offset freeze antar kolom akurat */
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)),
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
+  position: sticky;
+  z-index: 3;
+  box-sizing: border-box;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+/* Offset menumpuk dari kanan: Actions (0) → Print (80) → Detail (160) */
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)) {
+  right: 0;
+}
+
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
+  right: 80px;
+}
+
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
+  right: 160px;
+  box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+/* Background opaque agar kolom yang ter-scroll tidak menembus ke belakang */
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)) {
+  background-color: #888888 !important;
+  z-index: 4;
+}
+
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)),
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
+  background-color: #ffffff !important;
+}
+
+:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(1)),
+:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(2)),
+:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(3)) {
+  background-color: #f8f9fa !important;
 }
 
 .dialog-header {

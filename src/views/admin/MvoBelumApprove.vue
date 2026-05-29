@@ -293,35 +293,11 @@ export default {
         return i.nama && i.nama.toLowerCase() !== 'superadmin';
       });
 
-      // Filter out fully approved items (all approval columns are filled)
-      itemsWithoutSuperadmin = itemsWithoutSuperadmin.filter(i => {
-        const hasUpline1 = i.upline_1 && i.upline_1 !== '-';
-        const hasUpline2 = i.upline_2 && i.upline_2 !== '-';
-        const hasUpline3 = i.upline_3 && i.upline_3 !== '-';
-        const hasUpline4 = i.upline_4 && i.upline_4 !== '-';
-        const hasUpline5 = i.upline_5 && i.upline_5 !== '-';
-        const hasUpline6 = i.upline_6 && i.upline_6 !== '-';
-        const hasUpline7 = i.upline_7 && i.upline_7 !== '-';
-
-        const approval1Filled = i.approval_upline_1 && i.approval_upline_1 !== '-' && i.approval_upline_1 !== null;
-        const approval2Filled = i.approval_upline_2 && i.approval_upline_2 !== '-' && i.approval_upline_2 !== null;
-        const approval3Filled = i.approval_upline_3 && i.approval_upline_3 !== '-' && i.approval_upline_3 !== null;
-        const approval4Filled = i.approval_upline_4 && i.approval_upline_4 !== '-' && i.approval_upline_4 !== null;
-        const approval5Filled = i.approval_upline_5 && i.approval_upline_5 !== '-' && i.approval_upline_5 !== null;
-        const approval6Filled = i.approval_upline_6 && i.approval_upline_6 !== '-' && i.approval_upline_6 !== null;
-        const approval7Filled = i.approval_upline_7 && i.approval_upline_7 !== '-' && i.approval_upline_7 !== null;
-
-        const allApprovalsFilled =
-          (!hasUpline1 || approval1Filled) &&
-          (!hasUpline2 || approval2Filled) &&
-          (!hasUpline3 || approval3Filled) &&
-          (!hasUpline4 || approval4Filled) &&
-          (!hasUpline5 || approval5Filled) &&
-          (!hasUpline6 || approval6Filled) &&
-          (!hasUpline7 || approval7Filled);
-
-        return !allApprovalsFilled;
-      });
+      // "Belum approve" = akun yang belum diaktivasi (aktivasi = 0).
+      // Definisi ini mengikuti hitungan "Pending" pada Dashboard Akun
+      // (DashboardController: COUNT(... WHEN u.aktivasi = 0 ...)), supaya
+      // jumlah yang tampil di sini konsisten dengan dashboard.
+      itemsWithoutSuperadmin = itemsWithoutSuperadmin.filter(i => i.aktivasi == 0);
 
       // Apply search filter
       return itemsWithoutSuperadmin.filter(i => {
@@ -395,7 +371,7 @@ export default {
       try {
         const token = Cookies.get("token");
         const response = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo",
+          "http://127.0.0.1:8000/api/mvo",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -412,7 +388,7 @@ export default {
     async getAllMvoType() {
       try {
         const response = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo-type"
+          "http://127.0.0.1:8000/api/mvo-type"
         );
 
         if (response.data.status === "success" && response.data.data) {
@@ -439,7 +415,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const res = await axios.post(
-          "https://babaapi.babaparfume.id/api/cekApprovalBawahan",
+          "http://127.0.0.1:8000/api/cekApprovalBawahan",
           { code: codeLogin },
           {
             headers: {
@@ -467,7 +443,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/approve",
+          "http://127.0.0.1:8000/api/approve",
           {
             code: codeLogin,
             id: this.idToApprove,

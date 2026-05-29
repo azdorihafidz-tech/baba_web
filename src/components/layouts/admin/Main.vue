@@ -241,7 +241,7 @@ export default {
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
-      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      const httpsUrl = `http://127.0.0.1:8000/project/public/${cleanPath}`;
 
       return httpsUrl;
     },
@@ -269,14 +269,14 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+          headerResponse = await apiClient.get('http://127.0.0.1:8000/api/provinsi');
         } catch (httpsError) {
 
           if (httpsError.code === 'ERR_NETWORK' ||
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+            headerResponse = await apiClient.get('http://127.0.0.1:8000/api/provinsi');
           } else {
             throw httpsError;
           }

@@ -561,7 +561,7 @@ export default {
         cleanPath = cleanPath.substring(1);
       }
 
-      const baseUrl = 'https://babaapi.babaparfume.id/project/public';
+      const baseUrl = 'http://127.0.0.1:8000/project/public';
       let imageUrl;
 
       if (cleanPath.startsWith('uploads/header/')) {
@@ -725,7 +725,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/gambar-header", {
+        .get("http://127.0.0.1:8000/api/gambar-header", {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -811,7 +811,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/gambar-header",
+          "http://127.0.0.1:8000/api/gambar-header",
           formData,
           {
             headers: {
@@ -848,7 +848,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`https://babaapi.babaparfume.id/api/gambar-header/${id}`, {
+        .get(`http://127.0.0.1:8000/api/gambar-header/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -903,7 +903,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/gambar-header/${this.modelEdit.id}`,
+          `http://127.0.0.1:8000/api/gambar-header/${this.modelEdit.id}`,
           formData,
           {
             headers: {
@@ -943,7 +943,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.babaparfume.id/api/gambar-header/${id}`, {
+        .delete(`http://127.0.0.1:8000/api/gambar-header/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

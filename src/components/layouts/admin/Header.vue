@@ -224,7 +224,7 @@ export default {
         let mvoTypeResponse;
 
         try {
-          mvoTypeResponse = await apiClient.get('https://babaapi.babaparfume.id/api/mvo-type');
+          mvoTypeResponse = await apiClient.get('http://127.0.0.1:8000/api/mvo-type');
         } catch (httpsError) {
 
           if (httpsError.code === 'ERR_NETWORK' ||
@@ -232,7 +232,7 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            mvoTypeResponse = await apiClient.get('https://babaapi.babaparfume.id/api/mvo-type');
+            mvoTypeResponse = await apiClient.get('http://127.0.0.1:8000/api/mvo-type');
           } else {
             throw httpsError;
           }
@@ -308,7 +308,7 @@ export default {
       }
 
       const cleanPath = pathGambarProfile.startsWith('/') ? pathGambarProfile.substring(1) : pathGambarProfile;
-      return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      return `http://127.0.0.1:8000/project/public/${cleanPath}`;
     },
 
     showHeaderInfo() {
@@ -363,7 +363,7 @@ export default {
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
-      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      const httpsUrl = `http://127.0.0.1:8000/project/public/${cleanPath}`;
 
       return httpsUrl;
     },
@@ -372,7 +372,7 @@ export default {
     onHeaderImageError(event) {
 
       if (this.headerData?.foto_ruang_kota && event.target.src.includes('https://')) {
-        const httpUrl = event.target.src.replace('https://babaapi.babaparfume.id/project/public/', 'https://babaapi.babaparfume.id/project/public/');
+        const httpUrl = event.target.src.replace('http://127.0.0.1:8000/project/public/', 'http://127.0.0.1:8000/project/public/');
         event.target.src = httpUrl;
       } else {
       }
@@ -437,7 +437,7 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+          headerResponse = await apiClient.get('http://127.0.0.1:8000/api/provinsi');
         } catch (httpsError) {
 
           if (httpsError.code === 'ERR_NETWORK' ||
@@ -445,7 +445,7 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID') ||
             httpsError.response?.status === undefined) {
 
-            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+            headerResponse = await apiClient.get('http://127.0.0.1:8000/api/provinsi');
           } else {
             throw httpsError;
           }
@@ -592,7 +592,7 @@ export default {
         let logoutSuccess = false;
 
         try {
-          await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
+          await apiClient.post('http://127.0.0.1:8000/api/logout', {});
           logoutSuccess = true;
         } catch (httpsError) {
 
@@ -601,7 +601,7 @@ export default {
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
             try {
-              await apiClient.post('https://babaapi.babaparfume.id/api/logout', {});
+              await apiClient.post('http://127.0.0.1:8000/api/logout', {});
               logoutSuccess = true;
             } catch (httpError) {
             }

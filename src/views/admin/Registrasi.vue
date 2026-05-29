@@ -430,7 +430,7 @@ export default {
             this.loadingDistributor = true
 
             const res = await axios.post(
-                'https://babaapi.babaparfume.id/api/get/distributor',
+                'http://127.0.0.1:8000/api/get/distributor',
                 {
                     cabang: this.inputRegister.cabang,
                     upline_1: this.inputRegister.upline_1, // ✅ MVO
@@ -453,7 +453,7 @@ export default {
             this.loadingSupplier = true
 
             const res = await axios.post(
-                'https://babaapi.babaparfume.id/api/get/supplier',
+                'http://127.0.0.1:8000/api/get/supplier',
                 {
                     cabang: this.inputRegister.cabang,
                     upline_1: this.inputRegister.upline_1, // ✅ MVO
@@ -477,7 +477,7 @@ export default {
             try {
 
                 const res = await axios.post(
-                    'https://babaapi.babaparfume.id/api/get/gm',
+                    'http://127.0.0.1:8000/api/get/gm',
                     {
                         cabang: this.inputRegister.cabang,
                         upline_1: this.inputRegister.upline_1, // ✅ MVO
@@ -504,7 +504,7 @@ export default {
             try {
 
                 const res = await axios.post(
-                    'https://babaapi.babaparfume.id/api/get/founder',
+                    'http://127.0.0.1:8000/api/get/founder',
                     {
                         cabang: this.inputRegister.cabang,
                         upline_1: this.inputRegister.upline_1, // ✅ tambahkan ini
@@ -528,7 +528,7 @@ export default {
             this.loadingRegional = true
 
             const res = await axios.post(
-                'https://babaapi.babaparfume.id/api/get/regional',
+                'http://127.0.0.1:8000/api/get/regional',
                 {
                     cabang: this.inputRegister.cabang,
                     upline_1: code
@@ -547,7 +547,7 @@ export default {
             this.loadingMvo = true
 
             const res = await axios.post(
-                'https://babaapi.babaparfume.id/api/get/mvo',
+                'http://127.0.0.1:8000/api/get/mvo',
                 { cabang }
             )
 
@@ -563,7 +563,7 @@ export default {
 
             try {
 
-                const response = await axios.get('https://babaapi.babaparfume.id/api/provinsi', {
+                const response = await axios.get('http://127.0.0.1:8000/api/provinsi', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -606,7 +606,7 @@ export default {
 
             try {
 
-                const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
+                const response = await axios.get('http://127.0.0.1:8000/api/mvo-type', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -730,8 +730,8 @@ export default {
             }
 
             const apiUrls = [
-                'https://babaapi.babaparfume.id/api/user',
-                'https://babaapi.babaparfume.id/api/user'
+                'http://127.0.0.1:8000/api/user',
+                'http://127.0.0.1:8000/api/user'
             ]
 
             const requestConfig = {

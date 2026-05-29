@@ -386,7 +386,7 @@ export default {
             if (!token) return;
 
             try {
-                const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", {
+                const response = await axios.get("http://127.0.0.1:8000/api/provinsi", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -414,12 +414,12 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.babaparfume.id/api/dashboard/growth`;
+                url = `http://127.0.0.1:8000/api/dashboard/growth`;
             } else {
                 if (!this.cabang) {
                     return;
                 }
-                url = `https://babaapi.babaparfume.id/api/dashboard/growth/${this.cabang}`;
+                url = `http://127.0.0.1:8000/api/dashboard/growth/${this.cabang}`;
             }
 
             const params = {

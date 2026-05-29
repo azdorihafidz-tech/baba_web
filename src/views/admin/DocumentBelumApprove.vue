@@ -20,7 +20,13 @@
           <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" hover :headers="datatable.headers"
             :items="datatable.items" :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
             @update:options="updateCurrentPageInfo">
+            <template v-slot:item.nama="{ item }">
+              {{ item.mvo?.nama }}
+            </template>
 
+            <template v-slot:item.nama_panggilan="{ item }">
+              {{ item.mvo?.nama_panggilan }}
+            </template>
             <template v-slot:item.no="{ index }">
               {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
             </template>
@@ -112,19 +118,31 @@
             <!-- Actions column untuk tombol Approve -->
             <!-- Actions column untuk tombol Approve -->
             <template v-slot:item.actions="{ item }">
-              <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click="approveDocument(item)"
-                :loading="approvingId === item.id" :disabled="approvingId === item.id">
-                <v-icon start size="small">mdi-check-circle</v-icon>
-                Approve
-              </v-btn>
-              <v-chip v-else-if="isDocumentFullyApproved(item)" size="small" color="success" variant="flat">
-                <v-icon start size="small">mdi-check-circle</v-icon>
-                Sudah Approve
-              </v-chip>
-              <v-chip v-else size="small" color="grey" variant="flat">
-                <v-icon start size="small">mdi-information</v-icon>
-                Menunggu
-              </v-chip>
+              <template v-if="isDocumentFullyApproved(item)">
+                <v-chip size="small" color="success" variant="flat">
+                  <v-icon start size="small">mdi-check-circle</v-icon>
+                  Sudah Approve
+                </v-chip>
+              </template>
+              <template v-else>
+                <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click="approveDocument(item)"
+                  :loading="approvingId === item.id" :disabled="approvingId === item.id">
+                  <v-icon start size="small">mdi-check-circle</v-icon>
+                  Approve
+                </v-btn>
+                <!-- Tombol Approve Document khusus Superadmin -->
+                <v-btn v-if="mvo_type_id === 'superadmin'" size="small" color="primary"
+                  @click="approveDocumentSuperadmin(item.id)" :loading="approvingId === item.id"
+                  :disabled="approvingId === item.id" class="ml-1">
+                  <v-icon start size="small">mdi-shield-check</v-icon>
+                  Approve Document
+                </v-btn>
+                <v-chip v-if="!canApproveDocument(item) && mvo_type_id !== 'superadmin'" size="small" color="grey"
+                  variant="flat">
+                  <v-icon start size="small">mdi-information</v-icon>
+                  Menunggu
+                </v-chip>
+              </template>
             </template>
           </v-data-table>
         </template>
@@ -310,6 +328,13 @@
                   prepend-icon="mdi-check-circle">
                   Approve
                 </v-btn>
+
+                <!-- Tombol Approve Document khusus Superadmin (Mobile) -->
+                <v-btn v-if="mvo_type_id === 'superadmin' && !isDocumentFullyApproved(item)" size="small"
+                  color="primary" @click.stop="approveDocumentSuperadmin(item.id)" :loading="approvingId === item.id"
+                  :disabled="approvingId === item.id" class="mb-2" prepend-icon="mdi-shield-check">
+                  Approve Document
+                </v-btn>
               </div>
             </v-card-text>
           </div>
@@ -359,6 +384,8 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
+
+const API_BASE = "http://127.0.0.1:8000/api";
 
 export default {
   name: "PendingApprovalDocuments",
@@ -418,13 +445,15 @@ export default {
         headers: [
           { key: "no", title: "No", sortable: false },
           { key: "mvo_code", title: "Kode MVO" },
+          { key: "mvo.nama", title: "Nama" },
+          { key: "mvo.nama_panggilan", title: "Nama Panggilan" },
           { key: "file_name", title: "Nama File" },
           { key: "star_number", title: "Bintang", align: "center" },
           { key: "star_icon", title: "Rating Star", sortable: false, align: "center" },
           { key: "tanggal_repeat_order", title: "Tanggal Input", align: "center" },
           { key: "repeat_order", title: "Range Point", align: "center" },
-          { key: "status_mvo", title: "Status MVO", align: "center", width: "150px" },
-          { key: "status_regional", title: "Status Regional", align: "center", width: "150px" },
+          // { key: "status_mvo", title: "Status MVO", align: "center", width: "150px" },
+          // { key: "status_regional", title: "Status Regional", align: "center", width: "150px" },
           { key: "approval_status", title: "Status Approval", align: "center", width: "200px" },
           { key: "upline_1", title: "MVO" },
           { key: "upline_2", title: "Regional" },
@@ -478,10 +507,10 @@ export default {
       return new Date(dateString).toLocaleDateString('id-ID');
     },
 
-    showSnackbar(message, color = 'primary') {
+    showSnackbar(message, color = 'success') {
       this.contentSnackbar.snackbar = true;
       this.contentSnackbar.text = message;
-      this.contentSnackbar.color = color === 'primary' ? this.app.colors.primary : this.app.colors.secondary;
+      this.contentSnackbar.color = color === 'success' ? this.app.colors.success : this.app.colors.secondary;
     },
 
     getAuthHeaders() {
@@ -502,10 +531,15 @@ export default {
 
       this.isTableLoading = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", { headers });
+        const response = await axios.get("http://127.0.0.1:8000/api/mvo-document", { headers });
 
         if (response.data.status === "success") {
-          this.datatable.items = response.data.data || [];
+          // Hanya tampilkan dokumen yang BELUM diproses (status_inputan = null),
+          // mengikuti definisi "Pending" pada Dashboard Documents
+          // (DashboardController: SUM(CASE WHEN d.status_inputan IS NULL ...)),
+          // supaya jumlah di halaman ini konsisten dengan dashboard.
+          this.datatable.items = (response.data.data || []).filter(doc => doc.status_inputan == null);
+          console.log("Fetched documents:", this.datatable.items);
         } else {
           this.showSnackbar(response.data.message || "Error loading data", "error");
         }
@@ -521,7 +555,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
+        const response = await axios.get("http://127.0.0.1:8000/api/mvo", { headers });
         if (response.data.status === "success") {
           this.allMvoData = response.data.data;
 
@@ -540,8 +574,8 @@ export default {
         'Rating Star': item.pointbintang || 0,
         'Tanggal Input': this.formatDate(item.tanggal_repeat_order),
         'Range Point': item.repeat_order || '-',
-        'Status MVO': this.getMvoStatusText(item),
-        'Status Regional': this.getRegionalStatusText(item),
+        // 'Status MVO': this.getMvoStatusText(item),
+        // 'Status Regional': this.getRegionalStatusText(item),
         'Status Approval': this.getApprovalStatusText(item),
         'MVO': item.upline_1 || '-',
         'Regional': item.upline_2 || '-',
@@ -759,7 +793,7 @@ export default {
     },
 
     getFullFileUrl(filePath) {
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      return `http://127.0.0.1:8000/project/public/${filePath}`;
     },
 
     viewFile(filePath) {
@@ -897,7 +931,7 @@ export default {
 
         // Kirim request ke API dengan FormData
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/approveDokumen",
+          "http://127.0.0.1:8000/api/approveDokumen",
           formData,
           {
             headers: {
@@ -929,6 +963,50 @@ export default {
         this.showSnackbar(errorMessage, "error");
       } finally {
         this.confirmDialog.loading = false;
+        this.approvingId = null;
+      }
+    },
+
+    /**
+     * Approve dokumen langsung oleh Superadmin
+     */
+    async approveDocumentSuperadmin(id) {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+
+      const document = this.datatable.items.find(doc => doc.id === id);
+      if (!document) {
+        this.showSnackbar("Dokumen tidak ditemukan", "error");
+        return;
+      }
+
+      if (this.mvo_type_id !== "superadmin") {
+        this.showSnackbar("Anda tidak memiliki akses untuk approve", "error");
+        return;
+      }
+
+      if (document.status_inputan === "approved") {
+        this.showSnackbar("Dokumen sudah disetujui", "warning");
+        return;
+      }
+
+      // if (document.upline_1 !== null && (!document.approval_doc_upline_1 || document.approval_doc_upline_1 === null)) {
+      //   this.showSnackbar("Menunggu approval dari MVO terlebih dahulu", "warning");
+      //   return;
+      // }
+
+      this.approvingId = id;
+      try {
+        const response = await axios.put(`${API_BASE}/superadmin/${id}/approvedoc`, {}, { headers });
+        if (response.data.status === "success") {
+          this.showSnackbar(response.data.message || "Dokumens berhasil disetujui oleh Superadmin", "success");
+          await this.getPendingApprovalDocuments();
+        } else {
+          this.showSnackbar(response.data.message, "success");
+        }
+      } catch (error) {
+        this.showSnackbar(error.response?.data?.message, "error");
+      } finally {
         this.approvingId = null;
       }
     },
@@ -1000,6 +1078,28 @@ export default {
 }
 
 :deep(.custom-data-table .v-data-table__tr:hover) {
+  background-color: #f8f9fa !important;
+}
+
+/* Freeze kolom Actions (kolom terakhir) ke kanan */
+:deep(.custom-data-table table > thead > tr > th:last-child),
+:deep(.custom-data-table table > tbody > tr > td:last-child) {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.custom-data-table table > thead > tr > th:last-child) {
+  background-color: #888888 !important;
+  z-index: 4;
+}
+
+:deep(.custom-data-table table > tbody > tr > td:last-child) {
+  background-color: #ffffff !important;
+}
+
+:deep(.custom-data-table table > tbody > tr:hover > td:last-child) {
   background-color: #f8f9fa !important;
 }
 
