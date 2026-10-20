@@ -143,7 +143,7 @@
                         <v-row class="mb-3">
                             <v-col cols="12" class="detail-label"><strong>Alamat:</strong></v-col>
                             <v-col cols="12" class="detail-value description-text">{{ item.alamat || 'Tidak ada alamat'
-                            }}</v-col>
+                                }}</v-col>
                         </v-row>
 
                         <!-- File Preview Fotos -->
@@ -504,7 +504,7 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://babaapi.babaparfume.id";
 
 export default {
     components: { Breadcrumb, CardDataTable },

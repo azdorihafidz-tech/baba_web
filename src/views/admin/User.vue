@@ -163,7 +163,7 @@
             <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Jabatan:</v-col>
               <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-'
-                }}</v-col>
+              }}</v-col>
             </v-row>
             <v-row class="mb-2">
               <v-col cols="4" class="detail-label">Bintang:</v-col>
@@ -363,7 +363,7 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "https://babaapi.babaparfume.id/api";
 
 const CASCADE_LEVELS = [
   { key: "upline_1", level: 1, endpoint: "mvo", formLabel: "Pilih MVO", detailLabel: "MVO" },

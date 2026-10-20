@@ -626,7 +626,7 @@ export default {
 
                 // SUPERADMIN → Semua data
                 url =
-                    `http://127.0.0.1:8000/api/dashboard/akun`;
+                    `https://babaapi.babaparfume.id/api/dashboard/akun`;
 
             } else {
 
@@ -636,7 +636,7 @@ export default {
                 }
 
                 url =
-                    `http://127.0.0.1:8000/api/dashboard/akun/${this.cabang}`;
+                    `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
             }
 
             // ================= CALL API =================
@@ -764,12 +764,14 @@ export default {
                     break;
 
                 case "total_approved_akun":
-                    data = [...this.akunRawData];
+                    // Approved = akun teraktivasi (aktivasi = 1), mengikuti summary backend.
+                    data = this.akunRawData.filter(a => Number(a.aktivasi) === 1);
                     title = "Approved Akun";
                     break;
 
                 case "total_pending_akun":
-                    data = [...this.akunRawData];
+                    // Pending = akun belum teraktivasi (aktivasi = 0), mengikuti summary backend.
+                    data = this.akunRawData.filter(a => Number(a.aktivasi) === 0);
                     title = "Pending Akun";
                     break;
             }

@@ -395,7 +395,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("http://127.0.0.1:8000/api/jabatan", {
+        .get("https://babaapi.babaparfume.id/api/jabatan", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -430,7 +430,7 @@ export default {
       this.isButtonLoading = true;
       axios
         .post(
-          "http://127.0.0.1:8000/api/jabatan",
+          "https://babaapi.babaparfume.id/api/jabatan",
           {
             nama_jabatan: this.modelAdd.nama,
             deskripsi: this.modelAdd.deskripsi,
@@ -469,7 +469,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`http://127.0.0.1:8000/api/jabatan/${id}`, {
+        .get(`https://babaapi.babaparfume.id/api/jabatan/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -511,7 +511,7 @@ export default {
       this.isButtonLoading = true;
       axios
         .put(
-          `http://127.0.0.1:8000/api/jabatan/${this.modelEdit.id}`,
+          `https://babaapi.babaparfume.id/api/jabatan/${this.modelEdit.id}`,
           updateData,
           {
             headers: {
@@ -550,7 +550,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`http://127.0.0.1:8000/api/jabatan/${id}`, {
+        .delete(`https://babaapi.babaparfume.id/api/jabatan/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

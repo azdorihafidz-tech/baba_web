@@ -104,7 +104,7 @@
             <template v-slot:item.tgl_lahir="{ item }">{{ formatDate(item.tgl_lahir) }}</template>
             <template v-slot:item.pointbintang="{ item }">{{ item.pointbintang || '-' }}</template>
             <template v-slot:item.tanggal_repeat_order="{ item }">{{ formatDate(item.tanggal_repeat_order) || '-'
-            }}</template>
+              }}</template>
             <template v-slot:item.created_at="{ item }">{{ formatDate(item.created_at) }}</template>
 
             <template v-slot:item.repeat_order="{ item }">
@@ -112,17 +112,17 @@
             </template>
 
             <template v-slot:item.upline_1="{ item }">{{ item.upline_1 && item.upline_1 !== '-' ? item.upline_1 : '-'
-            }}</template>
+              }}</template>
             <template v-slot:item.upline_2="{ item }">{{ item.upline_2 && item.upline_2 !== '-' ? item.upline_2 : '-'
-            }}</template>
+              }}</template>
             <template v-slot:item.upline_3="{ item }">{{ item.upline_3 && item.upline_3 !== '-' ? item.upline_3 : '-'
-            }}</template>
+              }}</template>
             <template v-slot:item.upline_4="{ item }">{{ item.upline_4 && item.upline_4 !== '-' ? item.upline_4 : '-'
-            }}</template>
+              }}</template>
             <template v-slot:item.upline_5="{ item }">{{ item.upline_5 && item.upline_5 !== '-' ? item.upline_5 : '-'
-            }}</template>
+              }}</template>
             <template v-slot:item.upline_6="{ item }">{{ item.upline_6 && item.upline_6 !== '-' ? item.upline_6 : '-'
-            }}</template>
+              }}</template>
 
           </v-data-table-server>
         </template>
@@ -698,8 +698,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 
-const API_BASE = "http://127.0.0.1:8000/api";
-const FILE_BASE = "http://127.0.0.1:8000/project/public/";
+const API_BASE = "https://babaapi.babaparfume.id/api";
+const FILE_BASE = "https://babaapi.babaparfume.id/project/public/";
 
 const UPLINE_LEVELS = [
   { key: "upline_6", title: "Distributor", short: "DISTRIBUTOR" },

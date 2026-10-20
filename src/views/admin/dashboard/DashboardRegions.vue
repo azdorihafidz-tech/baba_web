@@ -452,12 +452,12 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `http://127.0.0.1:8000/api/dashboard/akun`;
+                url = `https://babaapi.babaparfume.id/api/dashboard/akun`;
             } else {
                 if (!this.cabang) {
                     return;
                 }
-                url = `http://127.0.0.1:8000/api/dashboard/akun/${this.cabang}`;
+                url = `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
             }
 
             try {
@@ -493,7 +493,7 @@ export default {
                     this.detailData = [];
 
                     const res = await axios.get(
-                        `http://127.0.0.1:8000/api/dashboard/akun/${regionName}`,
+                        `https://babaapi.babaparfume.id/api/dashboard/akun/${regionName}`,
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
 

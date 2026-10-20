@@ -514,7 +514,7 @@ export default {
       }
 
       this.isTableLoading = true;
-      axios.get("http://127.0.0.1:8000/api/mvo-type", {
+      axios.get("https://babaapi.babaparfume.id/api/mvo-type", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -556,7 +556,7 @@ export default {
         jlh_bintang: this.modelAdd.jlh_bintang, // Ganti ke jlh_bintang
       };
 
-      axios.post("http://127.0.0.1:8000/api/mvo-type", payload, {
+      axios.post("https://babaapi.babaparfume.id/api/mvo-type", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -591,7 +591,7 @@ export default {
       this.isShowDialogEdit = true;
 
 
-      axios.get(`http://127.0.0.1:8000/api/mvo-type/${id}`, {
+      axios.get(`https://babaapi.babaparfume.id/api/mvo-type/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -638,7 +638,7 @@ export default {
 
 
       this.isButtonLoading = true;
-      axios.put(`http://127.0.0.1:8000/api/mvo-type/${this.modelEdit.id}`, payload, {
+      axios.put(`https://babaapi.babaparfume.id/api/mvo-type/${this.modelEdit.id}`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -675,7 +675,7 @@ export default {
       }
 
       this.isButtonLoading = true;
-      axios.delete(`http://127.0.0.1:8000/api/mvo-type/${id}`, {
+      axios.delete(`https://babaapi.babaparfume.id/api/mvo-type/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",

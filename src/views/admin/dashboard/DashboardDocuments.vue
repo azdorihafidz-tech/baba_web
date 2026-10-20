@@ -437,7 +437,7 @@ export default {
 
                 // SUPERADMIN → Semua data
                 url =
-                    `http://127.0.0.1:8000/api/dashboard/document`;
+                    `https://babaapi.babaparfume.id/api/dashboard/document`;
 
             } else {
 
@@ -447,7 +447,7 @@ export default {
                 }
 
                 url =
-                    `http://127.0.0.1:8000/api/dashboard/document/${this.cabang}`;
+                    `https://babaapi.babaparfume.id/api/dashboard/document/${this.cabang}`;
             }
 
             // ================= CALL API =================

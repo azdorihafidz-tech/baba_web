@@ -385,7 +385,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "https://babaapi.babaparfume.id/api";
 
 export default {
   name: "PendingApprovalDocuments",
@@ -531,7 +531,7 @@ export default {
 
       this.isTableLoading = true;
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/mvo-document", { headers });
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", { headers });
 
         if (response.data.status === "success") {
           // Hanya tampilkan dokumen yang BELUM diproses (status_inputan = null),
@@ -555,7 +555,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/mvo", { headers });
+        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
         if (response.data.status === "success") {
           this.allMvoData = response.data.data;
 
@@ -793,7 +793,7 @@ export default {
     },
 
     getFullFileUrl(filePath) {
-      return `http://127.0.0.1:8000/project/public/${filePath}`;
+      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
     },
 
     viewFile(filePath) {
@@ -931,7 +931,7 @@ export default {
 
         // Kirim request ke API dengan FormData
         const response = await axios.post(
-          "http://127.0.0.1:8000/api/approveDokumen",
+          "https://babaapi.babaparfume.id/api/approveDokumen",
           formData,
           {
             headers: {

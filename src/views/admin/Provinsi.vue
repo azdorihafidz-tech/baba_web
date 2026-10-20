@@ -101,7 +101,7 @@
                 <v-row no-gutters align="center">
                     <v-col cols="1" class="text-center">
                         <span class="mobile-number">{{ ((currentMobilePage - 1) * itemsPerMobilePage) + index + 1
-                            }}</span>
+                        }}</span>
                     </v-col>
 
                     <v-col cols="9" class="pl-3">
@@ -482,7 +482,7 @@ export default {
     data() {
         return {
             // Base URL untuk gambar
-            baseImageUrl: 'http://127.0.0.1:8000/project/public/',
+            baseImageUrl: 'https://babaapi.babaparfume.id/project/public/',
 
             // Mobile specific properties
             expandedMobileCard: null,
@@ -808,7 +808,7 @@ export default {
 
             this.isTableLoading = true;
             axios
-                .get("http://127.0.0.1:8000/api/provinsi", {
+                .get("https://babaapi.babaparfume.id/api/provinsi", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -880,7 +880,7 @@ export default {
 
             axios
                 .post(
-                    "http://127.0.0.1:8000/api/provinsi",
+                    "https://babaapi.babaparfume.id/api/provinsi",
                     formData,
                     {
                         headers: {
@@ -921,7 +921,7 @@ export default {
             this.isShowDialogEdit = true;
 
             axios
-                .get(`http://127.0.0.1:8000/api/provinsi/${id}`, {
+                .get(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -999,7 +999,7 @@ export default {
 
             axios
                 .post(
-                    `http://127.0.0.1:8000/api/provinsi/${this.modelEdit.id}`,
+                    `https://babaapi.babaparfume.id/api/provinsi/${this.modelEdit.id}`,
                     formData,
                     {
                         headers: {
@@ -1043,7 +1043,7 @@ export default {
 
             this.isButtonLoading = true;
             axios
-                .delete(`http://127.0.0.1:8000/api/provinsi/${id}`, {
+                .delete(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: "application/json",

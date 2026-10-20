@@ -29,6 +29,26 @@ const routes = [
   },
 
   {
+    path: "/admin/forgot-password",
+    name: "ForgotPassword",
+    component: () => import("@/views/admin/ForgotPassword.vue"),
+    meta: {
+      title: "Lupa Password || BABA PARFUME",
+      requiresAuth: false,
+    },
+  },
+
+  {
+    path: "/admin/reset-password",
+    name: "ResetPassword",
+    component: () => import("@/views/admin/ResetPassword.vue"),
+    meta: {
+      title: "Reset Password || BABA PARFUME",
+      requiresAuth: false,
+    },
+  },
+
+  {
     path: "/:catchAll(.*)",
     name: "NotFound",
     component: () => import("@/views/NotFound.vue"),

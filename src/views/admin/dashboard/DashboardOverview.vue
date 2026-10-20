@@ -391,7 +391,7 @@ export default {
 
             try {
                 // Build URL with query parameters
-                let url = "http://127.0.0.1:8000/api/dashboard";
+                let url = "https://babaapi.babaparfume.id/api/dashboard";
                 const params = new URLSearchParams();
 
                 if (this.dateRange.start_date) {
