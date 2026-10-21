@@ -11,6 +11,7 @@
 
     <v-tabs v-if="isSuperadmin" v-model="tab" color="#B8890F" class="mb-4">
       <v-tab value="baru" prepend-icon="mdi-account-switch">Mutasi Baru</v-tab>
+      <v-tab value="saran" prepend-icon="mdi-chart-timeline-variant" @click="muatSaranAwal">Saran RO</v-tab>
       <v-tab value="riwayat" prepend-icon="mdi-history" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
 
@@ -141,6 +142,80 @@
       </v-window-item>
 
       <!-- ================= RIWAYAT ================= -->
+      <!-- ================= SARAN RO ================= -->
+      <v-window-item value="saran">
+        <v-alert type="info" variant="tonal" density="compact" class="mb-4">
+          Saran dihitung dari RO (repeat order) dokumen yang <b>sudah di-approve</b> dalam periode aturan.
+          Sistem hanya memberi saran — perubahan jabatan tetap lewat tombol <b>Proses</b> (Mutasi Baru).
+        </v-alert>
+
+        <v-expansion-panels v-model="panelAturan" class="mb-4">
+          <v-expansion-panel value="aturan" class="step-card">
+            <v-expansion-panel-title><b>Atur target per jabatan</b></v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <p class="hint mb-3">Kosongkan target bila jabatan tersebut tidak perlu diberi saran.
+                "Tim" = RO sendiri + seluruh bawahannya.</p>
+              <div v-for="a in aturanRo" :key="a.mvo_type_id" class="aturan-row">
+                <div class="aturan-nama">{{ a.jabatan }}</div>
+                <v-text-field v-model.number="a.periode_bulan" type="number" min="1" max="24" label="Periode (bulan)"
+                  density="compact" variant="outlined" hide-details />
+                <v-select v-model="a.basis" :items="basisItems" item-title="text" item-value="value" label="Basis RO"
+                  density="compact" variant="outlined" hide-details />
+                <v-text-field v-model="a.target_naik" type="number" min="0" label="Naik bila RO ≥" density="compact"
+                  variant="outlined" hide-details clearable />
+                <v-text-field v-model="a.target_turun" type="number" min="0" label="Turun bila RO <"
+                  density="compact" variant="outlined" hide-details clearable />
+              </div>
+              <div class="d-flex justify-end mt-3">
+                <v-btn color="primary" :loading="loadingAturan" prepend-icon="mdi-content-save" @click="simpanAturan">
+                  Simpan Aturan</v-btn>
+              </div>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+
+        <v-card class="step-card">
+          <v-card-text>
+            <div class="saran-filter mb-3">
+              <v-chip-group v-model="filterSaran" mandatory selected-class="chip-aktif" @update:model-value="muatSaran">
+                <v-chip value="" variant="outlined">Semua</v-chip>
+                <v-chip value="naik" variant="outlined">▲ Layak naik ({{ ringkasSaran.naik }})</v-chip>
+                <v-chip value="turun" variant="outlined">▼ Perlu turun ({{ ringkasSaran.turun }})</v-chip>
+                <v-chip value="aman" variant="outlined">● Aman ({{ ringkasSaran.aman }})</v-chip>
+              </v-chip-group>
+              <div class="saran-cari">
+                <v-text-field v-model="filterCabang" label="Cabang" density="compact" variant="outlined" hide-details
+                  clearable style="max-width: 130px;" @update:model-value="muatSaranDebounce" />
+                <v-text-field v-model="filterCari" label="Cari nama / No ID" density="compact" variant="outlined"
+                  prepend-inner-icon="mdi-magnify" hide-details clearable @update:model-value="muatSaranDebounce" />
+              </div>
+            </div>
+
+            <v-data-table :headers="headersSaran" :items="saran" :loading="loadingSaran" :items-per-page="10"
+              density="comfortable" :mobile="$vuetify.display.smAndDown"
+              no-data-text="Belum ada saran. Atur target per jabatan terlebih dahulu.">
+              <template #item.ro="{ item }">
+                <b>{{ formatAngka(item.ro) }}</b>
+                <div class="hint">{{ item.basis === 'tim' ? 'Tim' : 'Pribadi' }} · {{ item.periode_bulan }} bln</div>
+              </template>
+              <template #item.target="{ item }">
+                <div v-if="item.target_naik !== null" class="hint">Naik ≥ {{ formatAngka(item.target_naik) }}</div>
+                <div v-if="item.target_turun !== null" class="hint">Turun &lt; {{ formatAngka(item.target_turun) }}</div>
+              </template>
+              <template #item.saran="{ item }">
+                <span class="saran" :class="`saran-${item.saran}`">
+                  {{ item.saran === 'naik' ? `▲ Naik ke ${item.saran_ke}` : item.saran === 'turun' ? `▼ Turun ke ${item.saran_ke}` : '● Aman' }}
+                </span>
+              </template>
+              <template #item.aksi="{ item }">
+                <v-btn v-if="item.saran !== 'aman'" size="small" color="primary" variant="tonal" @click="prosesSaran(item)">
+                  Proses</v-btn>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-window-item>
+
       <v-window-item value="riwayat">
         <v-card class="step-card">
           <v-card-text>
@@ -460,6 +535,96 @@ function reset() {
   catatan.value = "";
 }
 
+/* ---------- saran RO ---------- */
+const aturanRo = ref([]);
+const loadingAturan = ref(false);
+const panelAturan = ref(null);
+const saran = ref([]);
+const ringkasSaran = ref({ naik: 0, turun: 0, aman: 0 });
+const loadingSaran = ref(false);
+const filterSaran = ref("");
+const filterCabang = ref("");
+const filterCari = ref("");
+const basisItems = [
+  { text: "Pribadi", value: "pribadi" },
+  { text: "Tim (+ bawahan)", value: "tim" },
+];
+const headersSaran = [
+  { title: "Nama", key: "nama" },
+  { title: "Jabatan", key: "jabatan" },
+  { title: "No ID", key: "no_id" },
+  { title: "Cabang", key: "cabang" },
+  { title: "RO", key: "ro" },
+  { title: "Target", key: "target", sortable: false },
+  { title: "Saran", key: "saran" },
+  { title: "", key: "aksi", sortable: false, align: "end" },
+];
+const formatAngka = (n) => Number(n ?? 0).toLocaleString("id-ID");
+
+async function muatAturan() {
+  try {
+    const { data } = await api.get("/saran-mutasi/aturan");
+    aturanRo.value = data.data;
+    // Belum ada target sama sekali → buka panel aturan supaya admin langsung mengisinya
+    if (!data.data.some((a) => a.target_naik !== null || a.target_turun !== null)) panelAturan.value = "aturan";
+  } catch (e) {
+    toast(pesanError(e, "Gagal memuat aturan"), "error");
+  }
+}
+
+async function simpanAturan() {
+  loadingAturan.value = true;
+  try {
+    const { data } = await api.put("/saran-mutasi/aturan", { aturan: aturanRo.value });
+    aturanRo.value = data.data;
+    toast(data.message);
+    muatSaran();
+  } catch (e) {
+    toast(pesanError(e, "Gagal menyimpan aturan"), "error");
+  } finally {
+    loadingAturan.value = false;
+  }
+}
+
+async function muatSaran() {
+  loadingSaran.value = true;
+  try {
+    const { data } = await api.get("/saran-mutasi", {
+      params: { status: filterSaran.value || "", cabang: filterCabang.value || "", q: filterCari.value || "" },
+    });
+    saran.value = data.data;
+    ringkasSaran.value = data.ringkasan;
+  } catch (e) {
+    toast(pesanError(e, "Gagal memuat saran"), "error");
+  } finally {
+    loadingSaran.value = false;
+  }
+}
+const muatSaranDebounce = debounce(muatSaran, 400);
+
+function muatSaranAwal() {
+  if (!aturanRo.value.length) muatAturan();
+  muatSaran();
+}
+
+// Buka Mutasi Baru dengan member & jabatan tujuan dari saran
+async function prosesSaran(item) {
+  try {
+    const { data } = await api.get("/mutasi/cari-member", { params: { id: item.id } });
+    const m = data.data[0];
+    if (!m) return toast("Member tidak ditemukan", "error");
+    memberItems.value = [{ ...m, label: `${m.nama} — ${m.no_id || "tanpa No ID"} — ${m.jabatan}` }];
+    memberId.value = m.id;
+    tab.value = "baru";
+    pilihMember();
+    jabatanBaru.value = String(item.saran_ke_id);
+    catatan.value = `Saran RO: ${item.saran === "naik" ? "naik" : "turun"} (RO ${formatAngka(item.ro)})`;
+    gantiJabatan();
+  } catch (e) {
+    toast(pesanError(e, "Gagal membuka mutasi"), "error");
+  }
+}
+
 /* ---------- riwayat ---------- */
 const riwayat = ref([]);
 const loadingRiwayat = ref(false);
@@ -674,7 +839,76 @@ if (isSuperadmin) muatJabatan();
   color: #c77700;
 }
 
+.aturan-row {
+  display: grid;
+  grid-template-columns: 110px repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.aturan-nama {
+  font-weight: 700;
+}
+
+.saran-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.saran-cari {
+  display: flex;
+  gap: 8px;
+  flex: 1 1 320px;
+  max-width: 460px;
+}
+
+.chip-aktif {
+  background: var(--baba-ink) !important;
+  color: var(--baba-gold-light) !important;
+  border-color: var(--baba-ink) !important;
+}
+
+.saran {
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.saran-naik {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.saran-turun {
+  background: #fdecea;
+  color: #c62828;
+}
+
+.saran-aman {
+  background: #f1f1f1;
+  color: var(--baba-muted);
+}
+
 @media (max-width: 959.98px) {
+  .aturan-row {
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--baba-border);
+  }
+
+  .aturan-nama {
+    grid-column: 1 / -1;
+  }
+
+  .saran-cari {
+    max-width: none;
+  }
+
   .page-title {
     font-size: 1.25rem;
   }
