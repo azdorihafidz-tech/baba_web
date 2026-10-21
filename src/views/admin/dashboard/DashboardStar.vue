@@ -1195,6 +1195,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
@@ -1567,7 +1568,7 @@ export default {
             if (!item.path_gambar_profile) return;
 
             this.selectedProfileImage =
-                `https://babaapi.babaparfume.id/project/public/${item.path_gambar_profile}`;
+                `${FILE_URL}/${item.path_gambar_profile}`;
 
             this.profilePreviewDialog = true;
         },
@@ -1616,14 +1617,14 @@ export default {
 
         getMvoImageUrl(mvo) {
             if (mvo.provinsi && mvo.provinsi.foto_mvo) {
-                return `https://babaapi.babaparfume.id/project/public/${mvo.provinsi.foto_mvo}`;
+                return `${FILE_URL}/${mvo.provinsi.foto_mvo}`;
             }
             return 'https://via.placeholder.com/300x300?text=No+Image';
         },
 
         getProfileImageUrl(item) {
             if (item.path_gambar_profile) {
-                return `https://babaapi.babaparfume.id/project/public/${item.path_gambar_profile}`;
+                return `${FILE_URL}/${item.path_gambar_profile}`;
             }
             return null;
         },
@@ -1659,7 +1660,7 @@ export default {
             const token = Cookies.get("token");
             if (!token) return;
             try {
-                const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", {
+                const response = await axios.get(`${API_URL}/api/provinsi`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (response.data && response.data.status === "success") {
@@ -1683,7 +1684,7 @@ export default {
 
             this.isLoading = true;
             try {
-                let url = "https://babaapi.babaparfume.id/api/dashboard/star";
+                let url = `${API_URL}/api/dashboard/star`;
                 const params = new URLSearchParams();
 
                 if (this.dateRange.start_date) params.append('start_date', this.dateRange.start_date);

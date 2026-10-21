@@ -425,6 +425,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
@@ -571,7 +572,7 @@ export default {
 
       try {
         const response = await fetch(
-          `https://babaapi.babaparfume.id/project/public/api/dokumentasi/${item.id}/download`,
+          `${FILE_URL}/api/dokumentasi/${item.id}/download`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -722,7 +723,7 @@ export default {
         cleanPath = cleanPath.substring(1);
       }
 
-      const baseUrl = 'https://babaapi.babaparfume.id/project/public';
+      const baseUrl = FILE_URL;
       let fileUrl;
 
       if (cleanPath.startsWith('uploads/')) {
@@ -939,7 +940,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/dokumentasi",
+          `${API_URL}/api/dokumentasi`,
           formData,
           {
             headers: {
@@ -970,7 +971,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/dokumentasi", {
+        .get(`${API_URL}/api/dokumentasi`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1044,7 +1045,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`https://babaapi.babaparfume.id/api/dokumentasi/${id}`, {
+        .get(`${API_URL}/api/dokumentasi/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1111,7 +1112,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/dokumentasi/${this.modelEdit.id}`,
+          `${API_URL}/api/dokumentasi/${this.modelEdit.id}`,
           formData,
           {
             headers: {
@@ -1148,7 +1149,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.babaparfume.id/api/dokumentasi/${id}`, {
+        .delete(`${API_URL}/api/dokumentasi/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

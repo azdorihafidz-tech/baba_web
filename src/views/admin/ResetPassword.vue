@@ -62,11 +62,12 @@
 </template>
 
 <script setup>
+import { API_URL } from "@/config";
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
-const API_BASE = 'https://babaapi.babaparfume.id/api'
+const API_BASE = `${API_URL}/api`
 const route = useRoute()
 const router = useRouter()
 

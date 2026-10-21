@@ -478,6 +478,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import CardForm from "@/components/ui/CardForm.vue";
@@ -697,7 +698,7 @@ export default {
       this.isFoLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", {
+        const response = await axios.get(`${API_URL}/api/mvo`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -839,7 +840,7 @@ export default {
 
     getFullFileUrl(filePath) {
       if (!filePath) return '';
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      return `${FILE_URL}/${filePath}`;
     },
 
     handleImageError(event) {
@@ -930,7 +931,7 @@ export default {
       this.isMvoLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", {
+        const response = await axios.get(`${API_URL}/api/mvo`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -959,7 +960,7 @@ export default {
       this.isTableLoading = true;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", {
+        const response = await axios.get(`${API_URL}/api/mvo-document`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -1006,7 +1007,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("https://babaapi.babaparfume.id/api/mvo-document", formData, {
+        const response = await axios.post(`${API_URL}/api/mvo-document`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
@@ -1039,7 +1040,7 @@ export default {
       this.isButtonLoading = true;
 
       try {
-        const response = await axios.delete(`https://babaapi.babaparfume.id/api/mvo-document/${id}`, {
+        const response = await axios.delete(`${API_URL}/api/mvo-document/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1071,7 +1072,7 @@ export default {
 
       this.isButtonLoading = true;
       try {
-        const response = await axios.put(`https://babaapi.babaparfume.id/api/mvo-documents/${id}/approve`, {}, {
+        const response = await axios.put(`${API_URL}/api/mvo-documents/${id}/approve`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -1323,7 +1324,7 @@ export default {
 
       try {
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/mvo-document/${this.modelEdit.id}`,
+          `${API_URL}/api/mvo-document/${this.modelEdit.id}`,
           formData,
           {
             headers: {

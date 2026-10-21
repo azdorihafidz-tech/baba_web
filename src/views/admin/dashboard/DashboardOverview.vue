@@ -274,6 +274,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
@@ -391,7 +392,7 @@ export default {
 
             try {
                 // Build URL with query parameters
-                let url = "https://babaapi.babaparfume.id/api/dashboard";
+                let url = `${API_URL}/api/dashboard`;
                 const params = new URLSearchParams();
 
                 if (this.dateRange.start_date) {

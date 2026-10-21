@@ -1,0 +1,14 @@
+// Alamat server, diambil dari file .env.development (lokal) / .env.production (build hosting).
+// Jangan menulis URL server langsung di komponen; impor dari file ini.
+
+// Root backend Laravel. Endpoint API = `${API_URL}/api/...`
+export const API_URL = import.meta.env.VITE_API_URL;
+
+// Root folder public Laravel tempat file upload (foto, dokumen, pdf).
+export const FILE_URL = import.meta.env.VITE_FILE_URL;
+
+// Domain utama babaparfume.id (sumber daftar lagu).
+export const MAIN_URL = import.meta.env.VITE_MAIN_URL;
+
+// Server chat Node.js (socket.io + REST di /chat-rooms).
+export const CHAT_URL = import.meta.env.VITE_CHAT_URL;

@@ -149,6 +149,7 @@
 </template>
 
 <script setup>
+import { API_URL, FILE_URL } from "@/config";
 import { ref, computed, onMounted, defineComponent, h } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -196,7 +197,7 @@ async function fetchData() {
   loading.value = true; error.value = null;
   try {
     const token = Cookies.get('token');
-    const res = await axios.get('https://babaapi.babaparfume.id/api/mvo/pohon-struktur', {
+    const res = await axios.get(`${API_URL}/api/mvo/pohon-struktur`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     rawData.value = res.data.data ?? [];
@@ -251,7 +252,7 @@ function closeMobileDetail() { mobileDetailOpen.value = false; }
 function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith('http') || path.startsWith('https')) return path;
-  return `https://babaapi.babaparfume.id/project/public/${path.startsWith('/') ? path.substring(1) : path}`;
+  return `${FILE_URL}/${path.startsWith('/') ? path.substring(1) : path}`;
 }
 function getParentName(node) {
   if (!node.parent_id) {

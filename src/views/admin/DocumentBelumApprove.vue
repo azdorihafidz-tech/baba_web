@@ -378,6 +378,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
@@ -385,7 +386,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 
-const API_BASE = "https://babaapi.babaparfume.id/api";
+const API_BASE = `${API_URL}/api`;
 
 export default {
   name: "PendingApprovalDocuments",
@@ -531,7 +532,7 @@ export default {
 
       this.isTableLoading = true;
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo-document", { headers });
+        const response = await axios.get(`${API_URL}/api/mvo-document`, { headers });
 
         if (response.data.status === "success") {
           // Hanya tampilkan dokumen yang BELUM diproses (status_inputan = null),
@@ -555,7 +556,7 @@ export default {
       if (!headers) return;
 
       try {
-        const response = await axios.get("https://babaapi.babaparfume.id/api/mvo", { headers });
+        const response = await axios.get(`${API_URL}/api/mvo`, { headers });
         if (response.data.status === "success") {
           this.allMvoData = response.data.data;
 
@@ -793,7 +794,7 @@ export default {
     },
 
     getFullFileUrl(filePath) {
-      return `https://babaapi.babaparfume.id/project/public/${filePath}`;
+      return `${FILE_URL}/${filePath}`;
     },
 
     viewFile(filePath) {
@@ -931,7 +932,7 @@ export default {
 
         // Kirim request ke API dengan FormData
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/approveDokumen",
+          `${API_URL}/api/approveDokumen`,
           formData,
           {
             headers: {

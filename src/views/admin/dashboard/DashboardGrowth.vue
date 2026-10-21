@@ -228,6 +228,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Chart, registerables } from 'chart.js';
@@ -386,7 +387,7 @@ export default {
             if (!token) return;
 
             try {
-                const response = await axios.get("https://babaapi.babaparfume.id/api/provinsi", {
+                const response = await axios.get(`${API_URL}/api/provinsi`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -414,12 +415,12 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.babaparfume.id/api/dashboard/growth`;
+                url = `${API_URL}/api/dashboard/growth`;
             } else {
                 if (!this.cabang) {
                     return;
                 }
-                url = `https://babaapi.babaparfume.id/api/dashboard/growth/${this.cabang}`;
+                url = `${API_URL}/api/dashboard/growth/${this.cabang}`;
             }
 
             const params = {

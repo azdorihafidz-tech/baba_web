@@ -220,6 +220,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import axios from "axios";
@@ -371,7 +372,7 @@ export default {
       try {
         const token = Cookies.get("token");
         const response = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo",
+          `${API_URL}/api/mvo`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -388,7 +389,7 @@ export default {
     async getAllMvoType() {
       try {
         const response = await axios.get(
-          "https://babaapi.babaparfume.id/api/mvo-type"
+          `${API_URL}/api/mvo-type`
         );
 
         if (response.data.status === "success" && response.data.data) {
@@ -415,7 +416,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const res = await axios.post(
-          "https://babaapi.babaparfume.id/api/cekApprovalBawahan",
+          `${API_URL}/api/cekApprovalBawahan`,
           { code: codeLogin },
           {
             headers: {
@@ -443,7 +444,7 @@ export default {
         const codeLogin = localStorage.getItem("mvo_id");
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/approve",
+          `${API_URL}/api/approve`,
           {
             code: codeLogin,
             id: this.idToApprove,

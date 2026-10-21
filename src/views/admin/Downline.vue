@@ -190,6 +190,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
@@ -321,7 +322,7 @@ export default {
             this.isTableLoading = true;
             try {
                 const response = await axios.get(
-                    `https://babaapi.babaparfume.id/api/downline/${this.mvo_id}`,
+                    `${API_URL}/api/downline/${this.mvo_id}`,
                     { headers }
                 );
 

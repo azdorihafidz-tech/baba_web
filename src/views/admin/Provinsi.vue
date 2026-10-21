@@ -458,6 +458,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import CardForm from "@/components/ui/CardForm.vue";
@@ -482,7 +483,7 @@ export default {
     data() {
         return {
             // Base URL untuk gambar
-            baseImageUrl: 'https://babaapi.babaparfume.id/project/public/',
+            baseImageUrl: `${FILE_URL}/`,
 
             // Mobile specific properties
             expandedMobileCard: null,
@@ -808,7 +809,7 @@ export default {
 
             this.isTableLoading = true;
             axios
-                .get("https://babaapi.babaparfume.id/api/provinsi", {
+                .get(`${API_URL}/api/provinsi`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -880,7 +881,7 @@ export default {
 
             axios
                 .post(
-                    "https://babaapi.babaparfume.id/api/provinsi",
+                    `${API_URL}/api/provinsi`,
                     formData,
                     {
                         headers: {
@@ -921,7 +922,7 @@ export default {
             this.isShowDialogEdit = true;
 
             axios
-                .get(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .get(`${API_URL}/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -999,7 +1000,7 @@ export default {
 
             axios
                 .post(
-                    `https://babaapi.babaparfume.id/api/provinsi/${this.modelEdit.id}`,
+                    `${API_URL}/api/provinsi/${this.modelEdit.id}`,
                     formData,
                     {
                         headers: {
@@ -1043,7 +1044,7 @@ export default {
 
             this.isButtonLoading = true;
             axios
-                .delete(`https://babaapi.babaparfume.id/api/provinsi/${id}`, {
+                .delete(`${API_URL}/api/provinsi/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: "application/json",

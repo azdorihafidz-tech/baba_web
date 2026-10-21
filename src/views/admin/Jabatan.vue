@@ -224,6 +224,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
@@ -395,7 +396,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/jabatan", {
+        .get(`${API_URL}/api/jabatan`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -430,7 +431,7 @@ export default {
       this.isButtonLoading = true;
       axios
         .post(
-          "https://babaapi.babaparfume.id/api/jabatan",
+          `${API_URL}/api/jabatan`,
           {
             nama_jabatan: this.modelAdd.nama,
             deskripsi: this.modelAdd.deskripsi,
@@ -469,7 +470,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`https://babaapi.babaparfume.id/api/jabatan/${id}`, {
+        .get(`${API_URL}/api/jabatan/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -511,7 +512,7 @@ export default {
       this.isButtonLoading = true;
       axios
         .put(
-          `https://babaapi.babaparfume.id/api/jabatan/${this.modelEdit.id}`,
+          `${API_URL}/api/jabatan/${this.modelEdit.id}`,
           updateData,
           {
             headers: {
@@ -550,7 +551,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.babaparfume.id/api/jabatan/${id}`, {
+        .delete(`${API_URL}/api/jabatan/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

@@ -354,6 +354,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
@@ -561,7 +562,7 @@ export default {
         cleanPath = cleanPath.substring(1);
       }
 
-      const baseUrl = 'https://babaapi.babaparfume.id/project/public';
+      const baseUrl = FILE_URL;
       let imageUrl;
 
       if (cleanPath.startsWith('uploads/header/')) {
@@ -725,7 +726,7 @@ export default {
 
       this.isTableLoading = true;
       axios
-        .get("https://babaapi.babaparfume.id/api/gambar-header", {
+        .get(`${API_URL}/api/gambar-header`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -811,7 +812,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://babaapi.babaparfume.id/api/gambar-header",
+          `${API_URL}/api/gambar-header`,
           formData,
           {
             headers: {
@@ -848,7 +849,7 @@ export default {
       this.isShowDialogEdit = true;
 
       axios
-        .get(`https://babaapi.babaparfume.id/api/gambar-header/${id}`, {
+        .get(`${API_URL}/api/gambar-header/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -903,7 +904,7 @@ export default {
         }
 
         const response = await axios.post(
-          `https://babaapi.babaparfume.id/api/gambar-header/${this.modelEdit.id}`,
+          `${API_URL}/api/gambar-header/${this.modelEdit.id}`,
           formData,
           {
             headers: {
@@ -943,7 +944,7 @@ export default {
 
       this.isButtonLoading = true;
       axios
-        .delete(`https://babaapi.babaparfume.id/api/gambar-header/${id}`, {
+        .delete(`${API_URL}/api/gambar-header/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

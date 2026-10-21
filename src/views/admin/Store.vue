@@ -498,13 +498,14 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "https://babaapi.babaparfume.id";
+const BASE_URL = API_URL;
 
 export default {
     components: { Breadcrumb, CardDataTable },

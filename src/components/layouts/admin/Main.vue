@@ -151,6 +151,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL, MAIN_URL } from "@/config";
 import Header from "@/components/layouts/admin/Header";
 import Sidebar from "@/components/layouts/admin/Sidebar";
 import Footer from "@/components/layouts/admin/Footer";
@@ -241,7 +242,7 @@ export default {
       }
 
       const cleanPath = fotoRuangKota.startsWith('/') ? fotoRuangKota.substring(1) : fotoRuangKota;
-      const httpsUrl = `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+      const httpsUrl = `${FILE_URL}/${cleanPath}`;
 
       return httpsUrl;
     },
@@ -269,14 +270,14 @@ export default {
         let headerResponse;
 
         try {
-          headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+          headerResponse = await apiClient.get(`${API_URL}/api/provinsi`);
         } catch (httpsError) {
 
           if (httpsError.code === 'ERR_NETWORK' ||
             httpsError.message.includes('certificate') ||
             httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-            headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/provinsi');
+            headerResponse = await apiClient.get(`${API_URL}/api/provinsi`);
           } else {
             throw httpsError;
           }
@@ -387,7 +388,7 @@ export default {
     async fetchSongs() {
       this.loadingSongs = true;
       try {
-        const response = await axios.get('https://babaparfume.id/api/lagu');
+        const response = await axios.get(`${MAIN_URL}/api/lagu`);
 
         if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
           this.songs = response.data.data;
@@ -421,10 +422,10 @@ export default {
       if (!song || !this.$refs.audioPlayer) return;
 
       const urlPatterns = [
-        `https://babaparfume.id/${song.file_lagu}`,
-        `https://babaparfume.id/project/public/${song.file_lagu}`,
-        `https://babaparfume.id/storage/${song.file_lagu}`,
-        `https://babaparfume.id/public/${song.file_lagu}`,
+        `${MAIN_URL}/${song.file_lagu}`,
+        `${MAIN_URL}/project/public/${song.file_lagu}`,
+        `${MAIN_URL}/storage/${song.file_lagu}`,
+        `${MAIN_URL}/public/${song.file_lagu}`,
       ];
 
       const audioUrl = urlPatterns[patternIndex];

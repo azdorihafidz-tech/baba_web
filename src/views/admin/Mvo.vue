@@ -691,6 +691,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
@@ -698,8 +699,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 
-const API_BASE = "https://babaapi.babaparfume.id/api";
-const FILE_BASE = "https://babaapi.babaparfume.id/project/public/";
+const API_BASE = `${API_URL}/api`;
+const FILE_BASE = `${FILE_URL}/`;
 
 const UPLINE_LEVELS = [
   { key: "upline_6", title: "Distributor", short: "DISTRIBUTOR" },

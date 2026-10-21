@@ -190,6 +190,7 @@
 </template>
 
 <script>
+import { CHAT_URL } from "@/config";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -345,7 +346,7 @@ export default {
   methods: {
     createApiInstance() {
       const token = localStorage.getItem("token") || Cookies.get("token") || "";
-      const base = "https://babaparfume.id/chat-rooms/api";
+      const base = `${CHAT_URL}/chat-rooms/api`;
       this.api = axios.create({
         baseURL: base,
         headers: { Authorization: token ? `Bearer ${token}` : "" },
@@ -416,7 +417,7 @@ export default {
       if (this.socket) return;
       const rawToken =
         localStorage.getItem("token") || Cookies.get("token") || null;
-      const host = "https://babaparfume.id";
+      const host = CHAT_URL;
       const path = "/chat-rooms/socket.io";
       this.socket = io(host, {
         path,

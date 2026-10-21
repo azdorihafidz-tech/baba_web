@@ -183,6 +183,7 @@
 </template>
 
 <script setup>
+import { API_URL, FILE_URL, MAIN_URL } from "@/config";
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
@@ -250,7 +251,7 @@ const volumeIcon = computed(() => {
 const fetchSongs = async () => {
   loadingSongs.value = true
   try {
-    const response = await axios.get('https://babaparfume.id/api/lagu')
+    const response = await axios.get(`${MAIN_URL}/api/lagu`)
 
     if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
       songs.value = response.data.data
@@ -259,7 +260,7 @@ const fetchSongs = async () => {
         const firstSong = songs.value[0]
         currentSong.value = firstSong
 
-        const audioUrl = `https://babaparfume.id/${firstSong.file_lagu}`
+        const audioUrl = `${MAIN_URL}/${firstSong.file_lagu}`
 
         setTimeout(() => {
           if (audioPlayer.value) {
@@ -288,10 +289,10 @@ const selectSong = (song) => {
     audioPlayer.value.src = ''
 
     const urlPatterns = [
-      `https://babaapi.babaparfume.id/${song.file_lagu}`,
-      `https://babaapi.babaparfume.id/project/public/${song.file_lagu}`,
-      `https://babaapi.babaparfume.id/storage/${song.file_lagu}`,
-      `https://babaapi.babaparfume.id/public/${song.file_lagu}`,
+      `${API_URL}/${song.file_lagu}`,
+      `${FILE_URL}/${song.file_lagu}`,
+      `${API_URL}/storage/${song.file_lagu}`,
+      `${API_URL}/public/${song.file_lagu}`,
     ]
 
     const audioUrl = urlPatterns[parseInt(workingPattern)] || urlPatterns[0]
@@ -317,10 +318,10 @@ const togglePlay = async () => {
     if (!audioPlayer.value.src || audioPlayer.value.error) {
       const workingPattern = localStorage.getItem('workingAudioPattern') || '0'
       const urlPatterns = [
-        `https://babaapi.babaparfume.id/${currentSong.value.file_lagu}`,
-        `https://babaapi.babaparfume.id/project/public/${currentSong.value.file_lagu}`,
-        `https://babaapi.babaparfume.id/storage/${currentSong.value.file_lagu}`,
-        `https://babaapi.babaparfume.id/public/${currentSong.value.file_lagu}`,
+        `${API_URL}/${currentSong.value.file_lagu}`,
+        `${FILE_URL}/${currentSong.value.file_lagu}`,
+        `${API_URL}/storage/${currentSong.value.file_lagu}`,
+        `${API_URL}/public/${currentSong.value.file_lagu}`,
       ]
 
       const audioUrl = urlPatterns[parseInt(workingPattern)]
@@ -428,14 +429,14 @@ const fetchHeaderData = async (token, userCabang = null) => {
     let headerResponse
 
     try {
-      headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
+      headerResponse = await apiClient.get(`${API_URL}/api/gambar-header`)
     } catch (httpsError) {
 
       if (httpsError.code === 'ERR_NETWORK' ||
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        headerResponse = await apiClient.get('https://babaapi.babaparfume.id/api/gambar-header')
+        headerResponse = await apiClient.get(`${API_URL}/api/gambar-header`)
       } else {
         throw httpsError
       }
@@ -524,14 +525,14 @@ const handleLogin = async () => {
     let response
 
     try {
-      response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
+      response = await apiClient.post(`${API_URL}/api/login`, loginData)
     } catch (httpsError) {
 
       if (httpsError.code === 'ERR_NETWORK' ||
         httpsError.message.includes('certificate') ||
         httpsError.message.includes('ERR_CERT_DATE_INVALID')) {
 
-        response = await apiClient.post('https://babaapi.babaparfume.id/api/login', loginData)
+        response = await apiClient.post(`${API_URL}/api/login`, loginData)
       } else {
         throw httpsError
       }

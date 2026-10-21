@@ -286,6 +286,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
@@ -452,12 +453,12 @@ export default {
 
             let url = "";
             if (this.mvo_type_id === "superadmin") {
-                url = `https://babaapi.babaparfume.id/api/dashboard/akun`;
+                url = `${API_URL}/api/dashboard/akun`;
             } else {
                 if (!this.cabang) {
                     return;
                 }
-                url = `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
+                url = `${API_URL}/api/dashboard/akun/${this.cabang}`;
             }
 
             try {
@@ -493,7 +494,7 @@ export default {
                     this.detailData = [];
 
                     const res = await axios.get(
-                        `https://babaapi.babaparfume.id/api/dashboard/akun/${regionName}`,
+                        `${API_URL}/api/dashboard/akun/${regionName}`,
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
 

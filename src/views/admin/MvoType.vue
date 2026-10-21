@@ -309,6 +309,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import CardForm from "@/components/ui/CardForm.vue";
@@ -514,7 +515,7 @@ export default {
       }
 
       this.isTableLoading = true;
-      axios.get("https://babaapi.babaparfume.id/api/mvo-type", {
+      axios.get(`${API_URL}/api/mvo-type`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -556,7 +557,7 @@ export default {
         jlh_bintang: this.modelAdd.jlh_bintang, // Ganti ke jlh_bintang
       };
 
-      axios.post("https://babaapi.babaparfume.id/api/mvo-type", payload, {
+      axios.post(`${API_URL}/api/mvo-type`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -591,7 +592,7 @@ export default {
       this.isShowDialogEdit = true;
 
 
-      axios.get(`https://babaapi.babaparfume.id/api/mvo-type/${id}`, {
+      axios.get(`${API_URL}/api/mvo-type/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -638,7 +639,7 @@ export default {
 
 
       this.isButtonLoading = true;
-      axios.put(`https://babaapi.babaparfume.id/api/mvo-type/${this.modelEdit.id}`, payload, {
+      axios.put(`${API_URL}/api/mvo-type/${this.modelEdit.id}`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -675,7 +676,7 @@ export default {
       }
 
       this.isButtonLoading = true;
-      axios.delete(`https://babaapi.babaparfume.id/api/mvo-type/${id}`, {
+      axios.delete(`${API_URL}/api/mvo-type/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",

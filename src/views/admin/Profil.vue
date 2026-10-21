@@ -302,6 +302,7 @@
 </template>
 
 <script>
+import { API_URL, FILE_URL } from "@/config";
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -374,7 +375,7 @@ export default {
         async fetchMvoTypes() {
             try {
                 const token = Cookies.get('token');
-                const response = await axios.get('https://babaapi.babaparfume.id/api/mvo-type', {
+                const response = await axios.get(`${API_URL}/api/mvo-type`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (response.data?.status === 'success') {
@@ -425,7 +426,7 @@ export default {
                 }
 
                 const response = await axios.post(
-                    `https://babaapi.babaparfume.id/api/user/${userId}/foto-profile`,
+                    `${API_URL}/api/user/${userId}/foto-profile`,
                     formData,
                     {
                         headers: {
@@ -473,7 +474,7 @@ export default {
                 const token = Cookies.get('token');
 
                 const response = await axios.put(
-                    'https://babaapi.babaparfume.id/api/me/password',
+                    `${API_URL}/api/me/password`,
                     {
                         current_password: this.passwordForm.current_password,
                         password: this.passwordForm.password,
@@ -555,7 +556,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('https://babaapi.babaparfume.id/api/user/profile', {
+                const response = await axios.get(`${API_URL}/api/user/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -583,7 +584,7 @@ export default {
                 }
 
                 const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-                return `https://babaapi.babaparfume.id/project/public/${cleanPath}`;
+                return `${FILE_URL}/${cleanPath}`;
             }
 
             return this.defaultProfileImage;

@@ -464,6 +464,7 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
@@ -626,7 +627,7 @@ export default {
 
                 // SUPERADMIN → Semua data
                 url =
-                    `https://babaapi.babaparfume.id/api/dashboard/akun`;
+                    `${API_URL}/api/dashboard/akun`;
 
             } else {
 
@@ -636,7 +637,7 @@ export default {
                 }
 
                 url =
-                    `https://babaapi.babaparfume.id/api/dashboard/akun/${this.cabang}`;
+                    `${API_URL}/api/dashboard/akun/${this.cabang}`;
             }
 
             // ================= CALL API =================

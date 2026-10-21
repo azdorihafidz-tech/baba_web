@@ -357,13 +357,14 @@
 </template>
 
 <script>
+import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_BASE = "https://babaapi.babaparfume.id/api";
+const API_BASE = `${API_URL}/api`;
 
 const CASCADE_LEVELS = [
   { key: "upline_1", level: 1, endpoint: "mvo", formLabel: "Pilih MVO", detailLabel: "MVO" },
