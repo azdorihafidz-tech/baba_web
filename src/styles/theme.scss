@@ -28,8 +28,9 @@ body {
 }
 
 // Tombol: huruf normal (bukan KAPITAL semua), lebih ramah dibaca.
-.v-btn,
-.v-tab.v-tab.v-btn {
+// Selector "html ..." supaya menang atas CSS komponen Vuetify yang dimuat belakangan.
+html .v-btn,
+html .v-tab.v-tab.v-btn {
   text-transform: none;
   letter-spacing: 0.01em;
   font-weight: 600;
@@ -38,6 +39,27 @@ body {
 // Kolom input di kartu gelap (Login, Registrasi, Lupa/Reset Password):
 // cegah Chrome mewarnai kolom (biru/kuning muda) saat mengisi otomatis.
 .baba-dark-form {
+  background: #171717 !important;
+  border: 1px solid rgba(230, 180, 34, 0.35) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55) !important;
+
+  // Ganti amber Vuetify (#FFC107) dengan emas brand
+  .text-amber,
+  .text-amber-lighten-1 {
+    color: var(--baba-gold-light) !important;
+  }
+
+  .bg-amber {
+    background-color: var(--baba-gold) !important;
+    color: #1a1a1a !important;
+  }
+
+  // Ikon kalender bawaan browser (hitam) dibuat terang di latar gelap
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.7;
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,

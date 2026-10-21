@@ -7,7 +7,7 @@
             <v-avatar size="72" class="mb-3 border-2 border-amber">
               <v-img src="@/assets/newlogo.jpg" alt="Logo BABA PARFUM" />
             </v-avatar>
-            <h2 class="text-h5 font-weight-bold text-amber mb-1" style="letter-spacing: 2px;">LUPA PASSWORD</h2>
+            <h2 class="text-h5 font-weight-bold text-amber mb-1" style="letter-spacing: 2px;">Lupa Password</h2>
             <p class="text-grey-lighten-1 text-body-2">
               Masukkan username atau nomor WhatsApp Anda. Kami akan mengirim link reset password ke WhatsApp.
             </p>
@@ -15,12 +15,12 @@
 
           <v-form @submit.prevent="submit">
             <v-text-field v-model="identifier" label="Username atau No. WhatsApp" prepend-inner-icon="mdi-account"
-              variant="outlined" class="mb-3" color="amber" base-color="grey-lighten-1" />
+              variant="outlined" class="mb-3" color="#E6B422" base-color="grey-lighten-1" />
 
             <v-btn type="submit" :loading="isLoading" class="mb-3 text-black font-weight-bold" size="large" block
-              rounded="lg" color="amber" style="letter-spacing: 1px;">
+              rounded="lg" color="#E6B422" style="letter-spacing: 1px;">
               <v-icon start>mdi-whatsapp</v-icon>
-              KIRIM LINK RESET
+              Kirim Link Reset
             </v-btn>
           </v-form>
 
@@ -31,7 +31,7 @@
           <v-divider class="my-4 border-opacity-25" />
 
           <div class="text-center">
-            <v-btn variant="text" color="amber" @click="goToLogin">
+            <v-btn variant="text" color="#E6B422" @click="goToLogin">
               <v-icon start>mdi-arrow-left</v-icon>
               Kembali ke Login
             </v-btn>
@@ -107,7 +107,7 @@ const goToLogin = () => {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #ffffff 20%, #c7b063 40%);
+  background: radial-gradient(900px 520px at 50% -8%, rgba(230, 180, 34, 0.28), transparent 62%), radial-gradient(700px 500px at 100% 110%, rgba(230, 180, 34, 0.12), transparent 60%), #0e0e0e;
   overflow-y: auto;
 }
 
