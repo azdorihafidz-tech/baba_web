@@ -183,6 +183,15 @@ const routes = [
         },
       },
       {
+        path: "mutasi",
+        name: "mutasi",
+        component: () => import("@/views/admin/Mutasi.vue"),
+        meta: {
+          title: "Mutasi Jabatan || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "chat",
         name: "chat",
         component: () => import("@/views/admin/Chat.vue"),

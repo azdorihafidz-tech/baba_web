@@ -196,6 +196,12 @@ html .v-tab.v-tab.v-btn {
   }
 }
 
+// Ruang di bawah konten seukuran music player (melayang di kanan bawah), supaya
+// tombol/elemen paling bawah selalu bisa digulir ke atas player dan tidak tertutup.
+.main-content-container {
+  padding-bottom: 96px !important;
+}
+
 // Ruang bawah di HP supaya konten tidak tertutup menu bawah.
 @media (max-width: 959.98px) {
   .v-main {

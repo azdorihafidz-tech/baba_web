@@ -92,6 +92,7 @@ export default {
           // ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
           // ["mdi-file-document-alert", "Pending Approval Documen", "/admin/pendingapprovaldocumen"],
+          ["mdi-account-switch", "Mutasi Jabatan", "/admin/mutasi"],
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
           ["mdi-chat", "Chat", "/admin/chat"],
@@ -180,6 +181,7 @@ export default {
         "Document Akun": "Dokumen",
         "Document Belum Approve": "Dokumen",
         "Uploud Documentasi": "Dokumentasi",
+        "Mutasi Jabatan": "Mutasi",
         "Store": "Store",
       };
       return shortTexts[text] || text.split(" ")[0];
