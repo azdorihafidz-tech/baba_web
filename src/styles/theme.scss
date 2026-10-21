@@ -114,6 +114,52 @@ body {
   }
 }
 
+// Kartu daftar di HP (Approval Akun, Approval Dokumen, Downline, dll.)
+.mobile-mvo-card,
+.mobile-document-card,
+.mobile-child-card {
+  border: 1px solid var(--baba-border);
+  border-radius: var(--baba-radius) !important;
+  box-shadow: var(--baba-shadow) !important;
+}
+
+.mobile-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+// Baris label-nilai di detail kartu: rapat dan rata, tidak renggang.
+.v-row:has(> .detail-label) {
+  margin: 0 !important;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--baba-border);
+
+  > .v-col {
+    padding: 0 8px 0 0 !important;
+  }
+}
+
+.detail-label {
+  color: var(--baba-muted);
+  font-size: 0.85rem;
+}
+
+.detail-value {
+  color: var(--baba-text);
+  font-weight: 600;
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+
 // Tabel: kepala tabel emas lembut, baris mudah dibedakan.
 .v-table {
   > .v-table__wrapper > table > thead > tr > th {

@@ -995,7 +995,7 @@ export default {
 /* Freeze kolom Actions (kolom terakhir) ke kanan */
 :deep(.custom-data-table table > thead > tr > th:last-child),
 :deep(.custom-data-table table > tbody > tr > td:last-child) {
-  position: sticky;
+  position: sticky !important;
   right: 0;
   z-index: 3;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);

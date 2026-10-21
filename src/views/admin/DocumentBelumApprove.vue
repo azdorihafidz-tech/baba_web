@@ -177,7 +177,7 @@
 
             <v-col cols="8" class="pl-3">
               <div class="mobile-document-name">
-                <strong>{{ item.file_name }}</strong>
+                <strong>{{ item.mvo?.nama || item.file_name }}</strong>
               </div>
               <div class="mobile-document-code">
                 <strong>{{ getMvoCodeById(item.mvo_id) }}</strong>
@@ -589,6 +589,11 @@ export default {
     },
 
     getMvoCodeById(mvoId) {
+      // Kode diambil dari relasi `mvo` yang sudah ikut di data dokumen.
+      // /api/mvo berhalaman (10 data), jadi allMvoData tidak memuat semua MVO;
+      // sebelumnya kebanyakan dokumen tampil "Unknown" dan tidak bisa di-approve.
+      const doc = this.datatable.items.find(d => d.mvo_id == mvoId && d.mvo);
+      if (doc) return doc.mvo.code;
       const mvo = this.allMvoData.find(item => item.id == mvoId);
       return mvo ? mvo.code : 'Unknown';
     },
@@ -1085,7 +1090,7 @@ export default {
 /* Freeze kolom Actions (kolom terakhir) ke kanan */
 :deep(.custom-data-table table > thead > tr > th:last-child),
 :deep(.custom-data-table table > tbody > tr > td:last-child) {
-  position: sticky;
+  position: sticky !important;
   right: 0;
   z-index: 3;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);

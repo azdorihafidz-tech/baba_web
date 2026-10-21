@@ -359,7 +359,11 @@ export default {
       const uplineVal = item[`upline_${level}`];
 
       if (approvalVal && approvalVal !== '-' && approvalVal !== null) {
-        return this.getNamaByNomorId(approvalVal);
+        // Yang approve di level ini adalah upline level ini (dicek di backend),
+        // jadi namanya diambil dari "KODE - Nama". Daftar /api/mvo hanya memuat
+        // satu halaman, sehingga pencarian by id sering gagal dan menampilkan angka.
+        const namaUpline = uplineVal && uplineVal !== '-' ? String(uplineVal).split(' - ').slice(1).join(' - ').trim() : '';
+        return namaUpline || this.getNamaByNomorId(approvalVal);
       }
 
       if (!uplineVal || uplineVal === '-') {
