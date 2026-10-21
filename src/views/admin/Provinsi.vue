@@ -5,7 +5,7 @@
     <div class="add-button-container mb-4">
         <v-btn class="text-white font-semibold add-button" @click="showDialogFormAddCode()"
             :class="{ 'mobile-add-button': $vuetify.display.mobile }">
-            <v-icon start style="color: #FFD700;">mdi-account-plus</v-icon>
+            <v-icon start style="color: #E6B422;">mdi-account-plus</v-icon>
             <span class="ml-2">{{ $vuetify.display.mobile ? 'Tambah Data Cabang' : 'Tambah Data Cabang' }}</span>
         </v-btn>
     </div>
@@ -38,7 +38,7 @@
                                 <v-btn icon variant="text"
                                     @click="showImageDialog(item.foto_ruang_kota, 'Foto Ruang Kota')"
                                     class="file-icon-btn" v-bind="props">
-                                    <v-icon size="32" color="#FFD700">mdi-file-image</v-icon>
+                                    <v-icon size="32" color="#E6B422">mdi-file-image</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>
@@ -49,7 +49,7 @@
                             <template v-slot:activator="{ props }">
                                 <v-btn icon variant="text" @click="showImageDialog(item.foto_mvo, 'Foto MVO')"
                                     class="file-icon-btn" v-bind="props">
-                                    <v-icon size="32" color="#FFD700">mdi-file-image</v-icon>
+                                    <v-icon size="32" color="#E6B422">mdi-file-image</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>
@@ -87,7 +87,7 @@
             </v-card-text>
         </v-card>
 
-        <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+        <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
         <div v-if="filteredMobileItems.length === 0 && !isTableLoading" class="text-center pa-4">
             <v-icon size="64" color="grey">mdi-map-marker-outline</v-icon>
@@ -106,7 +106,7 @@
 
                     <v-col cols="9" class="pl-3">
                         <div class="mobile-code-name">
-                            <v-chip color="info" size="x-small" variant="flat" class="mr-1 mb-1">
+                            <v-chip color="#141414" size="x-small" variant="flat" class="mr-1 mb-1">
                                 Cabang
                             </v-chip>
                             <strong>{{ item.name || 'Nama Tidak Tersedia' }}</strong>
@@ -250,7 +250,7 @@
 
         <!-- Mobile Pagination -->
         <div v-if="filteredMobileItems.length > itemsPerMobilePage" class="mobile-pagination mt-4">
-            <v-pagination v-model="currentMobilePage" :length="totalMobilePages" :total-visible="5" color="#FFD700"
+            <v-pagination v-model="currentMobilePage" :length="totalMobilePages" :total-visible="5" color="#E6B422"
                 class="custom-pagination"></v-pagination>
         </div>
     </div>
@@ -259,7 +259,7 @@
     <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '800'" scrollable>
         <v-card class="custom-dialog">
             <v-card-title class="dialog-header">
-                <v-icon class="mr-2" style="color: #FFD700;">mdi-account-plus</v-icon>
+                <v-icon class="mr-2" style="color: #E6B422;">mdi-account-plus</v-icon>
                 <span class="dialog-title">TAMBAH DATA CABANG</span>
             </v-card-title>
             <v-card-text class="dialog-content" style="max-height: 70vh;">
@@ -326,7 +326,7 @@
     <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '800'" scrollable>
         <v-card class="custom-dialog">
             <v-card-title class="dialog-header">
-                <v-icon class="mr-2" style="color: #FFD700;">mdi-account-edit</v-icon>
+                <v-icon class="mr-2" style="color: #E6B422;">mdi-account-edit</v-icon>
                 <span class="dialog-title">EDIT DATA CABANG</span>
             </v-card-title>
             <v-card-text class="dialog-content" style="max-height: 70vh;">
@@ -422,7 +422,7 @@
     <v-dialog v-model="isShowDialogImage" :max-width="$vuetify.display.mobile ? '95%' : '800px'">
         <v-card>
             <v-card-title class="dialog-header text-center">
-                <v-icon class="mr-2" style="color: #FFD700;">mdi-image</v-icon>
+                <v-icon class="mr-2" style="color: #E6B422;">mdi-image</v-icon>
                 <span class="dialog-title">{{ imagePreviewTitle }}</span>
             </v-card-title>
             <v-card-text class="pa-4">
@@ -1088,21 +1088,21 @@ export default {
 /* Add Button */
 .add-button {
     background: linear-gradient(135deg, #000, #1a1a1a) !important;
-    color: #FFD700 !important;
-    border: 2px solid #FFD700 !important;
+    color: #E6B422 !important;
+    border: 2px solid #E6B422 !important;
     border-radius: 12px !important;
 }
 
 /* Custom styling for file icon button */
 .file-icon-btn {
     background-color: #f5f5f5 !important;
-    border: 2px solid #FFD700 !important;
+    border: 2px solid #E6B422 !important;
     border-radius: 8px !important;
     transition: all 0.3s ease !important;
 }
 
 .file-icon-btn:hover {
-    background-color: #FFD700 !important;
+    background-color: #E6B422 !important;
     transform: scale(1.1);
 }
 
@@ -1128,7 +1128,7 @@ export default {
 
 :deep(.v-data-table__th) {
     background-color: #888 !important;
-    color: #FFD700 !important;
+    color: #E6B422 !important;
     font-weight: bold;
 }
 
@@ -1152,13 +1152,13 @@ export default {
 }
 
 .mobile-code-card:hover {
-    border-color: #FFD700;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    border-color: #E6B422;
+    box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-    border-color: #FFD700 !important;
-    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+    border-color: #E6B422 !important;
+    box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -1176,9 +1176,9 @@ export default {
 /* Dialogs */
 .dialog-header {
     background: var(--baba-ink) !important;
-    color: #FFD700 !important;
+    color: #E6B422 !important;
     padding: 20px 24px !important;
-    border-bottom: 2px solid #FFD700;
+    border-bottom: 2px solid #E6B422;
     font-weight: bold;
     font-size: 18px;
     text-align: center;
@@ -1203,7 +1203,7 @@ export default {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(230, 180, 34, 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -1246,8 +1246,8 @@ export default {
 }
 
 .mobile-image-detail:hover {
-    border-color: #FFD700;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    border-color: #E6B422;
+    box-shadow: 0 4px 12px rgba(230, 180, 34, 0.3);
 }
 
 .mobile-detail-image {
@@ -1275,12 +1275,12 @@ export default {
 
 .mobile-code-card:focus,
 .mobile-action-btn:focus {
-    outline: 2px solid #FFD700;
+    outline: 2px solid #E6B422;
     outline-offset: 2px;
 }
 
 :deep(.v-progress-circular) {
-    color: #FFD700 !important;
+    color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

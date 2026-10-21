@@ -4,12 +4,12 @@
   <div class="mb-4">
     <v-btn class="text-white font-semibold" @click="showDialogFormAddDokumentasi()" style="
     background: linear-gradient(135deg, #000000, #1a1a1a);
-    color: #FFD700;
-    border: 2px solid #FFD700;
+    color: #E6B422;
+    border: 2px solid #E6B422;
     border-radius: 12px;
     padding: 10px 18px;
   ">
-      <v-icon start style="color: #FFD700;">mdi-pen-plus</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-pen-plus</v-icon>
       <span class="ml-2">Tambah Dokumentasi</span>
     </v-btn>
   </div>
@@ -34,7 +34,7 @@
               location="top">
               <template v-slot:activator="{ props }">
                 <v-btn icon variant="text" @click="showMediaDialog(item)" class="file-icon-btn" v-bind="props">
-                  <v-icon size="32" :color="item.tipe_file === 'foto' ? '#FFD700' : '#4CAF50'">
+                  <v-icon size="32" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'">
                     {{ item.tipe_file === 'foto' ? 'mdi-file-image' : 'mdi-file-video' }}
                   </v-icon>
                 </v-btn>
@@ -43,7 +43,7 @@
           </template>
 
           <template v-slot:item.tipe_file="{ item }">
-            <v-chip :color="item.tipe_file === 'foto' ? '#FFD700' : '#4CAF50'" class="text-black" size="small">
+            <v-chip :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black" size="small">
               <v-icon start size="small">{{ item.tipe_file === 'foto' ? 'mdi-camera' : 'mdi-video' }}</v-icon>
               {{ item.tipe_file === 'foto' ? 'Foto' : 'Video' }}
             </v-chip>
@@ -103,7 +103,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-file-search</v-icon>
@@ -121,7 +121,7 @@
 
           <v-col cols="2" class="text-center">
             <div class="mobile-media-preview" @click.stop="showMediaDialog(item)">
-              <v-icon size="32" :color="item.tipe_file === 'foto' ? '#FFD700' : '#4CAF50'">
+              <v-icon size="32" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'">
                 {{ item.tipe_file === 'foto' ? 'mdi-file-image' : 'mdi-file-video' }}
               </v-icon>
             </div>
@@ -132,7 +132,7 @@
               <strong>{{ item.file_name || 'File Tidak Tersedia' }}</strong>
             </div>
             <div class="mobile-header-preview">
-              <v-chip size="small" :color="item.tipe_file === 'foto' ? '#FFD700' : '#4CAF50'" class="text-black">
+              <v-chip size="small" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black">
                 <v-icon start size="small">{{ item.tipe_file === 'foto' ? 'mdi-camera' : 'mdi-video' }}</v-icon>
                 {{ item.tipe_file === 'foto' ? 'Foto' : 'Video' }}
               </v-chip>
@@ -169,7 +169,7 @@
                 <strong>Tipe File:</strong>
               </v-col>
               <v-col cols="12" class="detail-value">
-                <v-chip :color="item.tipe_file === 'foto' ? '#FFD700' : '#4CAF50'" class="text-black" size="small">
+                <v-chip :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black" size="small">
                   <v-icon start size="small">{{ item.tipe_file === 'foto' ? 'mdi-camera' : 'mdi-video' }}</v-icon>
                   {{ item.tipe_file === 'foto' ? 'Foto' : 'Video' }}
                 </v-chip>
@@ -220,7 +220,7 @@
   <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-plus-circle</v-icon>
         <span class="dialog-title">TAMBAH DATA DOKUMENTASI</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -275,7 +275,7 @@
   <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-pencil</v-icon>
         <span class="dialog-title">EDIT DATA DOKUMENTASI</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -356,7 +356,7 @@
   <v-dialog v-model="isShowDialogMedia" :max-width="$vuetify.display.mobile ? '95%' : '800px'">
     <v-card>
       <v-card-title class="dialog-header text-center">
-        <v-icon class="mr-2" style="color: #FFD700;">
+        <v-icon class="mr-2" style="color: #E6B422;">
           {{ mediaPreviewData.tipe_file === 'foto' ? 'mdi-file-image' : 'mdi-file-video' }}
         </v-icon>
         <span class="dialog-title">PREVIEW {{ mediaPreviewData.tipe_file === 'foto' ? 'GAMBAR' : 'VIDEO' }}</span>
@@ -1201,13 +1201,13 @@ export default {
 /* Custom styling for file icon button */
 .file-icon-btn {
   background-color: #f5f5f5 !important;
-  border: 2px solid #FFD700 !important;
+  border: 2px solid #E6B422 !important;
   border-radius: 8px !important;
   transition: all 0.3s ease !important;
 }
 
 .file-icon-btn:hover {
-  background-color: #FFD700 !important;
+  background-color: #E6B422 !important;
   transform: scale(1.1);
 }
 
@@ -1226,13 +1226,13 @@ export default {
 }
 
 .mobile-header-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .search-field-mobile {
@@ -1256,7 +1256,7 @@ export default {
 
 .mobile-media-preview:hover {
   transform: scale(1.05);
-  border-color: #FFD700;
+  border-color: #E6B422;
 }
 
 .mobile-header-title {
@@ -1317,9 +1317,9 @@ export default {
 /* Custom Dialog Styling */
 .dialog-header {
   background: var(--baba-ink) !important;
-  color: #FFD700 !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
   text-align: center;
@@ -1370,18 +1370,18 @@ export default {
 }
 
 .v-img:hover {
-  border-color: #FFD700;
+  border-color: #E6B422;
 }
 
 /* Custom styling untuk required fields */
 :deep(.v-text-field input:required),
 :deep(.v-textarea input:required) {
-  border-left: 3px solid #FFD700;
+  border-left: 3px solid #E6B422;
 }
 
 /* Loading state styling */
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

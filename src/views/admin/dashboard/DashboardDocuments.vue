@@ -603,7 +603,7 @@ export default {
 
 :deep(.v-data-table__th) {
     background-color: #888888 !important;
-    color: #FFD700 !important;
+    color: #E6B422 !important;
     font-weight: bold;
 }
 

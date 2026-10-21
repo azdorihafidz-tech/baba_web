@@ -7,16 +7,16 @@
             <v-card-text class="pa-4">
                 <div class="d-flex align-center justify-space-between flex-wrap gap-2">
                     <div class="d-flex align-center gap-3">
-                        <v-avatar color="#FFD700" size="48" class="avatar-icon">
+                        <v-avatar color="#E6B422" size="48" class="avatar-icon">
                             <v-icon color="#1a1a1a" size="28">mdi-sitemap</v-icon>
                         </v-avatar>
                         <div>
                             <div class="text-caption text-grey">ID Anda</div>
-                            <div class="font-weight-bold text-h6" style="color: #FFD700;">{{ mvo_id || '-' }}</div>
+                            <div class="font-weight-bold text-h6" style="color: #E6B422;">{{ mvo_id || '-' }}</div>
                         </div>
                     </div>
                     <div class="d-flex align-center gap-3">
-                        <v-chip color="#FFD700" text-color="#1a1a1a" class="font-weight-bold" size="large">
+                        <v-chip color="#E6B422" text-color="#1a1a1a" class="font-weight-bold" size="large">
                             <v-icon start>mdi-account-group</v-icon>
                             Total Downline: {{ totalDownline }}
                         </v-chip>
@@ -82,7 +82,7 @@
                 </v-card-text>
             </v-card>
 
-            <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4" />
+            <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4" />
 
             <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-6">
                 <v-icon size="64" color="grey">mdi-account-group-outline</v-icon>
@@ -97,13 +97,13 @@
                     <v-row no-gutters align="center">
                         <v-col cols="2" class="text-center">
                             <v-avatar color="#1a1a1a" size="36">
-                                <span class="text-caption font-weight-bold" style="color: #FFD700;">{{ index + 1
+                                <span class="text-caption font-weight-bold" style="color: #E6B422;">{{ index + 1
                                 }}</span>
                             </v-avatar>
                         </v-col>
                         <v-col cols="8" class="pl-3">
                             <div class="mobile-name font-weight-bold">{{ item.nama }}</div>
-                            <div class="mobile-code text-caption" style="color: #FFD700;">{{ item.code }}</div>
+                            <div class="mobile-code text-caption" style="color: #B8890F;">{{ item.code }}</div>
                             <div class="text-caption text-grey">{{ item.no_id || '-' }}</div>
                         </v-col>
                         <v-col cols="2" class="text-center">
@@ -358,7 +358,7 @@ export default {
 /* Upline info card */
 .upline-info-card {
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    border: 1px solid #FFD700;
+    border: 1px solid #E6B422;
     border-radius: 12px;
 }
 
@@ -391,7 +391,7 @@ export default {
 
 /* Mobile card styles */
 .mobile-downline-card {
-    border-left: 4px solid #FFD700;
+    border-left: 4px solid #E6B422;
     border-radius: 8px;
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;

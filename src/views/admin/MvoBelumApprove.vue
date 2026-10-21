@@ -72,7 +72,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="loading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="loading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="filteredItems.length === 0 && !loading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-account-search</v-icon>
@@ -525,13 +525,13 @@ export default {
 }
 
 .mobile-mvo-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -585,7 +585,7 @@ export default {
 }
 
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

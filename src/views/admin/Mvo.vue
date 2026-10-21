@@ -4,18 +4,18 @@
 
     <div class="d-flex flex-wrap align-center top-action-bar" v-if="mvo_type_id === 'superadmin'">
       <v-btn class="text-white font-semibold add-mvo-btn" @click="exportExcel">
-        <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
+        <v-icon start style="color: #E6B422;">mdi-file-export</v-icon>
         <span class="ml-2">Excel</span>
       </v-btn>
 
       <!-- Import Dokumen via Excel (khusus Superadmin) -->
       <v-btn class="text-white font-semibold add-mvo-btn" @click="triggerImportExcel" :loading="isImporting">
-        <v-icon start style="color: #FFD700;">mdi-file-import</v-icon>
+        <v-icon start style="color: #E6B422;">mdi-file-import</v-icon>
         <span class="ml-2">Import Dokumen</span>
       </v-btn>
 
       <v-btn class="text-white font-semibold add-mvo-btn" @click="downloadImportTemplate">
-        <v-icon start style="color: #FFD700;">mdi-file-download</v-icon>
+        <v-icon start style="color: #E6B422;">mdi-file-download</v-icon>
         <span class="ml-2">Template</span>
       </v-btn>
     </div>
@@ -138,7 +138,7 @@
         </v-card-text>
       </v-card>
 
-      <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+      <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
       <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
         <v-icon size="64" color="grey">mdi-account-search</v-icon>
@@ -207,7 +207,7 @@
     <v-dialog v-model="isShowDialogDetail" persistent :width="$vuetify.display.mobile ? '95%' : '1400'">
       <v-card class="custom-dialog">
         <v-card-title class="dialog-header">
-          <v-icon class="mr-2" style="color: #FFD700;">mdi-information</v-icon>
+          <v-icon class="mr-2" style="color: #E6B422;">mdi-information</v-icon>
           <span class="dialog-title">DETAIL DATA</span>
           <v-chip v-if="detailNavigationHistory.length > 0" color="info" size="small" class="ml-3">
             Level {{ detailNavigationHistory.length + 1 }}
@@ -220,7 +220,7 @@
             <div class="detail-section mb-6">
               <div class="d-flex align-center justify-space-between mb-4">
                 <h3 class="detail-section-title mb-0 d-flex align-center">
-                  <v-icon class="mr-2" color="#FFD700">mdi-file-document-multiple</v-icon>
+                  <v-icon class="mr-2" color="#E6B422">mdi-file-document-multiple</v-icon>
                   <span>Dokumen</span>
                   <v-chip color="success" size="small" class="ml-3" v-if="getDocumentMvoId()">
                     {{ getDocumentMvoCode() }}
@@ -278,7 +278,7 @@
 
                 <template v-slot:item.star_icon="{ item }">
                   <div class="d-flex justify-center">
-                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
                       size="small">mdi-star</v-icon>
                   </div>
                 </template>
@@ -340,7 +340,7 @@
 
             <div class="detail-section mb-6" v-if="detailViewMode === 'children'">
               <h3 class="detail-section-title">
-                <v-icon class="mr-2" color="#FFD700">mdi-account-supervisor</v-icon>
+                <v-icon class="mr-2" color="#E6B422">mdi-account-supervisor</v-icon>
                 Detail Downline
                 <v-chip color="info" size="small" class="ml-3">{{ relatedMvoData.length }} Data</v-chip>
               </h3>
@@ -404,7 +404,7 @@
                 <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-                <v-progress-linear v-if="isLoadingDocuments" indeterminate color="#FFD700"
+                <v-progress-linear v-if="isLoadingDocuments" indeterminate color="#E6B422"
                   class="mb-4"></v-progress-linear>
 
                 <div v-if="documentItems.length === 0 && !isLoadingDocuments" class="text-center pa-4">
@@ -579,7 +579,7 @@
     <v-dialog v-model="documentDialog.show" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
       <v-card class="custom-dialog">
         <v-card-title class="dialog-header">
-          <v-icon class="mr-2" style="color: #FFD700;">
+          <v-icon class="mr-2" style="color: #E6B422;">
             {{ isDocEditMode ? 'mdi-pencil' : 'mdi-plus-circle' }}
           </v-icon>
           <span class="dialog-title">{{ isDocEditMode ? 'EDIT DOKUMEN' : 'TAMBAH DOKUMEN' }}</span>
@@ -608,7 +608,7 @@
                 class="mb-2" :rules="[pointbintangRule]" required>
                 <template v-slot:selection="{ item }">
                   <div class="d-flex align-center">
-                    <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                    <v-icon color="#E6B422" class="mr-1" small>mdi-star</v-icon>
                     <span>{{ item.value }} Bintang</span>
                   </div>
                 </template>
@@ -616,7 +616,7 @@
                   <v-list-item v-bind="props" :title="`${item.value} Bintang`">
                     <template v-slot:prepend>
                       <div class="d-flex align-center">
-                        <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">mdi-star</v-icon>
+                        <v-icon v-for="n in item.value" :key="n" color="#E6B422" small class="mr-1">mdi-star</v-icon>
                       </div>
                     </template>
                   </v-list-item>
@@ -1835,7 +1835,7 @@ export default {
 }
 
 .detail-mobile-card {
-  border-left: 4px solid #FFD700;
+  border-left: 4px solid #E6B422;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -1916,8 +1916,8 @@ export default {
 
 .add-mvo-btn {
   background: linear-gradient(135deg, #000000, #1a1a1a);
-  color: #FFD700;
-  border: 2px solid #FFD700;
+  color: #E6B422;
+  border: 2px solid #E6B422;
   border-radius: 12px;
   padding: 10px 18px;
 }
@@ -1978,9 +1978,9 @@ export default {
 
 .dialog-header {
   background: var(--baba-ink) !important;
-  color: #FFD700 !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
 }
@@ -2010,13 +2010,13 @@ export default {
 }
 
 :deep(.custom-detail-table) {
-  border: 1px solid #FFD700;
+  border: 1px solid #E6B422;
   margin-top: 16px;
 }
 
 :deep(.custom-detail-table .v-data-table__th) {
   background-color: #1a1a1a !important;
-  color: #FFD700 !important;
+  color: #E6B422 !important;
   font-weight: bold;
   text-align: center;
 }
@@ -2038,7 +2038,7 @@ export default {
 }
 
 :deep(.v-text-field .v-field--variant-outlined .v-field__outline) {
-  border-color: #FFD700;
+  border-color: #E6B422;
 }
 
 :deep(.v-text-field .v-field--focused .v-field__outline) {

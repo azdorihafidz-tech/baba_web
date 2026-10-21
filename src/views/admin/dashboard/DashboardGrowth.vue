@@ -47,7 +47,7 @@
                 </v-card>
             </v-row>
             <!-- <v-row class="ga-4" align="stretch">
-            <v-card color="#FFD700" dark hover class="flex-grow-1" @click="openTopStarDialog" style="cursor: pointer">
+            <v-card color="#E6B422" dark hover class="flex-grow-1" @click="openTopStarDialog" style="cursor: pointer">
                 <v-card-text class="text-center">
                     <v-icon size="48" class="mb-2">mdi-trophy</v-icon>
                     <div class="text-subtitle-1">TOP STAR</div>
@@ -783,7 +783,7 @@ canvas {
 
 :deep(.v-data-table__th) {
     background-color: #888888 !important;
-    color: #FFD700 !important;
+    color: #E6B422 !important;
     font-weight: bold;
 }
 </style>

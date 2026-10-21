@@ -4,7 +4,7 @@
 
     <!-- Export Button (optional) -->
     <v-btn class="text-white ml-2 font-semibold export-btn" @click="exportExcel" v-if="mvo_type_id === 'superadmin'">
-      <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-file-export</v-icon>
       <span class="ml-2">Excel</span>
     </v-btn>
 
@@ -44,7 +44,7 @@
 
             <template v-slot:item.star_icon="{ item }">
               <div class="d-flex justify-center">
-                <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
                   size="small">
                   mdi-star
                 </v-icon>
@@ -158,7 +158,7 @@
         </v-card-text>
       </v-card>
 
-      <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+      <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
       <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
         <v-icon size="64" color="grey">mdi-file-document-off</v-icon>
@@ -245,7 +245,7 @@
                   <v-col cols="12" class="detail-label mb-1">Visualisasi Star:</v-col>
                   <v-col cols="12">
                     <div class="star-display">
-                      <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                      <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
                         size="small">
                         mdi-star
                       </v-icon>
@@ -1059,8 +1059,8 @@ export default {
 
 .export-btn {
   background: linear-gradient(135deg, #000000, #1a1a1a);
-  color: #FFD700;
-  border: 2px solid #FFD700;
+  color: #E6B422;
+  border: 2px solid #E6B422;
   border-radius: 12px;
   padding: 10px 18px;
   margin-bottom: 20px;
@@ -1129,13 +1129,13 @@ export default {
 }
 
 .mobile-document-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -1231,7 +1231,7 @@ export default {
 }
 
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

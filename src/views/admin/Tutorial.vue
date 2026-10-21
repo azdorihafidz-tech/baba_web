@@ -259,13 +259,13 @@ export default {
 }
 
 .mobile-tutorial-card:hover {
-    border-color: #FFD700;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    border-color: #E6B422;
+    box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-    border-color: #FFD700 !important;
-    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+    border-color: #E6B422 !important;
+    box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -305,7 +305,7 @@ export default {
 
 .mobile-number {
     font-weight: bold;
-    color: #FFD700;
+    color: #E6B422;
     background-color: #1a1a1a;
     border-radius: 50%;
     width: 28px;

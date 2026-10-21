@@ -4,12 +4,12 @@
   <div class="mb-4">
     <v-btn class="text-white font-semibold" @click="showDialogFormAddMvoType()" style="
       background: linear-gradient(135deg, #000000, #1a1a1a);
-      color: #FFD700;
-      border: 2px solid #FFD700;
+      color: #E6B422;
+      border: 2px solid #E6B422;
       border-radius: 12px;
       padding: 10px 18px;
     ">
-      <v-icon start style="color: #FFD700;">mdi-pen-plus</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-pen-plus</v-icon>
       <span class="ml-2">Tambah Tipe Akun</span>
     </v-btn>
   </div>
@@ -37,7 +37,7 @@
 
           <template v-slot:item.star_icon="{ item }">
             <div class="d-flex justify-center">
-              <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#FFD700' : '#e0e0e0'" small>
+              <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#E6B422' : '#e0e0e0'" small>
                 mdi-star
               </v-icon>
             </div>
@@ -74,7 +74,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-format-list-bulleted-type</v-icon>
@@ -138,7 +138,7 @@
                     {{ item.jlh_bintang || 0 }} Bintang
                   </v-chip>
                   <div class="star-display">
-                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#FFD700' : '#e0e0e0'" small>
+                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#E6B422' : '#e0e0e0'" small>
                       mdi-star
                     </v-icon>
                   </div>
@@ -177,7 +177,7 @@
   <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-plus-circle</v-icon>
         <span class="dialog-title">TAMBAH DATA TIPE AKUN</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -193,7 +193,7 @@
               class="mb-2 mt-4" :rules="[rules.required]" required item-title="text" item-value="value">
               <template v-slot:selection="{ item }">
                 <div class="d-flex align-center">
-                  <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                  <v-icon color="#E6B422" class="mr-1" small>mdi-star</v-icon>
                   <span>{{ item.value }} Bintang</span>
                 </div>
               </template>
@@ -201,7 +201,7 @@
                 <v-list-item v-bind="props" :title="`${item.value} Bintang`">
                   <template v-slot:prepend>
                     <div class="d-flex align-center">
-                      <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
+                      <v-icon v-for="n in item.value" :key="n" color="#E6B422" small class="mr-1">
                         mdi-star
                       </v-icon>
                     </div>
@@ -233,7 +233,7 @@
   <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-pencil</v-icon>
         <span class="dialog-title">EDIT DATA TIPE AKUN</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -250,7 +250,7 @@
               class="mb-2 mt-4" :rules="[rules.required]" required item-title="text" item-value="value">
               <template v-slot:selection="{ item }">
                 <div class="d-flex align-center">
-                  <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                  <v-icon color="#E6B422" class="mr-1" small>mdi-star</v-icon>
                   <span>{{ item.value }} Bintang</span>
                 </div>
               </template>
@@ -258,7 +258,7 @@
                 <v-list-item v-bind="props" :title="`${item.value} Bintang`">
                   <template v-slot:prepend>
                     <div class="d-flex align-center">
-                      <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">
+                      <v-icon v-for="n in item.value" :key="n" color="#E6B422" small class="mr-1">
                         mdi-star
                       </v-icon>
                     </div>
@@ -768,13 +768,13 @@ export default {
 }
 
 .mobile-mvo-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -801,8 +801,8 @@ export default {
 .level-badge {
   font-size: 12px;
   font-weight: bold;
-  color: #FFD700;
-  background: rgba(255, 215, 0, 0.1);
+  color: #E6B422;
+  background: rgba(230, 180, 34, 0.1);
   padding: 2px 8px;
   border-radius: 12px;
   display: inline-block;
@@ -865,9 +865,9 @@ export default {
 /* Custom Dialog Styling */
 .dialog-header {
   background: var(--baba-ink) !important;
-  color: #FFD700 !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
   text-align: center;
@@ -903,12 +903,12 @@ export default {
 /* Custom styling untuk required fields */
 :deep(.v-text-field input:required),
 :deep(.v-textarea input:required) {
-  border-left: 3px solid #FFD700;
+  border-left: 3px solid #E6B422;
 }
 
 /* Loading state styling */
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {
@@ -972,7 +972,7 @@ export default {
 }
 
 .jabatan-text::-webkit-scrollbar-thumb {
-  background: #FFD700;
+  background: #E6B422;
   border-radius: 4px;
 }
 
@@ -982,7 +982,7 @@ export default {
 
 /* Hover effects untuk mobile cards */
 .mobile-mvo-card .mobile-card-header:hover .mobile-mvo-name {
-  color: #FFD700;
+  color: #E6B422;
   transition: color 0.3s ease;
 }
 
