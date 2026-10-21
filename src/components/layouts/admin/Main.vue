@@ -662,7 +662,7 @@ export default {
 .main-background {
   position: relative;
   min-height: 100vh;
-  background-color: #fff5e1;
+  background-color: var(--baba-bg);
 }
 
 .main-background-container {
@@ -692,8 +692,8 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 245, 225, 0.5);
-  backdrop-filter: blur(1px);
+  /* Foto cabang tetap terlihat samar, konten tetap mudah dibaca */
+  background: linear-gradient(180deg, rgba(246, 244, 239, 0.82) 0%, rgba(246, 244, 239, 0.94) 55%, rgba(246, 244, 239, 0.97) 100%);
 }
 
 .main-background-fallback {
@@ -702,7 +702,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #fff5e1 0%, #f9f1d4 100%);
+  background: var(--baba-bg);
 }
 
 /* Content Container */
@@ -757,11 +757,17 @@ export default {
   gap: 8px;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* Responsive: di HP player berada di atas menu bawah */
+@media (max-width: 959.98px) {
   .music-player-compact {
-    bottom: 10px;
-    right: 10px;
+    bottom: calc(var(--baba-bottom-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+    right: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .player-mini-info {
+    display: none;
   }
 
   .player-expanded {

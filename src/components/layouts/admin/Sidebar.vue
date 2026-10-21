@@ -1,95 +1,58 @@
 <template>
-  <!-- Desktop Sidebar - Simplified version like document 2 -->
-  <v-navigation-drawer v-model="drawerModel" color="#1a1a1a" app permanent class="dark-sidebar d-none d-md-flex"
-    :temporary="false">
-    <v-list-item prepend-avatar="@/assets/newlogo.jpg" class="mb-2 mt-1 item-title logo-section" title="BABA PARFUME">
-      <template v-slot:title>
-        <span class="logo-text">BABA PARFUME</span>
-      </template>
-    </v-list-item>
+  <!-- Desktop: sidebar gelap -->
+  <v-navigation-drawer v-model="drawerModel" color="#141414" app permanent class="baba-drawer d-none d-md-flex"
+    :temporary="false" width="264">
+    <div class="drawer-brand">
+      <v-avatar size="44" class="drawer-logo">
+        <v-img src="@/assets/newlogo.jpg" cover />
+      </v-avatar>
+      <div class="drawer-brand-text">
+        <div class="drawer-brand-title">BABA PARFUME</div>
+        <div class="drawer-brand-sub">Member Area</div>
+      </div>
+    </div>
 
-    <v-divider thickness="4" color="#d4af37" class="border-opacity-75 divider-gold"></v-divider>
-
-    <v-list class="menu-list">
-      <v-list-item v-for="[icon, text, url] in linkMenu" :key="icon" :to="url" link class="menu-item"
-        :class="{ 'menu-item-active': $route.path === url }">
+    <v-list class="drawer-menu" density="comfortable" nav>
+      <v-list-item v-for="[icon, text, url] in linkMenu" :key="url" :to="url" link class="drawer-item"
+        :class="{ 'drawer-item-active': $route.path === url }" rounded="lg">
         <template v-slot:prepend>
-          <v-icon class="menu-icon">{{ icon }}</v-icon>
+          <v-icon class="drawer-icon">{{ icon }}</v-icon>
         </template>
-
-        <v-list-item-title class="menu-text">
-          {{ text }}
-        </v-list-item-title>
+        <v-list-item-title class="drawer-text">{{ text }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
 
-  <!-- Mobile Bottom Navigation - Enhanced from document 1 -->
-  <v-bottom-navigation v-model="bottomNavModel" class="d-flex d-md-none mobile-bottom-nav justify-space-between"
-    height="70" app>
-    <!-- Menu kiri -->
-    <v-btn v-for="[icon, text, url] in displayedMobileMenu.slice(0, Math.ceil((maxMobileItems - 1) / 2))" :key="icon"
-      :value="url" :to="url" class="bottom-nav-btn" :class="{ 'bottom-nav-active': $route.path === url }">
+  <!-- HP: menu bawah berisi menu utama + "Lainnya" -->
+  <v-bottom-navigation v-model="bottomNavModel" class="baba-bottom-nav d-flex d-md-none" grow app
+    height="64" bg-color="#141414">
+    <v-btn v-for="[icon, text, url] in displayedMobileMenu" :key="url" :value="url" :to="url" class="bottom-btn"
+      :class="{ 'bottom-btn-active': $route.path === url }">
       <v-icon size="22">{{ icon }}</v-icon>
-      <span class="bottom-nav-label">{{ getShortText(text) }}</span>
+      <span class="bottom-label">{{ getShortText(text) }}</span>
     </v-btn>
 
-    <!-- Spacer untuk FAB -->
-    <div class="fab-spacer"></div>
-
-    <!-- Menu kanan -->
-    <v-btn v-for="[icon, text, url] in displayedMobileMenu.slice(Math.ceil((maxMobileItems - 1) / 2))" :key="icon"
-      :value="url" :to="url" class="bottom-nav-btn" :class="{ 'bottom-nav-active': $route.path === url }">
-      <v-icon size="22">{{ icon }}</v-icon>
-      <span class="bottom-nav-label">{{ getShortText(text) }}</span>
+    <v-btn v-if="hiddenMobileMenu.length" value="__more" class="bottom-btn"
+      :class="{ 'bottom-btn-active': showMoreMenu || isHiddenRouteActive }" @click.prevent="toggleMoreMenu">
+      <v-icon size="22">mdi-dots-grid</v-icon>
+      <span class="bottom-label">Lainnya</span>
     </v-btn>
-
-    <!-- FAB Tengah - Tombol More dengan Warna -->
-    <div class="fab-wrapper">
-      <v-btn class="fab-btn fab-gradient" size="large" elevation="8" @click="toggleMoreMenu"
-        :class="{ 'fab-active': showMoreMenu }">
-        <v-icon class="fab-icon" :class="{ 'fab-icon-rotated': showMoreMenu }">
-          {{ showMoreMenu ? 'mdi-close' : 'mdi-dots-horizontal' }}
-        </v-icon>
-      </v-btn>
-    </div>
   </v-bottom-navigation>
 
-  <!-- Dialog untuk menu lebih banyak pada mobile -->
-  <v-dialog v-model="showMoreMenu" max-width="420" class="d-flex d-md-none">
-    <v-card class="more-menu-card">
-      <!-- Header -->
-      <v-card-title class="more-menu-title">
-        <v-icon class="me-2" color="#d4af37">mdi-menu</v-icon>
-        <span class="title-text">Menu Lainnya</span>
-        <v-btn icon size="small" @click="showMoreMenu = false" class="close-btn">
-          <v-icon color="black">mdi-close</v-icon>
-        </v-btn>
-      </v-card-title>
-
-      <!-- Garis Pemisah -->
-      <v-divider class="divider-gold"></v-divider>
-
-      <!-- List Menu -->
-      <v-list class="more-menu-list">
-        <v-list-item v-for="[icon, text, url] in hiddenMobileMenu" :key="icon" :to="url" @click="closeMoreMenu"
-          class="more-menu-item" rounded="lg">
-          <template v-slot:prepend>
-            <v-icon class="more-menu-icon" color="#d4af37">{{ icon }}</v-icon>
-          </template>
-
-          <v-list-item-title class="more-menu-text">{{ text }}</v-list-item-title>
-        </v-list-item>
-
-        <!-- Jika tidak ada menu tersembunyi -->
-        <v-list-item v-if="hiddenMobileMenu.length === 0" class="no-items">
-          <v-list-item-title class="text-center text-grey">
-            Semua menu sudah tampil di bawah
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
+  <!-- HP: panel menu lainnya dari bawah -->
+  <v-bottom-sheet v-model="showMoreMenu" class="d-md-none">
+    <v-card class="more-sheet" rounded="t-xl">
+      <div class="more-handle"></div>
+      <div class="more-title">Menu Lainnya</div>
+      <div class="more-grid">
+        <router-link v-for="[icon, text, url] in hiddenMobileMenu" :key="url" :to="url" class="more-tile"
+          :class="{ 'more-tile-active': $route.path === url }" @click="closeMoreMenu">
+          <span class="more-tile-icon"><v-icon size="24">{{ icon }}</v-icon></span>
+          <span class="more-tile-text">{{ text }}</span>
+        </router-link>
+      </div>
     </v-card>
-  </v-dialog>
+  </v-bottom-sheet>
 </template>
 
 <script>
@@ -104,7 +67,16 @@ export default {
     return {
       bottomNavModel: "",
       showMoreMenu: false,
-      maxMobileItems: 3,
+      // Jumlah menu yang tampil langsung di menu bawah HP (sisanya di "Lainnya").
+      maxMobileItems: 4,
+      // Menu yang didahulukan di menu bawah HP, sesuai urutan ini.
+      mobilePriority: [
+        "Live Performance",
+        "Input Data",
+        "Verifikasi ID",
+        "Akun Belum Approve",
+        "Document Belum Approve",
+      ],
       screenWidth: 0,
       allMenus: {
         DIREKSI: [
@@ -143,7 +115,8 @@ export default {
   computed: {
     // Check if current screen is desktop
     isDesktop() {
-      return this.screenWidth >= 768;
+      // Sama dengan breakpoint "md" Vuetify (d-md-flex / d-md-none di template).
+      return this.screenWidth >= 960;
     },
 
     // Drawer model
@@ -161,11 +134,29 @@ export default {
       },
     },
 
+    // Menu bawah HP: menu prioritas dulu, lalu sisanya sesuai urutan sidebar.
+    orderedMobileMenu() {
+      const rank = (item) => {
+        const i = this.mobilePriority.indexOf(item[1]);
+        return i === -1 ? this.mobilePriority.length : i;
+      };
+      return this.linkMenu
+        .map((item, index) => ({ item, index }))
+        .sort((a, b) => rank(a.item) - rank(b.item) || a.index - b.index)
+        .map(({ item }) => item);
+    },
     displayedMobileMenu() {
-      return this.linkMenu.slice(0, this.maxMobileItems - 1);
+      // Kalau total menu muat (<= maxMobileItems + 1), tampilkan semua tanpa "Lainnya".
+      if (this.orderedMobileMenu.length <= this.maxMobileItems + 1) {
+        return this.orderedMobileMenu;
+      }
+      return this.orderedMobileMenu.slice(0, this.maxMobileItems);
     },
     hiddenMobileMenu() {
-      return this.linkMenu.slice(this.maxMobileItems - 1);
+      return this.orderedMobileMenu.slice(this.displayedMobileMenu.length);
+    },
+    isHiddenRouteActive() {
+      return this.hiddenMobileMenu.some((item) => item[2] === this.$route.path);
     },
   },
   methods: {
@@ -177,16 +168,18 @@ export default {
     },
     getShortText(text) {
       const shortTexts = {
+        "Live Performance": "Dashboard",
         "Input Data": "Input",
-        "Live Performance": "Performance",
         "Verifikasi ID": "Verifikasi",
-        "Tipe Akun": "Type",
+        "Tipe Akun": "Tipe Akun",
         "Ruang Kota": "Ruang Kota",
-        "Akun Belum Approve": "Pending",
-        "Master Jabatan": "Jobs",
-        "Data Cabang": "Branch",
-        "Document Akun": "Docs",
-        "Document Belum Approve": "Review",
+        "Akun Belum Approve": "Approval",
+        "Master Jabatan": "Jabatan",
+        "Data Cabang": "Cabang",
+        "Struktur Akun": "Struktur",
+        "Document Akun": "Dokumen",
+        "Document Belum Approve": "Dokumen",
+        "Uploud Documentasi": "Dokumentasi",
         "Store": "Store",
       };
       return shortTexts[text] || text.split(" ")[0];
@@ -269,345 +262,175 @@ export default {
 
 
 <style scoped>
-/* ========== DESKTOP SIDEBAR STYLES - SIMPLE VERSION ========== */
-/* Sidebar Container - Desktop Only */
-.dark-sidebar {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 0%, #2e2c27 100%) !important;
-  border-bottom: 2px solid #3a3a3a;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(212, 175, 55, 0.1);
-  backdrop-filter: blur(10px);
+/* ===== Desktop sidebar ===== */
+.baba-drawer {
+  border-right: none !important;
 }
 
-/* Logo Section */
-.logo-section {
-  background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
-  border-radius: 8px;
-  margin: 8px;
-  padding: 16px 12px !important;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
-}
-
-.logo-text {
-  color: #d4af37 !important;
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 3px rgba(212, 175, 55, 0.3);
-}
-
-/* Gold Divider */
-.divider-gold {
-  background: linear-gradient(90deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%) !important;
-  margin: 8px 16px;
-  border-radius: 2px;
-  box-shadow: 0 1px 4px rgba(212, 175, 55, 0.3);
-}
-
-/* Menu List */
-.menu-list {
-  padding: 16px 8px;
-  background: transparent;
-}
-
-/* Menu Items - Desktop */
-.menu-item {
-  margin: 4px 0;
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: transparent;
-  border: 1px solid transparent;
-}
-
-.menu-item:hover {
-  background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%) !important;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
-}
-
-.menu-item-active {
-  background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%) !important;
-  border: 1px solid #d4af37;
-  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
-}
-
-.menu-item-active:hover {
-  background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%) !important;
-  transform: translateX(2px);
-}
-
-/* Menu Icons - Desktop */
-.menu-icon {
-  color: #b8b8b8;
-  transition: all 0.3s ease;
-  font-size: 22px;
-}
-
-.menu-item:hover .menu-icon {
-  color: #d4af37;
-  transform: scale(1.1);
-}
-
-.menu-item-active .menu-icon {
-  color: #ddd !important;
-  font-weight: bold;
-}
-
-/* Menu Text - Desktop */
-.menu-text {
-  color: #e0e0e0 !important;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  letter-spacing: 0.5px;
-}
-
-.menu-item:hover .menu-text {
-  color: #ffffff !important;
-  font-weight: 600;
-}
-
-.menu-item-active .menu-text {
-  color: #ddd !important;
-  font-weight: 700;
-}
-
-/* ========== MOBILE BOTTOM NAVIGATION STYLES - ENHANCED VERSION ========== */
-.mobile-bottom-nav {
-  background: #1a1a1a !important;
-  border-top: 1px solid #ddd;
-  position: relative;
-  overflow: visible !important;
-}
-
-.fab-wrapper {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-
-/* ========== FAB STYLING WITH COLORS ========== */
-
-/* Base FAB Button */
-.fab-btn {
-  border-radius: 50%;
-  width: 64px !important;
-  height: 64px !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 3px solid rgba(255, 255, 255, 0.15);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Default Theme - Premium Gold Gradient */
-.fab-gradient {
-  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%) !important;
-  /* box-shadow:
-    0 8px 24px rgba(212, 175, 55, 0.4),
-    0 4px 12px rgba(212, 175, 55, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2); */
-}
-
-/* .fab-gradient:hover {
-  background: linear-gradient(135deg, #f4d03f 0%, #d4af37 50%, #d4af37 100%) !important;
-  transform: scale(1.1) translateY(-3px);
-  box-shadow:
-    0 12px 32px rgba(212, 175, 55, 0.5),
-    0 6px 16px rgba(212, 175, 55, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border: 3px solid rgba(255, 255, 255, 0.3);
-} */
-
-/* Active State - Red Gradient when menu open */
-.fab-active {
-  background: linear-gradient(135deg, #ffffff 100%) !important;
-
-  border: 3px solid rgba(255, 255, 255, 0.2);
-}
-
-
-
-/* FAB Icon Styling */
-.fab-icon {
-  color: #1a1a1a !important;
-  font-size: 26px;
-  font-weight: 800;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fab-icon-rotated {
-  transform: rotate(180deg) scale(1.1);
-}
-
-/* Pulse Animation Effect */
-.fab-btn::after {
-  content: '';
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  bottom: -3px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #d4af37, #f4d03f);
-  opacity: 0;
-  z-index: -1;
-  animation: fab-pulse 2s infinite;
-}
-
-@keyframes fab-pulse {
-  0% {
-    transform: scale(0.9);
-    opacity: 0.7;
-  }
-
-  50% {
-    transform: scale(1.1);
-    opacity: 0.3;
-  }
-
-  100% {
-    transform: scale(1.3);
-    opacity: 0;
-  }
-}
-
-/* Ripple Effect on Click */
-.fab-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
-}
-
-.fab-btn:active::before {
-  width: 120%;
-  height: 120%;
-}
-
-.fab-spacer {
-  flex: 0 0 70px;
-}
-
-/* Bottom Nav Buttons */
-.bottom-nav-btn {
-  color: #d4af37 !important;
-  transition: all 0.3s ease;
-  border-radius: 8px !important;
-  margin: 2px;
-  min-width: 60px;
-  flex-direction: column;
-  height: 60px !important;
-}
-
-.bottom-nav-btn:hover {
-  color: #d4af37 !important;
-  background: rgba(212, 175, 55, 0.1) !important;
-  transform: translateY(-2px);
-}
-
-.bottom-nav-active {
-  color: #d4af37 !important;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%) !important;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
-}
-
-.bottom-nav-label {
-  font-size: 10px;
-  font-weight: 500;
-  margin-top: 2px;
-  letter-spacing: 0.5px;
-}
-
-/* More Menu Dialog Styles */
-.more-menu-card {
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
-}
-
-.more-menu-title {
+.drawer-brand {
   display: flex;
   align-items: center;
-  font-weight: 600;
-  background: linear-gradient(135deg, #1a1a1a, #333333);
-  color: white;
-  padding: 16px;
-  font-size: 18px;
+  gap: 12px;
+  padding: 20px 18px 18px;
+  border-bottom: 1px solid rgba(201, 162, 39, 0.25);
 }
 
-.title-text {
-  flex: 1;
+.drawer-logo {
+  border: 1.5px solid var(--baba-gold);
 }
 
-.close-btn {
-  margin-left: auto;
+.drawer-brand-title {
+  color: var(--baba-gold-light);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
 }
 
-.more-menu-list {
-  padding: 8px;
+.drawer-brand-sub {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.75rem;
 }
 
-.more-menu-item {
-  transition: all 0.3s ease;
-  margin-bottom: 6px;
+.drawer-menu {
+  padding: 12px 10px;
+  background: transparent;
 }
 
-.more-menu-item:hover {
-  background-color: rgba(212, 175, 55, 0.08);
-  transform: translateX(4px);
+.drawer-item {
+  min-height: 44px;
+  margin-bottom: 2px;
+  color: rgba(255, 255, 255, 0.78) !important;
 }
 
-.more-menu-icon {
-  font-size: 22px;
+.drawer-item:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.more-menu-text {
-  font-size: 16px;
+.drawer-icon {
+  color: rgba(255, 255, 255, 0.6);
+  opacity: 1;
+}
+
+.drawer-text {
+  font-size: 0.9rem;
   font-weight: 500;
 }
 
-.no-items {
-  padding: 20px;
+.drawer-item-active {
+  background: rgba(201, 162, 39, 0.16) !important;
+  color: var(--baba-gold-light) !important;
+  box-shadow: inset 3px 0 0 var(--baba-gold);
 }
 
-/* Custom Scrollbar */
-.dark-sidebar ::-webkit-scrollbar {
-  width: 6px;
+.drawer-item-active .drawer-icon {
+  color: var(--baba-gold);
 }
 
-.dark-sidebar ::-webkit-scrollbar-track {
-  background: #2d2d2d;
-  border-radius: 3px;
+.drawer-item-active .drawer-text {
+  font-weight: 700;
 }
 
-.dark-sidebar ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
-  border-radius: 3px;
+/* ===== HP: menu bawah ===== */
+.baba-bottom-nav {
+  border-top: 1px solid rgba(201, 162, 39, 0.25);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.18) !important;
 }
 
-.dark-sidebar ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #f4d03f 0%, #d4af37 100%);
+.bottom-btn {
+  color: rgba(255, 255, 255, 0.62) !important;
+  min-width: 0 !important;
+  padding: 0 4px !important;
 }
 
-/* Responsive Behavior */
-@media (max-width: 767.98px) {
-  .dark-sidebar {
-    display: none !important;
-  }
+.bottom-btn :deep(.v-btn__content) {
+  flex-direction: column;
+  gap: 3px;
 }
 
-@media (min-width: 768px) {
-  .mobile-bottom-nav {
-    display: none !important;
-  }
+.bottom-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bottom-btn-active {
+  color: var(--baba-gold-light) !important;
+}
+
+.bottom-btn-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 28%;
+  right: 28%;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--baba-gold);
+}
+
+/* ===== HP: panel menu lainnya ===== */
+.more-sheet {
+  padding: 8px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--baba-surface);
+}
+
+.more-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--baba-border);
+  margin: 4px auto 12px;
+}
+
+.more-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--baba-text);
+  margin-bottom: 12px;
+}
+
+.more-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.more-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 6px;
+  border-radius: var(--baba-radius);
+  border: 1px solid var(--baba-border);
+  text-decoration: none;
+  color: var(--baba-text);
+  text-align: center;
+  transition: background 0.15s;
+}
+
+.more-tile:active,
+.more-tile-active {
+  background: var(--baba-gold-soft);
+  border-color: var(--baba-gold);
+}
+
+.more-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--baba-ink);
+  color: var(--baba-gold-light);
+}
+
+.more-tile-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 </style>

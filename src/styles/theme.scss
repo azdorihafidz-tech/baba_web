@@ -1,0 +1,42 @@
+// Tema global BABA PARFUME.
+// Pakai variabel di bawah (var(--baba-gold), dst.) daripada menulis kode warna
+// langsung di komponen, supaya tampilan tetap seragam.
+
+:root {
+  --baba-gold: #c9a227;
+  --baba-gold-dark: #a07f1a;
+  --baba-gold-light: #e6c766;
+  --baba-gold-soft: #fbf3dc;
+  --baba-ink: #141414;
+  --baba-ink-2: #1f1f1f;
+  --baba-ink-3: #2b2b2b;
+  --baba-bg: #f6f4ef;
+  --baba-surface: #ffffff;
+  --baba-text: #1f1f1f;
+  --baba-muted: #6b6b6b;
+  --baba-border: #e7e2d6;
+  --baba-danger: #c62828;
+  --baba-radius: 14px;
+  --baba-shadow: 0 2px 10px rgba(20, 20, 20, 0.06);
+  --baba-bottom-nav-h: 64px;
+}
+
+html,
+body {
+  background: var(--baba-bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+// Tombol: huruf normal (bukan KAPITAL semua), lebih ramah dibaca.
+.v-btn {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+// Ruang bawah di HP supaya konten tidak tertutup menu bawah.
+@media (max-width: 959.98px) {
+  .v-main {
+    padding-bottom: calc(var(--baba-bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
