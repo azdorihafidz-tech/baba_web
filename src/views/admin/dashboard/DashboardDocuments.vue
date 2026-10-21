@@ -9,7 +9,7 @@
 
                 <!-- TOTAL -->
                 <v-col cols="12" md="4">
-                    <v-card color="primary" dark @click="handleShowDetail('all_documents')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="handleShowDetail('all_documents')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">
                                 mdi-file-document-multiple
@@ -26,7 +26,7 @@
 
                 <!-- APPROVED -->
                 <v-col cols="12" md="4">
-                    <v-card color="success" dark @click="handleShowDetail('total_approved_documents')"
+                    <v-card class="baba-stat baba-stat--success"  @click="handleShowDetail('total_approved_documents')"
                         style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">
@@ -44,7 +44,7 @@
 
                 <!-- PENDING -->
                 <v-col cols="12" md="4">
-                    <v-card color="orange" dark @click="handleShowDetail('total_pending_documents')"
+                    <v-card class="baba-stat baba-stat--warning"  @click="handleShowDetail('total_pending_documents')"
                         style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">
@@ -143,7 +143,7 @@
             <v-row dense class="mb-3">
 
                 <v-col cols="4">
-                    <v-card color="primary" dark class="text-center" @click="handleShowDetail('all_documents')">
+                    <v-card  class="baba-stat baba-stat--gold text-center" @click="handleShowDetail('all_documents')">
                         <v-card-text class="pa-2">
                             <v-icon size="20">
                                 mdi-file-document-multiple
@@ -159,7 +159,7 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card color="success" dark class="text-center"
+                    <v-card  class="baba-stat baba-stat--success text-center"
                         @click="handleShowDetail('total_approved_documents')">
                         <v-card-text class="pa-2">
                             <v-icon size="20">
@@ -176,7 +176,7 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card color="orange" dark class="text-center"
+                    <v-card  class="baba-stat baba-stat--warning text-center"
                         @click="handleShowDetail('total_pending_documents')">
                         <v-card-text class="pa-2">
                             <v-icon size="20">

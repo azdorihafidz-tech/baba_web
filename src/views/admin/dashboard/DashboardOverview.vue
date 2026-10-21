@@ -45,7 +45,7 @@
             <!-- SUMMARY CARD DESKTOP -->
             <v-row class="mb-4">
                 <v-col cols="3">
-                    <v-card color="purple" dark @click="navigateToTab('accounts')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('accounts')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="36" class="mb-2">mdi-account-group</v-icon>
                             <div class="text-h4">
@@ -59,7 +59,7 @@
                 </v-col>
 
                 <v-col cols="3">
-                    <v-card color="primary" dark @click="navigateToTab('documents')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('documents')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="36" class="mb-2">mdi-file-document-multiple</v-icon>
                             <div class="text-h4">
@@ -73,7 +73,7 @@
                 </v-col>
 
                 <v-col cols="3">
-                    <v-card color="info" dark @click="navigateToTab('regions')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('regions')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="36" class="mb-2">mdi-map-marker-multiple</v-icon>
                             <div class="text-h4">
@@ -87,7 +87,7 @@
                 </v-col>
 
                 <v-col cols="3">
-                    <v-card color="amber" dark @click="navigateToTab('star')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('star')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="36" class="mb-2">mdi-star</v-icon>
                             <div class="text-h4">
@@ -172,7 +172,7 @@
             <!-- SUMMARY CARD MOBILE -->
             <v-row class="mb-2" dense>
                 <v-col cols="6">
-                    <v-card color="purple" dark @click="navigateToTab('accounts')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('accounts')" style="cursor:pointer;">
                         <v-card-text class="text-center pa-3">
                             <v-icon size="24" class="mb-1">mdi-account-group</v-icon>
                             <div class="text-h6">
@@ -184,7 +184,7 @@
                 </v-col>
 
                 <v-col cols="6">
-                    <v-card color="primary" dark @click="navigateToTab('documents')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('documents')" style="cursor:pointer;">
                         <v-card-text class="text-center pa-3">
                             <v-icon size="24" class="mb-1">mdi-file-document-multiple</v-icon>
                             <div class="text-h6">
@@ -196,7 +196,7 @@
                 </v-col>
 
                 <v-col cols="6">
-                    <v-card color="info" dark @click="navigateToTab('regions')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('regions')" style="cursor:pointer;">
                         <v-card-text class="text-center pa-3">
                             <v-icon size="24" class="mb-1">mdi-map-marker-multiple</v-icon>
                             <div class="text-h6">
@@ -208,7 +208,7 @@
                 </v-col>
 
                 <v-col cols="6">
-                    <v-card color="amber" dark @click="navigateToTab('star')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="navigateToTab('star')" style="cursor:pointer;">
                         <v-card-text class="text-center pa-3">
                             <v-icon size="24" class="mb-1">mdi-star</v-icon>
                             <div class="text-h6">
@@ -470,8 +470,8 @@ export default {
         getRankColor(rank) {
             if (rank === 1) return "amber";
             if (rank === 2) return "grey";
-            if (rank === 3) return "orange";
-            return "blue";
+            if (rank === 3) return "#B87333";
+            return "#3A3A3A";
         },
 
         /* ===== EXPORT EXCEL ===== */

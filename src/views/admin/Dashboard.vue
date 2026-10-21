@@ -1,15 +1,23 @@
 <template>
   <v-container>
-    <v-card class="d-none d-md-block">
+    <!-- ================= DESKTOP LAYOUT ================= -->
+    <div class="d-none d-md-block">
+      <div class="dash-heading">
+        <h1 class="dash-title">Live Performance</h1>
+        <p class="dash-sub">Ringkasan akun, dokumen, dan performa jaringan</p>
+      </div>
+    </div>
+
+    <v-card class="d-none d-md-block dash-card">
 
       <!-- Tabs -->
-      <v-tabs v-model="tab" bg-color="#FFD700" color="blue" slider-color="blue" class="d-none d-md-flex">
-        <v-tab value="dashboard-overview">DASHBOARD OVERVIEW</v-tab>
-        <v-tab value="dashboard-accounts">DASHBOARD AKUN</v-tab>
-        <v-tab value="dashboard-documents">DASHBOARD DOCUMENTS</v-tab>
-        <v-tab value="dashboard-regions">DASHBOARD MVO</v-tab>
-        <v-tab value="dashboard-star">DASHBOARD STAR</v-tab>
-        <v-tab value="dashboard-growth">DASHBOARD GROWTH</v-tab>
+      <v-tabs v-model="tab" bg-color="#141414" color="#F6D365" slider-color="#E6B422" class="d-none d-md-flex dash-tabs">
+        <v-tab value="dashboard-overview" prepend-icon="mdi-view-dashboard-outline">Overview</v-tab>
+        <v-tab value="dashboard-accounts" prepend-icon="mdi-account-outline">Akun</v-tab>
+        <v-tab value="dashboard-documents" prepend-icon="mdi-file-document-outline">Dokumen</v-tab>
+        <v-tab value="dashboard-regions" prepend-icon="mdi-map-outline">MVO</v-tab>
+        <v-tab value="dashboard-star" prepend-icon="mdi-star-outline">Star</v-tab>
+        <v-tab value="dashboard-growth" prepend-icon="mdi-chart-line">Growth</v-tab>
       </v-tabs>
 
       <!-- Tab Content -->
@@ -48,47 +56,16 @@
     <div class="d-block d-md-none">
 
       <!-- Header -->
-      <v-card class="mb-3" elevation="3">
-        <v-card-text class="pa-4">
-          <div class="d-flex align-center justify-center">
-            <h2 class="text-h5 font-weight-bold text-center">
-              Dashboard
-            </h2>
-          </div>
-        </v-card-text>
-      </v-card>
+      <div class="dash-heading">
+        <h1 class="dash-title">Live Performance</h1>
+        <p class="dash-sub">Ringkasan akun & dokumen</p>
+      </div>
 
-      <!-- Navigation -->
-      <v-chip-group v-model="mobileActiveSection" mandatory color="primary" column
-        class="d-flex flex-wrap justify-center gap-2 mb-3">
-        <v-chip value="overview" size="small" variant="elevated" rounded="lg">
-          <v-icon start size="18">mdi-view-dashboard</v-icon>
-          OVERVIEW
-        </v-chip>
-
-        <v-chip value="documents" size="small" variant="elevated" rounded="lg">
-          <v-icon start size="18">mdi-file-document</v-icon>
-          DOCUMENTS
-        </v-chip>
-
-        <v-chip value="accounts" size="small" variant="elevated" rounded="lg">
-          <v-icon start size="18">mdi-account</v-icon>
-          AKUN
-        </v-chip>
-
-        <v-chip value="regions" size="small" variant="elevated" rounded="lg">
-          <v-icon start size="18">mdi-map</v-icon>
-          REGIONS
-        </v-chip>
-
-        <v-chip value="growth" size="small" variant="elevated" rounded="lg">
-          <v-icon start size="18">mdi-chart-line</v-icon>
-          GROWTH
-        </v-chip>
-
-        <v-chip value="star" size="small" variant="elevated" rounded="lg">
-          <v-icon start size="18">mdi-star</v-icon>
-          STAR
+      <!-- Navigation: satu baris, bisa digeser -->
+      <v-chip-group v-model="mobileActiveSection" mandatory selected-class="dash-chip-active" class="dash-chips mb-3">
+        <v-chip v-for="s in mobileSections" :key="s.value" :value="s.value" variant="outlined" class="dash-chip">
+          <v-icon start size="18">{{ s.icon }}</v-icon>
+          {{ s.label }}
         </v-chip>
       </v-chip-group>
 
@@ -151,6 +128,14 @@ export default {
     return {
       tab: "dashboard-overview",
       mobileActiveSection: "overview",
+      mobileSections: [
+        { value: "overview", label: "Overview", icon: "mdi-view-dashboard-outline" },
+        { value: "accounts", label: "Akun", icon: "mdi-account-outline" },
+        { value: "documents", label: "Dokumen", icon: "mdi-file-document-outline" },
+        { value: "regions", label: "Wilayah", icon: "mdi-map-outline" },
+        { value: "star", label: "Star", icon: "mdi-star-outline" },
+        { value: "growth", label: "Growth", icon: "mdi-chart-line" },
+      ],
       isLoading: false,
     };
   },
@@ -169,12 +154,61 @@ export default {
 </script>
 
 <style scoped>
-.v-card {
-  transition: all 0.3s ease;
+.dash-heading {
+  margin-bottom: 16px;
 }
 
-.v-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.dash-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--baba-text);
+  line-height: 1.2;
+}
+
+.dash-sub {
+  margin-top: 2px;
+  font-size: 0.875rem;
+  color: var(--baba-muted);
+}
+
+.dash-card {
+  border: 1px solid var(--baba-border);
+  box-shadow: var(--baba-shadow) !important;
+  overflow: hidden;
+}
+
+.dash-tabs :deep(.v-tab) {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* HP: semua menu terlihat dalam grid 3 kolom */
+.dash-chips :deep(.v-slide-group__content) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 2px;
+}
+
+.dash-chip {
+  margin: 0 !important;
+  justify-content: center;
+  height: 40px !important;
+  background: var(--baba-surface);
+  border-color: var(--baba-border) !important;
+  color: var(--baba-text) !important;
+  font-weight: 600;
+}
+
+.dash-chip-active {
+  background: var(--baba-ink) !important;
+  border-color: var(--baba-ink) !important;
+  color: var(--baba-gold-light) !important;
+}
+
+@media (max-width: 959.98px) {
+  .dash-title {
+    font-size: 1.25rem;
+  }
 }
 </style>

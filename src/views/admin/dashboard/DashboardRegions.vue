@@ -5,7 +5,7 @@
         <div class="d-none d-md-block">
 
             <!-- ===== HEADER CARD - Total Regions ===== -->
-            <v-card color="primary" dark class="mb-4" hover @click="handleShowAllAkun" style="cursor: pointer;">
+            <v-card  class="baba-stat baba-stat--gold mb-4" hover @click="handleShowAllAkun" style="cursor: pointer;">
                 <v-card-text class="text-center py-8">
                     <v-icon size="64" class="mb-3">
                         mdi-map-marker
@@ -133,7 +133,7 @@
         <!-- ================= MOBILE VIEW ================= -->
         <div class="d-block d-md-none">
             <!-- Header Card Mobile -->
-            <v-card color="primary" dark class="mb-3" @click="handleShowAllAkun" style="cursor: pointer;">
+            <v-card  class="baba-stat baba-stat--gold mb-3" @click="handleShowAllAkun" style="cursor: pointer;">
                 <v-card-text class="text-center py-6">
                     <v-icon size="48" class="mb-2">
                         mdi-map-marker
@@ -307,17 +307,16 @@ export default {
             detailSearch: "",
 
             // Region colors
+            // Palet hitam-emas (selaras tema), tetap cukup berbeda antar wilayah.
             regionColors: [
-                'blue darken-1',
-                'success',
-                'blue darken-1',
-                'orange darken-1',
-                'purple',
-                'indigo',
-                'teal',
-                'cyan',
-                'pink',
-                'deep-purple',
+                '#1F1F1F',
+                '#E6B422',
+                '#5C4A1E',
+                '#B8890F',
+                '#3A3A3A',
+                '#C9A96E',
+                '#8D6E2F',
+                '#2B2B2B',
             ],
 
             // Detail Dialog

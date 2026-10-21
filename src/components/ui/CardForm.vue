@@ -1,13 +1,13 @@
 <template>
-  <v-card color="#fff5e1">
-    <v-toolbar flat color="#ea252e" dark class="mb-1">
+  <v-card class="baba-form-card">
+    <v-toolbar flat color="#141414" class="baba-form-toolbar">
       <v-toolbar-title class="toolbar-title">{{ title }}</v-toolbar-title>
     </v-toolbar>
-    <v-card-text class="px-8 pt-6">
+    <v-card-text class="px-5 px-sm-8 pt-6">
       <slot name="content" />
     </v-card-text>
-    <v-divider color="#000000" thickness="3"></v-divider>
-    <v-card-actions>
+    <v-divider></v-divider>
+    <v-card-actions class="px-5 py-3">
       <v-spacer></v-spacer>
       <slot name="actions" />
     </v-card-actions>
@@ -23,7 +23,13 @@ export default {
 </script>
 
 <style scoped>
+.baba-form-toolbar {
+  border-bottom: 2px solid var(--baba-gold);
+}
+
 .toolbar-title {
-  letter-spacing: 1.5px;
+  color: var(--baba-gold-light);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 </style>

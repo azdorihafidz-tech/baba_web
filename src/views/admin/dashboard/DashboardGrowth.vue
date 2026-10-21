@@ -28,7 +28,7 @@
             </v-card>
 
             <v-row class="ga-4" align="stretch">
-                <v-card color="primary" dark class="flex-grow-1"
+                <v-card  class="baba-stat baba-stat--gold flex-grow-1"
                     @click="$emit('show-detail', 'total_growth', filteredGrowthData)" style="cursor: pointer;">
                     <v-card-text class="text-center">
                         <v-icon size="48" class="mb-2">mdi-chart-line</v-icon>
@@ -37,7 +37,7 @@
                     </v-card-text>
                 </v-card>
 
-                <v-card color="warning" dark class="flex-grow-1"
+                <v-card  class="baba-stat baba-stat--warning flex-grow-1"
                     @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)" style="cursor: pointer;">
                     <v-card-text class="text-center">
                         <v-icon size="48" class="mb-2">mdi-map-marker-multiple</v-icon>
@@ -54,7 +54,7 @@
                 </v-card-text>
             </v-card>
 
-            <v-card color="success" dark hover class="flex-grow-1" @click="openAkunPerMvoDialog"
+            <v-card  hover class="baba-stat baba-stat--success flex-grow-1" @click="openAkunPerMvoDialog"
                 style="cursor: pointer">
                 <v-card-text class="text-center">
                     <v-icon size="48" class="mb-2">mdi-account-multiple</v-icon>
@@ -147,7 +147,7 @@
 
                 <!-- TOTAL GROWTH -->
                 <v-col cols="6" class="d-flex">
-                    <v-card class="flex-grow-1" color="primary" dark
+                    <v-card class="baba-stat baba-stat--gold flex-grow-1" 
                         @click="$emit('show-detail', 'total_growth', filteredGrowthData)" style="cursor: pointer;">
                         <v-card-text class="text-center pa-3 fill-height d-flex flex-column justify-center">
                             <v-icon size="32" class="mb-2">mdi-chart-line</v-icon>
@@ -159,7 +159,7 @@
 
                 <!-- REGION -->
                 <v-col cols="6" class="d-flex">
-                    <v-card class="flex-grow-1" color="warning" dark
+                    <v-card class="baba-stat baba-stat--warning flex-grow-1" 
                         @click="$emit('show-detail', 'region_growth', filteredRegionGrowthData)"
                         style="cursor: pointer;">
                         <v-card-text class="text-center pa-3 fill-height d-flex flex-column justify-center">
@@ -232,6 +232,7 @@ import { API_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Chart, registerables } from 'chart.js';
+import { markRaw } from "vue";
 import * as XLSX from "xlsx";
 
 Chart.register(...registerables);
@@ -523,7 +524,9 @@ export default {
             const labels = this.filteredGrowthData.map(item => this.formatMonth(item.bulan));
             const data = this.filteredGrowthData.map(item => parseInt(item.total_ro || 0));
 
-            const chart = new Chart(ctx, {
+            // markRaw: objek Chart.js tidak boleh dibungkus reaktivitas Vue (penyebab error "reading 'save'").
+
+            const chart = markRaw(new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -587,7 +590,7 @@ export default {
                         }
                     }
                 }
-            });
+            }));
 
             if (isMobile) {
                 this.overallChartMobileInstance = chart;
@@ -633,7 +636,9 @@ export default {
                 };
             });
 
-            const chart = new Chart(ctx, {
+            // markRaw: objek Chart.js tidak boleh dibungkus reaktivitas Vue (penyebab error "reading 'save'").
+
+            const chart = markRaw(new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: allMonths,
@@ -729,7 +734,7 @@ export default {
                         }
                     }
                 }
-            });
+            }));
 
             if (isMobile) {
                 this.regionChartMobileInstance = chart;
