@@ -272,7 +272,7 @@ export default {
   align-items: center;
   gap: 12px;
   padding: 20px 18px 18px;
-  border-bottom: 1px solid rgba(201, 162, 39, 0.25);
+  border-bottom: 1px solid rgba(230, 180, 34, 0.25);
 }
 
 .drawer-logo {
@@ -317,7 +317,7 @@ export default {
 }
 
 .drawer-item-active {
-  background: rgba(201, 162, 39, 0.16) !important;
+  background: rgba(230, 180, 34, 0.16) !important;
   color: var(--baba-gold-light) !important;
   box-shadow: inset 3px 0 0 var(--baba-gold);
 }
@@ -332,7 +332,7 @@ export default {
 
 /* ===== HP: menu bawah ===== */
 .baba-bottom-nav {
-  border-top: 1px solid rgba(201, 162, 39, 0.25);
+  border-top: 1px solid rgba(230, 180, 34, 0.25);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.18) !important;
 }

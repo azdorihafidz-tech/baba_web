@@ -3,10 +3,10 @@
 // langsung di komponen, supaya tampilan tetap seragam.
 
 :root {
-  --baba-gold: #c9a227;
-  --baba-gold-dark: #a07f1a;
-  --baba-gold-light: #e6c766;
-  --baba-gold-soft: #fbf3dc;
+  --baba-gold: #e6b422;
+  --baba-gold-dark: #b8890f;
+  --baba-gold-light: #f6d365;
+  --baba-gold-soft: #fdf6dd;
   --baba-ink: #141414;
   --baba-ink-2: #1f1f1f;
   --baba-ink-3: #2b2b2b;
@@ -32,6 +32,21 @@ body {
   text-transform: none;
   letter-spacing: 0.01em;
   font-weight: 600;
+}
+
+// Kolom input di kartu gelap (Login, Registrasi, Lupa/Reset Password):
+// cegah Chrome mewarnai kolom (biru/kuning muda) saat mengisi otomatis.
+.baba-dark-form {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    -webkit-box-shadow: 0 0 0 1000px #212121 inset !important;
+    box-shadow: 0 0 0 1000px #212121 inset !important;
+    transition: background-color 9999s ease-out 0s;
+  }
 }
 
 // Ruang bawah di HP supaya konten tidak tertutup menu bawah.

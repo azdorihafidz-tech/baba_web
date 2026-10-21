@@ -2,7 +2,7 @@
   <v-container fluid class="login-container">
     <v-row justify="center" align="center" class="fullscreen-row">
       <v-col cols="12" sm="8" md="6" lg="4" xl="3">
-        <v-card class="pa-8 bg-grey-darken-4" elevation="24" rounded="xl" border="1px solid amber">
+        <v-card class="pa-8 bg-grey-darken-4 baba-dark-form" elevation="24" rounded="xl" border="1px solid amber">
           <div class="text-center mb-4">
             <v-avatar size="72" class="mb-3 border-2 border-amber">
               <v-img src="@/assets/newlogo.jpg" alt="Logo BABA PARFUM" />

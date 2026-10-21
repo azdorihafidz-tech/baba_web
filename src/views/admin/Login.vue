@@ -2,7 +2,7 @@
   <v-container fluid class="login-container">
     <v-row justify="center" align="center" class="fullscreen-row">
       <v-col cols="12" sm="8" md="6" lg="4" xl="3">
-        <v-card :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
+        <v-card class="baba-dark-form" :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
           <!-- Logo -->
           <div class="text-center logo-section">
             <v-avatar :size="logoSize" class="mb-3 border-2 border-amber">

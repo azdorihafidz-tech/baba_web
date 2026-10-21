@@ -7,7 +7,7 @@ export const useAppStore = defineStore("app", {
     // STANDARD UI DESIGN
     colors: {
       // Selaras dengan tema di plugins/vuetify.js
-      primary: "#C9A227", // tombol utama (Simpan, Edit)
+      primary: "#E6B422", // tombol utama (Simpan, Edit)
       secondary: "#C62828", // tombol berbahaya (Hapus, Batal)
       background: "#F6F4EF",
       white: "#ffffff",

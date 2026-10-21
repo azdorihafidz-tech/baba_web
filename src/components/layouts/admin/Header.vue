@@ -1,7 +1,7 @@
 <template>
   <v-app-bar color="#141414" flat class="baba-appbar" :height="$vuetify.display.smAndDown ? 60 : 64">
     <!-- tombol buka drawer - disembunyikan di mobile -->
-    <v-app-bar-nav-icon @click="this.app.drawer = !this.app.drawer" color="#E6C766" class="d-none d-md-flex">
+    <v-app-bar-nav-icon @click="this.app.drawer = !this.app.drawer" color="#F6D365" class="d-none d-md-flex">
     </v-app-bar-nav-icon>
 
     <!-- Foto ruang kota (cabang) -->
@@ -23,11 +23,11 @@
         <span v-if="currentUserMvoTypeName" class="appbar-role d-none d-sm-inline">
           · {{ currentUserMvoTypeName }}
         </span>
-        <v-progress-circular v-else-if="isLoadingMvoType" indeterminate size="10" width="2" color="#E6C766"
+        <v-progress-circular v-else-if="isLoadingMvoType" indeterminate size="10" width="2" color="#F6D365"
           class="ml-1"></v-progress-circular>
       </div>
       <div v-if="isLoadingHeader" class="appbar-meta">
-        <v-progress-circular indeterminate size="10" width="2" color="#E6C766" class="mr-1"></v-progress-circular>
+        <v-progress-circular indeterminate size="10" width="2" color="#F6D365" class="mr-1"></v-progress-circular>
         Memuat data cabang...
       </div>
     </div>
@@ -37,13 +37,13 @@
       <div class="d-none d-md-flex align-center">
         <v-tooltip text="Info Header" location="bottom">
           <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-information-outline" color="#E6C766" variant="text" size="small" class="mr-1"
+            <v-btn icon="mdi-information-outline" color="#F6D365" variant="text" size="small" class="mr-1"
               @click="showHeaderInfo" v-bind="props"></v-btn>
           </template>
         </v-tooltip>
         <v-tooltip text="Refresh Header" location="bottom">
           <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-refresh" color="#E6C766" variant="text" size="small" class="mr-1"
+            <v-btn icon="mdi-refresh" color="#F6D365" variant="text" size="small" class="mr-1"
               @click="refreshHeaderData" :loading="isRefreshing" v-bind="props"></v-btn>
           </template>
         </v-tooltip>
@@ -56,7 +56,7 @@
             <v-avatar size="34" class="appbar-avatar">
               <v-img v-if="getCurrentUser()?.path_gambar_profile"
                 :src="getProfileImageUrl(getCurrentUser()?.path_gambar_profile)" :alt="currentUserName" cover />
-              <v-icon v-else color="#E6C766">mdi-account-circle</v-icon>
+              <v-icon v-else color="#F6D365">mdi-account-circle</v-icon>
             </v-avatar>
           </v-btn>
         </template>
@@ -78,7 +78,7 @@
       <!-- Desktop: tombol keluar -->
       <v-tooltip text="Keluar" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-logout" color="#E6C766" variant="text" class="d-none d-md-flex mr-2"
+          <v-btn icon="mdi-logout" color="#F6D365" variant="text" class="d-none d-md-flex mr-2"
             @click="handleLogout" :loading="isLoggingOut" v-bind="props"></v-btn>
         </template>
       </v-tooltip>
@@ -746,7 +746,7 @@ export default {
 
 /* ===== App bar ===== */
 .baba-appbar {
-  border-bottom: 1px solid rgba(201, 162, 39, 0.25) !important;
+  border-bottom: 1px solid rgba(230, 180, 34, 0.25) !important;
 }
 
 .appbar-city,
@@ -788,7 +788,7 @@ export default {
   gap: 2px;
   padding: 1px 6px;
   border-radius: 6px;
-  background: rgba(201, 162, 39, 0.18);
+  background: rgba(230, 180, 34, 0.18);
   color: var(--baba-gold-light);
   font-weight: 600;
   flex-shrink: 0;
