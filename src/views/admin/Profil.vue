@@ -17,7 +17,7 @@
                         <!-- Avatar dengan Upload Button -->
                         <div class="position-relative d-inline-block mb-4">
                             <v-avatar size="180" class="border-4 border-amber">
-                                <v-img :src="getProfileImageUrl()" :alt="userData?.nama" cover @error="onImageError">
+                                <v-img :src="fotoGagal ? defaultProfileImage : getProfileImageUrl()" :alt="userData?.nama" cover @error="onImageError">
                                     <template v-slot:placeholder>
                                         <v-row class="fill-height ma-0" align="center" justify="center">
                                             <v-progress-circular indeterminate color="amber"></v-progress-circular>
@@ -312,6 +312,7 @@ export default {
 
     data() {
         return {
+            fotoGagal: false, // foto profil gagal dimuat → pakai avatar inisial
             dialogPassword: false,
             formPasswordValid: false,
             isChangePasswordLoading: false,
@@ -595,8 +596,9 @@ export default {
             return this.defaultProfileImage;
         },
 
-        onImageError(event) {
-            event.target.src = this.defaultProfileImage;
+        // v-img mengirim src (teks), bukan event → tandai gagal supaya avatar inisial dipakai
+        onImageError() {
+            this.fotoGagal = true;
         },
 
         calculateAge() {

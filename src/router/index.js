@@ -210,13 +210,18 @@ const routes = [
         },
       },
       {
-        path: "Tutorial",
-        name: "Tutorial",
-        component: () => import("@/views/admin/Tutorial.vue"),
+        path: "panduan",
+        name: "panduan",
+        component: () => import("@/views/admin/Panduan.vue"),
         meta: {
-          title: "Tutorial || BABA PARFUME",
+          title: "Panduan || BABA PARFUME",
           requiresAuth: true,
         },
+      },
+      {
+        // Menu Tutorial lama diganti Panduan
+        path: "tutorial",
+        redirect: "/admin/panduan",
       },
       {
         path: "Downline",

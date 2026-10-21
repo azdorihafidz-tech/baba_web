@@ -33,6 +33,9 @@
     </div>
 
     <template v-slot:append>
+      <!-- Panduan cara pakai halaman yang sedang dibuka -->
+      <CaraPakai />
+
       <!-- Desktop: tombol aksi terpisah -->
       <div class="d-none d-md-flex align-center">
         <v-tooltip text="Info Header" location="bottom">
@@ -163,8 +166,10 @@ import { API_URL, FILE_URL } from "@/config";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
+import CaraPakai from "@/components/panduan/CaraPakai.vue";
 
 export default {
+  components: { CaraPakai },
   setup() {
     const app = useAppStore();
     return { app };
@@ -364,13 +369,9 @@ export default {
     },
 
     // Handle header image loading errors - DITAMBAHKAN
-    onHeaderImageError(event) {
-
-      if (this.headerData?.foto_ruang_kota && event.target.src.includes('https://')) {
-        const httpUrl = event.target.src.replace(`${FILE_URL}/`, `${FILE_URL}/`);
-        event.target.src = httpUrl;
-      } else {
-      }
+    // v-img mengirim src (teks), bukan event; cukup dicatat agar tidak error saat foto cabang hilang.
+    onHeaderImageError(src) {
+      console.warn("Foto cabang gagal dimuat:", src);
     },
 
     // Handle successful image load - DITAMBAHKAN

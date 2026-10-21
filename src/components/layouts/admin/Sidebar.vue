@@ -96,7 +96,7 @@ export default {
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
           ["mdi-chat", "Chat", "/admin/chat"],
-          ["mdi-book-open", "Tutorial", "/admin/tutorial"],
+          ["mdi-book-open-page-variant", "Panduan", "/admin/panduan"],
         ],
       },
       nonSuperadminMenus: [
@@ -106,7 +106,7 @@ export default {
         "Akun Belum Approve",
         "Store",
         "Chat",
-        "Tutorial",
+        "Panduan",
         "Struktur Akun",
 
       ],
