@@ -1,89 +1,85 @@
 <template>
-  <v-app-bar color="#0d0d0d" flat>
+  <v-app-bar color="#141414" flat class="baba-appbar" :height="$vuetify.display.smAndDown ? 60 : 64">
     <!-- tombol buka drawer - disembunyikan di mobile -->
-    <v-app-bar-nav-icon @click="this.app.drawer = !this.app.drawer" color="#d4af37" class="d-none d-md-flex">
+    <v-app-bar-nav-icon @click="this.app.drawer = !this.app.drawer" color="#F6D365" class="d-none d-md-flex">
     </v-app-bar-nav-icon>
 
-    <!-- Gambar Header Avatar - DITAMBAHKAN -->
-    <div v-if="headerData?.foto_ruang_kota" class="mr-3">
-      <v-avatar size="40" class="border-2 border-amber">
+    <!-- Foto ruang kota (cabang) -->
+    <div v-if="headerData?.foto_ruang_kota" class="ml-3 ml-md-1 mr-3">
+      <v-avatar :size="$vuetify.display.smAndDown ? 36 : 40" class="appbar-city">
         <v-img :src="getHeaderImageUrl(headerData.foto_ruang_kota)" :alt="`Logo ${headerData.code}`"
           @error="onHeaderImageError" @load="onHeaderImageLoad" cover />
       </v-avatar>
     </div>
 
-    <!-- Judul dengan Code -->
-    <v-app-bar-title class="d-flex align-center">
-      <div class="d-flex flex-column">
-        <span class="text-h6 font-weight-bold" style="color: #d4af37; letter-spacing: 1px;">
-          BABA PARFUME
+    <!-- Judul + info cabang & user -->
+    <div class="appbar-title" :class="{ 'ml-3': !headerData?.foto_ruang_kota }">
+      <div class="appbar-brand">BABA PARFUME</div>
+      <div v-if="!isLoadingHeader && (headerData?.code || currentUserName)" class="appbar-meta">
+        <span v-if="headerData?.code" class="appbar-chip">
+          <v-icon size="12">mdi-map-marker</v-icon>{{ headerData.code }}
         </span>
-        <div v-if="(headerData?.code || currentUserName) && !isLoadingHeader" class="d-flex align-center mt-n1">
-          <span v-if="headerData?.code" class="text-caption font-weight-medium"
-            style="color: #f4e47c; margin-right: 8px;">
-            📍 {{ headerData.code }}
-          </span>
-          <span v-if="headerData?.code && currentUserName" class="text-caption" style="color: #d4af37;">
-            |
-          </span>
-          <span v-if="currentUserName" class="text-caption font-weight-medium" style="color: #d4af37;">
-            👤 {{ currentUserName }}
-          </span>
-          <!-- DITAMBAHKAN: Menampilkan mvo_type_id -->
-          <span v-if="currentUserMvoTypeName" class="text-caption font-weight-medium"
-            style="color: #f4e47c; margin-left: 8px;">
-            🏷️ {{ currentUserMvoTypeName }}
-          </span>
-          <span v-else-if="isLoadingMvoType" class="text-caption" style="color: #f4e47c; margin-left: 8px;">
-            <v-progress-circular indeterminate size="10" width="2" color="amber" class="mr-1"></v-progress-circular>
-          </span>
-        </div>
-        <span v-if="isLoadingHeader" class="text-caption" style="color: #d4af37;">
-          <v-progress-circular indeterminate size="12" width="2" color="amber" class="mr-1"></v-progress-circular>
-          Loading code & gambar...
+        <span v-if="currentUserName" class="appbar-user">{{ currentUserName }}</span>
+        <span v-if="currentUserMvoTypeName" class="appbar-role d-none d-sm-inline">
+          · {{ currentUserMvoTypeName }}
         </span>
+        <v-progress-circular v-else-if="isLoadingMvoType" indeterminate size="10" width="2" color="#F6D365"
+          class="ml-1"></v-progress-circular>
       </div>
-    </v-app-bar-title>
+      <div v-if="isLoadingHeader" class="appbar-meta">
+        <v-progress-circular indeterminate size="10" width="2" color="#F6D365" class="mr-1"></v-progress-circular>
+        Memuat data cabang...
+      </div>
+    </div>
 
     <template v-slot:append>
-      <!-- Profile Button -->
-      <v-tooltip text="Profil Saya" location="bottom">
+      <!-- Desktop: tombol aksi terpisah -->
+      <div class="d-none d-md-flex align-center">
+        <v-tooltip text="Info Header" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn icon="mdi-information-outline" color="#F6D365" variant="text" size="small" class="mr-1"
+              @click="showHeaderInfo" v-bind="props"></v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip text="Refresh Header" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn icon="mdi-refresh" color="#F6D365" variant="text" size="small" class="mr-1"
+              @click="refreshHeaderData" :loading="isRefreshing" v-bind="props"></v-btn>
+          </template>
+        </v-tooltip>
+      </div>
+
+      <!-- Foto profil: di HP sekaligus menu aksi -->
+      <v-menu location="bottom end" offset="8">
         <template v-slot:activator="{ props }">
-          <v-btn icon color="#d4af37" @click="goToProfile" v-bind="props" size="small" class="mr-2">
-            <v-badge v-if="getCurrentUser()?.path_gambar_profile" dot color="success" location="bottom right">
-              <v-avatar size="32">
-                <v-img :src="getProfileImageUrl(getCurrentUser()?.path_gambar_profile)" :alt="currentUserName" cover />
-              </v-avatar>
-            </v-badge>
-            <v-icon v-else>mdi-account-circle</v-icon>
+          <v-btn icon variant="text" size="small" class="mr-1 mr-md-2" v-bind="props" aria-label="Menu akun">
+            <v-avatar size="34" class="appbar-avatar">
+              <v-img v-if="getCurrentUser()?.path_gambar_profile"
+                :src="getProfileImageUrl(getCurrentUser()?.path_gambar_profile)" :alt="currentUserName" cover />
+              <v-icon v-else color="#F6D365">mdi-account-circle</v-icon>
+            </v-avatar>
           </v-btn>
         </template>
-      </v-tooltip>
+        <v-list density="comfortable" min-width="220" class="py-1">
+          <v-list-item v-if="currentUserName" :title="currentUserName"
+            :subtitle="currentUserMvoTypeName || headerData?.code || ''" class="mb-1"></v-list-item>
+          <v-divider class="mb-1"></v-divider>
+          <v-list-item prepend-icon="mdi-account-outline" title="Profil Saya" @click="goToProfile"></v-list-item>
+          <v-list-item prepend-icon="mdi-information-outline" title="Info Cabang" class="d-md-none"
+            @click="showHeaderInfo"></v-list-item>
+          <v-list-item prepend-icon="mdi-refresh" title="Muat Ulang Data" class="d-md-none"
+            @click="refreshHeaderData"></v-list-item>
+          <v-divider class="my-1"></v-divider>
+          <v-list-item prepend-icon="mdi-logout" title="Keluar" base-color="error" @click="handleLogout"
+            :disabled="isLoggingOut"></v-list-item>
+        </v-list>
+      </v-menu>
 
-      <!-- Tombol Detail header -->
-      <v-tooltip text="Info Header" location="bottom">
+      <!-- Desktop: tombol keluar -->
+      <v-tooltip text="Keluar" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-information" color="#d4af37" @click="showHeaderInfo" v-bind="props" size="small"
-            class="mr-2">
-          </v-btn>
-        </template>
-      </v-tooltip>
-
-
-      <!-- Refresh Button -->
-      <v-tooltip text="Refresh Header" location="bottom">
-        <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-refresh" color="#d4af37" @click="refreshHeaderData" v-bind="props" :loading="isRefreshing"
-            size="small" class="mr-2">
-          </v-btn>
-        </template>
-      </v-tooltip>
-
-      <!-- Logout Button -->
-      <v-tooltip text="Logout" location="bottom">
-        <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-logout" color="#d4af37" @click="handleLogout" v-bind="props" :loading="isLoggingOut">
-          </v-btn>
+          <v-btn icon="mdi-logout" color="#F6D365" variant="text" class="d-none d-md-flex mr-2"
+            @click="handleLogout" :loading="isLoggingOut" v-bind="props"></v-btn>
         </template>
       </v-tooltip>
     </template>
@@ -149,8 +145,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- ikon tambahan -->
-    <i class="fa fa-share-alt-square" aria-hidden="true" style="color:#d4af37; font-size:20px; margin-left:10px;"></i>
 
     <!-- Snackbar for messages -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000" location="top">
@@ -748,5 +742,70 @@ export default {
 
 .header-loading {
   animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== App bar ===== */
+.baba-appbar {
+  border-bottom: 1px solid rgba(230, 180, 34, 0.25) !important;
+}
+
+.appbar-city,
+.appbar-avatar {
+  border: 1.5px solid var(--baba-gold);
+}
+
+.appbar-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+  line-height: 1.2;
+}
+
+.appbar-brand {
+  color: var(--baba-gold-light);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.appbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.appbar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(230, 180, 34, 0.18);
+  color: var(--baba-gold-light);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.appbar-user {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appbar-role {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 599.98px) {
+  .appbar-brand {
+    font-size: 0.95rem;
+  }
 }
 </style>

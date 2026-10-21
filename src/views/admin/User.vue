@@ -5,12 +5,12 @@
   <div class="mb-4">
     <v-btn class="text-dark font-semibold" @click="openAddDialog()" style="
     background: linear-gradient(135deg, #000000, #1a1a1a);
-    color: #FFD700;
-    border: 2px solid #FFD700;
+    color: #E6B422;
+    border: 2px solid #E6B422;
     border-radius: 12px;
     padding: 10px 18px;
   ">
-      <v-icon start style="color: #FFD700;">mdi-account-plus</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-account-plus</v-icon>
       <span class="ml-2">Tambah User</span>
     </v-btn>
   </div>
@@ -115,7 +115,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-account-search</v-icon>
@@ -217,7 +217,7 @@
   <v-dialog v-model="dialog.show" persistent :width="$vuetify.display.mobile ? '95%' : '900'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">
+        <v-icon class="mr-2" style="color: #E6B422;">
           {{ isEditMode ? 'mdi-account-edit' : 'mdi-account-plus' }}
         </v-icon>
         <span class="dialog-title">{{ isEditMode ? 'EDIT DATA USER' : 'TAMBAH DATA USER' }}</span>
@@ -567,7 +567,7 @@ export default {
       this.loadItems();
     },
 
-    getAuthorityColor() { return "#FFD700"; },
+    getAuthorityColor() { return "#E6B422"; },
     getAuthorityTextColor() { return "white"; },
 
     getJabatanNameById(id) {
@@ -950,19 +950,19 @@ export default {
   padding: 22px 18px;
   margin-bottom: 26px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 215, 0, 0.4);
+  border: 1px solid rgba(230, 180, 34, 0.4);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .box-glass-title {
   font-size: 14px;
   font-weight: bold;
-  color: #FFD700;
+  color: #E6B422;
   margin-bottom: 14px;
 }
 
 .input-box {
-  border: 2px solid #FFD700;
+  border: 2px solid #E6B422;
   border-radius: 14px;
   padding: 20px 16px 16px 16px;
   margin-top: 16px;
@@ -978,7 +978,7 @@ export default {
   padding: 0 10px;
   font-size: 13px;
   font-weight: 700;
-  color: #FFD700;
+  color: #E6B422;
   letter-spacing: 1px;
 }
 
@@ -987,22 +987,22 @@ export default {
 }
 
 :deep(.v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
 /* Freeze kolom Actions (kolom terakhir) ke kanan */
 :deep(.custom-data-table table > thead > tr > th:last-child),
 :deep(.custom-data-table table > tbody > tr > td:last-child) {
-  position: sticky;
+  position: sticky !important;
   right: 0;
   z-index: 3;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
 }
 
 :deep(.custom-data-table table > thead > tr > th:last-child) {
-  background-color: #888888 !important;
+  background-color: var(--baba-gold-soft) !important;
   z-index: 4;
 }
 
@@ -1027,13 +1027,13 @@ export default {
 }
 
 .mobile-user-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -1088,10 +1088,10 @@ export default {
 }
 
 .dialog-header {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
-  color: #FFD700 !important;
+  background: var(--baba-ink) !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
   text-align: center;
@@ -1126,11 +1126,11 @@ export default {
 :deep(.v-text-field input:required),
 :deep(.v-select input:required),
 :deep(.v-autocomplete input:required) {
-  border-left: 3px solid #FFD700;
+  border-left: 3px solid #E6B422;
 }
 
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

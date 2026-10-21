@@ -29,7 +29,7 @@
 
         <!-- Section: Top Star (Cards) -->
         <v-card-title class="d-flex align-center">
-            <v-icon class="mr-2" color="#FFD700">mdi-trophy</v-icon>
+            <v-icon class="mr-2" color="#E6B422">mdi-trophy</v-icon>
             Top Rank
         </v-card-title>
         <v-card-text>
@@ -485,7 +485,7 @@
         <!-- Section: Top Star -->
         <div class="mb-4">
             <div class="d-flex align-center mb-2">
-                <v-icon class="mr-2" color="#FFD700">mdi-trophy</v-icon>
+                <v-icon class="mr-2" color="#E6B422">mdi-trophy</v-icon>
                 <h2 class="text-h6 font-weight-bold">Top Rank</h2>
             </div>
             <v-row dense>
@@ -1573,7 +1573,7 @@ export default {
             this.profilePreviewDialog = true;
         },
         getCardGradient(index) {
-            if (index === 0) return 'background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);';
+            if (index === 0) return 'background: linear-gradient(135deg, #E6B422 0%, #B8860B 100%);';
             if (index === 1) return 'background: linear-gradient(135deg, #C0C0C0 0%, #757575 100%);';
             if (index === 2) return 'background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);';
             return 'background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);';
@@ -1851,12 +1851,12 @@ export default {
 
 :deep(.v-data-table__th) {
     background-color: #888888 !important;
-    color: #FFD700 !important;
+    color: #E6B422 !important;
     font-weight: bold;
 }
 
 .hover-card:hover {
-    border-color: #FFD700 !important;
+    border-color: #E6B422 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 </style>

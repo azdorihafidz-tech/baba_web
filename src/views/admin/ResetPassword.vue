@@ -2,18 +2,18 @@
   <v-container fluid class="login-container">
     <v-row justify="center" align="center" class="fullscreen-row">
       <v-col cols="12" sm="8" md="6" lg="4" xl="3">
-        <v-card class="pa-8 bg-grey-darken-4" elevation="24" rounded="xl" border="1px solid amber">
+        <v-card class="pa-8 bg-grey-darken-4 baba-dark-form" elevation="24" rounded="xl" border="1px solid amber">
           <div class="text-center mb-4">
             <v-avatar size="72" class="mb-3 border-2 border-amber">
               <v-img src="@/assets/newlogo.jpg" alt="Logo BABA PARFUM" />
             </v-avatar>
-            <h2 class="text-h5 font-weight-bold text-amber mb-1" style="letter-spacing: 2px;">RESET PASSWORD</h2>
+            <h2 class="text-h5 font-weight-bold text-amber mb-1" style="letter-spacing: 2px;">Reset Password</h2>
             <p class="text-grey-lighten-1 text-body-2">Buat password baru untuk akun Anda.</p>
           </div>
 
           <!-- Memeriksa token -->
           <div v-if="verifying" class="text-center py-6">
-            <v-progress-circular indeterminate color="amber" size="48" />
+            <v-progress-circular indeterminate color="#E6B422" size="48" />
             <p class="text-grey-lighten-1 mt-3">Memeriksa link...</p>
           </div>
 
@@ -26,24 +26,24 @@
           <v-form v-else @submit.prevent="submit">
             <v-text-field v-model="password" :type="visible ? 'text' : 'password'" label="Password Baru"
               prepend-inner-icon="mdi-lock" :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append-inner="visible = !visible" variant="outlined" class="mb-3" color="amber"
+              @click:append-inner="visible = !visible" variant="outlined" class="mb-3" color="#E6B422"
               base-color="grey-lighten-1" />
 
             <v-text-field v-model="passwordConfirmation" :type="visible ? 'text' : 'password'"
               label="Konfirmasi Password Baru" prepend-inner-icon="mdi-lock-check" variant="outlined" class="mb-3"
-              color="amber" base-color="grey-lighten-1" />
+              color="#E6B422" base-color="grey-lighten-1" />
 
             <v-btn type="submit" :loading="isLoading" class="mb-3 text-black font-weight-bold" size="large" block
-              rounded="lg" color="amber" style="letter-spacing: 1px;">
+              rounded="lg" color="#E6B422" style="letter-spacing: 1px;">
               <v-icon start>mdi-content-save</v-icon>
-              SIMPAN PASSWORD BARU
+              Simpan Password Baru
             </v-btn>
           </v-form>
 
           <v-divider class="my-4 border-opacity-25" />
 
           <div class="text-center">
-            <v-btn variant="text" color="amber" @click="goToLogin">
+            <v-btn variant="text" color="#E6B422" @click="goToLogin">
               <v-icon start>mdi-arrow-left</v-icon>
               Kembali ke Login
             </v-btn>
@@ -159,7 +159,7 @@ onMounted(verifyToken)
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #ffffff 20%, #c7b063 40%);
+  background: radial-gradient(900px 520px at 50% -8%, rgba(230, 180, 34, 0.28), transparent 62%), radial-gradient(700px 500px at 100% 110%, rgba(230, 180, 34, 0.12), transparent 60%), #0e0e0e;
   overflow-y: auto;
 }
 

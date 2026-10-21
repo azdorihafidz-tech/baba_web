@@ -4,18 +4,18 @@
 
     <div class="d-flex flex-wrap align-center top-action-bar" v-if="mvo_type_id === 'superadmin'">
       <v-btn class="text-white font-semibold add-mvo-btn" @click="exportExcel">
-        <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
+        <v-icon start style="color: #E6B422;">mdi-file-export</v-icon>
         <span class="ml-2">Excel</span>
       </v-btn>
 
       <!-- Import Dokumen via Excel (khusus Superadmin) -->
       <v-btn class="text-white font-semibold add-mvo-btn" @click="triggerImportExcel" :loading="isImporting">
-        <v-icon start style="color: #FFD700;">mdi-file-import</v-icon>
+        <v-icon start style="color: #E6B422;">mdi-file-import</v-icon>
         <span class="ml-2">Import Dokumen</span>
       </v-btn>
 
       <v-btn class="text-white font-semibold add-mvo-btn" @click="downloadImportTemplate">
-        <v-icon start style="color: #FFD700;">mdi-file-download</v-icon>
+        <v-icon start style="color: #E6B422;">mdi-file-download</v-icon>
         <span class="ml-2">Template</span>
       </v-btn>
     </div>
@@ -138,7 +138,7 @@
         </v-card-text>
       </v-card>
 
-      <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+      <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
       <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
         <v-icon size="64" color="grey">mdi-account-search</v-icon>
@@ -169,10 +169,10 @@
             <v-divider></v-divider>
             <v-card-text class="mobile-card-details">
               <div v-for="(section, si) in mobileMvoSections(item)" :key="si" class="mobile-info-section mb-3">
-                <v-row v-for="row in section.rows" :key="row.label" class="mb-2">
-                  <v-col cols="4" class="detail-label">{{ row.label }}:</v-col>
-                  <v-col cols="8" class="detail-value">{{ row.value }}</v-col>
-                </v-row>
+                <div v-for="row in section.rows" :key="row.label" class="kv-row">
+                  <span class="kv-label">{{ row.label }}</span>
+                  <span class="kv-value">{{ row.value }}</span>
+                </div>
               </div>
 
               <v-divider class="mb-3"></v-divider>
@@ -207,7 +207,7 @@
     <v-dialog v-model="isShowDialogDetail" persistent :width="$vuetify.display.mobile ? '95%' : '1400'">
       <v-card class="custom-dialog">
         <v-card-title class="dialog-header">
-          <v-icon class="mr-2" style="color: #FFD700;">mdi-information</v-icon>
+          <v-icon class="mr-2" style="color: #E6B422;">mdi-information</v-icon>
           <span class="dialog-title">DETAIL DATA</span>
           <v-chip v-if="detailNavigationHistory.length > 0" color="info" size="small" class="ml-3">
             Level {{ detailNavigationHistory.length + 1 }}
@@ -220,7 +220,7 @@
             <div class="detail-section mb-6">
               <div class="d-flex align-center justify-space-between mb-4">
                 <h3 class="detail-section-title mb-0 d-flex align-center">
-                  <v-icon class="mr-2" color="#FFD700">mdi-file-document-multiple</v-icon>
+                  <v-icon class="mr-2" color="#E6B422">mdi-file-document-multiple</v-icon>
                   <span>Dokumen</span>
                   <v-chip color="success" size="small" class="ml-3" v-if="getDocumentMvoId()">
                     {{ getDocumentMvoCode() }}
@@ -278,7 +278,7 @@
 
                 <template v-slot:item.star_icon="{ item }">
                   <div class="d-flex justify-center">
-                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
                       size="small">mdi-star</v-icon>
                   </div>
                 </template>
@@ -340,7 +340,7 @@
 
             <div class="detail-section mb-6" v-if="detailViewMode === 'children'">
               <h3 class="detail-section-title">
-                <v-icon class="mr-2" color="#FFD700">mdi-account-supervisor</v-icon>
+                <v-icon class="mr-2" color="#E6B422">mdi-account-supervisor</v-icon>
                 Detail Downline
                 <v-chip color="info" size="small" class="ml-3">{{ relatedMvoData.length }} Data</v-chip>
               </h3>
@@ -404,7 +404,7 @@
                 <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
-                <v-progress-linear v-if="isLoadingDocuments" indeterminate color="#FFD700"
+                <v-progress-linear v-if="isLoadingDocuments" indeterminate color="#E6B422"
                   class="mb-4"></v-progress-linear>
 
                 <div v-if="documentItems.length === 0 && !isLoadingDocuments" class="text-center pa-4">
@@ -579,7 +579,7 @@
     <v-dialog v-model="documentDialog.show" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
       <v-card class="custom-dialog">
         <v-card-title class="dialog-header">
-          <v-icon class="mr-2" style="color: #FFD700;">
+          <v-icon class="mr-2" style="color: #E6B422;">
             {{ isDocEditMode ? 'mdi-pencil' : 'mdi-plus-circle' }}
           </v-icon>
           <span class="dialog-title">{{ isDocEditMode ? 'EDIT DOKUMEN' : 'TAMBAH DOKUMEN' }}</span>
@@ -608,7 +608,7 @@
                 class="mb-2" :rules="[pointbintangRule]" required>
                 <template v-slot:selection="{ item }">
                   <div class="d-flex align-center">
-                    <v-icon color="#FFD700" class="mr-1" small>mdi-star</v-icon>
+                    <v-icon color="#E6B422" class="mr-1" small>mdi-star</v-icon>
                     <span>{{ item.value }} Bintang</span>
                   </div>
                 </template>
@@ -616,7 +616,7 @@
                   <v-list-item v-bind="props" :title="`${item.value} Bintang`">
                     <template v-slot:prepend>
                       <div class="d-flex align-center">
-                        <v-icon v-for="n in item.value" :key="n" color="#FFD700" small class="mr-1">mdi-star</v-icon>
+                        <v-icon v-for="n in item.value" :key="n" color="#E6B422" small class="mr-1">mdi-star</v-icon>
                       </div>
                     </template>
                   </v-list-item>
@@ -1835,7 +1835,7 @@ export default {
 }
 
 .detail-mobile-card {
-  border-left: 4px solid #FFD700;
+  border-left: 4px solid #E6B422;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -1916,31 +1916,30 @@ export default {
 
 .add-mvo-btn {
   background: linear-gradient(135deg, #000000, #1a1a1a);
-  color: #FFD700;
-  border: 2px solid #FFD700;
+  color: #E6B422;
+  border: 2px solid #E6B422;
   border-radius: 12px;
   padding: 10px 18px;
 }
 
 :deep(.custom-data-table) {
-  border: 1px solid #000000;
+  border: 1px solid var(--baba-border);
 }
 
 :deep(.custom-data-table .v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
-/* ===== Freeze 3 kolom terakhir (Detail, Print, Actions) ke kanan ===== */
+/* ===== Freeze 2 kolom terakhir (Detail, Actions) ke kanan ===== */
 /* Lebar tetap supaya offset freeze antar kolom akurat */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
-  position: sticky;
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
+  /* !important: Vuetify memberi td position: relative, sehingga sel tidak ikut terkunci */
+  position: sticky !important;
   z-index: 3;
   box-sizing: border-box;
   width: 80px;
@@ -1948,7 +1947,7 @@ export default {
   max-width: 80px;
 }
 
-/* Offset menumpuk dari kanan: Actions (0) → Print (80) → Detail (160) */
+/* Offset menumpuk dari kanan: Actions (0) → Detail (80) */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)) {
   right: 0;
@@ -1957,39 +1956,31 @@ export default {
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
   right: 80px;
-}
-
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
-  right: 160px;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
 }
 
 /* Background opaque agar kolom yang ter-scroll tidak menembus ke belakang */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)) {
-  background-color: #888888 !important;
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)) {
+  background-color: var(--baba-gold-soft) !important;
   z-index: 4;
 }
 
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
   background-color: #ffffff !important;
 }
 
 :deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(3)) {
+:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(2)) {
   background-color: #f8f9fa !important;
 }
 
 .dialog-header {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
-  color: #FFD700 !important;
+  background: var(--baba-ink) !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
 }
@@ -2019,13 +2010,13 @@ export default {
 }
 
 :deep(.custom-detail-table) {
-  border: 1px solid #FFD700;
+  border: 1px solid #E6B422;
   margin-top: 16px;
 }
 
 :deep(.custom-detail-table .v-data-table__th) {
   background-color: #1a1a1a !important;
-  color: #FFD700 !important;
+  color: #E6B422 !important;
   font-weight: bold;
   text-align: center;
 }
@@ -2047,11 +2038,94 @@ export default {
 }
 
 :deep(.v-text-field .v-field--variant-outlined .v-field__outline) {
-  border-color: #FFD700;
+  border-color: #E6B422;
 }
 
 :deep(.v-text-field .v-field--focused .v-field__outline) {
   border-color: #1a1a1a;
   border-width: 2px;
+}
+
+/* ===== HP: kartu akun ===== */
+.mobile-header-card,
+.mobile-mvo-card {
+  border: 1px solid var(--baba-border);
+  border-radius: var(--baba-radius) !important;
+  box-shadow: var(--baba-shadow) !important;
+}
+
+.mobile-header-card :deep(.v-card-text) {
+  padding: 12px;
+}
+
+.mobile-card-header {
+  padding: 12px 14px !important;
+}
+
+.mobile-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.mobile-mvo-name {
+  color: var(--baba-text);
+  line-height: 1.3;
+}
+
+.mobile-mvo-code {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--baba-gold-dark);
+  letter-spacing: 0.02em;
+}
+
+.mobile-card-expanded {
+  border-color: var(--baba-gold) !important;
+}
+
+.mobile-card-details {
+  padding: 8px 14px 14px !important;
+}
+
+.kv-row {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--baba-border);
+  font-size: 0.875rem;
+}
+
+.kv-row:last-child {
+  border-bottom: none;
+}
+
+.kv-label {
+  color: var(--baba-muted);
+}
+
+.kv-value {
+  color: var(--baba-text);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.mobile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mobile-actions .v-btn {
+  margin: 0 !important;
 }
 </style>

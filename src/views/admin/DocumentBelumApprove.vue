@@ -4,7 +4,7 @@
 
     <!-- Export Button (optional) -->
     <v-btn class="text-white ml-2 font-semibold export-btn" @click="exportExcel" v-if="mvo_type_id === 'superadmin'">
-      <v-icon start style="color: #FFD700;">mdi-file-export</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-file-export</v-icon>
       <span class="ml-2">Excel</span>
     </v-btn>
 
@@ -44,7 +44,7 @@
 
             <template v-slot:item.star_icon="{ item }">
               <div class="d-flex justify-center">
-                <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
                   size="small">
                   mdi-star
                 </v-icon>
@@ -158,7 +158,7 @@
         </v-card-text>
       </v-card>
 
-      <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+      <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
       <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
         <v-icon size="64" color="grey">mdi-file-document-off</v-icon>
@@ -177,7 +177,7 @@
 
             <v-col cols="8" class="pl-3">
               <div class="mobile-document-name">
-                <strong>{{ item.file_name }}</strong>
+                <strong>{{ item.mvo?.nama || item.file_name }}</strong>
               </div>
               <div class="mobile-document-code">
                 <strong>{{ getMvoCodeById(item.mvo_id) }}</strong>
@@ -245,7 +245,7 @@
                   <v-col cols="12" class="detail-label mb-1">Visualisasi Star:</v-col>
                   <v-col cols="12">
                     <div class="star-display">
-                      <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#FFD700' : '#e0e0e0'"
+                      <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
                         size="small">
                         mdi-star
                       </v-icon>
@@ -589,6 +589,11 @@ export default {
     },
 
     getMvoCodeById(mvoId) {
+      // Kode diambil dari relasi `mvo` yang sudah ikut di data dokumen.
+      // /api/mvo berhalaman (10 data), jadi allMvoData tidak memuat semua MVO;
+      // sebelumnya kebanyakan dokumen tampil "Unknown" dan tidak bisa di-approve.
+      const doc = this.datatable.items.find(d => d.mvo_id == mvoId && d.mvo);
+      if (doc) return doc.mvo.code;
       const mvo = this.allMvoData.find(item => item.id == mvoId);
       return mvo ? mvo.code : 'Unknown';
     },
@@ -1054,20 +1059,20 @@ export default {
 
 .export-btn {
   background: linear-gradient(135deg, #000000, #1a1a1a);
-  color: #FFD700;
-  border: 2px solid #FFD700;
+  color: #E6B422;
+  border: 2px solid #E6B422;
   border-radius: 12px;
   padding: 10px 18px;
   margin-bottom: 20px;
 }
 
 :deep(.custom-data-table) {
-  border: 1px solid #000000;
+  border: 1px solid var(--baba-border);
 }
 
 :deep(.custom-data-table .v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
@@ -1085,14 +1090,14 @@ export default {
 /* Freeze kolom Actions (kolom terakhir) ke kanan */
 :deep(.custom-data-table table > thead > tr > th:last-child),
 :deep(.custom-data-table table > tbody > tr > td:last-child) {
-  position: sticky;
+  position: sticky !important;
   right: 0;
   z-index: 3;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
 }
 
 :deep(.custom-data-table table > thead > tr > th:last-child) {
-  background-color: #888888 !important;
+  background-color: var(--baba-gold-soft) !important;
   z-index: 4;
 }
 
@@ -1124,13 +1129,13 @@ export default {
 }
 
 .mobile-document-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -1226,7 +1231,7 @@ export default {
 }
 
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

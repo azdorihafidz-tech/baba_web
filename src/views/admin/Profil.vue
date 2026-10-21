@@ -98,10 +98,11 @@
                                 <span v-if="!$vuetify.display.smAndDown">Ganti Password</span>
                             </v-btn>
 
-                            <v-chip variant="flat" color="green" text-color="grey-darken-4"
+                            <v-chip variant="flat" :color="isAktif ? 'success' : 'grey'"
                                 :size="$vuetify.display.smAndDown ? 'x-small' : 'small'">
-                                <v-icon icon="mdi-check-circle" size="14" class="mr-1"></v-icon>
-                                {{ userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif' }}
+                                <v-icon :icon="isAktif ? 'mdi-check-circle' : 'mdi-close-circle'" size="14"
+                                    class="mr-1"></v-icon>
+                                {{ isAktif ? 'Aktif' : 'Tidak Aktif' }}
                             </v-chip>
 
                         </div>
@@ -214,7 +215,7 @@
 
                                             <v-col cols="12" md="6">
                                                 <v-text-field
-                                                    :value="userData.aktivasi === '1' ? 'Aktif' : 'Tidak Aktif'"
+                                                    :value="isAktif ? 'Aktif' : 'Tidak Aktif'"
                                                     label="Status Akun" prepend-inner-icon="mdi-check-circle"
                                                     variant="outlined"
                                                     :color="userData.aktivasi === '1' ? 'success' : 'error'" readonly
@@ -359,6 +360,10 @@ export default {
     },
 
     computed: {
+        // aktivasi dari API berupa angka (1), bukan teks ('1')
+        isAktif() {
+            return String(this.userData?.aktivasi) === '1';
+        },
         defaultProfileImage() {
             return 'https://ui-avatars.com/api/?name=' +
                 encodeURIComponent(this.userData?.nama || 'User') +

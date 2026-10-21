@@ -60,7 +60,7 @@ export default defineConfig({
         name: "BABA PARFUME",
         short_name: "BABA PARFUME",
         description: "APLIKASI PENDATAAN AKUN MEMBER BABA PARFUME",
-        theme_color: "rgba(145, 153, 22, 1)",
+        theme_color: "#141414",
         background_color: "#ffffff",
         display: "standalone",
         icons: [

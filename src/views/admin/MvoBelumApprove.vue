@@ -72,7 +72,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="loading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="loading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="filteredItems.length === 0 && !loading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-account-search</v-icon>
@@ -359,7 +359,11 @@ export default {
       const uplineVal = item[`upline_${level}`];
 
       if (approvalVal && approvalVal !== '-' && approvalVal !== null) {
-        return this.getNamaByNomorId(approvalVal);
+        // Yang approve di level ini adalah upline level ini (dicek di backend),
+        // jadi namanya diambil dari "KODE - Nama". Daftar /api/mvo hanya memuat
+        // satu halaman, sehingga pencarian by id sering gagal dan menampilkan angka.
+        const namaUpline = uplineVal && uplineVal !== '-' ? String(uplineVal).split(' - ').slice(1).join(' - ').trim() : '';
+        return namaUpline || this.getNamaByNomorId(approvalVal);
       }
 
       if (!uplineVal || uplineVal === '-') {
@@ -482,8 +486,8 @@ export default {
 }
 
 :deep(.v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
@@ -521,13 +525,13 @@ export default {
 }
 
 .mobile-mvo-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -581,7 +585,7 @@ export default {
 }
 
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

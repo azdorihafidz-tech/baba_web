@@ -5,12 +5,12 @@
   <div class="mb-4">
     <v-btn class="text-white font-semibold" @click="showDialogFormAddJabatan()" style="
     background: linear-gradient(135deg, #000000, #1a1a1a);
-    color: #FFD700;
-    border: 2px solid #FFD700;
+    color: #E6B422;
+    border: 2px solid #E6B422;
     border-radius: 12px;
     padding: 10px 18px;
   ">
-      <v-icon start style="color: #FFD700;">mdi-pen-plus</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-pen-plus</v-icon>
       <span class="ml-2">Tambah Jabatan</span>
     </v-btn>
   </div>
@@ -61,7 +61,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-briefcase-search</v-icon>
@@ -141,7 +141,7 @@
   <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-plus-circle</v-icon>
         <span class="dialog-title">TAMBAH DATA JABATAN</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -173,7 +173,7 @@
   <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-pencil</v-icon>
         <span class="dialog-title">EDIT DATA JABATAN</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -591,8 +591,8 @@ export default {
 }
 
 :deep(.v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
@@ -615,13 +615,13 @@ export default {
 }
 
 .mobile-jabatan-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .mobile-card-header {
@@ -689,10 +689,10 @@ export default {
 }
 
 .dialog-header {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
-  color: #FFD700 !important;
+  background: var(--baba-ink) !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
   text-align: center;

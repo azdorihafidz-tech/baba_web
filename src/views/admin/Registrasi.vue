@@ -2,7 +2,7 @@
     <v-container fluid class="register-container">
         <v-row justify="center" align="center" class="fullscreen-row">
             <v-col cols="12" sm="8" md="6" lg="4" xl="3">
-                <v-card :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
+                <v-card class="baba-dark-form" :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
                     <!-- Logo -->
                     <div class="text-center logo-section">
                         <v-avatar :size="logoSize" class="mb-3 border-2 border-amber">
@@ -19,43 +19,43 @@
                             <div class="input-box-title">DATA PRIBADI</div>
                             <v-text-field v-model="inputRegister.no_id" label="No ID" density="compact"
                                 prepend-inner-icon="mdi-card-account-details" variant="outlined" :class="inputClass"
-                                color="amber" base-color="grey-lighten-1" maxlength="16" />
+                                color="#E6B422" base-color="grey-lighten-1" maxlength="16" />
 
                             <v-text-field v-model="inputRegister.nama" label="Nama Lengkap" density="compact"
-                                prepend-inner-icon="mdi-account" variant="outlined" :class="inputClass" color="amber"
+                                prepend-inner-icon="mdi-account" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" />
 
                             <v-text-field v-model="inputRegister.nama_panggilan" label="Nama Panggilan"
                                 density="compact" prepend-inner-icon="mdi-account-outline" variant="outlined"
-                                :class="inputClass" color="amber" base-color="grey-lighten-1" />
+                                :class="inputClass" color="#E6B422" base-color="grey-lighten-1" />
 
                             <v-text-field v-model="inputRegister.tempat_lahir" label="Tempat Lahir" density="compact"
-                                prepend-inner-icon="mdi-map-marker" variant="outlined" :class="inputClass" color="amber"
+                                prepend-inner-icon="mdi-map-marker" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" />
 
                             <v-text-field v-model="inputRegister.tgl_lahir" label="Tanggal Lahir" density="compact"
-                                prepend-inner-icon="mdi-calendar" variant="outlined" :class="inputClass" color="amber"
+                                prepend-inner-icon="mdi-calendar" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" type="date" />
 
                             <v-text-field v-model="inputRegister.nohp" label="Nomor HP" density="compact"
-                                prepend-inner-icon="mdi-phone" variant="outlined" :class="inputClass" color="amber"
+                                prepend-inner-icon="mdi-phone" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" @input="validatePhone" />
 
                             <v-textarea v-model="inputRegister.alamat" label="Alamat Lengkap" density="compact"
-                                prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="amber"
+                                prepend-inner-icon="mdi-home" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" rows="2" auto-grow />
 
                             <v-select v-model="inputRegister.jenis_kelamin" label="Jenis Kelamin" density="compact"
                                 prepend-inner-icon="mdi-gender-male-female" variant="outlined"
                                 :items="jenisKelaminOptions" item-title="text" item-value="value" :class="inputClass"
-                                color="amber" base-color="grey-lighten-1" clearable />
+                                color="#E6B422" base-color="grey-lighten-1" clearable />
                         </div>
                         <div class="box-glass">
                             <div class="input-box-title">STRUKTUR UPLINE</div>
                             <v-select v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
                                 item-title="text" item-value="value" :return-object="false" density="compact"
                                 prepend-inner-icon="mdi-account-group" variant="outlined" :class="inputClass"
-                                color="amber" base-color="grey-lighten-1" clearable />
+                                color="#E6B422" base-color="grey-lighten-1" clearable />
 
 
                             <!-- CABANG -->
@@ -63,7 +63,7 @@
                             <v-select v-if="inputRegister.mvo_type_id" v-model="inputRegister.cabang"
                                 label="Cabang (Provinsi)" density="compact" prepend-inner-icon="mdi-map-marker"
                                 variant="outlined" :items="cabangOptions" item-title="text" item-value="value"
-                                :class="inputClass" color="amber" base-color="grey-lighten-1" clearable
+                                :class="inputClass" color="#E6B422" base-color="grey-lighten-1" clearable
                                 :loading="loadingProvinsi" @update:modelValue="onCabangChange" />
 
 
@@ -100,19 +100,19 @@
 
 
                             <v-text-field v-model="inputRegister.username" label="Username" density="compact"
-                                prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="amber"
+                                prepend-inner-icon="mdi-at" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" />
 
                             <v-text-field v-model="inputRegister.password" :type="visible ? 'text' : 'password'"
                                 density="compact" label="Password" prepend-inner-icon="mdi-lock"
                                 :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
                                 @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass"
-                                color="amber" base-color="grey-lighten-1" />
+                                color="#E6B422" base-color="grey-lighten-1" />
 
                             <!-- Upload Foto Profil -->
                             <v-file-input v-model="inputRegister.path_gambar_profile" label="Foto Profil"
                                 prepend-inner-icon="mdi-camera" accept="image/png, image/jpeg, image/jpg"
-                                variant="outlined" :class="inputClass" color="amber" base-color="grey-lighten-1"
+                                variant="outlined" :class="inputClass" color="#E6B422" base-color="grey-lighten-1"
                                 density="compact" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint
                                 @change="handleFotoProfileChange" />
                         </div>
@@ -122,9 +122,9 @@
 
 
                         <v-btn type="submit" :loading="isButtonLoading" :class="buttonClass" :size="buttonSize" block
-                            rounded="lg" color="amber" style="letter-spacing: 1px;">
+                            rounded="lg" color="#E6B422" style="letter-spacing: 1px;">
                             <v-icon start>mdi-account-plus</v-icon>
-                            DAFTAR SEKARANG
+                            Daftar Sekarang
                         </v-btn>
                     </v-form>
 
@@ -132,7 +132,7 @@
 
                     <div class="text-center">
                         <span :class="linkTextClass">Sudah punya akun? </span>
-                        <v-btn variant="text" color="amber" @click="goToLogin" :size="linkButtonSize">
+                        <v-btn variant="text" color="#E6B422" @click="goToLogin" :size="linkButtonSize">
                             Masuk sekarang
                         </v-btn>
                     </div>
@@ -872,19 +872,19 @@ export default {
     padding: 22px 18px;
     margin-bottom: 26px;
     border-radius: 18px;
-    border: 1px solid rgba(255, 215, 0, 0.4);
+    border: 1px solid rgba(230, 180, 34, 0.4);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .box-glass-title {
     font-size: 14px;
     font-weight: bold;
-    color: #FFD700;
+    color: #E6B422;
     margin-bottom: 14px;
 }
 
 .input-box {
-    border: 2px solid #FFD700;
+    border: 2px solid #E6B422;
     /* Garis kotak emas */
     border-radius: 14px;
     /* Sudut membulat */
@@ -901,7 +901,7 @@ export default {
     position: absolute;
     top: -12px;
     left: 18px;
-    background: #FFD700;
+    background: #E6B422;
     /* Samakan background dialog */
     padding: 0 10px;
     font-size: 13px;
@@ -920,7 +920,7 @@ export default {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #ffffff 20%, #c7b063 40%);
+    background: radial-gradient(900px 520px at 50% -8%, rgba(230, 180, 34, 0.28), transparent 62%), radial-gradient(700px 500px at 100% 110%, rgba(230, 180, 34, 0.12), transparent 60%), #0e0e0e;
     overflow-y: auto;
 }
 

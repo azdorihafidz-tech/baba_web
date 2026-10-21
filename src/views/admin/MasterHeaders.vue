@@ -4,12 +4,12 @@
   <div class="mb-4">
     <v-btn class="text-white font-semibold" @click="showDialogFormAddGambarHeader()" style="
     background: linear-gradient(135deg, #000000, #1a1a1a);
-    color: #FFD700;
-    border: 2px solid #FFD700;
+    color: #E6B422;
+    border: 2px solid #E6B422;
     border-radius: 12px;
     padding: 10px 18px;
   ">
-      <v-icon start style="color: #FFD700;">mdi-pen-plus</v-icon>
+      <v-icon start style="color: #E6B422;">mdi-pen-plus</v-icon>
       <span class="ml-2">Tambah Gambar Header</span>
     </v-btn>
   </div>
@@ -34,7 +34,7 @@
               <template v-slot:activator="{ props }">
                 <v-btn icon variant="text" @click="showImageDialog(item.path_gambar_header)" class="file-icon-btn"
                   v-bind="props">
-                  <v-icon size="32" color="#FFD700">mdi-file-image</v-icon>
+                  <v-icon size="32" color="#E6B422">mdi-file-image</v-icon>
                 </v-btn>
               </template>
             </v-tooltip>
@@ -85,7 +85,7 @@
       </v-card-text>
     </v-card>
 
-    <v-progress-linear v-if="isTableLoading" indeterminate color="#FFD700" class="mb-4"></v-progress-linear>
+    <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
     <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
       <v-icon size="64" color="grey">mdi-image-search</v-icon>
@@ -124,7 +124,7 @@
               <strong>{{ item.cabang || 'Cabang Tidak Tersedia' }}</strong>
             </div>
             <div class="mobile-header-preview">
-              <v-chip size="small" color="#FFD700" class="text-black">
+              <v-chip size="small" color="#E6B422" class="text-black">
                 <v-icon start size="small">mdi-camera</v-icon>
                 Header Image
               </v-chip>
@@ -202,7 +202,7 @@
   <v-dialog v-model="isShowDialogAdd" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-plus-circle</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-plus-circle</v-icon>
         <span class="dialog-title">TAMBAH DATA GAMBAR HEADER</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -242,7 +242,7 @@
   <v-dialog v-model="isShowDialogEdit" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
     <v-card class="custom-dialog">
       <v-card-title class="dialog-header">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-pencil</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-pencil</v-icon>
         <span class="dialog-title">EDIT DATA GAMBAR HEADER</span>
       </v-card-title>
       <v-card-text class="dialog-content">
@@ -300,7 +300,7 @@
   <v-dialog v-model="isShowDialogImage" :max-width="$vuetify.display.mobile ? '95%' : '800px'">
     <v-card>
       <v-card-title class="dialog-header text-center">
-        <v-icon class="mr-2" style="color: #FFD700;">mdi-image</v-icon>
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-image</v-icon>
         <span class="dialog-title">PREVIEW GAMBAR HEADER</span>
       </v-card-title>
       <v-card-text class="pa-4">
@@ -989,21 +989,21 @@ export default {
 }
 
 :deep(.v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
 /* Custom styling for file icon button */
 .file-icon-btn {
   background-color: #f5f5f5 !important;
-  border: 2px solid #FFD700 !important;
+  border: 2px solid #E6B422 !important;
   border-radius: 8px !important;
   transition: all 0.3s ease !important;
 }
 
 .file-icon-btn:hover {
-  background-color: #FFD700 !important;
+  background-color: #E6B422 !important;
   transform: scale(1.1);
 }
 
@@ -1022,13 +1022,13 @@ export default {
 }
 
 .mobile-header-card:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.2);
 }
 
 .mobile-card-expanded {
-  border-color: #FFD700 !important;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3) !important;
+  border-color: #E6B422 !important;
+  box-shadow: 0 4px 16px rgba(230, 180, 34, 0.3) !important;
 }
 
 .search-field-mobile {
@@ -1059,7 +1059,7 @@ export default {
 }
 
 .mobile-thumbnail:hover {
-  border-color: #FFD700;
+  border-color: #E6B422;
 }
 
 .mobile-header-title {
@@ -1102,8 +1102,8 @@ export default {
 }
 
 .mobile-image-detail:hover {
-  border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  border-color: #E6B422;
+  box-shadow: 0 4px 12px rgba(230, 180, 34, 0.3);
 }
 
 .mobile-detail-image {
@@ -1151,10 +1151,10 @@ export default {
 
 /* Custom Dialog Styling */
 .dialog-header {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
-  color: #FFD700 !important;
+  background: var(--baba-ink) !important;
+  color: #E6B422 !important;
   padding: 20px 24px !important;
-  border-bottom: 2px solid #FFD700;
+  border-bottom: 2px solid #E6B422;
   font-weight: bold;
   font-size: 18px;
   text-align: center;
@@ -1193,18 +1193,18 @@ export default {
 }
 
 .v-img:hover {
-  border-color: #FFD700;
+  border-color: #E6B422;
 }
 
 /* Custom styling untuk required fields */
 :deep(.v-text-field input:required),
 :deep(.v-textarea input:required) {
-  border-left: 3px solid #FFD700;
+  border-left: 3px solid #E6B422;
 }
 
 /* Loading state styling */
 :deep(.v-progress-circular) {
-  color: #FFD700 !important;
+  color: #E6B422 !important;
 }
 
 :deep(.v-progress-linear) {

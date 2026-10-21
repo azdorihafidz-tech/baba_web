@@ -2,7 +2,7 @@
   <v-container fluid class="login-container">
     <v-row justify="center" align="center" class="fullscreen-row">
       <v-col cols="12" sm="8" md="6" lg="4" xl="3">
-        <v-card :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
+        <v-card class="baba-dark-form" :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
           <!-- Logo -->
           <div class="text-center logo-section">
             <v-avatar :size="logoSize" class="mb-3 border-2 border-amber">
@@ -16,23 +16,23 @@
           <!-- Form -->
           <v-form @submit.prevent="handleLogin" :class="formClass">
             <v-text-field v-model="inputLogin.email" label="Username" prepend-inner-icon="mdi-account"
-              variant="outlined" :class="inputClass" color="amber" base-color="grey-lighten-1"
+              variant="outlined" :class="inputClass" color="#E6B422" base-color="grey-lighten-1"
               autocomplete="username" />
 
             <v-text-field v-model="inputLogin.password" :type="visible ? 'text' : 'password'" label="Password"
               prepend-inner-icon="mdi-lock" :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass" color="amber"
+              @click:append-inner="togglePasswordVisibility" variant="outlined" :class="inputClass" color="#E6B422"
               base-color="grey-lighten-1" autocomplete="current-password" />
 
             <v-btn type="submit" :loading="isButtonLoading" :class="buttonClass" :size="buttonSize" block rounded="lg"
-              color="amber" style="letter-spacing: 1px;">
+              color="#E6B422" style="letter-spacing: 1px;">
               <v-icon start>mdi-login</v-icon>
-              MASUK SEKARANG
+              Masuk Sekarang
             </v-btn>
           </v-form>
 
           <div class="text-center">
-            <v-btn variant="text" color="amber" @click="goToForgotPassword" :size="linkButtonSize">
+            <v-btn variant="text" color="#E6B422" @click="goToForgotPassword" :size="linkButtonSize">
               Lupa Password?
             </v-btn>
           </div>
@@ -42,7 +42,7 @@
           <!-- Register Link -->
           <div class="text-center">
             <span :class="linkTextClass">Belum punya akun? </span>
-            <v-btn variant="text" color="amber" @click="goToRegister" :size="linkButtonSize">
+            <v-btn variant="text" color="#E6B422" @click="goToRegister" :size="linkButtonSize">
               Daftar sekarang
             </v-btn>
           </div>
@@ -80,7 +80,7 @@
     <!-- <div class="music-controls d-flex align-center gap-2"> -->
     <!-- <v-menu offset-y max-height="400">
               <template v-slot:activator="{ props }">
-                <v-btn icon size="small" color="amber" v-bind="props" :loading="loadingSongs">
+                <v-btn icon size="small" color="#E6B422" v-bind="props" :loading="loadingSongs">
                   <v-icon>mdi-playlist-music</v-icon>
                 </v-btn>
               </template>
@@ -125,24 +125,24 @@
 </v-menu> -->
 
     <!-- Play/Pause Button -->
-    <!-- <v-btn icon size="small" color="amber" @click="togglePlay" :disabled="!currentSong">
+    <!-- <v-btn icon size="small" color="#E6B422" @click="togglePlay" :disabled="!currentSong">
               <v-icon>{{ isPlaying ? 'mdi-pause' : 'mdi-play' }}</v-icon>
             </v-btn> -->
 
     <!-- Volume Control -->
     <!-- <v-menu offset-y>
               <template v-slot:activator="{ props }">
-                <v-btn icon size="small" color="amber" v-bind="props">
+                <v-btn icon size="small" color="#E6B422" v-bind="props">
                   <v-icon>{{ volumeIcon }}</v-icon>
                 </v-btn>
               </template>
               <v-card width="200" class="pa-3" color="grey-darken-3">
                 <div class="d-flex align-center gap-2">
-                  <v-icon size="small" color="amber">mdi-volume-low</v-icon>
-                  <v-slider v-model="volume" min="0" max="100" step="1" color="amber" track-color="grey" hide-details
+                  <v-icon size="small" color="#E6B422">mdi-volume-low</v-icon>
+                  <v-slider v-model="volume" min="0" max="100" step="1" color="#E6B422" track-color="grey" hide-details
                     @update:model-value="updateVolume">
                   </v-slider>
-                  <v-icon size="small" color="amber">mdi-volume-high</v-icon>
+                  <v-icon size="small" color="#E6B422">mdi-volume-high</v-icon>
                 </div>
                 <div class="text-center text-caption text-white mt-2">
                   {{ volume }}%
@@ -154,7 +154,7 @@
 
     <!-- Progress Bar -->
     <!-- <div v-if="currentSong" class="mt-2">
-          <v-progress-linear :model-value="progress" color="amber" height="4" rounded @click="seekAudio"
+          <v-progress-linear :model-value="progress" color="#E6B422" height="4" rounded @click="seekAudio"
             style="cursor: pointer;">
           </v-progress-linear>
           <div class="d-flex justify-space-between text-caption text-grey-lighten-1 mt-1">
@@ -754,7 +754,7 @@ defineExpose({
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #ffffff 20%, #c7b063 40%);
+  background: radial-gradient(900px 520px at 50% -8%, rgba(230, 180, 34, 0.28), transparent 62%), radial-gradient(700px 500px at 100% 110%, rgba(230, 180, 34, 0.12), transparent 60%), #0e0e0e;
   overflow-y: auto;
 }
 
@@ -784,14 +784,14 @@ defineExpose({
   max-width: calc(100vw - 40px);
   z-index: 9999;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  border: 1px solid rgba(230, 180, 34, 0.3);
   transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .floating-music-player:hover {
-  border-color: rgba(251, 191, 36, 0.6);
-  box-shadow: 0 12px 48px rgba(251, 191, 36, 0.3);
+  border-color: rgba(230, 180, 34, 0.6);
+  box-shadow: 0 12px 48px rgba(230, 180, 34, 0.3);
   transform: translateY(-2px);
 }
 
@@ -830,15 +830,15 @@ defineExpose({
 }
 
 :deep(.v-list-item:hover) {
-  background-color: rgba(251, 191, 36, 0.1) !important;
+  background-color: rgba(230, 180, 34, 0.1) !important;
 }
 
 :deep(.v-list-item.bg-amber) {
-  background-color: rgb(251, 191, 36) !important;
+  background-color: rgb(230, 180, 34) !important;
 }
 
 :deep(.v-list-item.bg-amber:hover) {
-  background-color: rgb(245, 158, 11) !important;
+  background-color: rgb(184, 137, 15) !important;
 }
 
 /* Scrollbar Styles */
@@ -851,12 +851,12 @@ defineExpose({
 }
 
 :deep(.v-list::-webkit-scrollbar-thumb) {
-  background: rgba(251, 191, 36, 0.5);
+  background: rgba(230, 180, 34, 0.5);
   border-radius: 4px;
 }
 
 :deep(.v-list::-webkit-scrollbar-thumb:hover) {
-  background: rgba(251, 191, 36, 0.7);
+  background: rgba(230, 180, 34, 0.7);
 }
 
 @media (max-height: 600px) {

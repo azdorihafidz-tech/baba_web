@@ -21,7 +21,7 @@
 
                 <!-- TOTAL -->
                 <v-col cols="12" md="4">
-                    <v-card color="primary" dark @click="handleShowDetail('all_akun')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--gold"  @click="handleShowDetail('all_akun')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">
                                 mdi-account-multiple
@@ -38,7 +38,7 @@
 
                 <!-- APPROVED -->
                 <v-col cols="12" md="4">
-                    <v-card color="success" dark @click="handleShowDetail('total_approved_akun')"
+                    <v-card class="baba-stat baba-stat--success"  @click="handleShowDetail('total_approved_akun')"
                         style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">
@@ -56,7 +56,7 @@
 
                 <!-- PENDING -->
                 <v-col cols="12" md="4">
-                    <v-card color="orange" dark @click="handleShowDetail('total_pending_akun')" style="cursor:pointer;">
+                    <v-card class="baba-stat baba-stat--warning"  @click="handleShowDetail('total_pending_akun')" style="cursor:pointer;">
                         <v-card-text class="text-center">
                             <v-icon size="48" class="mb-2">
                                 mdi-clock-outline
@@ -224,7 +224,7 @@
             <v-row dense class="mb-3">
 
                 <v-col cols="4">
-                    <v-card color="primary" dark class="text-center" @click="handleShowDetail('all_akun')">
+                    <v-card  class="baba-stat baba-stat--gold text-center" @click="handleShowDetail('all_akun')">
                         <v-card-text class="pa-2">
                             <v-icon size="20">
                                 mdi-account-multiple
@@ -240,7 +240,7 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card color="success" dark class="text-center" @click="handleShowDetail('total_approved_akun')">
+                    <v-card  class="baba-stat baba-stat--success text-center" @click="handleShowDetail('total_approved_akun')">
                         <v-card-text class="pa-2">
                             <v-icon size="20">
                                 mdi-check-circle
@@ -256,7 +256,7 @@
                 </v-col>
 
                 <v-col cols="4">
-                    <v-card color="orange" dark class="text-center" @click="handleShowDetail('total_pending_akun')">
+                    <v-card  class="baba-stat baba-stat--warning text-center" @click="handleShowDetail('total_pending_akun')">
                         <v-card-text class="pa-2">
                             <v-icon size="20">
                                 mdi-clock-outline
@@ -498,23 +498,16 @@ export default {
             },
 
             // Array warna untuk card jabatan
+            // Palet hitam-emas (selaras tema), tetap cukup berbeda antar jabatan.
             jabatanColors: [
-                'primary',
-                'success',
-                'info',
-                'warning',
-                'error',
-                'purple',
-                'indigo',
-                'teal',
-                'cyan',
-                'pink',
-                'deep-purple',
-                'blue',
-                'green',
-                'amber',
-                'orange',
-                'deep-orange',
+                '#E6B422',
+                '#1F1F1F',
+                '#B8890F',
+                '#5C4A1E',
+                '#3A3A3A',
+                '#C9A96E',
+                '#8D6E2F',
+                '#2B2B2B',
             ],
 
             cabang: null,
@@ -862,7 +855,7 @@ export default {
 
 :deep(.v-data-table__th) {
     background-color: #888888 !important;
-    color: #FFD700 !important;
+    color: #E6B422 !important;
     font-weight: bold;
 }
 
