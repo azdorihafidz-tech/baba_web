@@ -228,10 +228,12 @@
         <div class="input-box">
           <div class="input-box-title">DATA PRIBADI</div>
           <v-row>
-            <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+            <!-- No ID dibuat otomatis saat verifikasi; saat edit boleh diubah manual (dicek format & keunikan) -->
+            <v-col v-if="isEditMode" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-text-field label="No ID" v-model="form.no_id" class="mb-2 mt-4" type="text" density="compact"
                 prepend-inner-icon="mdi-card-account-details" variant="outlined" color="amber"
-                base-color="grey-lighten-1" maxlength="16" />
+                base-color="grey-lighten-1" maxlength="16"
+                hint="Dibuat otomatis saat verifikasi. Ubah hanya bila perlu." persistent-hint />
             </v-col>
             <v-col :cols="$vuetify.display.mobile ? 12 : 6">
               <v-text-field label="Nama Lengkap" v-model="form.nama" class="mb-2 mt-4" density="compact"
@@ -280,6 +282,20 @@
                 item-value="value" :return-object="false" density="compact" prepend-inner-icon="mdi-account-group"
                 variant="outlined" color="amber" base-color="grey-lighten-1" clearable />
             </v-col>
+            <!-- Top Management: judul jabatan (mis. Head Office) + singkatan untuk label turunan (MVO HO) -->
+            <template v-if="isTopManagement">
+              <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+                <v-text-field label="Judul Jabatan (mis. Head Office)" v-model="form.jabatan_khusus" density="compact"
+                  prepend-inner-icon="mdi-briefcase" variant="outlined" color="amber" base-color="grey-lighten-1"
+                  maxlength="100" />
+              </v-col>
+              <v-col :cols="$vuetify.display.mobile ? 12 : 6">
+                <v-text-field label="Singkatan (mis. HO)" v-model="form.singkatan_jabatan" density="compact"
+                  prepend-inner-icon="mdi-format-letter-case-upper" variant="outlined" color="amber"
+                  base-color="grey-lighten-1" maxlength="20" hint="Dipakai untuk label bawahan, contoh: MVO HO"
+                  persistent-hint />
+              </v-col>
+            </template>
             <v-col v-if="form.mvo_type_id" :cols="$vuetify.display.mobile ? 12 : 6">
               <v-select label="Cabang (Provinsi)" v-model="form.cabang" :items="cabangOptions" item-title="text"
                 item-value="value" density="compact" prepend-inner-icon="mdi-map-marker" variant="outlined"
@@ -378,6 +394,8 @@ const CASCADE_LEVELS = [
 const buildEmptyForm = () => ({
   id: "",
   no_id: "",
+  jabatan_khusus: "",
+  singkatan_jabatan: "",
   nama: "",
   nama_panggilan: "",
   tempat_lahir: "",
@@ -481,6 +499,11 @@ export default {
   },
 
   computed: {
+    // Jabatan Top Management (TM) dipilih → tampilkan judul & singkatan jabatan
+    isTopManagement() {
+      const j = this.jabatanOptions.find(o => o.value == this.form.mvo_type_id);
+      return !!j && j.name === "TM";
+    },
     cascadeLevels: () => CASCADE_LEVELS,
 
     isEditMode() {
@@ -673,6 +696,7 @@ export default {
           this.jabatanOptions = response.data.data.map(item => ({
             text: item.jabatan,
             value: item.id,
+            name: item.name,
             level: Number(item.level),
           }));
           if (this.datatable.items.length > 0) {
@@ -785,6 +809,8 @@ export default {
         this.form.username = u.username || "";
         this.form.password = "";
         this.form.cabang = u.cabang || "";
+        this.form.jabatan_khusus = u.jabatan_khusus || "";
+        this.form.singkatan_jabatan = u.singkatan_jabatan || "";
         this.form.path_gambar_profile = null;
         if (u.path_gambar_profile) this.previewFotoProfile = u.path_gambar_profile;
 
@@ -842,7 +868,7 @@ export default {
 
       const formData = this.buildUserFormData();
       const requestConfig = {
-        headers: { "Content-Type": "multipart/form-data", Accept: "application/json" },
+        headers: { "Content-Type": "multipart/form-data", Accept: "application/json", Authorization: `Bearer ${localStorage.getItem("token") || Cookies.get("token") || ""}` },
         timeout: 30000,
       };
 
@@ -907,9 +933,9 @@ export default {
       axios.post(`${API_BASE}/user/aktivasi/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       })
-        .then(() => {
+        .then((response) => {
           this.loadItems();
-          this.showSnackbar("Status aktivasi berhasil diubah", "success");
+          this.showSnackbar(response.data?.message || "Status aktivasi berhasil diubah", "success");
         })
         .catch(error => { this.showSnackbar(error.response?.data?.message, "error"); })
         .finally(() => { this.isButtonLoading = false; });

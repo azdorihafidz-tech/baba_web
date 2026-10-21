@@ -17,10 +17,6 @@
                     <v-form @submit.prevent="handleRegister" :class="formClass">
                         <div class="input-box">
                             <div class="input-box-title">DATA PRIBADI</div>
-                            <v-text-field v-model="inputRegister.no_id" label="No ID" density="compact"
-                                prepend-inner-icon="mdi-card-account-details" variant="outlined" :class="inputClass"
-                                color="#E6B422" base-color="grey-lighten-1" maxlength="16" />
-
                             <v-text-field v-model="inputRegister.nama" label="Nama Lengkap" density="compact"
                                 prepend-inner-icon="mdi-account" variant="outlined" :class="inputClass" color="#E6B422"
                                 base-color="grey-lighten-1" />
@@ -621,7 +617,8 @@ export default {
                     this.jabatanOptions = response.data.data
                         .filter(item =>
                             item.jabatan !== 'MVO' &&
-                            item.jabatan !== '-'
+                            item.jabatan !== '-' &&
+                            item.name !== 'TM' // Top Management hanya dibuat superadmin
                         )
                         .map(item => ({
                             text: item.jabatan,

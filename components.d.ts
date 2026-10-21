@@ -20,6 +20,7 @@ declare module 'vue' {
     FMain: typeof import('./src/components/layouts/frontend/FMain.vue')['default']
     Footer: typeof import('./src/components/layouts/admin/Footer.vue')['default']
     Header: typeof import('./src/components/layouts/admin/Header.vue')['default']
+    KodeNoIdFields: typeof import('./src/components/ui/KodeNoIdFields.vue')['default']
     Main: typeof import('./src/components/layouts/admin/Main.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

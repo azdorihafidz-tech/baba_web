@@ -87,7 +87,7 @@
 
           <div class="detail-name">{{ selected.nama }}</div>
           <div class="detail-meta">
-            <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.jabatan) }}</span>
+            <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.label_jabatan || selected.jabatan) }}</span>
             <span class="dot">·</span>
             <span class="meta-small">ID: {{ selected.no_id }}</span>
             <span class="dot">·</span>
@@ -133,7 +133,7 @@
             <div v-for="b in selected.children" :key="b.id" class="bawahan-item" @click="onSelect(b)">
               <div class="bawahan-dot" :style="{ background: roleColor(b.jabatan) }"></div>
               <span class="bawahan-name">{{ b.nama }}</span>
-              <span class="meta-badge" :style="badgeStyle(b.jabatan)">{{ getDisplayRole(b.jabatan) }}</span>
+              <span class="meta-badge" :style="badgeStyle(b.jabatan)">{{ getDisplayRole(b.label_jabatan || b.jabatan) }}</span>
             </div>
           </div>
         </template>
@@ -157,7 +157,7 @@ import Cookies from 'js-cookie';
 const ROLE_ORDER = ['MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
 const ROLE_COLORS = {
   'MVO': '#ef4444', 'REGIONAL': '#f97316', 'FOUNDER': '#a855f7',
-  'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'RESELLER': '#6b7280',
+  'TOP MANAGEMENT': '#E6B422',   'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'RESELLER': '#6b7280',
 };
 
 const rawData = ref([]);
@@ -220,7 +220,7 @@ function buildTree(flat) {
 
 function collectMatchIds(nodes, query, result = new Set()) {
   for (const n of nodes) {
-    if (n.nama.toLowerCase().includes(query.toLowerCase()) || n.no_id.toLowerCase().includes(query.toLowerCase())) result.add(n.id);
+    if (n.nama.toLowerCase().includes(query.toLowerCase()) || (n.no_id || "").toLowerCase().includes(query.toLowerCase())) result.add(n.id);
     if (n.children?.length) collectMatchIds(n.children, query, result);
   }
   return result;
@@ -364,7 +364,7 @@ const TreeNode = defineComponent({
             width: 10, height: 10, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '3',
             style: { transform: open.value ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.17s ease', display: 'block' },
           }, [h('path', { d: 'M9 18l6-6-6-6' })]) : null),
-          h('span', { style: badgeSty }, getDisplayRole(node.jabatan)),
+          h('span', { style: badgeSty }, getDisplayRole(node.label_jabatan || node.jabatan)),
           h('span', { style: nameSty }, node.nama),
           Number(node.jumlah_bawahan) > 0 ? h('span', { style: countSty }, String(node.jumlah_bawahan)) : null,
         ]),

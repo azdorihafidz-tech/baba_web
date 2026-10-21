@@ -25,6 +25,11 @@
         <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="datatable.items"
           :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
           @update:options="updateCurrentPageInfo">
+          <template v-slot:item.kode_no_id="{ item }">
+            <span v-if="item.kode_mode" class="kode-chip">{{ formatKode(item) }}</span>
+            <span v-else>-</span>
+          </template>
+
           <template v-slot:item.no="{ index }">
             {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
           </template>
@@ -214,6 +219,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea label="Jabatan" v-model="modelAdd.jabatan" class="mb-2" rows="3" />
+            <KodeNoIdFields v-model="modelAdd.kode" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -271,6 +277,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea label="Jabatan" v-model="modelEdit.jabatan" class="mb-2" rows="3" />
+            <KodeNoIdFields v-model="modelEdit.kode" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -313,6 +320,7 @@ import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import CardForm from "@/components/ui/CardForm.vue";
+import KodeNoIdFields from "@/components/ui/KodeNoIdFields.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -322,6 +330,7 @@ export default {
     Breadcrumb,
     CardDataTable,
     CardForm,
+    KodeNoIdFields,
   },
 
   setup() {
@@ -373,6 +382,7 @@ export default {
           { key: "star_number", title: "Bintang", align: "center" }, // Kolom bintang + angka
           { key: "star_icon", title: "Rating", sortable: false, align: "center" }, // Kolom icon bintang
           { key: "jabatan", title: "Jabatan" },
+          { key: "kode_no_id", title: "Kode No ID", sortable: false },
           { key: "action", title: "Actions", sortable: false, align: "center" },
         ],
         items: [],
@@ -382,6 +392,7 @@ export default {
         level: "",
         jabatan: "",
         jlh_bintang: 1, // Tambahkan ini
+        kode: { kode_mode: null, kode_awalan: "", kode_mulai: null, kode_akhir: null },
       },
       modelEdit: {
         id: "",
@@ -389,6 +400,7 @@ export default {
         level: "",
         jabatan: "",
         jlh_bintang: 1, // Tambahkan ini
+        kode: { kode_mode: null, kode_awalan: "", kode_mulai: null, kode_akhir: null },
       },
       modelDelete: {
         id: "",
@@ -417,6 +429,15 @@ export default {
   },
 
   methods: {
+    // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM1, TM2, …", "Turunan atasan"
+    formatKode(item) {
+      const pad = (n) => String(n ?? "").padStart(2, "0");
+      if (item.kode_mode === "urut") return `${item.kode_awalan}1, ${item.kode_awalan}2, …`;
+      if (item.kode_mode === "rentang") return `${item.kode_awalan}${pad(item.kode_mulai)}–${item.kode_awalan}${pad(item.kode_akhir)}`;
+      if (item.kode_mode === "turunan") return "Turunan atasan";
+      return "-";
+    },
+
     // Mobile card toggle method
     toggleMobileDetail(itemId) {
       if (this.expandedMobileCard === itemId) {
@@ -497,6 +518,7 @@ export default {
       this.modelAdd.level = "";
       this.modelAdd.jabatan = "";
       this.modelAdd.jlh_bintang = 1;
+      this.modelAdd.kode = { kode_mode: null, kode_awalan: "", kode_mulai: null, kode_akhir: null };
     },
 
     clearEditForm() {
@@ -505,6 +527,7 @@ export default {
       this.modelEdit.level = "";
       this.modelEdit.jabatan = "";
       this.modelEdit.jlh_bintang = 1;
+      this.modelEdit.kode = { kode_mode: null, kode_awalan: "", kode_mulai: null, kode_akhir: null };
     },
 
     getAllMvoType() {
@@ -555,6 +578,7 @@ export default {
         level: this.modelAdd.level,
         jabatan: this.modelAdd.jabatan,
         jlh_bintang: this.modelAdd.jlh_bintang, // Ganti ke jlh_bintang
+        ...this.modelAdd.kode,
       };
 
       axios.post(`${API_URL}/api/mvo-type`, payload, {
@@ -606,6 +630,7 @@ export default {
             this.modelEdit.level = data.level;
             this.modelEdit.jabatan = data.jabatan;
             this.modelEdit.jlh_bintang = data.jlh_bintang || 1;
+            this.modelEdit.kode = { kode_mode: data.kode_mode, kode_awalan: data.kode_awalan || "", kode_mulai: data.kode_mulai, kode_akhir: data.kode_akhir };
           } else {
             this.showSnackbar(response, true);
             this.isShowDialogEdit = false;
@@ -635,6 +660,7 @@ export default {
         level: this.modelEdit.level,
         jabatan: this.modelEdit.jabatan,
         jlh_bintang: this.modelEdit.jlh_bintang,
+        ...this.modelEdit.kode,
       };
 
 
@@ -715,6 +741,17 @@ export default {
 </script>
 
 <style scoped>
+.kode-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
 /* Star display styling */
 .star-display {
   display: flex;
