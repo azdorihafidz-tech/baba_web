@@ -169,10 +169,10 @@
             <v-divider></v-divider>
             <v-card-text class="mobile-card-details">
               <div v-for="(section, si) in mobileMvoSections(item)" :key="si" class="mobile-info-section mb-3">
-                <v-row v-for="row in section.rows" :key="row.label" class="mb-2">
-                  <v-col cols="4" class="detail-label">{{ row.label }}:</v-col>
-                  <v-col cols="8" class="detail-value">{{ row.value }}</v-col>
-                </v-row>
+                <div v-for="row in section.rows" :key="row.label" class="kv-row">
+                  <span class="kv-label">{{ row.label }}</span>
+                  <span class="kv-value">{{ row.value }}</span>
+                </div>
               </div>
 
               <v-divider class="mb-3"></v-divider>
@@ -1923,24 +1923,23 @@ export default {
 }
 
 :deep(.custom-data-table) {
-  border: 1px solid #000000;
+  border: 1px solid var(--baba-border);
 }
 
 :deep(.custom-data-table .v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
-/* ===== Freeze 3 kolom terakhir (Detail, Print, Actions) ke kanan ===== */
+/* ===== Freeze 2 kolom terakhir (Detail, Actions) ke kanan ===== */
 /* Lebar tetap supaya offset freeze antar kolom akurat */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
-  position: sticky;
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
+  /* !important: Vuetify memberi td position: relative, sehingga sel tidak ikut terkunci */
+  position: sticky !important;
   z-index: 3;
   box-sizing: border-box;
   width: 80px;
@@ -1948,7 +1947,7 @@ export default {
   max-width: 80px;
 }
 
-/* Offset menumpuk dari kanan: Actions (0) → Print (80) → Detail (160) */
+/* Offset menumpuk dari kanan: Actions (0) → Detail (80) */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)) {
   right: 0;
@@ -1957,36 +1956,28 @@ export default {
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
   right: 80px;
-}
-
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
-  right: 160px;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
 }
 
 /* Background opaque agar kolom yang ter-scroll tidak menembus ke belakang */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(3)) {
-  background-color: #888888 !important;
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)) {
+  background-color: var(--baba-gold-soft) !important;
   z-index: 4;
 }
 
 :deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(3)) {
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
   background-color: #ffffff !important;
 }
 
 :deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(3)) {
+:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(2)) {
   background-color: #f8f9fa !important;
 }
 
 .dialog-header {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
+  background: var(--baba-ink) !important;
   color: #FFD700 !important;
   padding: 20px 24px !important;
   border-bottom: 2px solid #FFD700;
@@ -2053,5 +2044,88 @@ export default {
 :deep(.v-text-field .v-field--focused .v-field__outline) {
   border-color: #1a1a1a;
   border-width: 2px;
+}
+
+/* ===== HP: kartu akun ===== */
+.mobile-header-card,
+.mobile-mvo-card {
+  border: 1px solid var(--baba-border);
+  border-radius: var(--baba-radius) !important;
+  box-shadow: var(--baba-shadow) !important;
+}
+
+.mobile-header-card :deep(.v-card-text) {
+  padding: 12px;
+}
+
+.mobile-card-header {
+  padding: 12px 14px !important;
+}
+
+.mobile-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.mobile-mvo-name {
+  color: var(--baba-text);
+  line-height: 1.3;
+}
+
+.mobile-mvo-code {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--baba-gold-dark);
+  letter-spacing: 0.02em;
+}
+
+.mobile-card-expanded {
+  border-color: var(--baba-gold) !important;
+}
+
+.mobile-card-details {
+  padding: 8px 14px 14px !important;
+}
+
+.kv-row {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--baba-border);
+  font-size: 0.875rem;
+}
+
+.kv-row:last-child {
+  border-bottom: none;
+}
+
+.kv-label {
+  color: var(--baba-muted);
+}
+
+.kv-value {
+  color: var(--baba-text);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.mobile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mobile-actions .v-btn {
+  margin: 0 !important;
 }
 </style>

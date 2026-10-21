@@ -1175,7 +1175,7 @@ export default {
 
 /* Dialogs */
 .dialog-header {
-    background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
+    background: var(--baba-ink) !important;
     color: #FFD700 !important;
     padding: 20px 24px !important;
     border-bottom: 2px solid #FFD700;

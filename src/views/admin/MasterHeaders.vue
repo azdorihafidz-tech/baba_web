@@ -989,8 +989,8 @@ export default {
 }
 
 :deep(.v-data-table__th) {
-  background-color: #888888 !important;
-  color: #FFD700 !important;
+  background-color: var(--baba-gold-soft) !important;
+  color: var(--baba-text) !important;
   font-weight: bold;
 }
 
@@ -1151,7 +1151,7 @@ export default {
 
 /* Custom Dialog Styling */
 .dialog-header {
-  background: linear-gradient(135deg, #1a1a1a 30%, #b8941f 80%, #d4af37 100%) !important;
+  background: var(--baba-ink) !important;
   color: #FFD700 !important;
   padding: 20px 24px !important;
   border-bottom: 2px solid #FFD700;

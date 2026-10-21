@@ -380,12 +380,12 @@ export default {
 
 /* Data table styles */
 :deep(.custom-data-table) {
-    border: 1px solid #000000;
+    border: 1px solid var(--baba-border);
 }
 
 :deep(.custom-data-table .v-data-table__th) {
-    background-color: #888888 !important;
-    color: #FFD700 !important;
+    background-color: var(--baba-gold-soft) !important;
+    color: var(--baba-text) !important;
     font-weight: bold;
 }
 
