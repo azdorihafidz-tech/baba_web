@@ -422,16 +422,19 @@ export const PANDUAN = [
           "Top Management dan MVO boleh tanpa upline: tekan Tanpa upline.",
           "No ID: pilih Otomatis (No ID dipertahankan bila masih sesuai, atau nomor kosong berikutnya) atau Pilih No ID untuk menentukan kursi tujuan, mis. B136 atau B52-01. Daftar nomor mengikuti Jabatan baru — untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.",
           "Supplier ke bawah: daftar No ID berisi kursi downline dan rekan se-upline member. Ketik No ID atau nama untuk mencari kursi lain. Nomor kosong muncul setelah Upline baru dipilih.",
-          "Bila No ID tujuan masih dipakai orang lain, kursi tidak boleh bertabrakan: aktifkan Tukar posisi. Orang yang dipindah menempati kursi itu (jabatan, No ID, dan upline kursi tersebut), dan pemegang lamanya menempati kursi lama orang yang dipindah. Berlaku untuk semua jabatan, dari TM sampai Reseller. Tanpa Tukar posisi, mutasi ditolak.",
+          "Bila No ID tujuan masih dipakai orang lain, kursi tidak boleh bertabrakan. Orang yang dipindah menempati kursi itu (jabatan, No ID, dan upline kursi tersebut), lalu tentukan ke mana pemegang lamanya pindah. Berlaku untuk semua jabatan, dari TM sampai Reseller.",
+          "Tukar posisi: pemegang lama menempati kursi lama orang yang dipindah.",
+          "… pindah ke kursi lain: isi kotak kursi barunya — Jabatan baru, No ID (Otomatis atau Pilih No ID), dan Upline baru. Bila No ID yang dipilih kosong, kursi lama orang yang dipindah menjadi kosong. Bila No ID itu dipegang orang ketiga, terjadi rotasi: orang ketiga menempati kursi lama orang yang dipindah.",
         ],
       },
       {
         judul: "3. Pilih downline yang ikut",
         isi: [
           "Centang = downline langsung ikut pindah bersama seluruh timnya (bawaan: semua ikut). Tombol Centang semua / Kosongkan semua mempercepat pilihan.",
-          "Pada Tukar posisi ada dua daftar: downline orang yang dipindah dan downline orang yang ditukar. Yang tidak dicentang tetap di posisi — mereka pindah ke orang yang kini menempati kursi itu, No ID-nya tidak berubah.",
-          "Hilangkan centang untuk downline yang tidak ikut, lalu pilih Upline penampung untuk mereka.",
-          "Downline yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang dan wajib ke penampung (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor).",
+          "Bila mengambil kursi yang terisi, ada daftar terpisah untuk downline pemegang lama (dan orang ketiga pada rotasi). Yang tidak dicentang tetap di kursinya — mereka pindah ke orang yang kini menempati kursi itu, No ID-nya tidak berubah.",
+          "Downline orang yang dipindah yang tidak dicentang menunggu di kursi lama yang kosong. Pilih Upline penampung (opsional) untuk memindahkan mereka langsung ke upline lain.",
+          "Downline yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor).",
+          "Selama masih ada kursi kosong yang punya downline, muncul peringatan \"Kursi … kosong, masih ada … downline\" dan Simpan Mutasi belum bisa ditekan.",
         ],
       },
       {
@@ -463,6 +466,7 @@ export const PANDUAN = [
     tanya: [
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
       { t: "B02 mau pindah ke B03 yang sudah terisi?", j: "Pilih member B02, Pilih No ID → B03, lalu aktifkan Tukar posisi. Pemegang B03 otomatis menempati B02. Atur downline masing-masing: ikut orangnya, atau tetap di posisi." },
+      { t: "B52-01 naik ke B52, tapi GM B52 tidak mau turun?", j: "Setelah memilih No ID B52, pilih \"… pindah ke kursi lain\". Isi kursi barunya, mis. No ID Otomatis (nomor GM kosong berikutnya) dengan upline yang sama. Kursi B52-01 jadi kosong: pilih Upline penampung untuk downline-nya." },
       { t: "Supplier B52-01 naik menggantikan GM B52?", j: "Pilih member B52-01, Jabatan baru GM, Pilih No ID → B52, lalu aktifkan Tukar posisi. GM lama otomatis menempati kursi B52-01. Downline yang jenjangnya tidak cocok otomatis tetap di posisi, jadi hanya 2 No ID yang berubah." },
       { t: "Kenapa downline tidak bisa dicentang saat tukar posisi?", j: "Jenjangnya tidak cocok dengan jabatan baru orang itu (mis. GM naik menjadi Founder: Supplier-nya tidak bisa ikut karena Supplier harus di bawah GM). Downline tersebut otomatis tetap di posisi." },
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
