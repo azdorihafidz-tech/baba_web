@@ -315,7 +315,10 @@ export const PANDUAN = [
         ],
       },
     ],
-    tips: ["Code Cabang dipakai di banyak tempat (kode akun, filter dashboard). Hindari mengubah code cabang yang sudah dipakai."],
+    tips: [
+      "Code Cabang yang sudah dipakai akun terkunci (form Edit menampilkan jumlah akunnya), karena dipakai di kode akun (mis. GM-MDN-003), data MVO, dan filter dashboard. Nama, pimpinan, warna, dan foto tetap bisa diubah.",
+      "Cabang tidak bisa dihapus dari aplikasi.",
+    ],
     tanya: [],
   },
   {

@@ -64,14 +64,6 @@
                                 </v-btn>
                             </template>
                         </v-tooltip>
-                        <v-tooltip text="Hapus" color="#125C13" location="top start">
-                            <template v-slot:activator="{ props }">
-                                <v-btn size="small" :color="app.colors.secondary" @click="deleteCode(item.id)"
-                                    class="mr-2 mb-2" v-bind="props" icon>
-                                    <v-icon>mdi-delete</v-icon>
-                                </v-btn>
-                            </template>
-                        </v-tooltip>
                     </template>
                 </v-data-table>
             </template>
@@ -237,11 +229,6 @@
                                             class="mr-2 mb-2" prepend-icon="mdi-pencil" style="min-width: 150px;">
                                             Edit
                                         </v-btn>
-
-                                        <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteCode(item.id)"
-                                            class="mb-2" prepend-icon="mdi-delete" style="min-width: 150px;">
-                                            Hapus
-                                        </v-btn>
                                     </div>
                                 </v-col>
                             </v-row>
@@ -335,7 +322,11 @@
             <v-card-text class="dialog-content" style="max-height: 70vh;">
                 <v-row>
                     <v-col :cols="$vuetify.display.mobile ? 12 : 6">
-                        <v-text-field label="Code Cabang" v-model="modelEdit.code" variant="outlined" />
+                        <!-- Kode dipakai akun & kode akun (TIPE-CABANG-NNN): dikunci bila sudah ada akun -->
+                        <v-text-field label="Code Cabang" v-model="modelEdit.code" variant="outlined"
+                            :disabled="modelEdit.jumlah_akun > 0"
+                            :hint="modelEdit.jumlah_akun > 0 ? `Dipakai ${modelEdit.jumlah_akun} akun — kode tidak bisa diganti. Nama, pimpinan, warna, dan foto tetap bisa diubah.` : ''"
+                            :persistent-hint="modelEdit.jumlah_akun > 0" />
                     </v-col>
                     <v-col :cols="$vuetify.display.mobile ? 12 : 6">
                         <v-text-field label="Nama Cabang" v-model="modelEdit.name" variant="outlined" />
@@ -397,26 +388,6 @@
                 <v-btn :color="app.colors.primary" @click="updateCode()" :loading="isButtonLoading" class="ml-2">
                     Update
                 </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
-
-    <!-- Dialog Delete Confirmation -->
-    <v-dialog v-model="isShowDialogDelete" :max-width="$vuetify.display.mobile ? '95%' : '500px'">
-        <v-card :color="this.app.colors.background">
-            <v-card-title class="text-h5" :class="{ 'text-h6': $vuetify.display.mobile }">
-                Apakah anda yakin ingin menghapus data Cabang ini?
-            </v-card-title>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">
-                    Cancel
-                </v-btn>
-                <v-btn :color="app.colors.secondary" @click="confirmDeleteCode(modelDelete.id)"
-                    :loading="isButtonLoading">
-                    OK
-                </v-btn>
-                <v-spacer></v-spacer>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -517,7 +488,6 @@ export default {
             isShowDialogAdd: false,
             isShowDialogEdit: false,
             isButtonLoading: false,
-            isShowDialogDelete: false,
             datatable: {
                 search: "",
                 headers: [
@@ -542,6 +512,7 @@ export default {
             },
             modelEdit: {
                 id: "",
+                jumlah_akun: 0,
                 code: "",
                 name: "",
                 pimpinan: "",
@@ -550,9 +521,6 @@ export default {
                 warna: "#FFFFFF",
                 existing_foto_ruang_kota: "",
                 existing_foto_mvo: "",
-            },
-            modelDelete: {
-                id: "",
             },
             previewAdd: {
                 ruang: null,
@@ -781,6 +749,7 @@ export default {
         clearEditForm() {
             this.modelEdit.id = "";
             this.modelEdit.code = "";
+            this.modelEdit.jumlah_akun = 0;
             this.modelEdit.name = "";
             this.modelEdit.pimpinan = "";
             this.modelEdit.foto_ruang_kota = null;
@@ -935,6 +904,7 @@ export default {
                     if (response.data.status === "success") {
                         this.modelEdit.id = response.data.data.id;
                         this.modelEdit.code = response.data.data.code;
+                        this.modelEdit.jumlah_akun = response.data.data.jumlah_akun || 0;
                         this.modelEdit.name = response.data.data.name;
                         this.modelEdit.pimpinan = response.data.data.pimpinan || '';
                         this.modelEdit.warna = response.data.data.warna || '#FFFFFF';
@@ -1028,46 +998,6 @@ export default {
                 })
                 .finally(() => {
                     this.isButtonLoading = false;
-                });
-        },
-
-        deleteCode(id) {
-            // Close mobile expansion when deleting
-            this.expandedMobileCard = null;
-
-            this.isShowDialogDelete = true;
-            this.modelDelete.id = id;
-        },
-
-        confirmDeleteCode(id) {
-            const token = Cookies.get("token");
-            if (!token) {
-                this.$router.push({ name: "Login" });
-                return;
-            }
-
-            this.isButtonLoading = true;
-            axios
-                .delete(`${API_URL}/api/provinsi/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                    },
-                })
-                .then((response) => {
-                    this.getAllcode();
-                    this.contentSnackbar.snackbar = true;
-                    this.contentSnackbar.text = response.data.message || "Data Cabang berhasil dihapus";
-                    this.contentSnackbar.color = this.app.colors.primary;
-                })
-                .catch((error) => {
-                    this.contentSnackbar.snackbar = true;
-                    this.contentSnackbar.text = error.response?.data?.message || "Error deleting Cabang";
-                    this.contentSnackbar.color = this.app.colors.secondary;
-                })
-                .finally(() => {
-                    this.isButtonLoading = false;
-                    this.isShowDialogDelete = false;
                 });
         },
     },
