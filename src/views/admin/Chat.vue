@@ -12,9 +12,6 @@
       <v-btn icon @click="getChatList" class="header-btn me-2" title="Refresh daftar chat">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
-      <v-btn icon @click="dialogAddGroup = true" class="header-btn">
-        <v-icon>mdi-account-multiple-plus</v-icon>
-      </v-btn>
     </v-toolbar>
 
     <v-row no-gutters class="chat-content">
@@ -40,7 +37,7 @@
               </template>
 
               <v-list-item-title class="chat-name">{{
-                chat.room_name || "Private Chat"
+                chat.label || chat.room_name
               }}</v-list-item-title>
               <v-list-item-subtitle v-if="chat.last_message" class="chat-preview">
                 <span class="preview-sender">{{ getLastMessageSender(chat) }}:</span>
@@ -90,7 +87,7 @@
               </v-avatar>
 
               <v-toolbar-title class="room-title">{{
-                selectedRoom.room_name || "Private Chat"
+                selectedRoom.label || selectedRoom.room_name
               }}</v-toolbar-title>
               <v-spacer></v-spacer>
             </v-toolbar>
@@ -164,33 +161,11 @@
       </v-col>
     </v-row>
 
-    <v-dialog v-model="dialogAddGroup" persistent max-width="500px">
-      <v-card class="dialog-card">
-        <v-card-title class="text-h6 dialog-title">
-          <v-icon class="me-2">mdi-account-group</v-icon>
-          Buat Grup Baru
-        </v-card-title>
-        <v-card-text class="pt-4">
-          <v-select v-model="groupForm.room_name" :items="provinsiList" item-title="name" item-value="code"
-            label="Pilih Provinsi" outlined dense :loading="loadingProvinsi" required>
-            <template v-slot:prepend-inner>
-              <v-icon small>mdi-map-marker</v-icon>
-            </template>
-          </v-select>
-        </v-card-text>
-
-        <v-card-actions class="pa-4">
-          <v-spacer></v-spacer>
-          <v-btn text @click="dialogAddGroup = false">Batal</v-btn>
-          <v-btn color="primary" class="gradient-btn" @click="createGroup">Simpan</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-card>
 </template>
 
 <script>
-import { CHAT_URL } from "@/config";
+import { CHAT_SOCKET_PATH, CHAT_URL } from "@/config";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -206,10 +181,6 @@ export default {
       messages: [],
       chatList: [],
       selectedRoom: null,
-      dialogAddGroup: false,
-      groupForm: { room_name: "", member_ids: [] },
-      provinsiList: [],
-      loadingProvinsi: false,
       isMobile: false,
       api: null,
       showEmojiPicker: false,
@@ -346,7 +317,7 @@ export default {
   methods: {
     createApiInstance() {
       const token = localStorage.getItem("token") || Cookies.get("token") || "";
-      const base = `${CHAT_URL}/chat-rooms/api`;
+      const base = `${CHAT_URL}/api`;
       this.api = axios.create({
         baseURL: base,
         headers: { Authorization: token ? `Bearer ${token}` : "" },
@@ -385,15 +356,15 @@ export default {
 
       if (idx !== -1) {
         // update last_message dan unread_count
-        this.$set(this.chatList[idx], "last_message", lastMessageForList);
+        this.chatList[idx].last_message = lastMessageForList;
 
         // jika pesan bukan dari user, tambahkan badge
         if (!isFromMe) {
           const prev = Number(this.chatList[idx].unread_count) || 0;
-          this.$set(this.chatList[idx], "unread_count", prev + 1);
+          this.chatList[idx].unread_count = prev + 1;
         } else {
           // jika pesan dari diri sendiri, biasanya unread_count tetap 0
-          this.$set(this.chatList[idx], "unread_count", 0);
+          this.chatList[idx].unread_count = 0;
         }
 
         // optional: pindahkan room ke atas daftar (jika ingin sorted by recent)
@@ -417,8 +388,8 @@ export default {
       if (this.socket) return;
       const rawToken =
         localStorage.getItem("token") || Cookies.get("token") || null;
-      const host = CHAT_URL;
-      const path = "/chat-rooms/socket.io";
+      const host = new URL(CHAT_URL).origin;
+      const path = CHAT_SOCKET_PATH;
       this.socket = io(host, {
         path,
         auth: { token: rawToken },
@@ -475,7 +446,7 @@ export default {
                 (c) => Number(c.id) === Number(this.selectedRoom.id),
               );
               if (idxSel !== -1)
-                this.$set(this.chatList[idxSel], "unread_count", 0);
+                this.chatList[idxSel].unread_count = 0;
             }
           }
         }
@@ -494,20 +465,12 @@ export default {
         if (roomIndex !== -1) {
           // jika server mengirim unread_count gunakan itu
           if (typeof data.unread_count !== "undefined") {
-            this.$set(
-              this.chatList[roomIndex],
-              "unread_count",
-              Number(data.unread_count),
-            );
+            this.chatList[roomIndex].unread_count = Number(data.unread_count);
           }
 
           // jika server juga mengirim last_message object, perbarui preview
           if (data.last_message) {
-            this.$set(
-              this.chatList[roomIndex],
-              "last_message",
-              data.last_message,
-            );
+            this.chatList[roomIndex].last_message = data.last_message;
           }
         } else {
           // jika room belum ada di daftar, bisa fetch ulang 1 room atau panggil getChatList()
@@ -564,15 +527,6 @@ export default {
           };
         });
 
-        // DEBUG: tampilkan di console — cek apakah unread_count terisi
-        console.log(
-          "chatList loaded:",
-          this.chatList.map((x) => ({
-            id: x.id,
-            name: x.room_name,
-            unread_count: x.unread_count,
-          })),
-        );
       } catch (err) {
         console.error("Gagal memuat daftar chat:", err);
       }
@@ -593,7 +547,7 @@ export default {
         if (!this.api) this.createApiInstance();
         await this.api.post(`/chat/mark-read/${room.id}`, {});
         const idx = this.chatList.findIndex((c) => c.id === room.id);
-        if (idx !== -1) this.$set(this.chatList[idx], "unread_count", 0);
+        if (idx !== -1) this.chatList[idx].unread_count = 0;
         this.getChatList();
       } catch (err) {
         console.error("Gagal mark read", err);
@@ -607,11 +561,8 @@ export default {
         const res = await this.api.get(
           `/chat/messages/${this.selectedRoom.id}`,
         );
-        this.messages = Array.isArray(res.data)
-          ? res.data
-          : res.data && res.data.data
-            ? res.data.data
-            : [];
+        // Server baru: { data, ada_lagi } (berhalaman); server lama: array
+        this.messages = Array.isArray(res.data) ? res.data : res.data?.data || [];
 
         // langsung ke pesan terbaru ketika membuka room — instant (no smooth)
         this.$nextTick(() => setTimeout(() => this.scrollToBottom("auto"), 50));
@@ -700,46 +651,6 @@ export default {
       return scrollHeight - (scrollTop + clientHeight) <= threshold;
     },
 
-    async getProvinsiList() {
-      this.loadingProvinsi = true;
-      try {
-        if (!this.api) this.createApiInstance();
-        const response = await this.api.get("/provinsi");
-        if (response.data && Array.isArray(response.data))
-          this.provinsiList = response.data;
-        else if (
-          response.data &&
-          response.data.data &&
-          Array.isArray(response.data.data)
-        )
-          this.provinsiList = response.data.data;
-        else this.provinsiList = [];
-      } catch (error) {
-        this.provinsiList = [];
-      } finally {
-        this.loadingProvinsi = false;
-      }
-    },
-
-    createGroup: async function () {
-      try {
-        if (!this.api) this.createApiInstance();
-        const superadminId = 6;
-        const memberIds = Array.from(
-          new Set([...this.groupForm.member_ids, superadminId]),
-        );
-        const payload = {
-          room_name: this.groupForm.room_name,
-          member_ids: memberIds,
-        };
-        await this.api.post("/chat/create-group", payload);
-        this.dialogAddGroup = false;
-        this.groupForm = { room_name: "", member_ids: [] };
-        this.getChatList();
-      } catch (e) {
-        console.error("Gagal membuat grup", e);
-      }
-    },
 
     addEmoji(emoji) {
       this.newMessage += emoji;
@@ -872,7 +783,6 @@ export default {
     window.addEventListener("resize", this.checkMobile);
     await this.getUser();
     await this.getChatList();
-    await this.getProvinsiList();
 
     this.chatListInterval = setInterval(() => this.getChatList(), 10000);
   },

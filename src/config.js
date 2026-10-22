@@ -10,5 +10,7 @@ export const FILE_URL = import.meta.env.VITE_FILE_URL;
 // Domain utama babaparfume.id (sumber daftar lagu).
 export const MAIN_URL = import.meta.env.VITE_MAIN_URL;
 
-// Server chat Node.js (socket.io + REST di /chat-rooms).
+// Server chat Node.js (repo chatroom-baba). REST = `${CHAT_URL}/api/chat/...`,
+// Socket.IO di origin CHAT_URL dengan path CHAT_SOCKET_PATH.
 export const CHAT_URL = import.meta.env.VITE_CHAT_URL;
+export const CHAT_SOCKET_PATH = import.meta.env.VITE_CHAT_SOCKET_PATH || "/socket.io";

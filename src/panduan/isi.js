@@ -553,16 +553,34 @@ export const PANDUAN = [
     menu: "Chat",
     icon: "mdi-chat",
     peran: "semua",
-    ringkas: "Pesan antar member dan grup cabang.",
-    kegunaan: "Mengirim pesan ke sesama member atau grup. Fitur chat sedang dalam pengembangan, sehingga mungkin belum selalu tersambung.",
+    ringkas: "Grup chat GLOBAL (semua member) dan grup cabang Anda.",
+    kegunaan: "Mengobrol dengan sesama member. Setiap member otomatis masuk dua grup: GLOBAL · Semua member, dan grup cabangnya sendiri (mis. Cabang MEDAN). Pesan baru langsung muncul tanpa perlu muat ulang.",
     langkah: [
       {
         judul: "Mengirim pesan",
-        isi: ["Pilih percakapan atau grup di daftar kiri, ketik pesan di kolom bawah, lalu kirim."],
+        isi: [
+          "Pilih grup di Daftar Chat.",
+          "Ketik pesan di kolom Tulis pesan..., lalu tekan tombol kirim atau Enter.",
+          "Pesan maksimal 2.000 karakter. Bila mengirim terlalu cepat, tunggu beberapa detik.",
+        ],
+      },
+      {
+        judul: "Grup yang tersedia",
+        isi: [
+          "Grup dibuat otomatis, tidak perlu dibuat sendiri.",
+          "Pindah cabang? Grup cabang Anda ikut berganti setelah data cabang diubah superadmin.",
+        ],
+      },
+      {
+        judul: "Khusus superadmin",
+        peran: "superadmin",
+        isi: ["Superadmin melihat dan bisa menulis di semua grup: GLOBAL dan seluruh grup cabang."],
       },
     ],
-    tips: ["Bila pesan tidak terkirim, coba muat ulang halaman."],
-    tanya: [],
+    tips: ["Grup cabang lain tidak bisa dibuka; pesannya hanya untuk anggota cabang itu."],
+    tanya: [
+      { t: "Kenapa saya tidak bisa membuat grup?", j: "Grup dibuat otomatis: GLOBAL untuk semua member dan satu grup per cabang." },
+    ],
   },
   {
     id: "profil",
