@@ -74,131 +74,134 @@
 
     <v-progress-linear v-if="loading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-    <div v-if="filteredItems.length === 0 && !loading" class="text-center pa-4">
-      <v-icon size="64" color="grey">mdi-account-search</v-icon>
-      <p class="text-grey mt-2">Tidak ada data Downline ditemukan</p>
+    <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+    <div v-isi-layar class="baba-gulir">
+      <div v-if="filteredItems.length === 0 && !loading" class="text-center pa-4">
+        <v-icon size="64" color="grey">mdi-account-search</v-icon>
+        <p class="text-grey mt-2">Tidak ada data Downline ditemukan</p>
+      </div>
+
+      <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
+        @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+
+        <!-- Header -->
+        <v-card-text class="mobile-card-header">
+          <v-row no-gutters align="center">
+            <v-col cols="2" class="text-center">
+              <span class="mobile-number">{{ index + 1 }}</span>
+            </v-col>
+            <v-col cols="8" class="pl-3">
+              <div class="mobile-mvo-name">{{ item.nama }}</div>
+              <div class="text-caption text-grey">{{ item.no_id }}</div>
+              <div class="d-flex align-center mt-1">
+                <v-chip size="x-small" color="primary" class="mr-1">{{ item.cabang }}</v-chip>
+              </div>
+            </v-col>
+            <v-col cols="2" class="text-center">
+              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                mdi-chevron-down
+              </v-icon>
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <!-- Details -->
+        <v-expand-transition>
+          <div v-show="expandedMobileCard === item.id">
+            <v-divider></v-divider>
+            <v-card-text class="mobile-card-details">
+              <!-- Data Diri -->
+              <h4 class="text-subtitle-2 mb-2 text-primary">Data Downline</h4>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Nama:</v-col>
+                <v-col cols="8" class="detail-value">{{ item.nama || '-' }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">No ID:</v-col>
+                <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Cabang:</v-col>
+                <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Alamat:</v-col>
+                <v-col cols="8" class="detail-value">{{ item.alamat || '-' }}</v-col>
+              </v-row>
+
+              <!-- Upline -->
+              <v-divider class="my-3"></v-divider>
+              <h4 class="text-subtitle-2 mb-2 text-primary">Struktur Upline</h4>
+              <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Distributor:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ item.upline_6 }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Supplier:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ item.upline_5 }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">General Manager:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ item.upline_4 }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Founder:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ item.upline_3 }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Regional:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ item.upline_2 }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">MVO:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ item.upline_1 }}</v-col>
+              </v-row>
+
+              <!-- Approval Information -->
+              <v-divider class="my-3"></v-divider>
+              <h4 class="text-subtitle-2 mb-2 text-primary">Status Approval</h4>
+              <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval Distributor:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 6) }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval Supplier:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 5) }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval GM:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 4) }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval Founder:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 3) }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval Regional:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 2) }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval MVO:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 1) }}</v-col>
+              </v-row>
+              <v-row class="mb-1" v-if="item.upline_7 && item.upline_7 !== '-'">
+                <v-col cols="5" class="detail-label text-caption">Approval Reseller:</v-col>
+                <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 7) }}</v-col>
+              </v-row>
+
+              <v-divider class="mb-3"></v-divider>
+              <div class="mobile-actions">
+                <v-btn size="small" :color="isUserApproved(item) ? 'grey' : 'success'"
+                  @click.stop="!isUserApproved(item) && showApproveDialog(item.id)" class="mb-2"
+                  prepend-icon="mdi-check-circle" style="min-width: 120px;" :disabled="isUserApproved(item)">
+                  {{ isUserApproved(item) ? 'Sudah Approve' : 'Approve' }}
+                </v-btn>
+              </div>
+            </v-card-text>
+          </div>
+        </v-expand-transition>
+      </v-card>
     </div>
-
-    <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
-      @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-
-      <!-- Header -->
-      <v-card-text class="mobile-card-header">
-        <v-row no-gutters align="center">
-          <v-col cols="2" class="text-center">
-            <span class="mobile-number">{{ index + 1 }}</span>
-          </v-col>
-          <v-col cols="8" class="pl-3">
-            <div class="mobile-mvo-name">{{ item.nama }}</div>
-            <div class="text-caption text-grey">{{ item.no_id }}</div>
-            <div class="d-flex align-center mt-1">
-              <v-chip size="x-small" color="primary" class="mr-1">{{ item.cabang }}</v-chip>
-            </div>
-          </v-col>
-          <v-col cols="2" class="text-center">
-            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-              mdi-chevron-down
-            </v-icon>
-          </v-col>
-        </v-row>
-      </v-card-text>
-
-      <!-- Details -->
-      <v-expand-transition>
-        <div v-show="expandedMobileCard === item.id">
-          <v-divider></v-divider>
-          <v-card-text class="mobile-card-details">
-            <!-- Data Diri -->
-            <h4 class="text-subtitle-2 mb-2 text-primary">Data Downline</h4>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Nama:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.nama || '-' }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">No ID:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Cabang:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Alamat:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.alamat || '-' }}</v-col>
-            </v-row>
-
-            <!-- Upline -->
-            <v-divider class="my-3"></v-divider>
-            <h4 class="text-subtitle-2 mb-2 text-primary">Struktur Upline</h4>
-            <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Distributor:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ item.upline_6 }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Supplier:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ item.upline_5 }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">General Manager:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ item.upline_4 }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Founder:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ item.upline_3 }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Regional:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ item.upline_2 }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">MVO:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ item.upline_1 }}</v-col>
-            </v-row>
-
-            <!-- Approval Information -->
-            <v-divider class="my-3"></v-divider>
-            <h4 class="text-subtitle-2 mb-2 text-primary">Status Approval</h4>
-            <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval Distributor:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 6) }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval Supplier:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 5) }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval GM:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 4) }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval Founder:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 3) }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval Regional:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 2) }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval MVO:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 1) }}</v-col>
-            </v-row>
-            <v-row class="mb-1" v-if="item.upline_7 && item.upline_7 !== '-'">
-              <v-col cols="5" class="detail-label text-caption">Approval Reseller:</v-col>
-              <v-col cols="7" class="detail-value text-caption">{{ getApprovalStatusDisplay(item, 7) }}</v-col>
-            </v-row>
-
-            <v-divider class="mb-3"></v-divider>
-            <div class="mobile-actions">
-              <v-btn size="small" :color="isUserApproved(item) ? 'grey' : 'success'"
-                @click.stop="!isUserApproved(item) && showApproveDialog(item.id)" class="mb-2"
-                prepend-icon="mdi-check-circle" style="min-width: 120px;" :disabled="isUserApproved(item)">
-                {{ isUserApproved(item) ? 'Sudah Approve' : 'Approve' }}
-              </v-btn>
-            </div>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
-    </v-card>
   </div>
 
   <!-- Dialog Konfirmasi Approve -->

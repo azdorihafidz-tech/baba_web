@@ -160,186 +160,189 @@
 
       <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-      <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
-        <v-icon size="64" color="grey">mdi-file-document-off</v-icon>
-        <p class="text-grey mt-2">Tidak ada dokumen belum approval</p>
-      </div>
+      <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+      <div v-isi-layar class="baba-gulir">
+        <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
+          <v-icon size="64" color="grey">mdi-file-document-off</v-icon>
+          <p class="text-grey mt-2">Tidak ada dokumen belum approval</p>
+        </div>
 
-      <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-document-card mb-3"
-        @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+        <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-document-card mb-3"
+          @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
 
-        <!-- Header Card - Always Visible -->
-        <v-card-text class="mobile-card-header">
-          <v-row no-gutters align="center">
-            <v-col cols="2" class="text-center">
-              <span class="mobile-number">{{ index + 1 }}</span>
-            </v-col>
+          <!-- Header Card - Always Visible -->
+          <v-card-text class="mobile-card-header">
+            <v-row no-gutters align="center">
+              <v-col cols="2" class="text-center">
+                <span class="mobile-number">{{ index + 1 }}</span>
+              </v-col>
 
-            <v-col cols="8" class="pl-3">
-              <div class="mobile-document-name">
-                <strong>{{ item.mvo?.nama || item.file_name }}</strong>
-              </div>
-              <div class="mobile-document-code">
-                <strong>{{ getMvoCodeById(item.mvo_id) }}</strong>
-              </div>
-              <div class="mobile-status-preview mt-1">
-                <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" variant="flat">
-                  {{ getStatusText(item.status_inputan) }}
-                </v-chip>
-              </div>
-            </v-col>
+              <v-col cols="8" class="pl-3">
+                <div class="mobile-document-name">
+                  <strong>{{ item.mvo?.nama || item.file_name }}</strong>
+                </div>
+                <div class="mobile-document-code">
+                  <strong>{{ getMvoCodeById(item.mvo_id) }}</strong>
+                </div>
+                <div class="mobile-status-preview mt-1">
+                  <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" variant="flat">
+                    {{ getStatusText(item.status_inputan) }}
+                  </v-chip>
+                </div>
+              </v-col>
 
-            <v-col cols="2" class="text-center">
-              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                mdi-chevron-down
-              </v-icon>
-            </v-col>
-          </v-row>
-        </v-card-text>
+              <v-col cols="2" class="text-center">
+                <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                  mdi-chevron-down
+                </v-icon>
+              </v-col>
+            </v-row>
+          </v-card-text>
 
-        <!-- Detail Card - Expandable -->
-        <v-expand-transition>
-          <div v-show="expandedMobileCard === item.id">
-            <v-divider></v-divider>
-            <v-card-text class="mobile-card-details">
+          <!-- Detail Card - Expandable -->
+          <v-expand-transition>
+            <div v-show="expandedMobileCard === item.id">
+              <v-divider></v-divider>
+              <v-card-text class="mobile-card-details">
 
-              <!-- File Preview Section -->
-              <div class="mobile-info-section mb-3">
-                <h4 class="text-subtitle-2 mb-2 text-primary">
-                  <v-icon size="16" class="mr-1">mdi-file</v-icon>
-                  File Preview
-                </h4>
-                <div class="d-flex align-center">
-                  <div v-if="isImageFile(item.file_path)" class="mr-3">
-                    <v-img :src="getFullFileUrl(item.file_path)" width="60" height="60" class="rounded" />
-                  </div>
-                  <div v-else-if="isPdfFile(item.file_path)" class="mr-3">
-                    <v-icon size="60" color="red">mdi-file-pdf-box</v-icon>
-                  </div>
-                  <div v-else class="mr-3">
-                    <v-icon size="60" color="blue">mdi-file-document</v-icon>
+                <!-- File Preview Section -->
+                <div class="mobile-info-section mb-3">
+                  <h4 class="text-subtitle-2 mb-2 text-primary">
+                    <v-icon size="16" class="mr-1">mdi-file</v-icon>
+                    File Preview
+                  </h4>
+                  <div class="d-flex align-center">
+                    <div v-if="isImageFile(item.file_path)" class="mr-3">
+                      <v-img :src="getFullFileUrl(item.file_path)" width="60" height="60" class="rounded" />
+                    </div>
+                    <div v-else-if="isPdfFile(item.file_path)" class="mr-3">
+                      <v-icon size="60" color="red">mdi-file-pdf-box</v-icon>
+                    </div>
+                    <div v-else class="mr-3">
+                      <v-icon size="60" color="blue">mdi-file-document</v-icon>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Document Info Section -->
-              <div class="mobile-info-section mb-3">
-                <h4 class="text-subtitle-2 mb-2 text-primary">
-                  <v-icon size="16" class="mr-1">mdi-information</v-icon>
-                  Informasi Dokumen
-                </h4>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Kode MVO:</v-col>
-                  <v-col cols="7" class="detail-value">{{ getMvoCodeById(item.mvo_id) }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Rating Star:</v-col>
-                  <v-col cols="7" class="detail-value">
-                    <v-chip color="amber" text-color="white" size="x-small">
-                      <v-icon start size="small">mdi-star</v-icon>
-                      {{ item.pointbintang || 0 }}
-                    </v-chip>
-                  </v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="12" class="detail-label mb-1">Visualisasi Star:</v-col>
-                  <v-col cols="12">
-                    <div class="star-display">
-                      <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
-                        size="small">
-                        mdi-star
-                      </v-icon>
-                    </div>
-                  </v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Tanggal Input:</v-col>
-                  <v-col cols="7" class="detail-value">{{ formatDate(item.tanggal_repeat_order) }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Range Point:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.repeat_order || '-' }}</v-col>
-                </v-row>
-              </div>
+                <!-- Document Info Section -->
+                <div class="mobile-info-section mb-3">
+                  <h4 class="text-subtitle-2 mb-2 text-primary">
+                    <v-icon size="16" class="mr-1">mdi-information</v-icon>
+                    Informasi Dokumen
+                  </h4>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Kode MVO:</v-col>
+                    <v-col cols="7" class="detail-value">{{ getMvoCodeById(item.mvo_id) }}</v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Rating Star:</v-col>
+                    <v-col cols="7" class="detail-value">
+                      <v-chip color="amber" text-color="white" size="x-small">
+                        <v-icon start size="small">mdi-star</v-icon>
+                        {{ item.pointbintang || 0 }}
+                      </v-chip>
+                    </v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="12" class="detail-label mb-1">Visualisasi Star:</v-col>
+                    <v-col cols="12">
+                      <div class="star-display">
+                        <v-icon v-for="n in 8" :key="n" :color="n <= (item.pointbintang || 0) ? '#E6B422' : '#e0e0e0'"
+                          size="small">
+                          mdi-star
+                        </v-icon>
+                      </div>
+                    </v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Tanggal Input:</v-col>
+                    <v-col cols="7" class="detail-value">{{ formatDate(item.tanggal_repeat_order) }}</v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Range Point:</v-col>
+                    <v-col cols="7" class="detail-value">{{ item.repeat_order || '-' }}</v-col>
+                  </v-row>
+                </div>
 
-              <!-- Upline Section -->
-              <div class="mobile-info-section mb-3">
-                <h4 class="text-subtitle-2 mb-2 text-primary">
-                  <v-icon size="16" class="mr-1">mdi-account-supervisor</v-icon>
-                  Informasi Upline
-                </h4>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">MVO:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_1 || '-' }}</v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Regional:</v-col>
-                  <v-col cols="7" class="detail-value">{{ item.upline_2 || '-' }}</v-col>
-                </v-row>
-              </div>
+                <!-- Upline Section -->
+                <div class="mobile-info-section mb-3">
+                  <h4 class="text-subtitle-2 mb-2 text-primary">
+                    <v-icon size="16" class="mr-1">mdi-account-supervisor</v-icon>
+                    Informasi Upline
+                  </h4>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">MVO:</v-col>
+                    <v-col cols="7" class="detail-value">{{ item.upline_1 || '-' }}</v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Regional:</v-col>
+                    <v-col cols="7" class="detail-value">{{ item.upline_2 || '-' }}</v-col>
+                  </v-row>
+                </div>
 
-              <!-- Status Section -->
-              <div class="mobile-info-section mb-3">
-                <h4 class="text-subtitle-2 mb-2 text-primary">
-                  <v-icon size="16" class="mr-1">mdi-check-decagram</v-icon>
-                  Status
-                </h4>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Status MVO:</v-col>
-                  <v-col cols="7" class="detail-value">
-                    <v-chip :color="getMvoStatusColor(item)" size="x-small" variant="flat">
-                      {{ getMvoStatusText(item) }}
-                    </v-chip>
-                  </v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Status Regional:</v-col>
-                  <v-col cols="7" class="detail-value">
-                    <v-chip :color="getRegionalStatusColor(item)" size="x-small" variant="flat">
-                      {{ getRegionalStatusText(item) }}
-                    </v-chip>
-                  </v-col>
-                </v-row>
-                <v-row class="mb-2">
-                  <v-col cols="5" class="detail-label">Approval:</v-col>
-                  <v-col cols="7" class="detail-value">
-                    <v-chip :color="getApprovalStatusColor(item)" size="x-small" variant="flat">
-                      {{ getApprovalStatusText(item) }}
-                    </v-chip>
-                  </v-col>
-                </v-row>
-              </div>
+                <!-- Status Section -->
+                <div class="mobile-info-section mb-3">
+                  <h4 class="text-subtitle-2 mb-2 text-primary">
+                    <v-icon size="16" class="mr-1">mdi-check-decagram</v-icon>
+                    Status
+                  </h4>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Status MVO:</v-col>
+                    <v-col cols="7" class="detail-value">
+                      <v-chip :color="getMvoStatusColor(item)" size="x-small" variant="flat">
+                        {{ getMvoStatusText(item) }}
+                      </v-chip>
+                    </v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Status Regional:</v-col>
+                    <v-col cols="7" class="detail-value">
+                      <v-chip :color="getRegionalStatusColor(item)" size="x-small" variant="flat">
+                        {{ getRegionalStatusText(item) }}
+                      </v-chip>
+                    </v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">Approval:</v-col>
+                    <v-col cols="7" class="detail-value">
+                      <v-chip :color="getApprovalStatusColor(item)" size="x-small" variant="flat">
+                        {{ getApprovalStatusText(item) }}
+                      </v-chip>
+                    </v-col>
+                  </v-row>
+                </div>
 
-              <!-- Action Buttons -->
-              <v-divider class="mb-3"></v-divider>
-              <div class="mobile-actions">
-                <v-btn size="small" color="success" @click.stop="downloadFile(item.file_path, item.file_name)"
-                  class="mr-1 mb-2" prepend-icon="mdi-download">
-                  Download
-                </v-btn>
-                <v-btn size="small" color="primary" @click.stop="viewFile(item.file_path)" class="mb-2"
-                  prepend-icon="mdi-eye">
-                  Lihat File
-                </v-btn>
+                <!-- Action Buttons -->
+                <v-divider class="mb-3"></v-divider>
+                <div class="mobile-actions">
+                  <v-btn size="small" color="success" @click.stop="downloadFile(item.file_path, item.file_name)"
+                    class="mr-1 mb-2" prepend-icon="mdi-download">
+                    Download
+                  </v-btn>
+                  <v-btn size="small" color="primary" @click.stop="viewFile(item.file_path)" class="mb-2"
+                    prepend-icon="mdi-eye">
+                    Lihat File
+                  </v-btn>
 
-                <!-- Tombol Approve untuk Mobile -->
-                <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click.stop="approveDocument(item)"
-                  :loading="approvingId === item.id" :disabled="approvingId === item.id" class="mb-2"
-                  prepend-icon="mdi-check-circle">
-                  Approve
-                </v-btn>
+                  <!-- Tombol Approve untuk Mobile -->
+                  <v-btn v-if="canApproveDocument(item)" size="small" color="success" @click.stop="approveDocument(item)"
+                    :loading="approvingId === item.id" :disabled="approvingId === item.id" class="mb-2"
+                    prepend-icon="mdi-check-circle">
+                    Approve
+                  </v-btn>
 
-                <!-- Tombol Approve Document khusus Superadmin (Mobile) -->
-                <v-btn v-if="mvo_type_id === 'superadmin' && !isDocumentFullyApproved(item)" size="small"
-                  color="primary" @click.stop="approveDocumentSuperadmin(item.id)" :loading="approvingId === item.id"
-                  :disabled="approvingId === item.id" class="mb-2" prepend-icon="mdi-shield-check">
-                  Approve Document
-                </v-btn>
-              </div>
-            </v-card-text>
-          </div>
-        </v-expand-transition>
-      </v-card>
+                  <!-- Tombol Approve Document khusus Superadmin (Mobile) -->
+                  <v-btn v-if="mvo_type_id === 'superadmin' && !isDocumentFullyApproved(item)" size="small"
+                    color="primary" @click.stop="approveDocumentSuperadmin(item.id)" :loading="approvingId === item.id"
+                    :disabled="approvingId === item.id" class="mb-2" prepend-icon="mdi-shield-check">
+                    Approve Document
+                  </v-btn>
+                </div>
+              </v-card-text>
+            </div>
+          </v-expand-transition>
+        </v-card>
+      </div>
     </div>
 
     <!-- Snackbar -->

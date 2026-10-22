@@ -196,6 +196,17 @@ html .v-tab.v-tab.v-btn {
   }
 }
 
+// Kotak yang isinya digulir sendiri (dipakai bersama v-isi-layar, lihat plugins/isiLayar.js).
+// padding-bottom: kartu terakhir bisa digulir ke atas music player.
+.baba-gulir {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--baba-gold-dark) transparent;
+  padding: 2px 2px 72px;
+  margin: 0 -2px;
+}
+
 // Ruang di bawah konten seukuran music player (melayang di kanan bawah), supaya
 // tombol/elemen paling bawah selalu bisa digulir ke atas player dan tidak tertutup.
 .main-content-container {

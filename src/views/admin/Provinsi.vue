@@ -89,165 +89,168 @@
 
         <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-        <div v-if="filteredMobileItems.length === 0 && !isTableLoading" class="text-center pa-4">
-            <v-icon size="64" color="grey">mdi-map-marker-outline</v-icon>
-            <p class="text-grey mt-2">Tidak ada data Cabang ditemukan</p>
+        <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+        <div v-isi-layar="60" class="baba-gulir">
+            <div v-if="filteredMobileItems.length === 0 && !isTableLoading" class="text-center pa-4">
+                <v-icon size="64" color="grey">mdi-map-marker-outline</v-icon>
+                <p class="text-grey mt-2">Tidak ada data Cabang ditemukan</p>
+            </div>
+
+            <v-card v-for="(item, index) in paginatedMobileItems" :key="item.id" class="mobile-code-card mb-3"
+                @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+                <!-- Header Card - Always Visible -->
+                <v-card-text class="mobile-card-header">
+                    <v-row no-gutters align="center">
+                        <v-col cols="1" class="text-center">
+                            <span class="mobile-number">{{ ((currentMobilePage - 1) * itemsPerMobilePage) + index + 1
+                            }}</span>
+                        </v-col>
+
+                        <v-col cols="9" class="pl-3">
+                            <div class="mobile-code-name">
+                                <v-chip color="#141414" size="x-small" variant="flat" class="mr-1 mb-1">
+                                    Cabang
+                                </v-chip>
+                                <strong>{{ item.name || 'Nama Tidak Tersedia' }}</strong>
+                            </div>
+                        </v-col>
+
+                        <v-col cols="2" class="text-center">
+                            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                                mdi-chevron-down
+                            </v-icon>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+
+                <!-- Detail Card - Expandable -->
+                <v-expand-transition>
+                    <div v-show="expandedMobileCard === item.id">
+                        <v-divider></v-divider>
+                        <v-card-text class="mobile-card-details">
+                            <v-row class="mb-3">
+                                <v-col cols="4" class="detail-label">
+                                    <strong>Code:</strong>
+                                </v-col>
+                                <v-col cols="8" class="detail-value">
+                                    <v-chip color="primary" size="small" variant="flat">
+                                        {{ item.code || '-' }}
+                                    </v-chip>
+                                </v-col>
+                            </v-row>
+
+                            <v-row class="mb-3">
+                                <v-col cols="4" class="detail-label">
+                                    <strong>Nama Cabang:</strong>
+                                </v-col>
+                                <v-col cols="8" class="detail-value">
+                                    {{ item.name || '-' }}
+                                </v-col>
+                            </v-row>
+
+                            <v-row class="mb-3">
+                                <v-col cols="4" class="detail-label">
+                                    <strong>Pimpinan:</strong>
+                                </v-col>
+                                <v-col cols="8" class="detail-value">
+                                    {{ item.pimpinan || '-' }}
+                                </v-col>
+                            </v-row>
+
+                            <v-row class="mb-3">
+                                <v-col cols="4" class="detail-label">
+                                    <strong>Warna:</strong>
+                                </v-col>
+                                <v-col cols="8" class="detail-value">
+                                    <v-chip v-if="item.warna"
+                                        :style="{ backgroundColor: item.warna, color: getContrastColor(item.warna) }"
+                                        size="small">
+                                        {{ item.warna }}
+                                    </v-chip>
+                                    <span v-else>-</span>
+                                </v-col>
+                            </v-row>
+
+                            <v-row class="mb-3">
+                                <v-col cols="4" class="detail-label">
+                                    <strong>Foto Ruang:</strong>
+                                </v-col>
+                                <v-col cols="8" class="detail-value">
+                                    <div v-if="item.foto_ruang_kota" class="mobile-image-detail"
+                                        @click.stop="showImageDialog(item.foto_ruang_kota, 'Foto Ruang Kota')">
+                                        <v-img :src="getImageUrl(item.foto_ruang_kota)" max-height="80" contain
+                                            class="mobile-detail-image" @error="handleImageError($event, 'ruang')">
+                                            <template v-slot:placeholder>
+                                                <div class="d-flex align-center justify-center fill-height">
+                                                    <v-progress-circular color="grey-lighten-4"
+                                                        indeterminate></v-progress-circular>
+                                                </div>
+                                            </template>
+                                            <template v-slot:error>
+                                                <div class="d-flex align-center justify-center fill-height">
+                                                    <v-icon size="32" color="grey">mdi-image-broken</v-icon>
+                                                </div>
+                                            </template>
+                                        </v-img>
+                                        <div class="image-overlay">
+                                            <v-icon color="white" size="32">mdi-magnify</v-icon>
+                                        </div>
+                                    </div>
+                                    <span v-else>-</span>
+                                </v-col>
+                            </v-row>
+
+                            <v-row class="mb-3">
+                                <v-col cols="4" class="detail-label">
+                                    <strong>Foto MVO:</strong>
+                                </v-col>
+                                <v-col cols="8" class="detail-value">
+                                    <div v-if="item.foto_mvo" class="mobile-image-detail"
+                                        @click.stop="showImageDialog(item.foto_mvo, 'Foto MVO')">
+                                        <v-img :src="getImageUrl(item.foto_mvo)" max-height="80" contain
+                                            class="mobile-detail-image" @error="handleImageError($event, 'mvo')">
+                                            <template v-slot:placeholder>
+                                                <div class="d-flex align-center justify-center fill-height">
+                                                    <v-progress-circular color="grey-lighten-4"
+                                                        indeterminate></v-progress-circular>
+                                                </div>
+                                            </template>
+                                            <template v-slot:error>
+                                                <div class="d-flex align-center justify-center fill-height">
+                                                    <v-icon size="32" color="grey">mdi-image-broken</v-icon>
+                                                </div>
+                                            </template>
+                                        </v-img>
+                                        <div class="image-overlay">
+                                            <v-icon color="white" size="32">mdi-magnify</v-icon>
+                                        </div>
+                                    </div>
+                                    <span v-else>-</span>
+                                </v-col>
+                            </v-row>
+
+                            <!-- Action Buttons -->
+                            <v-row class="mt-4">
+                                <v-col cols="12" class="text-center">
+                                    <div class="mobile-actions">
+                                        <v-btn size="small" :color="app.colors.primary" @click.stop="editCode(item.id)"
+                                            class="mr-2 mb-2" prepend-icon="mdi-pencil" style="min-width: 150px;">
+                                            Edit
+                                        </v-btn>
+
+                                        <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteCode(item.id)"
+                                            class="mb-2" prepend-icon="mdi-delete" style="min-width: 150px;">
+                                            Hapus
+                                        </v-btn>
+                                    </div>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </div>
+                </v-expand-transition>
+            </v-card>
+
         </div>
-
-        <v-card v-for="(item, index) in paginatedMobileItems" :key="item.id" class="mobile-code-card mb-3"
-            @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-            <!-- Header Card - Always Visible -->
-            <v-card-text class="mobile-card-header">
-                <v-row no-gutters align="center">
-                    <v-col cols="1" class="text-center">
-                        <span class="mobile-number">{{ ((currentMobilePage - 1) * itemsPerMobilePage) + index + 1
-                        }}</span>
-                    </v-col>
-
-                    <v-col cols="9" class="pl-3">
-                        <div class="mobile-code-name">
-                            <v-chip color="#141414" size="x-small" variant="flat" class="mr-1 mb-1">
-                                Cabang
-                            </v-chip>
-                            <strong>{{ item.name || 'Nama Tidak Tersedia' }}</strong>
-                        </div>
-                    </v-col>
-
-                    <v-col cols="2" class="text-center">
-                        <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                            mdi-chevron-down
-                        </v-icon>
-                    </v-col>
-                </v-row>
-            </v-card-text>
-
-            <!-- Detail Card - Expandable -->
-            <v-expand-transition>
-                <div v-show="expandedMobileCard === item.id">
-                    <v-divider></v-divider>
-                    <v-card-text class="mobile-card-details">
-                        <v-row class="mb-3">
-                            <v-col cols="4" class="detail-label">
-                                <strong>Code:</strong>
-                            </v-col>
-                            <v-col cols="8" class="detail-value">
-                                <v-chip color="primary" size="small" variant="flat">
-                                    {{ item.code || '-' }}
-                                </v-chip>
-                            </v-col>
-                        </v-row>
-
-                        <v-row class="mb-3">
-                            <v-col cols="4" class="detail-label">
-                                <strong>Nama Cabang:</strong>
-                            </v-col>
-                            <v-col cols="8" class="detail-value">
-                                {{ item.name || '-' }}
-                            </v-col>
-                        </v-row>
-
-                        <v-row class="mb-3">
-                            <v-col cols="4" class="detail-label">
-                                <strong>Pimpinan:</strong>
-                            </v-col>
-                            <v-col cols="8" class="detail-value">
-                                {{ item.pimpinan || '-' }}
-                            </v-col>
-                        </v-row>
-
-                        <v-row class="mb-3">
-                            <v-col cols="4" class="detail-label">
-                                <strong>Warna:</strong>
-                            </v-col>
-                            <v-col cols="8" class="detail-value">
-                                <v-chip v-if="item.warna"
-                                    :style="{ backgroundColor: item.warna, color: getContrastColor(item.warna) }"
-                                    size="small">
-                                    {{ item.warna }}
-                                </v-chip>
-                                <span v-else>-</span>
-                            </v-col>
-                        </v-row>
-
-                        <v-row class="mb-3">
-                            <v-col cols="4" class="detail-label">
-                                <strong>Foto Ruang:</strong>
-                            </v-col>
-                            <v-col cols="8" class="detail-value">
-                                <div v-if="item.foto_ruang_kota" class="mobile-image-detail"
-                                    @click.stop="showImageDialog(item.foto_ruang_kota, 'Foto Ruang Kota')">
-                                    <v-img :src="getImageUrl(item.foto_ruang_kota)" max-height="80" contain
-                                        class="mobile-detail-image" @error="handleImageError($event, 'ruang')">
-                                        <template v-slot:placeholder>
-                                            <div class="d-flex align-center justify-center fill-height">
-                                                <v-progress-circular color="grey-lighten-4"
-                                                    indeterminate></v-progress-circular>
-                                            </div>
-                                        </template>
-                                        <template v-slot:error>
-                                            <div class="d-flex align-center justify-center fill-height">
-                                                <v-icon size="32" color="grey">mdi-image-broken</v-icon>
-                                            </div>
-                                        </template>
-                                    </v-img>
-                                    <div class="image-overlay">
-                                        <v-icon color="white" size="32">mdi-magnify</v-icon>
-                                    </div>
-                                </div>
-                                <span v-else>-</span>
-                            </v-col>
-                        </v-row>
-
-                        <v-row class="mb-3">
-                            <v-col cols="4" class="detail-label">
-                                <strong>Foto MVO:</strong>
-                            </v-col>
-                            <v-col cols="8" class="detail-value">
-                                <div v-if="item.foto_mvo" class="mobile-image-detail"
-                                    @click.stop="showImageDialog(item.foto_mvo, 'Foto MVO')">
-                                    <v-img :src="getImageUrl(item.foto_mvo)" max-height="80" contain
-                                        class="mobile-detail-image" @error="handleImageError($event, 'mvo')">
-                                        <template v-slot:placeholder>
-                                            <div class="d-flex align-center justify-center fill-height">
-                                                <v-progress-circular color="grey-lighten-4"
-                                                    indeterminate></v-progress-circular>
-                                            </div>
-                                        </template>
-                                        <template v-slot:error>
-                                            <div class="d-flex align-center justify-center fill-height">
-                                                <v-icon size="32" color="grey">mdi-image-broken</v-icon>
-                                            </div>
-                                        </template>
-                                    </v-img>
-                                    <div class="image-overlay">
-                                        <v-icon color="white" size="32">mdi-magnify</v-icon>
-                                    </div>
-                                </div>
-                                <span v-else>-</span>
-                            </v-col>
-                        </v-row>
-
-                        <!-- Action Buttons -->
-                        <v-row class="mt-4">
-                            <v-col cols="12" class="text-center">
-                                <div class="mobile-actions">
-                                    <v-btn size="small" :color="app.colors.primary" @click.stop="editCode(item.id)"
-                                        class="mr-2 mb-2" prepend-icon="mdi-pencil" style="min-width: 150px;">
-                                        Edit
-                                    </v-btn>
-
-                                    <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteCode(item.id)"
-                                        class="mb-2" prepend-icon="mdi-delete" style="min-width: 150px;">
-                                        Hapus
-                                    </v-btn>
-                                </div>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                </div>
-            </v-expand-transition>
-        </v-card>
-
         <!-- Mobile Pagination -->
         <div v-if="filteredMobileItems.length > itemsPerMobilePage" class="mobile-pagination mt-4">
             <v-pagination v-model="currentMobilePage" :length="totalMobilePages" :total-visible="5" color="#E6B422"

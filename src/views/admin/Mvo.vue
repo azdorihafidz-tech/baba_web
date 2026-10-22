@@ -140,63 +140,66 @@
 
       <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-      <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
-        <v-icon size="64" color="grey">mdi-account-search</v-icon>
-        <p class="text-grey mt-2">Tidak ada akun ditemukan</p>
-      </div>
+      <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+      <div v-isi-layar="64" class="baba-gulir">
+        <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
+          <v-icon size="64" color="grey">mdi-account-search</v-icon>
+          <p class="text-grey mt-2">Tidak ada akun ditemukan</p>
+        </div>
 
-      <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-mvo-card mb-3"
-        @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-        <v-card-text class="mobile-card-header">
-          <v-row no-gutters align="center">
-            <v-col cols="2" class="text-center">
-              <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
-            </v-col>
-            <v-col cols="8" class="pl-3">
-              <div class="mobile-mvo-name"><strong>{{ item.nama }}</strong></div>
-              <div class="mobile-mvo-code"><strong>{{ item.code }}</strong></div>
-            </v-col>
-            <v-col cols="2" class="text-center">
-              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                mdi-chevron-down
-              </v-icon>
-            </v-col>
-          </v-row>
-        </v-card-text>
+        <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-mvo-card mb-3"
+          @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+          <v-card-text class="mobile-card-header">
+            <v-row no-gutters align="center">
+              <v-col cols="2" class="text-center">
+                <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
+              </v-col>
+              <v-col cols="8" class="pl-3">
+                <div class="mobile-mvo-name"><strong>{{ item.nama }}</strong></div>
+                <div class="mobile-mvo-code"><strong>{{ item.code }}</strong></div>
+              </v-col>
+              <v-col cols="2" class="text-center">
+                <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                  mdi-chevron-down
+                </v-icon>
+              </v-col>
+            </v-row>
+          </v-card-text>
 
-        <v-expand-transition>
-          <div v-show="expandedMobileCard === item.id">
-            <v-divider></v-divider>
-            <v-card-text class="mobile-card-details">
-              <div v-for="(section, si) in mobileMvoSections(item)" :key="si" class="mobile-info-section mb-3">
-                <div v-for="row in section.rows" :key="row.label" class="kv-row">
-                  <span class="kv-label">{{ row.label }}</span>
-                  <span class="kv-value">{{ row.value }}</span>
+          <v-expand-transition>
+            <div v-show="expandedMobileCard === item.id">
+              <v-divider></v-divider>
+              <v-card-text class="mobile-card-details">
+                <div v-for="(section, si) in mobileMvoSections(item)" :key="si" class="mobile-info-section mb-3">
+                  <div v-for="row in section.rows" :key="row.label" class="kv-row">
+                    <span class="kv-label">{{ row.label }}</span>
+                    <span class="kv-value">{{ row.value }}</span>
+                  </div>
                 </div>
-              </div>
 
-              <v-divider class="mb-3"></v-divider>
-              <div class="mobile-actions">
-                <v-btn size="small" color="info" @click.stop="showDetailMvo(item.id)" class="mr-1 mb-2"
-                  prepend-icon="mdi-information">Detail</v-btn>
-                <v-btn size="small" color="success" @click.stop="printMvo(item.id)" class="mr-1 mb-2"
-                  prepend-icon="mdi-printer">Print</v-btn>
+                <v-divider class="mb-3"></v-divider>
+                <div class="mobile-actions">
+                  <v-btn size="small" color="info" @click.stop="showDetailMvo(item.id)" class="mr-1 mb-2"
+                    prepend-icon="mdi-information">Detail</v-btn>
+                  <v-btn size="small" color="success" @click.stop="printMvo(item.id)" class="mr-1 mb-2"
+                    prepend-icon="mdi-printer">Print</v-btn>
 
-                <v-btn v-if="canApprove(item)" size="small" :color="getApproveButtonColor(item)"
-                  @click.stop="approveMvo(item.id)" class="mr-1 mb-2" :prepend-icon="getApproveButtonIcon(item)">
-                  {{ mvo_type_id === 'mvo' ? 'Approve MVO' : 'Approve Admin' }}
-                </v-btn>
+                  <v-btn v-if="canApprove(item)" size="small" :color="getApproveButtonColor(item)"
+                    @click.stop="approveMvo(item.id)" class="mr-1 mb-2" :prepend-icon="getApproveButtonIcon(item)">
+                    {{ mvo_type_id === 'mvo' ? 'Approve MVO' : 'Approve Admin' }}
+                  </v-btn>
 
-                <template v-if="mvo_type_id === 'superadmin'">
-                  <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvo(item.id)" class="mb-2"
-                    prepend-icon="mdi-delete">Hapus</v-btn>
-                </template>
-              </div>
-            </v-card-text>
-          </div>
-        </v-expand-transition>
-      </v-card>
+                  <template v-if="mvo_type_id === 'superadmin'">
+                    <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvo(item.id)" class="mb-2"
+                      prepend-icon="mdi-delete">Hapus</v-btn>
+                  </template>
+                </div>
+              </v-card-text>
+            </div>
+          </v-expand-transition>
+        </v-card>
 
+      </div>
       <div v-if="totalPages > 1" class="d-flex justify-center mt-3 mb-3">
         <v-pagination v-model="pagination.page" :length="totalPages" :total-visible="5" density="comfortable"
           @update:modelValue="loadItems" />

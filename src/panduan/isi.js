@@ -38,6 +38,7 @@ export const MULAI_CEPAT = {
     { t: "Login", j: "Masukkan username dan password di halaman Login. Akun yang belum diverifikasi superadmin belum bisa masuk." },
     { t: "Lupa password", j: "Klik Lupa Password? di halaman Login, isi username atau nomor WhatsApp. Link reset dikirim lewat WhatsApp dan berlaku 60 menit." },
     { t: "Menu di HP", j: "Menu utama ada di bar bawah. Menu lain ada di tombol Lainnya. Foto profil di kanan atas berisi Profil Saya, Info Cabang, Muat Ulang Data, dan Keluar." },
+    { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
   ],
 };
@@ -287,7 +288,7 @@ export const PANDUAN = [
       {
         judul: "Menjelajah pohon",
         isi: [
-          "Setiap baris menampilkan jabatan, No ID (warna emas), dan nama. Di HP, nama di baris atas lalu jabatan · No ID di bawahnya.",
+          "Setiap baris menampilkan jabatan dan No ID (warna emas) di atas, lalu nama di bawahnya.",
           "Tekan panah ( › ) di samping nama untuk membuka bawahannya, atau Buka Semua / Tutup Semua. Di HP kedua tombol ini berupa ikon panah di samping jumlah akun.",
           "Daftar akun digulir di dalam kotaknya sendiri, jadi kartu total dan kolom cari tetap terlihat di atas.",
           "Angka di kanan nama adalah jumlah seluruh bawahannya.",

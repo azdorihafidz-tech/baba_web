@@ -6,16 +6,42 @@
     <div class="baba-table-search">
       <slot name="search" />
     </div>
-    <div class="baba-table-body">
+    <div ref="body" class="baba-table-body">
       <slot name="datatable" />
     </div>
   </v-card>
 </template>
 
 <script>
+import { aturTinggiIsiLayar } from "@/plugins/isiLayar";
+
+// Ruang untuk music player yang melayang di kanan bawah, supaya tombol halaman tidak tertutup
+const RUANG_PLAYER = 76;
+
 export default {
   props: {
     title: String,
+  },
+  mounted() {
+    window.addEventListener("resize", this.aturTinggi);
+    requestAnimationFrame(this.aturTinggi);
+    setTimeout(this.aturTinggi, 600);
+  },
+  updated() {
+    this.aturTinggi();
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.aturTinggi);
+  },
+  methods: {
+    // Isi tabel digulir di dalam kartu: tinggi tabel = sisa layar dikurangi baris tombol halaman
+    aturTinggi() {
+      const body = this.$refs.body;
+      const wrapper = body && body.querySelector(".v-table__wrapper");
+      if (!wrapper) return;
+      const footer = body.querySelector(".v-data-table-footer");
+      aturTinggiIsiLayar(wrapper, (footer ? footer.offsetHeight : 0) + RUANG_PLAYER);
+    },
   },
 };
 </script>
@@ -53,6 +79,21 @@ export default {
 
 .baba-table-body {
   padding: 0;
+}
+
+.baba-table-body :deep(.v-table__wrapper) {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--baba-gold-dark) transparent;
+}
+
+/* Judul kolom tetap terlihat saat isi tabel digulir.
+   :where() menjaga spesifisitas rendah agar aturan kolom kanan yang dikunci di tiap halaman tetap berlaku. */
+.baba-table-body :deep(:where(.v-table__wrapper > table > thead > tr > th)) {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2;
 }
 
 @media (max-width: 599.98px) {

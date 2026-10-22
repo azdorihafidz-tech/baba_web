@@ -105,115 +105,118 @@
 
     <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-    <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
-      <v-icon size="64" color="grey">mdi-file-search</v-icon>
-      <p class="text-grey mt-2">Tidak ada data dokumentasi ditemukan</p>
-    </div>
+    <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+    <div v-isi-layar class="baba-gulir">
+      <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
+        <v-icon size="64" color="grey">mdi-file-search</v-icon>
+        <p class="text-grey mt-2">Tidak ada data dokumentasi ditemukan</p>
+      </div>
 
-    <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-header-card mb-3"
-      @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-      <!-- Header Card - Always Visible -->
-      <v-card-text class="mobile-card-header">
-        <v-row no-gutters align="center">
-          <v-col cols="1" class="text-center">
-            <span class="mobile-number">{{ index + 1 }}</span>
-          </v-col>
+      <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-header-card mb-3"
+        @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+        <!-- Header Card - Always Visible -->
+        <v-card-text class="mobile-card-header">
+          <v-row no-gutters align="center">
+            <v-col cols="1" class="text-center">
+              <span class="mobile-number">{{ index + 1 }}</span>
+            </v-col>
 
-          <v-col cols="2" class="text-center">
-            <div class="mobile-media-preview" @click.stop="showMediaDialog(item)">
-              <v-icon size="32" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'">
-                {{ item.tipe_file === 'foto' ? 'mdi-file-image' : 'mdi-file-video' }}
-              </v-icon>
-            </div>
-          </v-col>
+            <v-col cols="2" class="text-center">
+              <div class="mobile-media-preview" @click.stop="showMediaDialog(item)">
+                <v-icon size="32" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'">
+                  {{ item.tipe_file === 'foto' ? 'mdi-file-image' : 'mdi-file-video' }}
+                </v-icon>
+              </div>
+            </v-col>
 
-          <v-col cols="7" class="pl-3">
-            <div class="mobile-header-title">
-              <strong>{{ item.file_name || 'File Tidak Tersedia' }}</strong>
-            </div>
-            <div class="mobile-header-preview">
-              <v-chip size="small" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black">
-                <v-icon start size="small">{{ item.tipe_file === 'foto' ? 'mdi-camera' : 'mdi-video' }}</v-icon>
-                {{ item.tipe_file === 'foto' ? 'Foto' : 'Video' }}
-              </v-chip>
-            </div>
-            <div class="mobile-date">
-              <small>{{ formatDate(item.created_at) }}</small>
-            </div>
-          </v-col>
-
-          <v-col cols="2" class="text-center">
-            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-              mdi-chevron-down
-            </v-icon>
-          </v-col>
-        </v-row>
-      </v-card-text>
-
-      <!-- Detail Card - Expandable -->
-      <v-expand-transition>
-        <div v-show="expandedMobileCard === item.id">
-          <v-divider></v-divider>
-          <v-card-text class="mobile-card-details">
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Nama File:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                {{ item.file_name || '-' }}
-              </v-col>
-            </v-row>
-
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Tipe File:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                <v-chip :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black" size="small">
+            <v-col cols="7" class="pl-3">
+              <div class="mobile-header-title">
+                <strong>{{ item.file_name || 'File Tidak Tersedia' }}</strong>
+              </div>
+              <div class="mobile-header-preview">
+                <v-chip size="small" :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black">
                   <v-icon start size="small">{{ item.tipe_file === 'foto' ? 'mdi-camera' : 'mdi-video' }}</v-icon>
                   {{ item.tipe_file === 'foto' ? 'Foto' : 'Video' }}
                 </v-chip>
-              </v-col>
-            </v-row>
+              </div>
+              <div class="mobile-date">
+                <small>{{ formatDate(item.created_at) }}</small>
+              </div>
+            </v-col>
 
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Keterangan:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                {{ item.keterangan || '-' }}
-              </v-col>
-            </v-row>
+            <v-col cols="2" class="text-center">
+              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                mdi-chevron-down
+              </v-icon>
+            </v-col>
+          </v-row>
+        </v-card-text>
 
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Tanggal Upload:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                {{ formatDate(item.created_at) }}
-              </v-col>
-            </v-row>
+        <!-- Detail Card - Expandable -->
+        <v-expand-transition>
+          <div v-show="expandedMobileCard === item.id">
+            <v-divider></v-divider>
+            <v-card-text class="mobile-card-details">
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Nama File:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  {{ item.file_name || '-' }}
+                </v-col>
+              </v-row>
 
-            <!-- Action Buttons -->
-            <v-divider class="mb-3"></v-divider>
-            <div class="mobile-actions">
-              <v-btn size="small" color="#2196F3" @click.stop="downloadDokumentasi(item)" class="mr-2 mb-2"
-                prepend-icon="mdi-download">
-                Download
-              </v-btn>
-              <v-btn size="small" :color="app.colors.primary" @click.stop="editDokumentasi(item.id)" class="mr-2 mb-2"
-                prepend-icon="mdi-pencil">
-                Edit
-              </v-btn>
-              <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteDokumentasi(item.id)" class="mb-2"
-                prepend-icon="mdi-delete">
-                Hapus
-              </v-btn>
-            </div>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
-    </v-card>
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Tipe File:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  <v-chip :color="item.tipe_file === 'foto' ? '#E6B422' : '#4CAF50'" class="text-black" size="small">
+                    <v-icon start size="small">{{ item.tipe_file === 'foto' ? 'mdi-camera' : 'mdi-video' }}</v-icon>
+                    {{ item.tipe_file === 'foto' ? 'Foto' : 'Video' }}
+                  </v-chip>
+                </v-col>
+              </v-row>
+
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Keterangan:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  {{ item.keterangan || '-' }}
+                </v-col>
+              </v-row>
+
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Tanggal Upload:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  {{ formatDate(item.created_at) }}
+                </v-col>
+              </v-row>
+
+              <!-- Action Buttons -->
+              <v-divider class="mb-3"></v-divider>
+              <div class="mobile-actions">
+                <v-btn size="small" color="#2196F3" @click.stop="downloadDokumentasi(item)" class="mr-2 mb-2"
+                  prepend-icon="mdi-download">
+                  Download
+                </v-btn>
+                <v-btn size="small" :color="app.colors.primary" @click.stop="editDokumentasi(item.id)" class="mr-2 mb-2"
+                  prepend-icon="mdi-pencil">
+                  Edit
+                </v-btn>
+                <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteDokumentasi(item.id)" class="mb-2"
+                  prepend-icon="mdi-delete">
+                  Hapus
+                </v-btn>
+              </div>
+            </v-card-text>
+          </div>
+        </v-expand-transition>
+      </v-card>
+    </div>
   </div>
 
   <!-- Dialog Tambah Dokumentasi -->

@@ -81,101 +81,104 @@
 
     <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-    <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
-      <v-icon size="64" color="grey">mdi-format-list-bulleted-type</v-icon>
-      <p class="text-grey mt-2">Tidak ada data Tipe Akun ditemukan</p>
-    </div>
+    <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+    <div v-isi-layar class="baba-gulir">
+      <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
+        <v-icon size="64" color="grey">mdi-format-list-bulleted-type</v-icon>
+        <p class="text-grey mt-2">Tidak ada data Tipe Akun ditemukan</p>
+      </div>
 
-    <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
-      @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-      <!-- Header Card - Always Visible -->
-      <v-card-text class="mobile-card-header">
-        <v-row no-gutters align="center">
-          <v-col cols="1" class="text-center">
-            <span class="mobile-number">{{ index + 1 }}</span>
-          </v-col>
+      <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-mvo-card mb-3"
+        @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+        <!-- Header Card - Always Visible -->
+        <v-card-text class="mobile-card-header">
+          <v-row no-gutters align="center">
+            <v-col cols="1" class="text-center">
+              <span class="mobile-number">{{ index + 1 }}</span>
+            </v-col>
 
-          <v-col cols="9" class="pl-3">
-            <div class="mobile-mvo-name">
-              <strong>{{ item.name || 'Nama Tipe Akun Tidak Tersedia' }}</strong>
-            </div>
-          </v-col>
+            <v-col cols="9" class="pl-3">
+              <div class="mobile-mvo-name">
+                <strong>{{ item.name || 'Nama Tipe Akun Tidak Tersedia' }}</strong>
+              </div>
+            </v-col>
 
-          <v-col cols="2" class="text-center">
-            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-              mdi-chevron-down
-            </v-icon>
-          </v-col>
-        </v-row>
-      </v-card-text>
+            <v-col cols="2" class="text-center">
+              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                mdi-chevron-down
+              </v-icon>
+            </v-col>
+          </v-row>
+        </v-card-text>
 
-      <!-- Detail Card - Expandable -->
-      <v-expand-transition>
-        <div v-show="expandedMobileCard === item.id">
-          <v-divider></v-divider>
-          <v-card-text class="mobile-card-details">
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Nama Tipe Akun:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                {{ item.name || '-' }}
-              </v-col>
-            </v-row>
+        <!-- Detail Card - Expandable -->
+        <v-expand-transition>
+          <div v-show="expandedMobileCard === item.id">
+            <v-divider></v-divider>
+            <v-card-text class="mobile-card-details">
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Nama Tipe Akun:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  {{ item.name || '-' }}
+                </v-col>
+              </v-row>
 
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Level:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                <v-chip :color="getLevelColor(item.level)" small>{{ item.level || '-' }}</v-chip>
-              </v-col>
-            </v-row>
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Level:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  <v-chip :color="getLevelColor(item.level)" small>{{ item.level || '-' }}</v-chip>
+                </v-col>
+              </v-row>
 
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Rating Bintang:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value">
-                <div class="d-flex align-center gap-2">
-                  <v-chip color="amber" text-color="white" small>
-                    <v-icon left small>mdi-star</v-icon>
-                    {{ item.jlh_bintang || 0 }} Bintang
-                  </v-chip>
-                  <div class="star-display">
-                    <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#E6B422' : '#e0e0e0'" small>
-                      mdi-star
-                    </v-icon>
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Rating Bintang:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value">
+                  <div class="d-flex align-center gap-2">
+                    <v-chip color="amber" text-color="white" small>
+                      <v-icon left small>mdi-star</v-icon>
+                      {{ item.jlh_bintang || 0 }} Bintang
+                    </v-chip>
+                    <div class="star-display">
+                      <v-icon v-for="n in 8" :key="n" :color="n <= (item.jlh_bintang || 0) ? '#E6B422' : '#e0e0e0'" small>
+                        mdi-star
+                      </v-icon>
+                    </div>
                   </div>
-                </div>
-              </v-col>
-            </v-row>
+                </v-col>
+              </v-row>
 
-            <v-row class="mb-3">
-              <v-col cols="12" class="detail-label">
-                <strong>Jabatan:</strong>
-              </v-col>
-              <v-col cols="12" class="detail-value jabatan-text">
-                {{ item.jabatan || 'Tidak ada Jabatan' }}
-              </v-col>
-            </v-row>
+              <v-row class="mb-3">
+                <v-col cols="12" class="detail-label">
+                  <strong>Jabatan:</strong>
+                </v-col>
+                <v-col cols="12" class="detail-value jabatan-text">
+                  {{ item.jabatan || 'Tidak ada Jabatan' }}
+                </v-col>
+              </v-row>
 
-            <!-- Action Buttons -->
-            <v-divider class="mb-3"></v-divider>
-            <div class="mobile-actions">
-              <v-btn size="small" :color="app.colors.primary" @click.stop="editMvoType(item.id)" class="mr-2 mb-2"
-                prepend-icon="mdi-pencil">
-                Edit
-              </v-btn>
-              <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvoType(item.id)" class="mb-2"
-                prepend-icon="mdi-delete">
-                Hapus
-              </v-btn>
-            </div>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
-    </v-card>
+              <!-- Action Buttons -->
+              <v-divider class="mb-3"></v-divider>
+              <div class="mobile-actions">
+                <v-btn size="small" :color="app.colors.primary" @click.stop="editMvoType(item.id)" class="mr-2 mb-2"
+                  prepend-icon="mdi-pencil">
+                  Edit
+                </v-btn>
+                <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvoType(item.id)" class="mb-2"
+                  prepend-icon="mdi-delete">
+                  Hapus
+                </v-btn>
+              </div>
+            </v-card-text>
+          </div>
+        </v-expand-transition>
+      </v-card>
+    </div>
   </div>
 
   <!-- Dialog Tambah Tipe Akun -->

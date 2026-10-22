@@ -96,113 +96,116 @@
 
         <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-        <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
-            <v-icon size="64" color="grey">mdi-store-search</v-icon>
-            <p class="text-grey mt-2">Tidak ada data toko ditemukan</p>
-        </div>
+        <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+        <div v-isi-layar class="baba-gulir">
+            <div v-if="filteredItems.length === 0 && !isTableLoading" class="text-center pa-4">
+                <v-icon size="64" color="grey">mdi-store-search</v-icon>
+                <p class="text-grey mt-2">Tidak ada data toko ditemukan</p>
+            </div>
 
-        <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-toko-card mb-3"
-            @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-            <v-card-text class="mobile-card-header">
-                <v-row no-gutters align="center">
-                    <v-col cols="1" class="text-center">
-                        <span class="mobile-number">{{ index + 1 }}</span>
-                    </v-col>
-                    <v-col cols="9" class="pl-3">
-                        <div class="mobile-toko-name">
-                            <strong>{{ item.nama_toko || 'Nama Toko Tidak Tersedia' }}</strong>
-                        </div>
-                        <div class="mobile-toko-preview">
-                            {{ item.provinsi ? item.provinsi.name : 'Tidak ada cabang' }}
-                        </div>
-                    </v-col>
-                    <v-col cols="2" class="text-center">
-                        <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                            mdi-chevron-down
-                        </v-icon>
-                    </v-col>
-                </v-row>
-            </v-card-text>
+            <v-card v-for="(item, index) in filteredItems" :key="item.id" class="mobile-toko-card mb-3"
+                @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+                <v-card-text class="mobile-card-header">
+                    <v-row no-gutters align="center">
+                        <v-col cols="1" class="text-center">
+                            <span class="mobile-number">{{ index + 1 }}</span>
+                        </v-col>
+                        <v-col cols="9" class="pl-3">
+                            <div class="mobile-toko-name">
+                                <strong>{{ item.nama_toko || 'Nama Toko Tidak Tersedia' }}</strong>
+                            </div>
+                            <div class="mobile-toko-preview">
+                                {{ item.provinsi ? item.provinsi.name : 'Tidak ada cabang' }}
+                            </div>
+                        </v-col>
+                        <v-col cols="2" class="text-center">
+                            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                                mdi-chevron-down
+                            </v-icon>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
 
-            <v-expand-transition>
-                <div v-show="expandedMobileCard === item.id">
-                    <v-divider></v-divider>
-                    <v-card-text class="mobile-card-details">
-                        <v-row class="mb-3">
-                            <v-col cols="12" class="detail-label"><strong>Nama Toko:</strong></v-col>
-                            <v-col cols="12" class="detail-value">{{ item.nama_toko || '-' }}</v-col>
-                        </v-row>
-                        <v-row class="mb-3">
-                            <v-col cols="12" class="detail-label"><strong>Owner Toko:</strong></v-col>
-                            <v-col cols="12" class="detail-value">{{ item.owner_toko || '-' }}</v-col>
-                        </v-row>
-                        <v-row class="mb-3">
-                            <v-col cols="12" class="detail-label"><strong>Cabang:</strong></v-col>
-                            <v-col cols="12" class="detail-value">{{ item.provinsi ? item.provinsi.name : '-' }}</v-col>
-                        </v-row>
-                        <v-row class="mb-3">
-                            <v-col cols="12" class="detail-label"><strong>Alamat:</strong></v-col>
-                            <v-col cols="12" class="detail-value description-text">{{ item.alamat || 'Tidak ada alamat'
-                                }}</v-col>
-                        </v-row>
+                <v-expand-transition>
+                    <div v-show="expandedMobileCard === item.id">
+                        <v-divider></v-divider>
+                        <v-card-text class="mobile-card-details">
+                            <v-row class="mb-3">
+                                <v-col cols="12" class="detail-label"><strong>Nama Toko:</strong></v-col>
+                                <v-col cols="12" class="detail-value">{{ item.nama_toko || '-' }}</v-col>
+                            </v-row>
+                            <v-row class="mb-3">
+                                <v-col cols="12" class="detail-label"><strong>Owner Toko:</strong></v-col>
+                                <v-col cols="12" class="detail-value">{{ item.owner_toko || '-' }}</v-col>
+                            </v-row>
+                            <v-row class="mb-3">
+                                <v-col cols="12" class="detail-label"><strong>Cabang:</strong></v-col>
+                                <v-col cols="12" class="detail-value">{{ item.provinsi ? item.provinsi.name : '-' }}</v-col>
+                            </v-row>
+                            <v-row class="mb-3">
+                                <v-col cols="12" class="detail-label"><strong>Alamat:</strong></v-col>
+                                <v-col cols="12" class="detail-value description-text">{{ item.alamat || 'Tidak ada alamat'
+                                    }}</v-col>
+                            </v-row>
 
-                        <!-- File Preview Fotos -->
-                        <v-row class="mb-3" v-if="item.fotos && item.fotos.length > 0">
-                            <v-col cols="12" class="detail-label"><strong>File Preview</strong></v-col>
-                            <v-col cols="12">
-                                <div class="file-preview-list">
-                                    <div v-for="(foto, fIndex) in item.fotos" :key="foto.id" class="file-preview-item">
-                                        <div class="file-preview-avatar">
-                                            <v-img :src="getFotoUrl(foto.file_path)" width="48" height="48" cover
-                                                class="rounded" @error="onImgError($event)">
-                                                <template v-slot:error>
-                                                    <v-icon size="32" color="grey">mdi-account-circle</v-icon>
-                                                </template>
-                                            </v-img>
-                                        </div>
-                                        <div class="file-preview-name">FOTO {{ fIndex + 1 }}</div>
-                                        <div class="file-preview-actions">
-                                            <v-btn size="x-small" color="success" variant="outlined"
-                                                :href="getFotoUrl(foto.file_path)" download target="_blank" class="mr-1"
-                                                prepend-icon="mdi-download">
-                                                DOWNLOAD
-                                            </v-btn>
-                                            <v-btn size="x-small" color="info" variant="outlined"
-                                                @click.stop="viewFoto(getFotoUrl(foto.file_path))"
-                                                prepend-icon="mdi-eye">
-                                                LIHAT
-                                            </v-btn>
+                            <!-- File Preview Fotos -->
+                            <v-row class="mb-3" v-if="item.fotos && item.fotos.length > 0">
+                                <v-col cols="12" class="detail-label"><strong>File Preview</strong></v-col>
+                                <v-col cols="12">
+                                    <div class="file-preview-list">
+                                        <div v-for="(foto, fIndex) in item.fotos" :key="foto.id" class="file-preview-item">
+                                            <div class="file-preview-avatar">
+                                                <v-img :src="getFotoUrl(foto.file_path)" width="48" height="48" cover
+                                                    class="rounded" @error="onImgError($event)">
+                                                    <template v-slot:error>
+                                                        <v-icon size="32" color="grey">mdi-account-circle</v-icon>
+                                                    </template>
+                                                </v-img>
+                                            </div>
+                                            <div class="file-preview-name">FOTO {{ fIndex + 1 }}</div>
+                                            <div class="file-preview-actions">
+                                                <v-btn size="x-small" color="success" variant="outlined"
+                                                    :href="getFotoUrl(foto.file_path)" download target="_blank" class="mr-1"
+                                                    prepend-icon="mdi-download">
+                                                    DOWNLOAD
+                                                </v-btn>
+                                                <v-btn size="x-small" color="info" variant="outlined"
+                                                    @click.stop="viewFoto(getFotoUrl(foto.file_path))"
+                                                    prepend-icon="mdi-eye">
+                                                    LIHAT
+                                                </v-btn>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </v-col>
-                        </v-row>
+                                </v-col>
+                            </v-row>
 
-                        <v-divider class="mb-3"></v-divider>
-                        <div class="mobile-actions">
-                            <v-btn size="small" color="info" @click.stop="openMaps(item.link_maps, item.alamat)"
-                                class="mr-2 mb-2" prepend-icon="mdi-directions" style="min-width: 120px;">
-                                Rute
-                            </v-btn>
-                            <v-btn size="small" color="teal" @click.stop="openFotoDialog(item)" class="mr-2 mb-2"
-                                prepend-icon="mdi-image-multiple" style="min-width: 120px;">
-                                Foto
-                            </v-btn>
-                            <v-btn v-if="isSuperAdmin" size="small" :color="app.colors.primary"
-                                @click.stop="editToko(item.id)" class="mr-2 mb-2" prepend-icon="mdi-pencil"
-                                style="min-width: 120px;">
-                                Edit
-                            </v-btn>
-                            <v-btn v-if="isSuperAdmin" size="small" :color="app.colors.secondary"
-                                @click.stop="deleteToko(item.id)" class="mb-2" prepend-icon="mdi-delete"
-                                style="min-width: 120px;">
-                                Hapus
-                            </v-btn>
-                        </div>
-                    </v-card-text>
-                </div>
-            </v-expand-transition>
-        </v-card>
+                            <v-divider class="mb-3"></v-divider>
+                            <div class="mobile-actions">
+                                <v-btn size="small" color="info" @click.stop="openMaps(item.link_maps, item.alamat)"
+                                    class="mr-2 mb-2" prepend-icon="mdi-directions" style="min-width: 120px;">
+                                    Rute
+                                </v-btn>
+                                <v-btn size="small" color="teal" @click.stop="openFotoDialog(item)" class="mr-2 mb-2"
+                                    prepend-icon="mdi-image-multiple" style="min-width: 120px;">
+                                    Foto
+                                </v-btn>
+                                <v-btn v-if="isSuperAdmin" size="small" :color="app.colors.primary"
+                                    @click.stop="editToko(item.id)" class="mr-2 mb-2" prepend-icon="mdi-pencil"
+                                    style="min-width: 120px;">
+                                    Edit
+                                </v-btn>
+                                <v-btn v-if="isSuperAdmin" size="small" :color="app.colors.secondary"
+                                    @click.stop="deleteToko(item.id)" class="mb-2" prepend-icon="mdi-delete"
+                                    style="min-width: 120px;">
+                                    Hapus
+                                </v-btn>
+                            </div>
+                        </v-card-text>
+                    </div>
+                </v-expand-transition>
+            </v-card>
+        </div>
     </div>
 
     <!-- Dialog Tambah Toko -->

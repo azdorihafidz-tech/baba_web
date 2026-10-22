@@ -348,17 +348,16 @@ const TreeNode = defineComponent({
       const c = props.compact;
       const rowStyle = {
         display: 'flex', alignItems: 'center', gap: c ? '8px' : '12px',
-        padding: c ? `8px 12px 8px ${6 + props.depth * 14}px` : `11px 20px 11px ${18 + props.depth * 24}px`,
-        cursor: 'pointer', minHeight: c ? '54px' : '46px', userSelect: 'none',
+        padding: c ? `8px 12px 8px ${6 + props.depth * 14}px` : `8px 20px 8px ${18 + props.depth * 24}px`,
+        cursor: 'pointer', minHeight: '54px', userSelect: 'none',
         background: rowBg, borderLeft: `4px solid ${leftColor}`,
         borderBottom: '1px solid rgba(255,255,255,0.05)', boxSizing: 'border-box',
         transition: 'background 0.12s',
       };
 
       const badgeSty = {
-        fontSize: '10px', fontWeight: '700', padding: '3px 10px', borderRadius: '10px',
-        whiteSpace: 'nowrap', flexShrink: '0', letterSpacing: '0.4px',
-        minWidth: '105px', textAlign: 'center',
+        fontSize: c ? '9.5px' : '10px', fontWeight: '700', padding: c ? '1px 7px' : '2px 9px', borderRadius: '10px',
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: '0', letterSpacing: '0.4px',
         background: color + '18', color, border: `1px solid ${color}40`,
       };
 
@@ -378,25 +377,17 @@ const TreeNode = defineComponent({
       const noIdSty = {
         fontSize: c ? '11.5px' : '12px', fontWeight: '600', fontFamily: "'JetBrains Mono', monospace",
         color: 'var(--baba-gold-light)', whiteSpace: 'nowrap', flexShrink: '0',
-        ...(c ? {} : { minWidth: '92px' }),
       };
 
       const jabatan = getDisplayRole(node.label_jabatan || node.jabatan);
-      const isi = c
-        // HP: nama utuh di baris atas, jabatan · No ID di bawahnya
-        ? [h('div', { style: { flex: '1', minWidth: '0' } }, [
-            h('div', { style: { ...nameSty, display: 'block', fontSize: '14px' } }, node.nama),
-            h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', minWidth: '0' } }, [
-              h('span', { style: { fontSize: '10.5px', fontWeight: '700', color, letterSpacing: '0.3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, jabatan),
-              node.no_id ? h('span', { style: { color: '#4b5563' } }, '·') : null,
-              node.no_id ? h('span', { style: noIdSty }, node.no_id) : null,
-            ]),
-          ])]
-        : [
-            h('span', { style: badgeSty }, jabatan),
-            h('span', { style: noIdSty }, node.no_id || '—'),
-            h('span', { style: nameSty }, node.nama),
-          ];
+      // Dua tingkat (HP & desktop): jabatan + No ID di atas, nama di bawah
+      const isi = [h('div', { style: { flex: '1', minWidth: '0' } }, [
+        h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' } }, [
+          h('span', { style: badgeSty }, jabatan),
+          node.no_id ? h('span', { style: noIdSty }, node.no_id) : null,
+        ]),
+        h('div', { style: { ...nameSty, display: 'block', fontSize: '14px', marginTop: '3px' } }, node.nama),
+      ])];
 
       return h('div', { style: { width: '100%' } }, [
         h('div', {

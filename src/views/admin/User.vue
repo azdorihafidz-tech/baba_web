@@ -117,96 +117,99 @@
 
     <v-progress-linear v-if="isTableLoading" indeterminate color="#E6B422" class="mb-4"></v-progress-linear>
 
-    <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
-      <v-icon size="64" color="grey">mdi-account-search</v-icon>
-      <p class="text-grey mt-2">Tidak ada data user ditemukan</p>
+    <!-- Daftar digulir di dalam kotaknya; kolom cari & tombol halaman tetap terlihat -->
+    <div v-isi-layar="64" class="baba-gulir">
+      <div v-if="datatable.items.length === 0 && !isTableLoading" class="text-center pa-4">
+        <v-icon size="64" color="grey">mdi-account-search</v-icon>
+        <p class="text-grey mt-2">Tidak ada data user ditemukan</p>
+      </div>
+
+      <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-user-card mb-3"
+        @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
+
+        <v-card-text class="mobile-card-header">
+          <v-row no-gutters align="center">
+            <v-col cols="1" class="text-center">
+              <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
+            </v-col>
+
+            <v-col cols="9" class="pl-3">
+              <div class="mobile-username">
+                <strong>Username:</strong> {{ item.username }}
+              </div>
+              <div class="mobile-name">
+                <strong>Nama:</strong> {{ item.nama }}
+              </div>
+            </v-col>
+
+            <v-col cols="2" class="text-center">
+              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
+                mdi-chevron-down
+              </v-icon>
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-expand-transition>
+          <div v-show="expandedMobileCard === item.id">
+            <v-divider></v-divider>
+            <v-card-text class="mobile-card-details">
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">NO ID:</v-col>
+                <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Cabang:</v-col>
+                <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Jabatan:</v-col>
+                <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-'
+                }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Bintang:</v-col>
+                <v-col cols="8" class="detail-value">
+                  <div class="d-flex">
+                    <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
+                      mdi-star
+                    </v-icon>
+                    <span v-if="!item.jlh_bintang || Number(item.jlh_bintang) === 0">-</span>
+                  </div>
+                </v-col>
+              </v-row>
+              <v-row v-for="lvl in cascadeLevels" :key="`mob-${lvl.key}`" class="mb-2">
+                <v-col cols="4" class="detail-label">{{ lvl.detailLabel }}:</v-col>
+                <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item[lvl.key]) || '-' }}</v-col>
+              </v-row>
+              <v-row class="mb-2">
+                <v-col cols="4" class="detail-label">Tgl Registrasi:</v-col>
+                <v-col cols="8" class="detail-value">{{ formatDate(item.created_at) }}</v-col>
+              </v-row>
+              <v-row class="mb-3">
+                <v-col cols="4" class="detail-label">Status:</v-col>
+                <v-col cols="8">
+                  <v-chip :color="item.aktivasi == 1 ? 'green' : 'red'" text-color="white" size="small" variant="flat">
+                    {{ item.aktivasi == 1 ? 'Active' : 'Inactive' }}
+                  </v-chip>
+                </v-col>
+              </v-row>
+
+              <v-divider class="mb-3"></v-divider>
+              <div class="mobile-actions">
+                <v-btn size="small" :color="app.colors.primary" @click.stop="editUser(item.id)" class="mr-2 mb-2"
+                  prepend-icon="mdi-pencil">Edit</v-btn>
+                <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteUser(item.id)" class="mr-2 mb-2"
+                  prepend-icon="mdi-delete">Hapus</v-btn>
+                <v-btn size="small" color="success" @click.stop="aktivasiUser(item.id)" class="mb-2"
+                  prepend-icon="mdi-account-check">Aktivasi</v-btn>
+              </div>
+            </v-card-text>
+          </div>
+        </v-expand-transition>
+      </v-card>
+
     </div>
-
-    <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-user-card mb-3"
-      @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-
-      <v-card-text class="mobile-card-header">
-        <v-row no-gutters align="center">
-          <v-col cols="1" class="text-center">
-            <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
-          </v-col>
-
-          <v-col cols="9" class="pl-3">
-            <div class="mobile-username">
-              <strong>Username:</strong> {{ item.username }}
-            </div>
-            <div class="mobile-name">
-              <strong>Nama:</strong> {{ item.nama }}
-            </div>
-          </v-col>
-
-          <v-col cols="2" class="text-center">
-            <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-              mdi-chevron-down
-            </v-icon>
-          </v-col>
-        </v-row>
-      </v-card-text>
-
-      <v-expand-transition>
-        <div v-show="expandedMobileCard === item.id">
-          <v-divider></v-divider>
-          <v-card-text class="mobile-card-details">
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">NO ID:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.no_id || '-' }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Cabang:</v-col>
-              <v-col cols="8" class="detail-value">{{ item.cabang || '-' }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Jabatan:</v-col>
-              <v-col cols="8" class="detail-value">{{ getJabatanNameById(item.mvo_type_id) || item.mvo_type_id || '-'
-              }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Bintang:</v-col>
-              <v-col cols="8" class="detail-value">
-                <div class="d-flex">
-                  <v-icon v-for="n in Number(item.jlh_bintang)" :key="n" color="amber" size="18">
-                    mdi-star
-                  </v-icon>
-                  <span v-if="!item.jlh_bintang || Number(item.jlh_bintang) === 0">-</span>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-for="lvl in cascadeLevels" :key="`mob-${lvl.key}`" class="mb-2">
-              <v-col cols="4" class="detail-label">{{ lvl.detailLabel }}:</v-col>
-              <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item[lvl.key]) || '-' }}</v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col cols="4" class="detail-label">Tgl Registrasi:</v-col>
-              <v-col cols="8" class="detail-value">{{ formatDate(item.created_at) }}</v-col>
-            </v-row>
-            <v-row class="mb-3">
-              <v-col cols="4" class="detail-label">Status:</v-col>
-              <v-col cols="8">
-                <v-chip :color="item.aktivasi == 1 ? 'green' : 'red'" text-color="white" size="small" variant="flat">
-                  {{ item.aktivasi == 1 ? 'Active' : 'Inactive' }}
-                </v-chip>
-              </v-col>
-            </v-row>
-
-            <v-divider class="mb-3"></v-divider>
-            <div class="mobile-actions">
-              <v-btn size="small" :color="app.colors.primary" @click.stop="editUser(item.id)" class="mr-2 mb-2"
-                prepend-icon="mdi-pencil">Edit</v-btn>
-              <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteUser(item.id)" class="mr-2 mb-2"
-                prepend-icon="mdi-delete">Hapus</v-btn>
-              <v-btn size="small" color="success" @click.stop="aktivasiUser(item.id)" class="mb-2"
-                prepend-icon="mdi-account-check">Aktivasi</v-btn>
-            </div>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
-    </v-card>
-
     <div v-if="totalPages > 1" class="d-flex justify-center mt-3 mb-3">
       <v-pagination v-model="pagination.page" :length="totalPages" :total-visible="5" density="comfortable"
         @update:modelValue="loadItems" />
