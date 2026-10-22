@@ -14,10 +14,34 @@
     <v-window v-if="isSuperadmin" v-model="tab">
       <!-- ================= MUTASI BARU ================= -->
       <v-window-item value="baru">
+        <!-- Rencana: langkah yang sudah ditetapkan, disimpan sekaligus bersama langkah yang sedang diisi -->
+        <v-card v-if="rencana.length" class="step-card mb-4">
+          <div class="step-head"><v-icon icon="mdi-format-list-numbered" color="#B8890F" /> Rencana mutasi
+            <span class="head-note">disimpan sekaligus</span></div>
+          <v-card-text>
+            <div v-for="(r, i) in rencana" :key="r.kunci" class="rencana-item">
+              <span class="rencana-no">{{ i + 1 }}</span>
+              <div class="rencana-teks">
+                <div v-for="(t, j) in r.teks" :key="j">{{ t }}</div>
+              </div>
+              <v-btn v-if="i === rencana.length - 1" icon="mdi-close" size="small" variant="text"
+                title="Batalkan langkah ini" @click="hapusRencanaTerakhir" />
+            </div>
+            <p class="hint mt-2">Langkah berikutnya diisi di bawah. Kursi kosong yang masih punya downline harus diisi
+              atau dipindahkan sebelum rencana disimpan.</p>
+          </v-card-text>
+        </v-card>
+
         <!-- 1. Pilih member -->
         <v-card class="step-card mb-4">
-          <div class="step-head"><span class="step-no">1</span> Pilih member</div>
+          <div class="step-head"><span class="step-no">1</span>
+            {{ kursiTarget ? `Pilih pengganti kursi ${labelKursi(kursiTarget)}` : 'Pilih member' }}</div>
           <v-card-text>
+            <v-alert v-if="kursiTarget && !member" type="info" variant="tonal" density="compact" class="mb-3">
+              Pengganti boleh dari jaringan atau cabang mana saja. Jabatannya menjadi {{ kursiTarget.jabatan }}
+              dengan upline {{ kursiTarget.upline?.nama || '-' }}; cabang & kode cabangnya tetap.
+              <div class="mt-1"><v-btn size="small" variant="text" @click="batalPengganti">Batal pilih pengganti</v-btn></div>
+            </v-alert>
             <!-- Daftar member langsung tampil; pilih dengan mengetuk baris -->
             <DaftarPilihMember v-if="!member" :api="api" url="/mutasi/cari-member" filter-jabatan filter-cabang
               placeholder="Cari nama / No ID / username" kosong="Tidak ada member yang cocok"
@@ -40,7 +64,14 @@
         <!-- 2. Posisi baru -->
         <v-card v-if="member" class="step-card mb-4">
           <div class="step-head"><span class="step-no">2</span> Posisi baru</div>
-          <v-card-text>
+          <v-card-text v-if="kursiTarget">
+            <v-alert type="info" variant="tonal" density="compact">
+              <b>{{ member.nama }}</b> mengisi kursi {{ labelKursi(kursiTarget) }}: jabatan {{ kursiTarget.jabatan }},
+              upline {{ kursiTarget.upline ? `${kursiTarget.upline.nama} (${kursiTarget.upline.no_id || '-'})` : '-' }}.
+              {{ kursiTarget.jumlah_downline }} downline kursi itu pindah ke {{ member.nama }}.
+            </v-alert>
+          </v-card-text>
+          <v-card-text v-else>
             <v-row dense>
               <v-col cols="12" md="6">
                 <v-select v-model="jabatanBaru" :items="jabatanItems" item-title="label" item-value="id"
@@ -170,21 +201,39 @@
         </v-card>
 
         <!-- 4. Pratinjau -->
-        <v-card v-if="member && pratinjau" class="step-card mb-4">
-          <div class="step-head"><span class="step-no">{{ jumlahAnakLangsung ? 4 : 3 }}</span> Pratinjau perubahan
+        <v-card v-if="pratinjau && (member || rencana.length)" class="step-card mb-4">
+          <div class="step-head"><span class="step-no">{{ !member ? 1 : jumlahAnakLangsung ? 4 : 3 }}</span> Pratinjau perubahan
             <v-progress-circular v-if="loadingPratinjau" indeterminate size="16" width="2" color="#B8890F" class="ml-2" />
           </div>
           <v-card-text>
             <v-alert v-for="(e, i) in pratinjau.errors" :key="i" type="warning" variant="tonal" density="compact"
               class="mb-2">{{ e }}</v-alert>
-            <!-- Kursi kosong yang masih punya downline: wajib diisi / dipindahkan sebelum simpan -->
-            <v-alert v-for="k in kursiKosong" :key="k.id" type="warning" variant="tonal" density="compact" class="mb-2"
-              icon="mdi-seat-outline">{{ k.pesan }}</v-alert>
+            <!-- Kursi kosong yang masih punya downline: wajib diisi pengganti / dipindahkan sebelum simpan -->
+            <div v-for="k in kursiKosong" :key="k.id" class="kursi-kosong mb-2">
+              <v-icon icon="mdi-seat-outline" color="error" class="kk-ikon" />
+              <div class="kk-teks">
+                <b>Kursi {{ labelKursi(k) }} ({{ k.jabatan }}) kosong</b>, masih ada {{ k.jumlah_downline }} downline:
+                {{ k.downline.join(', ') }}<template v-if="k.jumlah_downline > k.downline.length">, …</template>
+                <span v-if="k.upline" class="kk-meta"> · upline kursi: {{ k.upline.nama }} ({{ k.upline.no_id || '-' }})</span>
+              </div>
+              <div class="kk-aksi">
+                <v-btn size="small" color="primary" variant="flat" prepend-icon="mdi-account-arrow-right"
+                  :disabled="!bisaLanjut" @click="mulaiPengganti(k)">Pilih pengganti</v-btn>
+                <v-btn size="small" variant="tonal" color="#B8890F" prepend-icon="mdi-account-group"
+                  :disabled="!bisaLanjut" @click="bukaPindahkan(k)">Pindahkan ke upline lain</v-btn>
+              </div>
+            </div>
+            <p v-if="kursiKosong.length && !bisaLanjut && !loadingPratinjau" class="hint mb-2">
+              Perbaiki peringatan di atas dulu sebelum memilih pengganti atau memindahkan downline.</p>
 
             <div v-if="!pratinjau.errors.length" class="ringkas mb-3">
-              <span class="r-chip">Downline: <b>{{ pratinjau.ringkasan.jumlah_anggota }}</b></span>
-              <span class="r-chip">Ikut: <b>{{ pratinjau.ringkasan.jumlah_ikut }}</b></span>
-              <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
+              <span v-if="jumlahLangkah > 1" class="r-chip">Langkah: <b>{{ jumlahLangkah }}</b></span>
+              <!-- Angka downline = langkah yang sedang diisi -->
+              <template v-if="member">
+                <span class="r-chip">Downline: <b>{{ pratinjau.ringkasan.jumlah_anggota }}</b></span>
+                <span class="r-chip">Ikut: <b>{{ pratinjau.ringkasan.jumlah_ikut }}</b></span>
+                <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
+              </template>
               <span class="r-chip r-gold">No ID berubah: <b>{{ pratinjau.ringkasan.no_id_berubah }}</b></span>
             </div>
 
@@ -219,7 +268,7 @@
             <div class="d-flex justify-end mt-4" style="gap: 8px;">
               <v-btn variant="text" @click="reset">Batal</v-btn>
               <v-btn color="primary" :disabled="!bisaSimpan" :loading="loadingSimpan" prepend-icon="mdi-content-save"
-                @click="konfirmasi = true">Simpan Mutasi</v-btn>
+                @click="konfirmasi = true">{{ jumlahLangkah > 1 ? `Simpan Rencana (${jumlahLangkah} langkah)` : 'Simpan Mutasi' }}</v-btn>
             </div>
           </v-card-text>
         </v-card>
@@ -329,10 +378,11 @@
       <v-card>
         <v-card-title class="text-h6">Simpan mutasi?</v-card-title>
         <v-card-text v-if="pratinjau">
-          <b>{{ member?.nama }}</b> menjadi <b>{{ dipindah?.jabatan_baru }}</b> dengan No ID
-          <b>{{ dipindah?.no_id_baru }}</b>. {{ pratinjau.ringkasan.no_id_berubah }} No ID akan berubah.
-          Perubahan tercatat di riwayat.
-          <ol v-if="(pratinjau.ringkasan.langkah || []).length > 1 || pratinjau.ringkasan.tukar_dengan" class="konfirmasi-langkah">
+          <template v-if="jumlahLangkah > 1">Rencana berisi <b>{{ jumlahLangkah }} langkah</b> dan disimpan sekaligus.</template>
+          <template v-else-if="dipindah"><b>{{ member?.nama }}</b> menjadi <b>{{ dipindah.jabatan_baru }}</b> dengan No ID
+            <b>{{ dipindah.no_id_baru }}</b>.</template>
+          {{ pratinjau.ringkasan.no_id_berubah }} No ID akan berubah. Perubahan tercatat di riwayat.
+          <ol v-if="jumlahLangkah > 1 || pratinjau.ringkasan.tukar_dengan" class="konfirmasi-langkah">
             <li v-for="l in pratinjau.ringkasan.langkah" :key="l.no">{{ l.teks }}</li>
           </ol>
         </v-card-text>
@@ -340,6 +390,24 @@
           <v-spacer />
           <v-btn variant="text" @click="konfirmasi = false">Batal</v-btn>
           <v-btn color="primary" variant="flat" :loading="loadingSimpan" @click="simpan">Ya, simpan</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Pindahkan downline kursi kosong ke upline lain -->
+    <v-dialog v-model="dialogPindahkan.show" max-width="640" scrollable>
+      <v-card v-if="dialogPindahkan.kursi">
+        <v-card-title class="text-h6">Pindahkan downline kursi {{ labelKursi(dialogPindahkan.kursi) }}</v-card-title>
+        <v-card-text>
+          <p class="hint mb-2">Pilih upline baru untuk {{ dialogPindahkan.kursi.jumlah_downline }} downline kursi ini
+            (beserta timnya). Daftar hanya berisi upline dengan jenjang yang sah.</p>
+          <DaftarPilihMember :api="api" url="/mutasi/kandidat-atasan"
+            :params="{ mvo_type_id: dialogPindahkan.kursi.downline_type }" placeholder="Cari nama / No ID upline"
+            kosong="Tidak ada calon upline" @pilih="tambahPindahkan" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="dialogPindahkan.show = false">Batal</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -408,9 +476,19 @@ function pilihDariDaftar(m) {
 }
 
 function gantiMember() {
-  reset();
-  memberItems.value = [];
+  const k = kursiTarget.value;
+  resetDraft();
+  kursiTarget.value = k; // tetap mencari pengganti untuk kursi yang sama
+  if (rencana.value.length) jadwalkanPratinjau();
+  else pratinjau.value = null;
 }
+
+/* rencana (lihat bagian "rencana" di bawah) */
+const rencana = ref([]); // [{ kunci, langkah: [payload langkah], teks: [teks langkah] }]
+const langkahRencana = computed(() => rencana.value.flatMap((r) => r.langkah));
+const kursiTarget = ref(null); // kursi kosong yang sedang dicarikan pengganti (dari ringkasan.kursi_kosong)
+const dialogPindahkan = reactive({ show: false, kursi: null });
+let kunciRencana = 0;
 
 /* ---------- 2. posisi baru ---------- */
 const jabatanList = ref([]);
@@ -548,7 +626,8 @@ function pilihMember() {
   penampungItems.value = [];
   if (!member.value) return;
   const m = member.value;
-  jabatanBaru.value = String(m.mvo_type_id);
+  // Pengganti: jabatan mengikuti kursi kosong yang diisi
+  jabatanBaru.value = String(kursiTarget.value ? kursiTarget.value.mvo_type_id : m.mvo_type_id);
   atasanBaru.value = m.parent_id || null;
   atasanTerpilih.value = m.parent_id ? { id: m.parent_id, nama: m.atasan_nama, no_id: m.atasan_no_id } : null;
   pilihAtasanTerbuka.value = false;
@@ -592,7 +671,7 @@ const loadingPenampung = ref(false);
 // Downline langsung per orang, dari langkah rencana di pratinjau (ringkasan.langkah[].anak)
 const anakPer = computed(() => {
   const p = pratinjau.value;
-  const L = p?.ringkasan?.langkah || [];
+  const L = (p?.ringkasan?.langkah || []).slice(langkahRencana.value.length); // hanya langkah isian sekarang
   const baris = new Map((p?.baris || []).map((b) => [b.id, b]));
   const ambil = (l, ids) => (l ? ids.filter((id) => baris.has(id)).map((id) => ({ ...baris.get(id), boleh_ikut: l.boleh_ikut?.[id] })) : []);
   const lx = [...L].reverse().find((l) => l.aktor === memberId.value);
@@ -692,25 +771,29 @@ const labelPeran = {
   mengisi: "Mengisi kursi", pindah_upline: "Pindah upline", kosong: "Kursi kosong",
 };
 
-const payload = () => {
+// Langkah dari isian yang sedang dibuka (0 langkah bila belum memilih member)
+const draftLangkah = () => {
+  if (!memberId.value) return [];
   const tidak = (daftar, state) => daftar.filter((a) => !ikutKah(state, a)).map((a) => a.id);
   const tidakX = tidak(anakLangsung.value, ikutState.value);
   const penampungX = adaTidakIkut.value ? penampung.value : null;
+  if (kursiTarget.value) {
+    // Pengganti mengisi kursi kosong (jabatan & upline mengikuti kursi)
+    return [{ user_id: memberId.value, no_id_tujuan: kursiTarget.value.no_id, kursi_id: kursiTarget.value.id,
+      tidak_ikut: tidakX, penampung_id: penampungX }];
+  }
   if (duaLangkah.value) {
     // 1) pemegang lama pindah ke kursi barunya (nomornya ditinggal), 2) member mengisi kursi itu
     const y = pemegangTujuan.value;
     const k = kursiPemegang.value || {};
-    return {
-      catatan: catatan.value,
-      langkah: [
-        { user_id: y.id, mvo_type_id: k.mvo_type_id, parent_id: k.parent_id, no_id_tujuan: k.no_id_tujuan, lepas_nomor: true,
-          tidak_ikut: [memberId.value, ...tidak(anakTukar.value, ikutStateTukar.value)] },
-        { user_id: memberId.value, no_id_tujuan: noIdTujuan.value, mvo_type_id: y.mvo_type_id, parent_id: y.parent_id,
-          tidak_ikut: tidakX, penampung_id: penampungX },
-      ],
-    };
+    return [
+      { user_id: y.id, mvo_type_id: k.mvo_type_id, parent_id: k.parent_id, no_id_tujuan: k.no_id_tujuan, lepas_nomor: true,
+        tidak_ikut: [memberId.value, ...tidak(anakTukar.value, ikutStateTukar.value)] },
+      { user_id: memberId.value, no_id_tujuan: noIdTujuan.value, mvo_type_id: y.mvo_type_id, parent_id: y.parent_id,
+        tidak_ikut: tidakX, penampung_id: penampungX },
+    ];
   }
-  return {
+  return [{
     user_id: memberId.value,
     mvo_type_id: jabatanBaru.value,
     parent_id: atasanBaru.value,
@@ -721,13 +804,16 @@ const payload = () => {
     tidak_ikut: tidakX,
     tidak_ikut_tukar: pakaiTukar.value ? tidak(anakTukar.value, ikutStateTukar.value) : [],
     tidak_ikut_ketiga: rotasi.value ? tidak(anakKetiga.value, ikutStateKetiga.value) : [],
-    catatan: catatan.value,
-  };
+  }];
 };
+
+// Seluruh rencana: langkah yang sudah ditetapkan + langkah yang sedang diisi
+const payload = () => ({ langkah: [...langkahRencana.value, ...draftLangkah()], catatan: catatan.value });
 
 let urutPratinjau = 0;
 const jadwalkanPratinjau = debounce(async () => {
-  if (!memberId.value || !jabatanBaru.value) return;
+  if (!memberId.value && !rencana.value.length) return;
+  if (memberId.value && !jabatanBaru.value) return;
   const nomor = ++urutPratinjau;
   if (duaLangkah.value && !kursiPemegang.value?.lengkap) {
     pratinjau.value = { errors: [`Lengkapi kursi baru ${pemegangTujuan.value.nama}: jabatan, No ID, dan upline.`], baris: [], ringkasan: {} };
@@ -772,7 +858,10 @@ const barisTampil = computed(() => {
     ? b.filter((x) => ["dipindah", "ditukar", "mengisi", "kosong"].includes(x.peran) || x.no_id_lama !== x.no_id_baru || x.atasan_lama !== x.atasan_baru)
     : b;
 });
-const bisaSimpan = computed(() => pratinjau.value && !pratinjau.value.errors.length && !kursiKosong.value.length && !loadingPratinjau.value);
+// Isian sekarang sah (kursi kosong boleh tersisa): boleh lanjut memilih pengganti / memindahkan downline
+const bisaLanjut = computed(() => !!pratinjau.value && !pratinjau.value.errors.length && !loadingPratinjau.value);
+const bisaSimpan = computed(() => bisaLanjut.value && !kursiKosong.value.length);
+const jumlahLangkah = computed(() => pratinjau.value?.ringkasan?.langkah?.length || 0);
 
 const headersPratinjau = [
   { title: "Nama", key: "nama" },
@@ -800,11 +889,13 @@ async function simpan() {
   }
 }
 
-function reset() {
+// Kosongkan isian langkah yang sedang dibuka (rencana yang sudah ditetapkan tetap)
+function resetDraft() {
   modeNoId.value = "otomatis";
   nomorList.value = [];
   aturUlangNoId();
   memberId.value = null;
+  memberItems.value = [];
   jabatanBaru.value = null;
   atasanBaru.value = null;
   atasanTerpilih.value = null;
@@ -812,8 +903,60 @@ function reset() {
   penampung.value = null;
   penampungItems.value = [];
   ikutState.value = {};
+  kursiTarget.value = null;
+}
+
+function reset() {
+  resetDraft();
+  rencana.value = [];
   pratinjau.value = null;
   catatan.value = "";
+}
+
+/* ---------- rencana: beberapa langkah, disimpan sekaligus ---------- */
+const labelKursi = (k) => k.no_id || `${k.jabatan} bekas ${k.asal}`;
+
+// Tetapkan isian sekarang sebagai langkah rencana, lalu kosongkan isian untuk langkah berikutnya
+function tetapkanDraft() {
+  const d = draftLangkah();
+  if (!d.length) return;
+  const teks = (pratinjau.value?.ringkasan?.langkah || []).slice(langkahRencana.value.length).map((l) => l.teks);
+  rencana.value = [...rencana.value, { kunci: ++kunciRencana, langkah: d, teks }];
+  resetDraft();
+}
+
+function mulaiPengganti(k) {
+  tetapkanDraft();
+  kursiTarget.value = k;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  jadwalkanPratinjau();
+}
+
+function batalPengganti() {
+  kursiTarget.value = null;
+  jadwalkanPratinjau();
+}
+
+function bukaPindahkan(k) {
+  Object.assign(dialogPindahkan, { show: true, kursi: k });
+}
+
+function tambahPindahkan(u) {
+  const k = dialogPindahkan.kursi;
+  dialogPindahkan.show = false;
+  tetapkanDraft();
+  rencana.value = [...rencana.value, {
+    kunci: ++kunciRencana,
+    langkah: [{ jenis: "pindahkan", kursi_id: k.id, no_id_tujuan: k.no_id, penampung_id: u.id }],
+    teks: [`Downline kursi kosong ${labelKursi(k)} (${k.jumlah_downline} orang) dipindah ke ${u.nama}`],
+  }];
+  jadwalkanPratinjau();
+}
+
+function hapusRencanaTerakhir() {
+  rencana.value = rencana.value.slice(0, -1);
+  if (!memberId.value && !rencana.value.length) pratinjau.value = null;
+  else jadwalkanPratinjau();
 }
 
 /* ---------- saran RO ---------- */
@@ -1147,6 +1290,65 @@ if (isSuperadmin) muatJabatan();
 .peran-tetap {
   background: #e3f2fd;
   color: #1565c0;
+}
+
+.rencana-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--baba-border);
+}
+
+.rencana-no {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.rencana-teks {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.88rem;
+}
+
+.kursi-kosong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  border: 1px solid #f5c2c0;
+  border-radius: var(--baba-radius);
+  background: #fdf3f2;
+}
+
+.kk-ikon {
+  margin-top: 2px;
+}
+
+.kk-teks {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-size: 0.88rem;
+}
+
+.kk-meta {
+  color: var(--baba-muted);
+}
+
+.kk-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .konfirmasi-langkah {

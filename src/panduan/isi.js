@@ -438,11 +438,22 @@ export const PANDUAN = [
         ],
       },
       {
+        judul: "Kursi kosong: Pilih pengganti atau Pindahkan",
+        isi: [
+          "Bila ada kursi yang ditinggal tapi masih punya downline, pratinjau menampilkan kotak merah \"Kursi … kosong\" beserta nama downline-nya.",
+          "Pilih pengganti: langkah yang sedang diisi masuk ke kotak Rencana mutasi, lalu pilih siapa yang mengisi kursi itu — boleh dari jaringan atau cabang mana saja. Jabatan dan upline-nya mengikuti kursi; cabang dan kode cabangnya tetap.",
+          "Pengganti juga membawa atau meninggalkan downline-nya sendiri. Bila kursinya jadi kosong, muncul kursi kosong berikutnya: ulangi Pilih pengganti sampai tidak ada kursi kosong.",
+          "Pindahkan ke upline lain: pilih upline baru untuk semua downline kursi itu (beserta timnya). No ID mereka menyesuaikan upline baru.",
+          "Salah langkah? Tekan × pada langkah terakhir di kotak Rencana mutasi.",
+        ],
+      },
+      {
         judul: "4. Periksa pratinjau lalu simpan",
         isi: [
           "Pratinjau menampilkan No ID dan upline lama → baru untuk setiap akun yang terdampak, beserta ringkasan jumlah No ID yang berubah.",
           "Perbaiki dulu bila ada peringatan kuning.",
-          "Isi Catatan (alasan mutasi), tekan Simpan Mutasi, lalu Ya, simpan.",
+          "Isi Catatan (alasan mutasi), tekan Simpan Mutasi (atau Simpan Rencana bila lebih dari satu langkah), lalu Ya, simpan.",
+          "Tombol simpan baru aktif bila tidak ada peringatan kuning dan tidak ada kursi kosong yang masih punya downline.",
         ],
       },
       {
@@ -461,12 +472,13 @@ export const PANDUAN = [
     tips: [
       "Founder dan GM pindah upline: No ID tidak berubah. Supplier ke bawah: No ID mengikuti No ID upline barunya (nomor belakang dipertahankan bila masih kosong).",
       "Saran RO hanya saran — sistem tidak mengubah jabatan secara otomatis.",
-      "Semua mutasi tersimpan dalam satu proses: berhasil semua atau tidak sama sekali.",
+      "Seluruh langkah rencana tersimpan dalam satu proses: berhasil semua atau tidak sama sekali. Setiap langkah tercatat terpisah di Riwayat.",
     ],
     tanya: [
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
       { t: "B02 mau pindah ke B03 yang sudah terisi?", j: "Pilih member B02, Pilih No ID → B03, lalu aktifkan Tukar posisi. Pemegang B03 otomatis menempati B02. Atur downline masing-masing: ikut orangnya, atau tetap di posisi." },
       { t: "B52-01 naik ke B52, tapi GM B52 tidak mau turun?", j: "Setelah memilih No ID B52, pilih \"… pindah ke kursi lain\". Isi kursi barunya, mis. No ID Otomatis (nomor GM kosong berikutnya) dengan upline yang sama. Kursi B52-01 jadi kosong: pilih Upline penampung untuk downline-nya." },
+      { t: "Kursi B52-01 kosong, siapa yang menggantikan?", j: "Tekan Pilih pengganti pada kotak kursi itu, lalu pilih orangnya, mis. Distributor B52-01-04 dinaikkan. Bila kursi Distributor itu jadi kosong, pilih pengganti lagi sampai tidak ada kursi kosong, lalu Simpan Rencana." },
       { t: "Supplier B52-01 naik menggantikan GM B52?", j: "Pilih member B52-01, Jabatan baru GM, Pilih No ID → B52, lalu aktifkan Tukar posisi. GM lama otomatis menempati kursi B52-01. Downline yang jenjangnya tidak cocok otomatis tetap di posisi, jadi hanya 2 No ID yang berubah." },
       { t: "Kenapa downline tidak bisa dicentang saat tukar posisi?", j: "Jenjangnya tidak cocok dengan jabatan baru orang itu (mis. GM naik menjadi Founder: Supplier-nya tidak bisa ikut karena Supplier harus di bawah GM). Downline tersebut otomatis tetap di posisi." },
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
