@@ -298,7 +298,7 @@
               <v-col :cols="$vuetify.display.mobile ? 12 : 6">
                 <v-text-field label="Singkatan (mis. HO)" v-model="form.singkatan_jabatan" density="compact"
                   prepend-inner-icon="mdi-format-letter-case-upper" variant="outlined" color="amber"
-                  base-color="grey-lighten-1" maxlength="20" hint="Dipakai untuk label bawahan, contoh: MVO HO"
+                  base-color="grey-lighten-1" maxlength="20" hint="Dipakai untuk label downline, contoh: MVO HO"
                   persistent-hint />
               </v-col>
             </template>

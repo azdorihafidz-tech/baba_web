@@ -290,8 +290,8 @@ export default {
         { key: "cabang", title: "Cabang" },
         { key: "jabatan", title: "Jabatan" },
         { key: "status", title: "Status", sortable: false },
-        { key: "atasan", title: "Atasan langsung", sortable: false },
-        { key: "jalur", title: "Jalur atasan", sortable: false },
+        { key: "atasan", title: "Upline langsung", sortable: false },
+        { key: "jalur", title: "Jalur upline", sortable: false },
         { key: "alamat", title: "Alamat" },
         // Kolom terakhir dikunci di kanan (lihat CSS .custom-data-table)
         { key: "action", title: "Aksi", sortable: false, align: "center" },
@@ -390,7 +390,7 @@ export default {
     },
     teksAtasanLangsung(item) {
       const a = atasanLangsung(item);
-      return a ? `Atasan: ${a.no_id || a.kode || "-"} · ${a.nama}` : "Atasan: -";
+      return a ? `Upline: ${a.no_id || a.kode || "-"} · ${a.nama}` : "Upline: -";
     },
     formatDate(date) {
       if (!date) return "-";

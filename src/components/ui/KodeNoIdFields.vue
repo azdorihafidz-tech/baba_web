@@ -46,7 +46,7 @@ export default {
       modeOptions: [
         { text: "Nomor urut (TM01, M01, R01)", value: "urut" },
         { text: "Rentang nomor (B01–B50)", value: "rentang" },
-        { text: "Turunan dari No ID atasan (B51-01)", value: "turunan" },
+        { text: "Turunan dari No ID upline (B51-01)", value: "turunan" },
       ],
     };
   },
@@ -64,7 +64,7 @@ export default {
       if (m.kode_mode === "rentang") {
         return `Contoh: ${m.kode_awalan || "?"}${pad(m.kode_mulai || 1)} sampai ${m.kode_awalan || "?"}${pad(m.kode_akhir || 1)}`;
       }
-      if (m.kode_mode === "turunan") return "Contoh: atasan B51 → B51-01, B51-02, …";
+      if (m.kode_mode === "turunan") return "Contoh: upline B51 → B51-01, B51-02, …";
       return "Jabatan ini tidak memakai No ID otomatis.";
     },
   },

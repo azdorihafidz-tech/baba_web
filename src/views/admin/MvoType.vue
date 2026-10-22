@@ -429,12 +429,12 @@ export default {
       if (item.level === null || item.level === undefined || item.level === "") return "-";
       return Number(item.level) === 0 ? "0 · Puncak" : String(item.level);
     },
-    // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM01, TM02, …", "Turunan atasan"
+    // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM01, TM02, …", "Turunan upline"
     formatKode(item) {
       const pad = (n) => String(n ?? "").padStart(2, "0");
       if (item.kode_mode === "urut") return `${item.kode_awalan}01, ${item.kode_awalan}02, …`;
       if (item.kode_mode === "rentang") return `${item.kode_awalan}${pad(item.kode_mulai)}–${item.kode_awalan}${pad(item.kode_akhir)}`;
-      if (item.kode_mode === "turunan") return "Turunan atasan";
+      if (item.kode_mode === "turunan") return "Turunan upline";
       return "-";
     },
 

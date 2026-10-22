@@ -21,15 +21,15 @@ export const MULAI_CEPAT = {
   judul: "Mulai cepat",
   ringkas: "Alur akun member dari daftar sampai aktif, dan istilah penting di aplikasi.",
   alur: [
-    { judul: "1. Daftar", isi: "Calon member membuka halaman Login → Daftar sekarang, mengisi data diri, memilih jabatan, cabang, dan atasan (upline), lalu mengunggah foto profil." },
+    { judul: "1. Daftar", isi: "Calon member membuka halaman Login → Daftar sekarang, mengisi data diri, memilih jabatan, cabang, dan upline (upline), lalu mengunggah foto profil." },
     { judul: "2. Verifikasi", isi: "Superadmin memeriksa data di menu Verifikasi ID lalu menekan Aktivasi. Saat itu No ID dibuat otomatis dan akun bisa dipakai untuk login." },
-    { judul: "3. Approval upline", isi: "Upline menyetujui akun bawahannya di menu Akun Belum Approve." },
+    { judul: "3. Approval upline", isi: "Upline menyetujui akun downline-nya di menu Akun Belum Approve." },
     { judul: "4. Input dokumen RO", isi: "Dokumen repeat order (RO) diinput di menu Input Data, lalu disetujui upline dan superadmin di menu Document Belum Approve." },
   ],
   istilah: [
-    { t: "No ID", j: "Nomor anggota yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID atasannya." },
-    { t: "Upline / atasan", j: "Akun satu jenjang di atas Anda dalam struktur jaringan." },
-    { t: "Downline / bawahan", j: "Akun di bawah Anda dalam struktur jaringan." },
+    { t: "No ID", j: "Nomor anggota yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID upline-nya." },
+    { t: "Upline", j: "Akun di atas Anda dalam struktur jaringan. Upline langsung = satu jenjang tepat di atas Anda." },
+    { t: "Downline", j: "Akun di bawah Anda dalam struktur jaringan. Downline langsung = satu jenjang tepat di bawah Anda." },
     { t: "RO (Repeat Order)", j: "Nilai pembelian ulang yang dicatat lewat dokumen di menu Input Data (kolom Range Point)." },
     { t: "Rating Star", j: "Nilai bintang 0–8 pada dokumen star; dijumlahkan untuk peringkat di Dashboard → Star." },
     { t: "Urutan jabatan", j: "Top Management → MVO → Regional → Founder → GM → Supplier → Distributor → Reseller." },
@@ -130,7 +130,7 @@ export const PANDUAN = [
       },
       {
         judul: "Melihat downline",
-        isi: ["Buka Detail akun → tab Downline untuk melihat seluruh bawahan akun tersebut."],
+        isi: ["Buka Detail akun → tab Downline untuk melihat seluruh downline akun tersebut."],
       },
       {
         judul: "Fitur superadmin",
@@ -139,7 +139,7 @@ export const PANDUAN = [
           { teks: "Excel: mengunduh seluruh data akun.", peran: "superadmin" },
           { teks: "Template lalu Import Dokumen: mengisi banyak dokumen sekaligus dari file Excel (nama MVO, Rating Star, Range Point, tanggal).", peran: "superadmin" },
           { teks: "Approve dokumen (persetujuan akhir) bisa juga dilakukan dari detail akun.", peran: "superadmin" },
-          { teks: "Hapus akun dilakukan di menu Verifikasi ID (tombol Hapus). Dialognya menampilkan data terkait yang harus dibereskan dulu, mis. bawahan atau dokumen.", peran: "superadmin" },
+          { teks: "Hapus akun dilakukan di menu Verifikasi ID (tombol Hapus). Dialognya menampilkan data terkait yang harus dibereskan dulu, mis. downline atau dokumen.", peran: "superadmin" },
         ],
       },
     ],
@@ -148,7 +148,7 @@ export const PANDUAN = [
       "Dokumen yang sudah disetujui final ikut dihitung di Star/RO, jadi hanya superadmin yang bisa mengubah atau menghapusnya (ada peringatan sebelum dihapus).",
       "Print pada detail akun menghasilkan formulir registrasi dalam bentuk PDF.",
       "Range Point inilah yang dihitung sebagai RO di Dashboard dan Saran RO.",
-      "Kolom Distributor, Supplier, General Manager, Founder, Regional, MVO, dan TM menampilkan No ID dan nama atasan sesuai Struktur Akun saat ini (ikut berubah setelah Mutasi). Di HP, jalurnya tampil ringkas di bawah nama, mis. M01 › R03 › B02 › B78.",
+      "Kolom Distributor, Supplier, General Manager, Founder, Regional, MVO, dan TM menampilkan No ID dan nama upline sesuai Struktur Akun saat ini (ikut berubah setelah Mutasi). Di HP, jalurnya tampil ringkas di bawah nama, mis. M01 › R03 › B02 › B78.",
     ],
     tanya: [
       { t: "Kenapa tombol Tambah Dokumen tidak bisa dipakai?", j: "Hanya Superadmin, MVO, Regional, dan Founder yang bisa menambah dokumen." },
@@ -166,7 +166,7 @@ export const PANDUAN = [
     peran: "superadmin",
     ringkas: "Memeriksa pendaftar baru, mengaktifkan akun, dan mengelola data user.",
     kegunaan:
-      "Semua pendaftar baru masuk ke sini dengan status belum aktif. Superadmin memeriksa datanya lalu menekan Aktivasi. Saat diaktivasi, sistem membuat No ID otomatis sesuai jabatan dan No ID atasannya.",
+      "Semua pendaftar baru masuk ke sini dengan status belum aktif. Superadmin memeriksa datanya lalu menekan Aktivasi. Saat diaktivasi, sistem membuat No ID otomatis sesuai jabatan dan No ID upline-nya.",
     langkah: [
       {
         judul: "Mengaktifkan pendaftar baru",
@@ -175,15 +175,15 @@ export const PANDUAN = [
           "Akun yang ditunda/ditolak di menu Akun Belum Approve diberi label Ditunda / Ditolak di kolom Aktivasi (arahkan kursor untuk melihat alasannya). Akun tetap bisa diperbaiki dan diaktifkan.",
           "Periksa data dan foto profilnya (tombol Edit untuk melihat lengkap).",
           "Tekan Aktivasi. Pesan yang muncul menampilkan No ID baru akun tersebut.",
-          "Bila aktivasi ditolak dengan pesan tentang No ID (misalnya rentang nomor penuh atau atasan belum punya No ID), perbaiki dulu atasannya atau rentang nomor di menu Tipe Akun.",
+          "Bila aktivasi ditolak dengan pesan tentang No ID (misalnya rentang nomor penuh atau upline belum punya No ID), perbaiki dulu upline-nya atau rentang nomor di menu Tipe Akun.",
         ],
       },
       {
         judul: "Menambah user secara manual",
         isi: [
-          "Tekan Tambah User, isi data pribadi, pilih Jabatan, Cabang, dan atasan secara berurutan (MVO → Regional → Founder → GM → Supplier → Distributor), lalu simpan.",
+          "Tekan Tambah User, isi data pribadi, pilih Jabatan, Cabang, dan upline secara berurutan (MVO → Regional → Founder → GM → Supplier → Distributor), lalu simpan.",
           "No ID tidak perlu diisi — dibuat otomatis saat Aktivasi.",
-          "Untuk Top Management, pilih jabatan TOP MANAGEMENT lalu isi Judul Jabatan (mis. Head Office) dan Singkatan (mis. HO). Singkatan dipakai sebagai label bawahan, contoh: MVO HO.",
+          "Untuk Top Management, pilih jabatan TOP MANAGEMENT lalu isi Judul Jabatan (mis. Head Office) dan Singkatan (mis. HO). Singkatan dipakai sebagai label downline, contoh: MVO HO.",
         ],
       },
       {
@@ -191,21 +191,21 @@ export const PANDUAN = [
         isi: [
           "Tekan Edit untuk mengubah data diri, username, atau password.",
           "No ID bisa diubah manual bila benar-benar perlu; sistem menolak bila formatnya tidak sesuai jabatan atau sudah dipakai akun lain.",
-          "Jabatan dan atasan akun yang sudah aktif tidak bisa diubah di sini — gunakan menu Mutasi Jabatan.",
+          "Jabatan dan upline akun yang sudah aktif tidak bisa diubah di sini — gunakan menu Mutasi Jabatan.",
           "Hapus hanya bisa untuk akun yang tidak punya downline dan dokumen.",
         ],
       },
     ],
     tips: [
       "Setiap perubahan No ID tercatat di riwayat.",
-      "Kolom DISTRIBUTOR sampai TOP MANAGEMENT menampilkan No ID dan nama atasan. Untuk akun yang belum diaktivasi, isinya diambil dari pilihan upline saat registrasi.",
+      "Kolom DISTRIBUTOR sampai TOP MANAGEMENT menampilkan No ID dan nama upline. Untuk akun yang belum diaktivasi, isinya diambil dari pilihan upline saat registrasi.",
       "Akun yang belum diaktivasi tidak bisa login.",
-      "Hapus akun bersifat permanen. Sebelum menghapus, sistem memeriksa data terkait: bawahan, dokumen, persetujuan yang pernah diberikan, dan riwayat Mutasi. Bila masih ada, dialog Hapus menampilkan apa yang harus dibereskan dulu dan tombol Ya, hapus tidak muncul.",
-      "Pindah cabang akun yang sudah aktif hanya bisa bila akun itu belum punya bawahan dan tidak ada dokumen yang menunggu persetujuan. Bila berhasil, kode akunnya ikut berganti (mis. RESELLER-MDN-001 → RESELLER-BDG-357).",
+      "Hapus akun bersifat permanen. Sebelum menghapus, sistem memeriksa data terkait: downline, dokumen, persetujuan yang pernah diberikan, dan riwayat Mutasi. Bila masih ada, dialog Hapus menampilkan apa yang harus dibereskan dulu dan tombol Ya, hapus tidak muncul.",
+      "Pindah cabang akun yang sudah aktif hanya bisa bila akun itu belum punya downline dan tidak ada dokumen yang menunggu persetujuan. Bila berhasil, kode akunnya ikut berganti (mis. RESELLER-MDN-001 → RESELLER-BDG-357).",
     ],
     tanya: [
       { t: "Kenapa No ID tidak bisa diisi saat Tambah User?", j: "No ID dibuat otomatis saat Aktivasi supaya selalu urut, sesuai jabatan, dan tidak ganda." },
-      { t: "Kenapa jabatan akun aktif tidak bisa diubah?", j: "Perubahan jabatan/atasan memengaruhi No ID anggotanya, jadi harus lewat Mutasi Jabatan yang menyesuaikan semuanya sekaligus." },
+      { t: "Kenapa jabatan akun aktif tidak bisa diubah?", j: "Perubahan jabatan/upline memengaruhi No ID anggotanya, jadi harus lewat Mutasi Jabatan yang menyesuaikan semuanya sekaligus." },
     ],
   },
   {
@@ -222,7 +222,7 @@ export const PANDUAN = [
         judul: "Mengubah aturan No ID",
         isi: [
           "Tekan Edit (✎) pada jabatan.",
-          "Di bagian Aturan No ID pilih cara penomoran: Nomor urut (TM01, M01, R01), Rentang nomor (mis. Founder B01–B50, GM B51–B150), atau Turunan dari No ID atasan (Supplier ke bawah).",
+          "Di bagian Aturan No ID pilih cara penomoran: Nomor urut (TM01, M01, R01), Rentang nomor (mis. Founder B01–B50, GM B51–B150), atau Turunan dari No ID upline (Supplier ke bawah).",
           "Untuk rentang, isi Awalan, Nomor awal, dan Nomor akhir, lalu tekan Update.",
         ],
       },
@@ -234,7 +234,7 @@ export const PANDUAN = [
         judul: "Membaca kolom Jenjang",
         isi: [
           "Jenjang = urutan jabatan dalam struktur: 0 · Puncak (TM), 1 MVO, 2 Regional, 3 Founder, 4 GM, 5 Supplier, 6 Distributor, 7 Reseller.",
-          "Angka jenjang juga dipakai sistem sebagai nomor kolom atasan (upline), approval, dan aturan No ID, jadi jangan diubah untuk jabatan yang sudah berjalan.",
+          "Angka jenjang juga dipakai sistem sebagai nomor kolom upline, approval, dan aturan No ID, jadi jangan diubah untuk jabatan yang sudah berjalan.",
           "SUPERADMIN bertanda Di luar struktur karena bukan bagian dari jenjang jabatan.",
         ],
       },
@@ -258,14 +258,14 @@ export const PANDUAN = [
     peran: "semua",
     ringkas: "Pendaftar baru menunggu persetujuan: approve, tunda, atau tolak (dengan alasan).",
     kegunaan:
-      "Menampilkan akun baru yang belum aktif. Upline menyetujui (Approve) bawahannya; superadmin meneruskan ke Verifikasi ID untuk mengaktifkan. Akun bermasalah bisa Ditunda atau Ditolak dengan alasan, dan semuanya tercatat di Dashboard › Akun › Riwayat Persetujuan Akun.",
+      "Menampilkan akun baru yang belum aktif. Upline menyetujui (Approve) downline-nya; superadmin meneruskan ke Verifikasi ID untuk mengaktifkan. Akun bermasalah bisa Ditunda atau Ditolak dengan alasan, dan semuanya tercatat di Dashboard › Akun › Riwayat Persetujuan Akun.",
     langkah: [
       {
         judul: "Mencari & menyaring",
         isi: [
           "Tombol status: Perlu tindakan (bawaan: menunggu + ditunda), Ditunda, Ditolak, Semua — angka di tombol = jumlahnya.",
           "Cari nama / username / No ID, atau saring dengan tombol jabatan dan pilihan Cabang.",
-          "Setiap akun menampilkan jabatan, No ID, cabang, status, dan atasan langsungnya (No ID · nama). Di desktop ada juga kolom Jalur atasan (mis. M05 › R09 › B09 › B96).",
+          "Setiap akun menampilkan jabatan, No ID, cabang, status, dan upline langsungnya (No ID · nama). Di desktop ada juga kolom Jalur upline (mis. M05 › R09 › B09 › B96).",
           "Di HP, ketuk kartu untuk melihat data lengkap dan tombol aksinya.",
         ],
       },
@@ -289,11 +289,11 @@ export const PANDUAN = [
     ],
     tips: [
       "Yang boleh Approve/Tunda/Tolak: superadmin dan upline yang tercatat di akun tersebut.",
-      "Superadmin melihat seluruh akun; upline hanya bawahannya.",
+      "Superadmin melihat seluruh akun; upline hanya downline-nya.",
       "Riwayat (siapa, kapan, alasan) bisa dilihat di Dashboard › Akun.",
     ],
     tanya: [
-      { t: "Kenapa daftarnya kosong?", j: "Belum ada bawahan yang menunggu persetujuan Anda, atau tombol status sedang di Ditunda/Ditolak — pilih Semua." },
+      { t: "Kenapa daftarnya kosong?", j: "Belum ada downline yang menunggu persetujuan Anda, atau tombol status sedang di Ditunda/Ditolak — pilih Semua." },
       { t: "Muncul pesan 'Anda bukan upline dari akun ini'?", j: "Akun tersebut berada di bawah upline lain. Hanya upline sebenarnya (atau superadmin) yang bisa menyetujui, menunda, atau menolak." },
       { t: "Akun yang ditolak bisa diaktifkan?", j: "Bisa. Superadmin tetap bisa memperbaiki data dan mengaktifkannya di Verifikasi ID, atau tekan Pulihkan di menu ini." },
     ],
@@ -332,16 +332,16 @@ export const PANDUAN = [
     peran: "semua",
     ringkas: "Pohon jaringan dari Top Management/MVO sampai Reseller.",
     kegunaan:
-      "Melihat susunan jaringan dalam bentuk pohon: siapa atasan siapa, jumlah bawahan, dan total jaringan setiap akun.",
+      "Melihat susunan jaringan dalam bentuk pohon: siapa upline siapa, jumlah downline, dan total jaringan setiap akun.",
     langkah: [
       {
         judul: "Menjelajah pohon",
         isi: [
           "Setiap baris menampilkan jabatan dan No ID (warna emas) di atas, lalu nama di bawahnya.",
-          "Tekan panah ( › ) di samping nama untuk membuka bawahannya, atau Buka Semua / Tutup Semua. Di HP kedua tombol ini berupa ikon panah di samping jumlah akun.",
+          "Tekan panah ( › ) di samping nama untuk membuka downline-nya, atau Buka Semua / Tutup Semua. Di HP kedua tombol ini berupa ikon panah di samping jumlah akun.",
           "Daftar akun digulir di dalam kotaknya sendiri, jadi kartu total dan kolom cari tetap terlihat di atas.",
-          "Angka di kanan nama adalah jumlah seluruh bawahannya.",
-          "Klik nama untuk melihat detail akun: No ID, atasan (nama dan No ID), jumlah bawahan langsung, dan total jaringan. Di HP detail tampil satu layar penuh; tekan ✕ di kanan atas untuk kembali ke pohon.",
+          "Angka di kanan nama adalah jumlah seluruh downline-nya.",
+          "Klik nama untuk melihat detail akun: No ID, upline (nama dan No ID), jumlah downline langsung, dan total jaringan. Di HP detail tampil satu layar penuh; tekan ✕ di kanan atas untuk kembali ke pohon.",
         ],
       },
       {
@@ -355,7 +355,7 @@ export const PANDUAN = [
     ],
     tips: [
       "Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office.",
-      "No ID Supplier ke bawah mengikuti No ID atasannya, jadi dari No ID saja sudah terlihat jalurnya: B78-04-01-04 = Reseller di bawah Distributor B78-04-01.",
+      "No ID Supplier ke bawah mengikuti No ID upline-nya, jadi dari No ID saja sudah terlihat jalurnya: B78-04-01-04 = Reseller di bawah Distributor B78-04-01.",
     ],
     tanya: [{ t: "Akun saya tidak muncul?", j: "Hanya akun yang sudah aktif (diverifikasi) yang tampil di pohon." }],
   },
@@ -387,11 +387,11 @@ export const PANDUAN = [
       },
     ],
     tips: [
-      "Upline hanya bisa menyetujui dokumen milik bawahannya sendiri.",
+      "Upline hanya bisa menyetujui dokumen milik downline-nya sendiri.",
       "Kolom KODE = kode akun pemilik dokumen, No ID di sebelahnya. Kolom MVO dan Regional menampilkan No ID dan nama upline yang menyetujui.",
       "Dokumen yang diubah setelah disetujui akan kembali menunggu persetujuan.",
     ],
-    tanya: [{ t: "Tombol approve tidak muncul?", j: "Dokumen tersebut bukan milik bawahan Anda pada jenjang Anda, atau sudah Anda setujui." }],
+    tanya: [{ t: "Tombol approve tidak muncul?", j: "Dokumen tersebut bukan milik downline Anda pada jenjang Anda, atau sudah Anda setujui." }],
     gambar: [{ src: "/panduan/approval-dokumen.jpg", ket: "Daftar dokumen menunggu persetujuan" }],
   },
   {
@@ -400,40 +400,40 @@ export const PANDUAN = [
     menu: "Mutasi Jabatan",
     icon: "mdi-account-switch",
     peran: "superadmin",
-    ringkas: "Menaikkan, menurunkan, atau memindahkan atasan member beserta anggotanya.",
+    ringkas: "Menaikkan, menurunkan, atau memindahkan upline member beserta anggotanya.",
     kegunaan:
-      "Satu-satunya cara mengubah jabatan atau atasan akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh anggotanya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
+      "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh anggotanya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
     langkah: [
       {
         judul: "1. Pilih member",
         isi: [
           "Di tab Mutasi Baru, daftar semua member langsung tampil (urut dari jabatan tertinggi). Tidak perlu ingat nama: saring dengan tombol jabatan (TM, MVO, … Reseller) dan pilihan Cabang, lalu gulir daftarnya.",
           "Bisa juga mengetik nama, No ID, atau username di kolom cari (mis. B78-04 untuk melihat Supplier B78-04 beserta anggotanya).",
-          "Setiap baris menampilkan jabatan, No ID, cabang, nama, atasan, dan jumlah anggota langsung. Ketuk baris untuk memilih.",
+          "Setiap baris menampilkan jabatan, No ID, cabang, nama, upline, dan jumlah anggota langsung. Ketuk baris untuk memilih.",
           "Salah pilih? Tekan Ganti member untuk kembali ke daftar.",
         ],
       },
       {
         judul: "2. Tentukan posisi baru",
         isi: [
-          "Pilih Jabatan baru (sama dengan sekarang bila hanya pindah atasan).",
-          "Atasan baru awalnya terisi atasan sekarang. Tekan Ganti atasan untuk membuka daftar calon atasan — langsung tampil tanpa mengetik, cabang yang sama dengan member ditaruh paling atas.",
-          "Bila jabatan diganti, daftar calon atasan otomatis terbuka. Daftar hanya berisi atasan dengan jenjang yang sah, dan bukan anggota orang itu sendiri.",
-          "Top Management dan MVO boleh tanpa atasan: tekan Tanpa atasan.",
+          "Pilih Jabatan baru (sama dengan sekarang bila hanya pindah upline).",
+          "Upline baru awalnya terisi upline sekarang. Tekan Ganti upline untuk membuka daftar calon upline — langsung tampil tanpa mengetik, cabang yang sama dengan member ditaruh paling atas.",
+          "Bila jabatan diganti, daftar calon upline otomatis terbuka. Daftar hanya berisi upline dengan jenjang yang sah, dan bukan anggota orang itu sendiri.",
+          "Top Management dan MVO boleh tanpa upline: tekan Tanpa upline.",
         ],
       },
       {
         judul: "3. Pilih anggota yang ikut",
         isi: [
           "Centang = anggota langsung ikut pindah bersama seluruh timnya.",
-          "Hilangkan centang untuk anggota yang tidak ikut, lalu pilih Atasan penampung untuk mereka.",
+          "Hilangkan centang untuk anggota yang tidak ikut, lalu pilih Upline penampung untuk mereka.",
           "Anggota yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang dan wajib ke penampung (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor).",
         ],
       },
       {
         judul: "4. Periksa pratinjau lalu simpan",
         isi: [
-          "Pratinjau menampilkan No ID dan atasan lama → baru untuk setiap akun yang terdampak, beserta ringkasan jumlah No ID yang berubah.",
+          "Pratinjau menampilkan No ID dan upline lama → baru untuk setiap akun yang terdampak, beserta ringkasan jumlah No ID yang berubah.",
           "Perbaiki dulu bila ada peringatan kuning.",
           "Isi Catatan (alasan mutasi), tekan Simpan Mutasi, lalu Ya, simpan.",
         ],
@@ -442,7 +442,7 @@ export const PANDUAN = [
         judul: "Saran RO",
         isi: [
           "Tab Saran RO menampilkan member yang layak naik atau perlu turun berdasarkan RO dokumen yang sudah disetujui.",
-          "Isi target per jabatan di Atur target per jabatan: periode (bulan), basis (Pribadi atau Tim = termasuk bawahan), Naik bila RO ≥, dan Turun bila RO <. Kosongkan bila jabatan tidak perlu dinilai.",
+          "Isi target per jabatan di Atur target per jabatan: periode (bulan), basis (Pribadi atau Tim = termasuk downline), Naik bila RO ≥, dan Turun bila RO <. Kosongkan bila jabatan tidak perlu dinilai.",
           "Tekan Proses pada baris saran untuk membuka Mutasi Baru dengan member dan jabatan tujuan sudah terisi.",
         ],
       },
@@ -452,16 +452,16 @@ export const PANDUAN = [
       },
     ],
     tips: [
-      "Founder dan GM pindah atasan: No ID tidak berubah. Supplier ke bawah: No ID mengikuti No ID atasan barunya (nomor belakang dipertahankan bila masih kosong).",
+      "Founder dan GM pindah upline: No ID tidak berubah. Supplier ke bawah: No ID mengikuti No ID upline barunya (nomor belakang dipertahankan bila masih kosong).",
       "Saran RO hanya saran — sistem tidak mengubah jabatan secara otomatis.",
       "Semua mutasi tersimpan dalam satu proses: berhasil semua atau tidak sama sekali.",
     ],
     tanya: [
-      { t: "Kenapa atasan yang saya cari tidak ada di daftar?", j: "Atasan harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah atasannya) dan tidak boleh anggota orang yang dipindah." },
-      { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan atasan baru sama dengan sekarang. Untuk memindahkan satu anggota saja, pilih anggota tersebut sebagai member yang dimutasi." },
+      { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh anggota orang yang dipindah." },
+      { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu anggota saja, pilih anggota tersebut sebagai member yang dimutasi." },
     ],
     gambar: [
-      { src: "/panduan/mutasi-pratinjau.jpg", ket: "Mutasi Baru: anggota yang ikut dan pratinjau perubahan atasan / No ID" },
+      { src: "/panduan/mutasi-pratinjau.jpg", ket: "Mutasi Baru: anggota yang ikut dan pratinjau perubahan upline / No ID" },
       { src: "/panduan/mutasi-saran.jpg", ket: "Saran RO: target per jabatan dan daftar saran" },
     ],
   },

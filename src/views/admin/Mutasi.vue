@@ -1,7 +1,7 @@
 <template>
   <div class="mutasi-page">
     <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Mutasi Jabatan' }]"
-      sub="Naikkan, turunkan, atau pindahkan atasan member beserta anggotanya" />
+      sub="Naikkan, turunkan, atau pindahkan upline member beserta anggotanya" />
 
     <v-alert v-if="!isSuperadmin" type="info" variant="tonal">Halaman ini khusus superadmin.</v-alert>
 
@@ -28,7 +28,7 @@
                 <div><span class="lbl">Nama</span><b>{{ member.nama }}</b></div>
                 <div><span class="lbl">Jabatan</span><b>{{ member.jabatan }}</b></div>
                 <div><span class="lbl">No ID</span><b>{{ member.no_id || '-' }}</b></div>
-                <div><span class="lbl">Atasan</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : '-' }}</b></div>
+                <div><span class="lbl">Upline</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : '-' }}</b></div>
                 <div><span class="lbl">Cabang</span><b>{{ member.cabang || '-' }}</b></div>
               </div>
               <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-switch" class="mt-3"
@@ -49,25 +49,25 @@
               </v-col>
             </v-row>
 
-            <div class="atasan-label mt-4">Atasan baru</div>
+            <div class="atasan-label mt-4">Upline baru</div>
             <!-- Atasan terpilih + tombol ganti; daftar calon atasan tampil saat memilih -->
             <div v-if="!pilihAtasanTerbuka" class="atasan-terpilih">
               <div v-if="atasanTerpilih" class="atasan-teks">
                 <b>{{ atasanTerpilih.nama }}</b>
                 <span class="atasan-meta">{{ atasanTerpilih.no_id || '-' }}<template v-if="atasanTerpilih.jabatan"> · {{ atasanTerpilih.jabatan }}</template></span>
               </div>
-              <div v-else class="atasan-teks atasan-kosong">{{ bolehTanpaAtasan ? 'Tanpa atasan' : 'Belum dipilih' }}</div>
+              <div v-else class="atasan-teks atasan-kosong">{{ bolehTanpaAtasan ? 'Tanpa upline' : 'Belum dipilih' }}</div>
               <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-arrow-up"
-                @click="pilihAtasanTerbuka = true">{{ atasanTerpilih ? 'Ganti atasan' : 'Pilih atasan' }}</v-btn>
+                @click="pilihAtasanTerbuka = true">{{ atasanTerpilih ? 'Ganti upline' : 'Pilih upline' }}</v-btn>
             </div>
             <template v-else>
-              <p class="hint mb-2">Calon atasan yang sah untuk jabatan ini. Cabang {{ member.cabang }} ditampilkan paling atas.</p>
+              <p class="hint mb-2">Calon upline yang sah untuk jabatan ini. Cabang {{ member.cabang }} ditampilkan paling atas.</p>
               <DaftarPilihMember :api="api" url="/mutasi/kandidat-atasan"
                 :params="{ mvo_type_id: jabatanBaru, user_id: memberId, cabang_utama: member.cabang }"
-                :terpilih-id="atasanBaru" placeholder="Cari nama / No ID atasan"
-                kosong="Tidak ada calon atasan untuk jabatan ini" @pilih="pilihAtasan" />
+                :terpilih-id="atasanBaru" placeholder="Cari nama / No ID upline"
+                kosong="Tidak ada calon upline untuk jabatan ini" @pilih="pilihAtasan" />
               <div class="d-flex flex-wrap ga-2 mt-2">
-                <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Tanpa atasan</v-btn>
+                <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Tanpa upline</v-btn>
                 <v-btn v-if="atasanTerpilih" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
               </div>
             </template>
@@ -96,7 +96,7 @@
 
             <div v-if="adaTidakIkut" class="mt-4">
               <v-autocomplete v-model="penampung" :items="penampungItems" item-title="label" item-value="id"
-                :loading="loadingPenampung" no-filter clearable label="Atasan penampung untuk anggota yang tidak ikut"
+                :loading="loadingPenampung" no-filter clearable label="Upline penampung untuk anggota yang tidak ikut"
                 variant="outlined" density="comfortable" hide-details prepend-inner-icon="mdi-account-group"
                 @update:search="cariPenampung" @update:model-value="jadwalkanPratinjau" />
             </div>
@@ -169,7 +169,7 @@
             <v-expansion-panel-title><b>Atur target per jabatan</b></v-expansion-panel-title>
             <v-expansion-panel-text>
               <p class="hint mb-3">Kosongkan target bila jabatan tersebut tidak perlu diberi saran.
-                "Tim" = RO sendiri + seluruh bawahannya.</p>
+                "Tim" = RO sendiri + seluruh downline-nya.</p>
               <div v-for="a in aturanRo" :key="a.mvo_type_id" class="aturan-row">
                 <div class="aturan-nama">{{ a.jabatan }}</div>
                 <v-text-field v-model.number="a.periode_bulan" type="number" min="1" max="24" label="Periode (bulan)"
@@ -416,7 +416,7 @@ function toggleIkut(id, nilai) {
   if (adaTidakIkut.value && !penampung.value && pratinjau.value?.ringkasan?.atasan_lama_id) {
     // Saran awal: atasan lama orang yang dipindah
     penampung.value = pratinjau.value.ringkasan.atasan_lama_id;
-    penampungItems.value = [{ id: penampung.value, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"} (atasan lama)` }];
+    penampungItems.value = [{ id: penampung.value, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"} (upline lama)` }];
   }
   cariPenampung("");
   jadwalkanPratinjau();
@@ -477,7 +477,7 @@ const jadwalkanPratinjau = debounce(async () => {
     if (berubah) {
       if (adaTidakIkut.value && !penampung.value && data.ringkasan?.atasan_lama_id) {
         penampung.value = data.ringkasan.atasan_lama_id;
-        penampungItems.value = [{ id: penampung.value, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"} (atasan lama)` }];
+        penampungItems.value = [{ id: penampung.value, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"} (upline lama)` }];
       }
       jadwalkanPratinjau();
     }
@@ -504,7 +504,7 @@ const headersPratinjau = [
   { title: "Status", key: "peran" },
   { title: "Jabatan", key: "jabatan", sortable: false },
   { title: "No ID", key: "no_id", sortable: false },
-  { title: "Atasan", key: "atasan", sortable: false },
+  { title: "Upline", key: "atasan", sortable: false },
 ];
 
 async function simpan() {
@@ -550,7 +550,7 @@ const filterCabang = ref("");
 const filterCari = ref("");
 const basisItems = [
   { text: "Pribadi", value: "pribadi" },
-  { text: "Tim (+ bawahan)", value: "tim" },
+  { text: "Tim (+ downline)", value: "tim" },
 ];
 const headersSaran = [
   { title: "Nama", key: "nama" },
@@ -639,7 +639,7 @@ const headersRiwayat = [
   { title: "Nama", key: "nama" },
   { title: "Jabatan", key: "jabatan", sortable: false },
   { title: "No ID", key: "no_id", sortable: false },
-  { title: "Atasan", key: "atasan", sortable: false },
+  { title: "Upline", key: "atasan", sortable: false },
   { title: "Anggota", key: "anggota", sortable: false },
   { title: "No ID berubah", key: "jumlah_no_id_berubah" },
   { title: "Oleh", key: "created_by" },
@@ -647,7 +647,7 @@ const headersRiwayat = [
 const headersDetail = [
   { title: "Nama", key: "nama" },
   { title: "No ID", key: "no_id", sortable: false },
-  { title: "Atasan", key: "atasan", sortable: false },
+  { title: "Upline", key: "atasan", sortable: false },
   { title: "Keterangan", key: "keterangan" },
 ];
 
