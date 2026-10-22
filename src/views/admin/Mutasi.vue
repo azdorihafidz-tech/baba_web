@@ -49,8 +49,8 @@
               </v-col>
             </v-row>
 
-            <!-- No ID tujuan: hanya jabatan TM–GM (kursi). Supplier ke bawah mengikuti No ID upline-nya. -->
-            <template v-if="jabatanKursi">
+            <!-- No ID tujuan (kursi) untuk semua jabatan. Supplier ke bawah: cari kursinya. -->
+            <template v-if="jabatanBaru">
               <div class="atasan-label mt-4">No ID</div>
               <v-btn-toggle v-model="modeNoId" mandatory density="comfortable" color="#B8890F" variant="outlined"
                 class="mb-2" @update:model-value="gantiModeNoId">
@@ -58,15 +58,19 @@
                 <v-btn value="pilih" size="small">Pilih No ID</v-btn>
               </v-btn-toggle>
               <div v-if="modeNoId === 'otomatis'" class="hint">
-                No ID dipertahankan bila masih sesuai jabatan, atau diberi nomor kosong berikutnya.
+                <template v-if="jabatanTurunan">No ID mengikuti No ID upline; nomor belakang dipertahankan bila masih kosong.</template>
+                <template v-else>No ID dipertahankan bila masih sesuai jabatan, atau diberi nomor kosong berikutnya.</template>
               </div>
               <template v-else>
                 <v-autocomplete v-model="noIdTujuan" :items="nomorItems" item-title="label" item-value="no_id"
                   :loading="loadingNomor" label="No ID tujuan" variant="outlined" density="comfortable" hide-details
-                  prepend-inner-icon="mdi-identifier" no-data-text="Tidak ada nomor untuk jabatan ini"
-                  @update:model-value="pilihNoId" />
+                  prepend-inner-icon="mdi-identifier" :no-filter="jabatanTurunan"
+                  :no-data-text="jabatanTurunan ? 'Ketik No ID atau nama untuk mencari kursi' : 'Tidak ada nomor untuk jabatan ini'"
+                  @update:search="cariNomor" @update:model-value="pilihNoId" />
                 <div class="hint mt-1">
-                  Daftar berisi No ID jabatan {{ jabatanItems.find((j) => String(j.id) === String(jabatanBaru))?.name }}.
+                  Daftar berisi No ID jabatan {{ namaJabatanBaru }}.
+                  <template v-if="jabatanTurunan">Ketik No ID atau nama untuk mencari kursi lain; nomor kosong muncul setelah
+                    Upline baru dipilih.</template>
                   Untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.
                 </div>
                 <v-alert v-if="pemegangTujuan" :type="tukar ? 'info' : 'warning'" variant="tonal" density="compact"
@@ -399,16 +403,16 @@ const bolehTanpaAtasan = computed(() => (jabatanList.value.find((j) => String(j.
 
 const jabatanItems = computed(() => jabatanList.value.map((j) => ({ ...j, label: `${j.name} — ${j.jabatan || ""}` })));
 
-// No ID tujuan (kursi TM–GM). Nomor yang dipegang orang lain → wajib Tukar posisi.
+// No ID tujuan (kursi). Nomor yang dipegang orang lain → wajib Tukar posisi.
 const modeNoId = ref("otomatis");
 const noIdTujuan = ref(null);
 const tukar = ref(false);
 const nomorList = ref([]);
 const loadingNomor = ref(false);
-const jabatanKursi = computed(() => {
-  const j = jabatanList.value.find((x) => String(x.id) === String(jabatanBaru.value));
-  return !!j && j.mode !== "turunan";
-});
+const jabatanDipilih = computed(() => jabatanList.value.find((x) => String(x.id) === String(jabatanBaru.value)));
+const namaJabatanBaru = computed(() => jabatanDipilih.value?.name || "");
+// Supplier ke bawah: No ID turunan dari upline, daftar kursinya dicari ke server
+const jabatanTurunan = computed(() => jabatanDipilih.value?.mode === "turunan");
 const nomorItems = computed(() => nomorList.value.map((n) => ({
   ...n,
   label: !n.pemegang ? `${n.no_id} — kosong`
@@ -420,18 +424,29 @@ const pemegangTujuan = computed(() => {
   return p && p.id !== memberId.value ? p : null;
 });
 
-async function muatNomor() {
-  if (!jabatanKursi.value) return;
+async function muatNomor(q = "") {
+  if (!jabatanBaru.value) return;
   loadingNomor.value = true;
   try {
-    const { data } = await api.get("/mutasi/nomor", { params: { mvo_type_id: jabatanBaru.value } });
-    nomorList.value = data.data;
+    const params = { mvo_type_id: jabatanBaru.value, user_id: memberId.value };
+    if (jabatanTurunan.value) Object.assign(params, { q, parent_id: q ? undefined : atasanBaru.value || undefined });
+    const { data } = await api.get("/mutasi/nomor", { params });
+    // Nomor yang sedang terpilih tetap ada di daftar supaya labelnya tampil
+    const terpilih = nomorList.value.find((n) => n.no_id === noIdTujuan.value);
+    nomorList.value = terpilih && !data.data.some((n) => n.no_id === terpilih.no_id) ? [terpilih, ...data.data] : data.data;
   } catch (e) {
     toast(pesanError(e, "Gagal memuat daftar No ID"), "error");
   } finally {
     loadingNomor.value = false;
   }
 }
+
+// Kursi turunan dicari ke server; label pilihan yang sedang terpilih tidak dianggap kata kunci
+const cariNomor = debounce((q) => {
+  if (!jabatanTurunan.value || modeNoId.value !== "pilih") return;
+  if (q && nomorItems.value.some((n) => n.no_id === noIdTujuan.value && n.label === q)) return;
+  muatNomor(q || "");
+});
 
 function aturUlangNoId() {
   noIdTujuan.value = null;
@@ -505,8 +520,7 @@ function gantiJabatan() {
   pilihAtasanTerbuka.value = true;
   aturUlangNoId();
   nomorList.value = [];
-  if (!jabatanKursi.value) modeNoId.value = "otomatis";
-  else if (modeNoId.value === "pilih") muatNomor();
+  if (modeNoId.value === "pilih") muatNomor();
   jadwalkanPratinjau();
 }
 
@@ -514,6 +528,11 @@ function pilihAtasan(a) {
   atasanBaru.value = a ? a.id : null;
   atasanTerpilih.value = a;
   pilihAtasanTerbuka.value = false;
+  // Kursi turunan bergantung pada upline: nomor tujuan lama belum tentu sah
+  if (jabatanTurunan.value && modeNoId.value === "pilih") {
+    aturUlangNoId();
+    muatNomor();
+  }
   jadwalkanPratinjau();
 }
 
@@ -526,7 +545,9 @@ const loadingPenampung = ref(false);
 
 const anakLangsung = computed(() => (pratinjau.value?.baris || []).filter((b) => b.anak_langsung));
 const anakTukar = computed(() => (pratinjau.value?.baris || []).filter((b) => b.anak_tukar));
-const adaTidakIkut = computed(() => anakLangsung.value.some((a) => !ikutState.value[a.id]));
+// Downline yang belum punya status: ikut bila jenjangnya cocok (sama dengan centang bawaan)
+const ikutKah = (state, a) => (a.id in state ? !!state[a.id] : a.boleh_ikut !== false);
+const adaTidakIkut = computed(() => anakLangsung.value.some((a) => !ikutKah(ikutState.value, a)));
 
 // Kelompok checklist: downline orang yang dipindah, dan (tukar posisi) downline orang yang ditukar
 const kelompokDownline = computed(() => {
@@ -576,7 +597,7 @@ function setSemua(g, nilai) {
 }
 
 const cariPenampung = debounce(async (q) => {
-  const lepas = anakLangsung.value.find((a) => !ikutState.value[a.id]);
+  const lepas = anakLangsung.value.find((a) => !ikutKah(ikutState.value, a));
   if (!lepas) return;
   const terpilih = penampungItems.value.find((a) => a.id === penampung.value);
   if (terpilih && q === terpilih.label) return;
@@ -611,8 +632,8 @@ const payload = () => {
     no_id_tujuan: modeNoId.value === "pilih" ? noIdTujuan.value : null,
     tukar: pakaiTukar,
     penampung_id: !pakaiTukar && adaTidakIkut.value ? penampung.value : null,
-    tidak_ikut: anakLangsung.value.filter((a) => !ikutState.value[a.id]).map((a) => a.id),
-    tidak_ikut_tukar: pakaiTukar ? anakTukar.value.filter((a) => !ikutStateTukar.value[a.id]).map((a) => a.id) : [],
+    tidak_ikut: anakLangsung.value.filter((a) => !ikutKah(ikutState.value, a)).map((a) => a.id),
+    tidak_ikut_tukar: pakaiTukar ? anakTukar.value.filter((a) => !ikutKah(ikutStateTukar.value, a)).map((a) => a.id) : [],
     catatan: catatan.value,
   };
 };

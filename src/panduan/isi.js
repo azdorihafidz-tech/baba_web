@@ -420,8 +420,9 @@ export const PANDUAN = [
           "Upline baru awalnya terisi upline sekarang. Tekan Ganti upline untuk membuka daftar calon upline — langsung tampil tanpa mengetik, cabang yang sama dengan member ditaruh paling atas.",
           "Bila jabatan diganti, daftar calon upline otomatis terbuka. Daftar hanya berisi upline dengan jenjang yang sah, dan bukan downline orang itu sendiri.",
           "Top Management dan MVO boleh tanpa upline: tekan Tanpa upline.",
-          "No ID (khusus jabatan TM sampai GM): pilih Otomatis (No ID dipertahankan bila masih sesuai, atau nomor kosong berikutnya) atau Pilih No ID untuk menentukan nomor tujuan, mis. B136. Daftar nomor mengikuti Jabatan baru — untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.",
-          "Bila No ID tujuan masih dipakai orang lain, kursi tidak boleh bertabrakan: aktifkan Tukar posisi. Orang yang dipindah menempati kursi itu (jabatan, No ID, dan upline kursi tersebut), dan pemegang lamanya menempati kursi lama orang yang dipindah. Tanpa Tukar posisi, mutasi ditolak.",
+          "No ID: pilih Otomatis (No ID dipertahankan bila masih sesuai, atau nomor kosong berikutnya) atau Pilih No ID untuk menentukan kursi tujuan, mis. B136 atau B52-01. Daftar nomor mengikuti Jabatan baru — untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.",
+          "Supplier ke bawah: daftar No ID berisi kursi downline dan rekan se-upline member. Ketik No ID atau nama untuk mencari kursi lain. Nomor kosong muncul setelah Upline baru dipilih.",
+          "Bila No ID tujuan masih dipakai orang lain, kursi tidak boleh bertabrakan: aktifkan Tukar posisi. Orang yang dipindah menempati kursi itu (jabatan, No ID, dan upline kursi tersebut), dan pemegang lamanya menempati kursi lama orang yang dipindah. Berlaku untuk semua jabatan, dari TM sampai Reseller. Tanpa Tukar posisi, mutasi ditolak.",
         ],
       },
       {
@@ -462,6 +463,7 @@ export const PANDUAN = [
     tanya: [
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
       { t: "B02 mau pindah ke B03 yang sudah terisi?", j: "Pilih member B02, Pilih No ID → B03, lalu aktifkan Tukar posisi. Pemegang B03 otomatis menempati B02. Atur downline masing-masing: ikut orangnya, atau tetap di posisi." },
+      { t: "Supplier B52-01 naik menggantikan GM B52?", j: "Pilih member B52-01, Jabatan baru GM, Pilih No ID → B52, lalu aktifkan Tukar posisi. GM lama otomatis menempati kursi B52-01. Downline yang jenjangnya tidak cocok otomatis tetap di posisi, jadi hanya 2 No ID yang berubah." },
       { t: "Kenapa downline tidak bisa dicentang saat tukar posisi?", j: "Jenjangnya tidak cocok dengan jabatan baru orang itu (mis. GM naik menjadi Founder: Supplier-nya tidak bisa ikut karena Supplier harus di bawah GM). Downline tersebut otomatis tetap di posisi." },
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
     ],
