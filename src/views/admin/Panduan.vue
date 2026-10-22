@@ -1,12 +1,7 @@
 <template>
   <div class="panduan-page">
-    <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Panduan' }]" />
-
-    <div class="page-heading">
-      <h1 class="page-title">Panduan</h1>
-      <p class="page-sub">Kegunaan dan cara pakai setiap menu. Di setiap halaman juga ada tombol
-        <b>❓ Cara Pakai</b> di bagian atas.</p>
-    </div>
+    <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Panduan' }]" icon="mdi-book-open-page-variant"
+      sub="Kegunaan dan cara pakai setiap menu. Di setiap halaman juga ada tombol ❓ Cara Pakai di bagian atas." />
 
     <v-text-field v-model="cari" label="Cari panduan, mis. approve, No ID, dokumen" variant="outlined"
       density="comfortable" prepend-inner-icon="mdi-magnify" hide-details clearable class="mb-4 cari" />
@@ -104,21 +99,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-heading {
-  margin-bottom: 12px;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--baba-text);
-}
-
-.page-sub {
-  font-size: 0.875rem;
-  color: var(--baba-muted);
-}
-
 .cari {
   max-width: 560px;
 }
@@ -225,11 +205,5 @@ onMounted(async () => {
 .kosong {
   color: var(--baba-muted);
   padding: 16px 0;
-}
-
-@media (max-width: 959.98px) {
-  .page-title {
-    font-size: 1.25rem;
-  }
 }
 </style>

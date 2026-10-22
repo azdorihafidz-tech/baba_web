@@ -1,11 +1,7 @@
 <template>
   <div class="mutasi-page">
-    <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Mutasi Jabatan' }]" />
-
-    <div class="page-heading">
-      <h1 class="page-title">Mutasi Jabatan</h1>
-      <p class="page-sub">Naikkan, turunkan, atau pindahkan atasan member beserta anggotanya</p>
-    </div>
+    <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Mutasi Jabatan' }]"
+      sub="Naikkan, turunkan, atau pindahkan atasan member beserta anggotanya" />
 
     <v-alert v-if="!isSuperadmin" type="info" variant="tonal">Halaman ini khusus superadmin.</v-alert>
 
@@ -680,21 +676,6 @@ if (isSuperadmin) muatJabatan();
 </script>
 
 <style scoped>
-.page-heading {
-  margin-bottom: 12px;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--baba-text);
-}
-
-.page-sub {
-  font-size: 0.875rem;
-  color: var(--baba-muted);
-}
-
 .step-card {
   border: 1px solid var(--baba-border);
   box-shadow: var(--baba-shadow) !important;
@@ -907,10 +888,6 @@ if (isSuperadmin) muatJabatan();
 
   .saran-cari {
     max-width: none;
-  }
-
-  .page-title {
-    font-size: 1.25rem;
   }
 }
 </style>

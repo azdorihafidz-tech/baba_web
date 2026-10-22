@@ -38,6 +38,7 @@ export const MULAI_CEPAT = {
     { t: "Login", j: "Masukkan username dan password di halaman Login. Akun yang belum diverifikasi superadmin belum bisa masuk." },
     { t: "Lupa password", j: "Klik Lupa Password? di halaman Login, isi username atau nomor WhatsApp. Link reset dikirim lewat WhatsApp dan berlaku 60 menit." },
     { t: "Menu di HP", j: "Menu utama ada di bar bawah. Menu lain ada di tombol Lainnya. Foto profil di kanan atas berisi Profil Saya, Info Cabang, Muat Ulang Data, dan Keluar." },
+    { t: "Kembali ke Dashboard", j: "Tekan tulisan 🏠 Dashboard di kepala halaman (kotak hitam bertuliskan nama menu) di bagian atas setiap halaman." },
     { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
   ],
