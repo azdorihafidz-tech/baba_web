@@ -7,9 +7,13 @@
         <h1 class="page-title">Struktur akun</h1>
       </div>
       <div class="header-right">
-        <div class="total-chip">Total: {{ rawData.length }} akun</div>
-        <button class="hdr-btn" @click="collapseAll">Tutup Semua</button>
-        <button class="hdr-btn hdr-btn--open" @click="expandAll">Buka Semua</button>
+        <div class="total-chip">{{ compact ? '' : 'Total: ' }}{{ rawData.length }} akun</div>
+        <button class="hdr-btn" title="Tutup Semua" aria-label="Tutup Semua" @click="collapseAll">
+          <v-icon size="16">mdi-unfold-less-horizontal</v-icon><span class="hdr-btn-teks">Tutup Semua</span>
+        </button>
+        <button class="hdr-btn hdr-btn--open" title="Buka Semua" aria-label="Buka Semua" @click="expandAll">
+          <v-icon size="16">mdi-unfold-more-horizontal</v-icon><span class="hdr-btn-teks">Buka Semua</span>
+        </button>
       </div>
     </div>
 
@@ -20,7 +24,7 @@
         background: activeRoleFilter === role ? ROLE_COLORS[role] : '#18181b',
       }" @click="onRoleCardClick(role)">
         <div class="stat-label" :style="{ color: activeRoleFilter === role ? '#fff' : ROLE_COLORS[role] }">{{
-          getDisplayRole(role) }}
+          compact ? (ROLE_SINGKAT[role] || role) : getDisplayRole(role) }}
         </div>
         <div class="stat-value" :style="{ color: activeRoleFilter === role ? '#fff' : ROLE_COLORS[role] }">{{
           roleCounts[role] ?? 0 }}</div>
@@ -33,7 +37,7 @@
       <!-- Tree Panel -->
       <div class="tree-panel">
         <div class="tree-topbar">
-          <span class="topbar-title">
+          <span class="topbar-title" :class="{ 'topbar-title--kosong': !activeRoleFilter }">
             akun Hierarki
             <v-chip v-if="activeRoleFilter" size="x-small" closable
               :style="{ background: ROLE_COLORS[activeRoleFilter] + '22', color: ROLE_COLORS[activeRoleFilter], border: `1px solid ${ROLE_COLORS[activeRoleFilter]}55` }"
@@ -166,7 +170,9 @@ import { useDisplay } from 'vuetify';
 const { smAndDown } = useDisplay();
 const compact = computed(() => smAndDown.value);
 
-const ROLE_ORDER = ['MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
+const ROLE_ORDER = ['TOP MANAGEMENT', 'MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
+// Label pendek untuk kartu total di HP (grid 4 kolom)
+const ROLE_SINGKAT = { 'TOP MANAGEMENT': 'TM', 'GENERAL MANAGER': 'GM', 'DISTRIBUTOR': 'DIST', 'REGIONAL': 'RGO' };
 const ROLE_COLORS = {
   'MVO': '#ef4444', 'REGIONAL': '#f97316', 'FOUNDER': '#a855f7',
   'TOP MANAGEMENT': '#E6B422',   'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'RESELLER': '#6b7280',
@@ -432,8 +438,9 @@ onMounted(fetchData);
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600;700&display=swap');
 
-*,
-*::before,
+/* .v-icon dikecualikan supaya font ikon (mdi) tidak tertimpa */
+*:not(.v-icon),
+*:not(.v-icon)::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
@@ -455,11 +462,14 @@ onMounted(fetchData);
 }
 
 /* ── Root: fullscreen ────────────────────────────────────────────────────── */
+/* Pas satu layar: 96px = header aplikasi (65) + jarak atas & bawah. Pohon digulir di dalam kotaknya sendiri. */
 .page {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 96px);
+  height: calc(100dvh - 96px);
+  min-height: 520px;
   overflow: hidden;
   background: #09090b;
 }
@@ -498,7 +508,7 @@ onMounted(fetchData);
 
 .stat-card {
   flex: 1;
-  min-width: 120px;
+  min-width: 96px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-top-width: 3px;
   border-radius: 10px;
@@ -573,18 +583,20 @@ onMounted(fetchData);
 
 .tree-scroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: #4b5563 transparent;
+  scrollbar-color: var(--baba-gold-dark) transparent;
 }
 
 .tree-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .tree-scroll::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 2px;
+  background: var(--baba-gold-dark);
+  border-radius: 3px;
 }
 
 /* ── States ──────────────────────────────────────────────────────────────── */
@@ -847,62 +859,82 @@ onMounted(fetchData);
 
 /* ── HP & tablet (< 960px, sama dengan breakpoint md Vuetify) ─────────────── */
 @media (max-width: 959px) {
-  /* Halaman ikut digulir biasa (bukan kotak bergulir di dalam layar) */
+  /* Pas satu layar di atas menu bawah: 152px = header (61) + menu bawah (64) + jarak.
+     Header & kartu tetap terlihat, hanya pohon yang digulir. */
   .page {
-    height: auto;
-    overflow: visible;
+    height: calc(100vh - 152px);
+    height: calc(100dvh - 152px);
+    min-height: 460px;
     border-radius: 12px;
   }
 
   .page-header {
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 12px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .page-title {
     font-size: 16px;
     letter-spacing: 0.5px;
+    white-space: nowrap;
   }
 
   /* diawali .page-header karena aturan dasarnya ditulis setelah blok ini */
   .page-header .header-right {
-    flex: 1 1 100%;
-    gap: 8px;
+    gap: 6px;
   }
 
   .page-header .total-chip {
-    padding: 5px 10px;
+    padding: 4px 10px;
     font-size: 11px;
     white-space: nowrap;
   }
 
+  /* Tombol Tutup/Buka Semua jadi ikon saja */
   .page-header .hdr-btn {
-    flex: 1;
-    padding: 6px 8px;
-    white-space: nowrap;
+    padding: 6px 9px;
   }
 
+  .hdr-btn-teks {
+    display: none;
+  }
+
+  /* Semua kartu total terlihat: grid 4 kolom × 2 baris */
   .stat-row {
-    gap: 8px;
-    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px 12px;
+    overflow: visible;
   }
 
   .stat-card {
-    min-width: 92px;
-    flex: 0 0 auto;
-    padding: 8px 12px;
+    min-width: 0;
+    padding: 6px 8px;
     border-radius: 8px;
+    border-top-width: 2px;
+  }
+
+  .stat-card:hover {
+    transform: none;
   }
 
   .stat-label {
-    font-size: 9.5px;
-    margin-bottom: 4px;
+    font-size: 9px;
+    letter-spacing: 0.4px;
+    margin-bottom: 2px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .stat-value {
-    font-size: 20px;
+    font-size: 17px;
+  }
+
+  .topbar-title--kosong {
+    display: none;
   }
 
   .body {
@@ -918,10 +950,6 @@ onMounted(fetchData);
 
   .cari-struktur {
     max-width: none;
-  }
-
-  .tree-scroll {
-    overflow: visible;
   }
 
   .detail-panel {
@@ -968,6 +996,9 @@ onMounted(fetchData);
 }
 
 .hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: #27272a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #e5e7eb;

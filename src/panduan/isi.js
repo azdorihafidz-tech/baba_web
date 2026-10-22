@@ -288,7 +288,8 @@ export const PANDUAN = [
         judul: "Menjelajah pohon",
         isi: [
           "Setiap baris menampilkan jabatan, No ID (warna emas), dan nama. Di HP, nama di baris atas lalu jabatan · No ID di bawahnya.",
-          "Tekan panah ( › ) di samping nama untuk membuka bawahannya, atau Buka Semua / Tutup Semua.",
+          "Tekan panah ( › ) di samping nama untuk membuka bawahannya, atau Buka Semua / Tutup Semua. Di HP kedua tombol ini berupa ikon panah di samping jumlah akun.",
+          "Daftar akun digulir di dalam kotaknya sendiri, jadi kartu total dan kolom cari tetap terlihat di atas.",
           "Angka di kanan nama adalah jumlah seluruh bawahannya.",
           "Klik nama untuk melihat detail akun: No ID, atasan (nama dan No ID), jumlah bawahan langsung, dan total jaringan. Di HP detail tampil satu layar penuh; tekan ✕ di kanan atas untuk kembali ke pohon.",
         ],
@@ -298,7 +299,7 @@ export const PANDUAN = [
         isi: [
           "Ketik nama atau No ID di kolom Cari nama / No ID (mis. B78-04 untuk melihat jaringan Supplier B78-04).",
           "Cabang yang berisi hasil pencarian terbuka otomatis dan hasilnya disorot.",
-          "Klik kartu jabatan di atas (mis. GENERAL MANAGER) untuk menyorot jabatan tersebut. Di HP, geser kartu ke kiri untuk melihat jabatan lainnya.",
+          "Kartu di atas menampilkan total akun per jabatan (TM, MVO, Regional, Founder, GM, Supplier, Distributor, Reseller). Klik kartu untuk menyorot jabatan tersebut; klik lagi untuk membatalkan.",
         ],
       },
     ],
