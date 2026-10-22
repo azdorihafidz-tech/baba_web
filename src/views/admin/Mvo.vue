@@ -80,19 +80,6 @@
               </div>
             </template>
 
-            <template v-slot:item.action="{ item }" v-if="mvo_type_id === 'superadmin'">
-              <div class="d-flex justify-center">
-                <v-tooltip text="Hapus" color="#125C13" location="top start">
-                  <template v-slot:activator="{ props }">
-                    <v-btn size="small" :color="app.colors.secondary" @click="deleteMvo(item.id)" class="mx-1"
-                      v-bind="props" icon>
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </template>
-                </v-tooltip>
-              </div>
-            </template>
-
             <template v-slot:item.status_inputan="{ item }">
               <v-chip :color="getDocumentStatusColor(item.status_inputan, item.approval_doc_upline_1, item.upline_1)"
                 size="small" variant="flat">
@@ -173,10 +160,6 @@
                     {{ mvo_type_id === 'mvo' ? 'Approve MVO' : 'Approve Admin' }}
                   </v-btn>
 
-                  <template v-if="mvo_type_id === 'superadmin'">
-                    <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvo(item.id)" class="mb-2"
-                      prepend-icon="mdi-delete">Hapus</v-btn>
-                  </template>
                 </div>
               </v-card-text>
             </div>
@@ -550,20 +533,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="isShowDialogDelete" :max-width="$vuetify.display.mobile ? '95%' : '500px'">
-      <v-card :color="app.colors.background">
-        <v-card-title class="text-h5">Apakah yakin ingin menghapus data ini?</v-card-title>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">Cancel</v-btn>
-          <v-btn :color="app.colors.secondary" @click="confirmDeleteMvo(modelDelete.id)"
-            :loading="isButtonLoading">OK</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <!-- Document Add/Edit Dialog (unified) -->
     <v-dialog v-model="documentDialog.show" persistent :width="$vuetify.display.mobile ? '95%' : '700'">
       <v-card class="custom-dialog">
@@ -751,7 +720,6 @@ export default {
       isButtonLoading: false,
       isTableLoading: false,
       isLoadingParentDetail: false,
-      isShowDialogDelete: false,
 
       isDocumentButtonLoading: false,
       isLoadingDocuments: false,
@@ -782,7 +750,6 @@ export default {
           { key: "created_at", title: "Tgl Aktivasi", align: "center" },
           { key: "detail", title: "Detail", sortable: false, align: "center" },
           // { key: "print", title: "Print", sortable: false, align: "center" },
-          { key: "action", title: "Actions", sortable: false, align: "center" },
         ],
         items: [],
       },
@@ -821,7 +788,6 @@ export default {
 
       mvoTypes: [],
       detailModel: {},
-      modelDelete: { id: "" },
 
       documentDialog: { show: false, mode: "add" },
       documentForm: buildEmptyDocForm(),
@@ -1220,28 +1186,6 @@ export default {
     },
 
     // ========== DELETE MVO ==========
-    deleteMvo(id) {
-      this.isShowDialogDelete = true;
-      this.modelDelete.id = id;
-    },
-
-    async confirmDeleteMvo(id) {
-      const headers = this.getAuthHeaders();
-      if (!headers) return;
-
-      this.isButtonLoading = true;
-      try {
-        const response = await axios.delete(`${API_BASE}/mvo/${id}`, { headers });
-        this.loadItems();
-        this.showSnackbar(response.data.message || "Data berhasil dihapus");
-      } catch (error) {
-        this.showSnackbar(error.response?.data?.message || "Error deleting", "error");
-      } finally {
-        this.isButtonLoading = false;
-        this.isShowDialogDelete = false;
-      }
-    },
-
     // ========== UI HELPERS ==========
     toggleMobileDetail(itemId) {
       this.expandedMobileCard = this.expandedMobileCard === itemId ? null : itemId;
@@ -1947,47 +1891,31 @@ export default {
   font-weight: bold;
 }
 
-/* ===== Freeze 2 kolom terakhir (Detail, Actions) ke kanan ===== */
-/* Lebar tetap supaya offset freeze antar kolom akurat */
+/* ===== Freeze kolom terakhir (Detail) ke kanan ===== */
+/* !important: Vuetify memberi td position: relative, sehingga sel tidak ikut terkunci */
 :deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
-  /* !important: Vuetify memberi td position: relative, sehingga sel tidak ikut terkunci */
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)) {
   position: sticky !important;
+  right: 0;
   z-index: 3;
   box-sizing: border-box;
   width: 80px;
   min-width: 80px;
   max-width: 80px;
-}
-
-/* Offset menumpuk dari kanan: Actions (0) → Detail (80) */
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)) {
-  right: 0;
-}
-
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
-  right: 80px;
   box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
 }
 
 /* Background opaque agar kolom yang ter-scroll tidak menembus ke belakang */
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(1)),
-:deep(.custom-data-table table > thead > tr > th:nth-last-child(2)) {
+:deep(.custom-data-table table > thead > tr > th:nth-last-child(1)) {
   background-color: var(--baba-gold-soft) !important;
   z-index: 4;
 }
 
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr > td:nth-last-child(2)) {
+:deep(.custom-data-table table > tbody > tr > td:nth-last-child(1)) {
   background-color: #ffffff !important;
 }
 
-:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(1)),
-:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(2)) {
+:deep(.custom-data-table table > tbody > tr:hover > td:nth-last-child(1)) {
   background-color: #f8f9fa !important;
 }
 

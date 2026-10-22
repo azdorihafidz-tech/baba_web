@@ -124,7 +124,7 @@ export const PANDUAN = [
       {
         judul: "Mengubah atau menghapus dokumen",
         isi: [
-          "Di daftar dokumen, tekan Edit untuk mengubah atau Hapus untuk menghapus.",
+          "Di daftar dokumen, tekan Edit untuk mengubah atau Hapus untuk menghapus. Pada dokumen yang sudah disetujui final, tombol ini hanya muncul untuk superadmin.",
           "Dokumen yang diubah kembali berstatus menunggu persetujuan.",
         ],
       },
@@ -139,7 +139,7 @@ export const PANDUAN = [
           { teks: "Excel: mengunduh seluruh data akun.", peran: "superadmin" },
           { teks: "Template lalu Import Dokumen: mengisi banyak dokumen sekaligus dari file Excel (nama MVO, Rating Star, Range Point, tanggal).", peran: "superadmin" },
           { teks: "Approve dokumen (persetujuan akhir) bisa juga dilakukan dari detail akun.", peran: "superadmin" },
-          { teks: "Hapus akun dari kolom Actions. Akun yang masih punya downline atau dokumen tidak bisa dihapus.", peran: "superadmin" },
+          { teks: "Hapus akun dilakukan di menu Verifikasi ID (tombol Hapus). Dialognya menampilkan data terkait yang harus dibereskan dulu, mis. bawahan atau dokumen.", peran: "superadmin" },
         ],
       },
     ],
