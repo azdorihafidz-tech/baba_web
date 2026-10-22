@@ -41,7 +41,7 @@
               }}</v-list-item-title>
               <v-list-item-subtitle v-if="chat.last_message" class="chat-preview">
                 <span class="preview-sender">{{ getLastMessageSender(chat) }}:</span>
-                {{ chat.last_message.message }}
+                {{ chat.last_message.dihapus ? "Pesan dihapus" : chat.last_message.message }}
               </v-list-item-subtitle>
 
               <template v-slot:append>
@@ -117,11 +117,19 @@
                           ? 'message-sent'
                           : 'message-received',
                       ]">
-                        <div class="text-body-2 message-content">
+                        <div v-if="msg.dihapus" class="text-body-2 message-content message-dihapus">
+                          <v-icon size="14" class="me-1">mdi-cancel</v-icon>Pesan dihapus admin
+                        </div>
+                        <div v-else class="text-body-2 message-content">
                           {{ msg.message }}
                         </div>
                         <div class="message-time">
                           {{ formatTime(msg.created_at) }}
+                          <!-- Hapus pesan: khusus superadmin -->
+                          <v-btn v-if="isSuperadmin && !msg.dihapus" icon size="x-small" variant="text"
+                            class="hapus-btn" title="Hapus pesan" @click="mintaHapus(msg)">
+                            <v-icon size="16">mdi-delete-outline</v-icon>
+                          </v-btn>
                         </div>
                       </v-sheet>
                     </v-col>
@@ -161,6 +169,20 @@
       </v-col>
     </v-row>
 
+    <v-dialog v-model="dialogHapus" max-width="420">
+      <v-card>
+        <v-card-title class="text-h6">Hapus pesan?</v-card-title>
+        <v-card-text>
+          Pesan dari <b>{{ pesanDihapus ? senderName(pesanDihapus) : "" }}</b> akan tampil sebagai
+          "Pesan dihapus admin" untuk semua anggota grup.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="dialogHapus = false">Batal</v-btn>
+          <v-btn color="error" variant="flat" :loading="loadingHapus" @click="hapusPesan">Hapus</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -185,6 +207,10 @@ export default {
       isMobile: false,
       api: null,
       showEmojiPicker: false,
+      isSuperadmin: localStorage.getItem("mvo_type_id") === "superadmin",
+      dialogHapus: false,
+      pesanDihapus: null,
+      loadingHapus: false,
       emojiList: [
         "😀",
         "😃",
@@ -499,6 +525,9 @@ export default {
         }
       });
 
+      // Pesan dihapus superadmin: tampilkan sebagai "Pesan dihapus admin" di semua layar
+      this.socket.on("message_deleted", (d) => this.tandaiDihapus(d));
+
       this.socket.on("disconnect", (reason) =>
         console.log("Socket disconnected", reason),
       );
@@ -653,6 +682,34 @@ export default {
       return scrollHeight - (scrollTop + clientHeight) <= threshold;
     },
 
+
+    mintaHapus(msg) {
+      this.pesanDihapus = msg;
+      this.dialogHapus = true;
+    },
+
+    async hapusPesan() {
+      if (!this.pesanDihapus) return;
+      this.loadingHapus = true;
+      try {
+        if (!this.api) this.createApiInstance();
+        const { data } = await this.api.delete(`/chat/messages/${this.pesanDihapus.id}`);
+        this.tandaiDihapus(data.data);
+        this.dialogHapus = false;
+      } catch (e) {
+        console.error("Gagal menghapus pesan", e);
+      } finally {
+        this.loadingHapus = false;
+      }
+    },
+
+    tandaiDihapus(d) {
+      if (!d || !d.id) return;
+      const m = this.messages.find((x) => Number(x.id) === Number(d.id));
+      if (m) Object.assign(m, { dihapus: true, message: null });
+      const room = this.chatList.find((c) => Number(c.last_message?.id) === Number(d.id));
+      if (room) room.last_message = { ...room.last_message, dihapus: true, message: null };
+    },
 
     addEmoji(emoji) {
       this.newMessage += emoji;
@@ -1274,5 +1331,15 @@ export default {
 .message-block {
   /* small spacing to separate groups better */
   margin-bottom: 6px;
+}
+
+.message-dihapus {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.hapus-btn {
+  margin-left: 4px;
+  opacity: 0.75;
 }
 </style>

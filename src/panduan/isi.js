@@ -582,11 +582,15 @@ export const PANDUAN = [
       {
         judul: "Khusus superadmin",
         peran: "superadmin",
-        isi: ["Superadmin melihat dan bisa menulis di semua grup: GLOBAL dan seluruh grup cabang."],
+        isi: [
+          "Superadmin melihat dan bisa menulis di semua grup: GLOBAL dan seluruh grup cabang.",
+          "Hapus pesan: tekan ikon tempat sampah di bawah pesan, lalu Hapus. Pesan tampil sebagai \"Pesan dihapus admin\" untuk semua anggota; teks aslinya tetap tersimpan sebagai catatan.",
+        ],
       },
     ],
     tips: ["Grup cabang lain tidak bisa dibuka; pesannya hanya untuk anggota cabang itu."],
     tanya: [
+      { t: "Bisakah saya menghapus pesan yang sudah terkirim?", j: "Tidak. Hanya superadmin yang bisa menghapus pesan. Periksa pesan sebelum dikirim, atau minta bantuan superadmin." },
       { t: "Kenapa saya tidak bisa membuat grup?", j: "Grup dibuat otomatis: GLOBAL untuk semua member dan satu grup per cabang." },
     ],
   },
