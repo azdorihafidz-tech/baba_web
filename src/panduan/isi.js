@@ -227,8 +227,18 @@ export const PANDUAN = [
         judul: "Menambah jabatan",
         isi: ["Tekan Tambah Tipe Akun, isi Name, Level, Rating Bintang, Jabatan, dan Aturan No ID."],
       },
+      {
+        judul: "Membaca kolom Jenjang",
+        isi: [
+          "Jenjang = urutan jabatan dalam struktur: 0 · Puncak (TM), 1 MVO, 2 Regional, 3 Founder, 4 GM, 5 Supplier, 6 Distributor, 7 Reseller.",
+          "Angka jenjang juga dipakai sistem sebagai nomor kolom atasan (upline), approval, dan aturan No ID, jadi jangan diubah untuk jabatan yang sudah berjalan.",
+          "SUPERADMIN bertanda Di luar struktur karena bukan bagian dari jenjang jabatan.",
+        ],
+      },
     ],
     tips: [
+      "Jabatan yang sudah dipakai akun: Name, Level, cara penomoran, dan awalan No ID terkunci (ada keterangan di form Edit). Jabatan, rating bintang, dan rentang nomor tetap bisa diubah.",
+      "Tipe akun tidak bisa dihapus dari aplikasi karena data akun, kode akun, dan No ID bergantung padanya.",
       "Rentang dengan awalan yang sama tidak boleh bertumpuk (mis. Founder B01–B50 dan GM B51–B150).",
       "Rentang tidak bisa dipersempit bila ada No ID sah yang jadi di luar rentang baru — pindahkan akunnya dulu lewat Mutasi Jabatan.",
       "Kolom Kode No ID di tabel menampilkan ringkasan aturan tiap jabatan.",

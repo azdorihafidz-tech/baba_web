@@ -25,6 +25,9 @@
         <v-data-table class="bg-grey-lighten-4 text-no-wrap" hover :headers="datatable.headers" :items="datatable.items"
           :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
           @update:options="updateCurrentPageInfo">
+          <template v-slot:item.level="{ item }">
+            <span class="jenjang-chip" :class="{ 'jenjang-luar': isLuarStruktur(item) }">{{ labelJenjang(item) }}</span>
+          </template>
           <template v-slot:item.kode_no_id="{ item }">
             <span v-if="item.kode_mode" class="kode-chip">{{ formatKode(item) }}</span>
             <span v-else>-</span>
@@ -53,14 +56,6 @@
                 <v-btn size="small" :color="app.colors.primary" @click="editMvoType(item.id)" class="mr-2 mb-2"
                   v-bind="props" icon>
                   <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-              </template>
-            </v-tooltip>
-            <v-tooltip text="Hapus" color="#125C13" location="top start">
-              <template v-slot:activator="{ props }">
-                <v-btn size="small" :color="app.colors.secondary" @click="deleteMvoType(item.id)" class="mr-2 mb-2"
-                  v-bind="props" icon>
-                  <v-icon>mdi-delete</v-icon>
                 </v-btn>
               </template>
             </v-tooltip>
@@ -130,7 +125,7 @@
                   <strong>Level:</strong>
                 </v-col>
                 <v-col cols="12" class="detail-value">
-                  <v-chip :color="getLevelColor(item.level)" small>{{ item.level || '-' }}</v-chip>
+                  <span class="jenjang-chip" :class="{ 'jenjang-luar': isLuarStruktur(item) }">{{ labelJenjang(item) }}</span>
                 </v-col>
               </v-row>
 
@@ -169,10 +164,6 @@
                   prepend-icon="mdi-pencil">
                   Edit
                 </v-btn>
-                <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteMvoType(item.id)" class="mb-2"
-                  prepend-icon="mdi-delete">
-                  Hapus
-                </v-btn>
               </div>
             </v-card-text>
           </div>
@@ -194,7 +185,8 @@
             <v-text-field label="Name" v-model="modelAdd.name" class="mb-2 mt-4" :rules="[rules.required]" required />
           </v-col>
           <v-col cols="12" md="6">
-            <v-text-field label="Level" v-model="modelAdd.level" class="mb-2 mt-4" :rules="[rules.required]" required />
+            <v-text-field label="Level (jenjang, 0 = puncak)" v-model="modelAdd.level" type="number" min="0"
+              class="mb-2 mt-4" :rules="[rules.wajibAngka]" required />
           </v-col>
           <v-col cols="12" md="6">
             <v-select label="Rating Bintang" v-model="modelAdd.jlh_bintang" :items="[1, 2, 3, 4, 5, 6, 7, 8]"
@@ -248,11 +240,19 @@
       <v-card-text class="dialog-content">
         <v-row>
           <v-col cols="12" md="6">
-            <v-text-field label="Name" v-model="modelEdit.name" class="mb-2 mt-4" :rules="[rules.required]" required />
+            <v-text-field label="Name" v-model="modelEdit.name" class="mb-2 mt-4" :rules="[rules.required]" required
+              :disabled="tipeDipakai" />
           </v-col>
           <v-col cols="12" md="6">
-            <v-text-field label="Level" v-model="modelEdit.level" class="mb-2 mt-4" :rules="[rules.required]"
-              required />
+            <v-text-field label="Level (jenjang, 0 = puncak)" v-model="modelEdit.level" type="number" min="0"
+              class="mb-2 mt-4" :rules="[rules.wajibAngka]" required :disabled="tipeDipakai" />
+          </v-col>
+          <v-col v-if="tipeDipakai" cols="12">
+            <v-alert type="info" variant="tonal" density="compact">
+              Tipe ini dipakai {{ modelEdit.jumlah_akun }} akun, jadi Name, Level, cara penomoran, dan awalan No ID
+              dikunci (kode akun, approval, dan No ID bergantung padanya). Jabatan, rating bintang, dan rentang nomor
+              tetap bisa diubah.
+            </v-alert>
           </v-col>
           <v-col cols="12" md="6">
             <v-select label="Rating Bintang" v-model="modelEdit.jlh_bintang" :items="[1, 2, 3, 4, 5, 6, 7, 8]"
@@ -280,7 +280,7 @@
         <v-row>
           <v-col cols="12">
             <v-textarea label="Jabatan" v-model="modelEdit.jabatan" class="mb-2" rows="3" />
-            <KodeNoIdFields v-model="modelEdit.kode" />
+            <KodeNoIdFields v-model="modelEdit.kode" :kunci="tipeDipakai" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -292,23 +292,6 @@
         <v-btn :color="app.colors.primary" @click="updateMvoType()" :loading="isButtonLoading" class="ml-2">
           Update
         </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
-  <!-- Dialog Delete Confirmation -->
-  <v-dialog v-model="isShowDialogDelete" :max-width="$vuetify.display.mobile ? '95%' : '500px'">
-    <v-card :color="this.app.colors.background">
-      <v-card-title class="text-h5">Apakah anda yakin ingin menghapus data Tipe Akun ini?</v-card-title>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">
-          Cancel
-        </v-btn>
-        <v-btn :color="app.colors.secondary" @click="confirmDeleteMvoType(modelDelete.id)" :loading="isButtonLoading">
-          OK
-        </v-btn>
-        <v-spacer></v-spacer>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -356,7 +339,9 @@ export default {
 
       // Validation rules
       rules: {
-        required: value => !!value || 'Field ini wajib diisi'
+        required: value => !!value || 'Field ini wajib diisi',
+        // Level boleh 0 (TM = puncak)
+        wajibAngka: value => (value !== '' && value !== null && value !== undefined && !isNaN(Number(value))) || 'Level wajib diisi angka (0 = puncak)',
       },
 
       title: "DATA Tipe Akun",
@@ -375,13 +360,12 @@ export default {
       isShowDialogAdd: false,
       isShowDialogEdit: false,
       isButtonLoading: false,
-      isShowDialogDelete: false,
       datatable: {
         search: "",
         headers: [
           { key: "no", title: "No", sortable: false },
           { key: "name", title: "Name" },
-          { key: "level", title: "Level" },
+          { key: "level", title: "Jenjang" },
           { key: "star_number", title: "Bintang", align: "center" }, // Kolom bintang + angka
           { key: "star_icon", title: "Rating", sortable: false, align: "center" }, // Kolom icon bintang
           { key: "jabatan", title: "Jabatan" },
@@ -399,20 +383,21 @@ export default {
       },
       modelEdit: {
         id: "",
+        jumlah_akun: 0,
         name: "",
         level: "",
         jabatan: "",
         jlh_bintang: 1, // Tambahkan ini
         kode: { kode_mode: null, kode_awalan: "", kode_mulai: null, kode_akhir: null },
       },
-      modelDelete: {
-        id: "",
-      },
       isTableLoading: true,
     };
   },
 
   computed: {
+    tipeDipakai() {
+      return Number(this.modelEdit.jumlah_akun) > 0;
+    },
     // Filtered items for mobile search
     filteredItems() {
       if (!this.datatable.search) {
@@ -423,7 +408,7 @@ export default {
       return this.datatable.items.filter(item => {
         return (
           (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-          (item.level && item.level.toLowerCase().includes(searchTerm)) ||
+          (item.level != null && String(item.level).includes(searchTerm)) ||
           (item.jabatan && item.jabatan.toLowerCase().includes(searchTerm)) ||
           (item.jlh_bintang && item.jlh_bintang.toString().includes(searchTerm))
         );
@@ -432,6 +417,18 @@ export default {
   },
 
   methods: {
+    levelTerisi(v) {
+      return v !== "" && v !== null && v !== undefined;
+    },
+    isLuarStruktur(item) {
+      return String(item.name || "").toLowerCase() === "superadmin";
+    },
+    // Jenjang: 0 = puncak (TM). SUPERADMIN tidak termasuk struktur jabatan.
+    labelJenjang(item) {
+      if (this.isLuarStruktur(item)) return "Di luar struktur";
+      if (item.level === null || item.level === undefined || item.level === "") return "-";
+      return Number(item.level) === 0 ? "0 · Puncak" : String(item.level);
+    },
     // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM01, TM02, …", "Turunan atasan"
     formatKode(item) {
       const pad = (n) => String(n ?? "").padStart(2, "0");
@@ -457,15 +454,6 @@ export default {
     },
 
     // Get level color for chips
-    getLevelColor(level) {
-      if (!level) return 'grey';
-      const levelStr = level.toString().toLowerCase();
-      if (levelStr.includes('1') || levelStr.includes('basic')) return 'green';
-      if (levelStr.includes('2') || levelStr.includes('intermediate')) return 'orange';
-      if (levelStr.includes('3') || levelStr.includes('advanced')) return 'red';
-      return 'blue';
-    },
-
     // Helper method to display snackbar with API response
     showSnackbar(response, isError = false) {
       this.contentSnackbar.snackbar = true;
@@ -525,6 +513,7 @@ export default {
     },
 
     clearEditForm() {
+      this.modelEdit.jumlah_akun = 0;
       this.modelEdit.id = "";
       this.modelEdit.name = "";
       this.modelEdit.level = "";
@@ -569,7 +558,7 @@ export default {
       }
 
       // Basic validation
-      if (!this.modelAdd.name || !this.modelAdd.level) {
+      if (!this.modelAdd.name || !this.levelTerisi(this.modelAdd.level)) {
         this.showSnackbar({ data: { message: "Name dan Level harus diisi" } }, true);
         return;
       }
@@ -631,6 +620,8 @@ export default {
             this.modelEdit.id = data.id;
             this.modelEdit.name = data.name;
             this.modelEdit.level = data.level;
+            // jumlah_akun ikut di daftar (khusus superadmin) → kunci field yang tidak boleh diubah
+            this.modelEdit.jumlah_akun = this.datatable.items.find((t) => t.id === data.id)?.jumlah_akun || 0;
             this.modelEdit.jabatan = data.jabatan;
             this.modelEdit.jlh_bintang = data.jlh_bintang || 1;
             this.modelEdit.kode = { kode_mode: data.kode_mode, kode_awalan: data.kode_awalan || "", kode_mulai: data.kode_mulai, kode_akhir: data.kode_akhir };
@@ -653,7 +644,7 @@ export default {
       }
 
       // Basic validation
-      if (!this.modelEdit.name || !this.modelEdit.level) {
+      if (!this.modelEdit.name || !this.levelTerisi(this.modelEdit.level)) {
         this.showSnackbar({ data: { message: "Name dan Level harus diisi" } }, true);
         return;
       }
@@ -688,41 +679,6 @@ export default {
           this.isButtonLoading = false;
         });
     },
-
-    deleteMvoType(id) {
-      // Close mobile expansion if open
-      this.expandedMobileCard = null;
-
-      this.isShowDialogDelete = true;
-      this.modelDelete.id = id;
-    },
-
-    confirmDeleteMvoType(id) {
-      const token = Cookies.get("token");
-      if (!token) {
-        this.$router.push({ name: "Login" });
-        return;
-      }
-
-      this.isButtonLoading = true;
-      axios.delete(`${API_URL}/api/mvo-type/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      })
-        .then((response) => {
-          this.getAllMvoType();
-          this.showSnackbar(response, false);
-        })
-        .catch((error) => {
-          this.showSnackbar(error.response || error, true);
-        })
-        .finally(() => {
-          this.isButtonLoading = false;
-          this.isShowDialogDelete = false;
-        });
-    },
   },
 
   created() {
@@ -744,6 +700,22 @@ export default {
 </script>
 
 <style scoped>
+.jenjang-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+}
+
+.jenjang-luar {
+  background: #eceff1;
+  color: #607d8b;
+}
+
 .kode-chip {
   display: inline-block;
   padding: 2px 8px;

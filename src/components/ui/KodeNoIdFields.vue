@@ -5,12 +5,12 @@
       <v-col cols="12" md="4">
         <v-select label="Cara penomoran" :items="modeOptions" item-title="text" item-value="value"
           :model-value="model.kode_mode" @update:model-value="ubah('kode_mode', $event)" density="compact"
-          variant="outlined" clearable hide-details="auto" />
+          variant="outlined" :clearable="!kunci" :disabled="kunci" hide-details="auto" />
       </v-col>
       <v-col v-if="pakaiAwalan" cols="12" md="2">
         <v-text-field label="Awalan" :model-value="model.kode_awalan"
           @update:model-value="ubah('kode_awalan', ($event || '').toUpperCase())" density="compact" variant="outlined"
-          maxlength="5" hide-details="auto" />
+          maxlength="5" :disabled="kunci" hide-details="auto" />
       </v-col>
       <template v-if="model.kode_mode === 'rentang'">
         <v-col cols="6" md="3">
@@ -37,6 +37,8 @@
 export default {
   props: {
     modelValue: { type: Object, required: true },
+    // Tipe akun sudah dipakai akun: cara penomoran & awalan dikunci (rentang nomor tetap bisa diubah)
+    kunci: Boolean,
   },
   emits: ["update:modelValue"],
   data() {
