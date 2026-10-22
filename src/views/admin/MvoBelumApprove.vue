@@ -7,6 +7,7 @@
       <!-- SEARCH -->
       <template #search>
         <FilterDaftar v-model:q="search" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+          v-model:status="filterStatus" :daftar-status="daftarStatus"
           :daftar-jabatan="metaFilter.jabatan" :daftar-cabang="metaFilter.cabang" placeholder="Cari nama / username / No ID" />
       </template>
 
@@ -22,6 +23,9 @@
           <template #item.jalur="{ item }">
             <span class="mobile-jalur">{{ jalurRingkas(item) || "-" }}</span>
           </template>
+          <template #item.alamat="{ item }">
+            <span class="alamat-ringkas" :title="item.alamat">{{ item.alamat || "-" }}</span>
+          </template>
           <!-- TGL -->
           <template #item.tgl_lahir="{ item }">
             {{ formatDate(item.tgl_lahir) }}
@@ -36,12 +40,18 @@
             </div>
           </template>
 
-          <!-- ACTION -->
+          <!-- STATUS & AKSI (approve / tunda / tolak / pulihkan / ke Verifikasi ID) -->
+          <template #item.status="{ item }">
+            <span class="status-mini" :class="kelasStatus(item)">{{ labelStatus(item) }}</span>
+            <div v-if="item.status_approval?.alasan && statusAkun(item) !== 'menunggu'" class="alasan-teks">
+              {{ item.status_approval.alasan }}
+            </div>
+          </template>
           <template #item.action="{ item }">
-            <v-btn :color="isUserApproved(item) ? 'grey' : 'success'" size="small"
-              @click="!isUserApproved(item) && showApproveDialog(item.id)" :disabled="isUserApproved(item)">
-              {{ isUserApproved(item) ? 'Sudah Approve' : 'Approve' }}
-            </v-btn>
+            <div class="aksi-baris">
+              <v-btn v-for="a in aksiUntuk(item)" :key="a.key" size="small" :color="a.color" :variant="a.variant"
+                :prepend-icon="a.icon" @click="jalankanAksi(a.key, item)">{{ a.label }}</v-btn>
+            </div>
           </template>
 
           <!-- APPROVAL COLUMNS - Convert nomor_id to nama -->
@@ -76,6 +86,7 @@
     <v-card class="mobile-header-card mb-4">
       <v-card-text>
         <FilterDaftar v-model:q="search" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+          v-model:status="filterStatus" :daftar-status="daftarStatus"
           :daftar-jabatan="metaFilter.jabatan" :daftar-cabang="metaFilter.cabang" class="search-field-mobile"
           placeholder="Cari nama / username / No ID" />
       </v-card-text>
@@ -97,7 +108,11 @@
         <v-card-text class="pa-0">
           <KepalaKartuAkun :nomor="index + 1" :jabatan="namaJabatan(item.mvo_type_id)" :no-id="item.no_id"
             :cabang="item.cabang" :nama="item.nama" :info="teksAtasanLangsung(item)"
-            :terbuka="expandedMobileCard === item.id" />
+            :terbuka="expandedMobileCard === item.id">
+            <template #tambahan>
+              <span class="status-mini" :class="kelasStatus(item)">{{ labelStatus(item) }}</span>
+            </template>
+          </KepalaKartuAkun>
         </v-card-text>
         <!-- Details -->
         <v-expand-transition>
@@ -126,30 +141,13 @@
               <!-- Upline -->
               <v-divider class="my-3"></v-divider>
               <h4 class="text-subtitle-2 mb-2 text-primary">Struktur Upline</h4>
-              <v-row class="mb-1" v-if="item.upline_6 && item.upline_6 !== '-'">
-                <v-col cols="5" class="detail-label text-caption">Distributor:</v-col>
-                <v-col cols="7" class="detail-value text-caption">{{ item.upline_6 }}</v-col>
-              </v-row>
-              <v-row class="mb-1" v-if="item.upline_5 && item.upline_5 !== '-'">
-                <v-col cols="5" class="detail-label text-caption">Supplier:</v-col>
-                <v-col cols="7" class="detail-value text-caption">{{ item.upline_5 }}</v-col>
-              </v-row>
-              <v-row class="mb-1" v-if="item.upline_4 && item.upline_4 !== '-'">
-                <v-col cols="5" class="detail-label text-caption">General Manager:</v-col>
-                <v-col cols="7" class="detail-value text-caption">{{ item.upline_4 }}</v-col>
-              </v-row>
-              <v-row class="mb-1" v-if="item.upline_3 && item.upline_3 !== '-'">
-                <v-col cols="5" class="detail-label text-caption">Founder:</v-col>
-                <v-col cols="7" class="detail-value text-caption">{{ item.upline_3 }}</v-col>
-              </v-row>
-              <v-row class="mb-1" v-if="item.upline_2 && item.upline_2 !== '-'">
-                <v-col cols="5" class="detail-label text-caption">Regional:</v-col>
-                <v-col cols="7" class="detail-value text-caption">{{ item.upline_2 }}</v-col>
-              </v-row>
-              <v-row class="mb-1" v-if="item.upline_1 && item.upline_1 !== '-'">
-                <v-col cols="5" class="detail-label text-caption">MVO:</v-col>
-                <v-col cols="7" class="detail-value text-caption">{{ item.upline_1 }}</v-col>
-              </v-row>
+              <!-- No ID · Nama per jenjang (TM … Distributor) dari utils/jalur.js -->
+              <template v-for="lvl in jalurLevels" :key="lvl.key">
+                <v-row v-if="atasanPada(item, lvl)" class="mb-1">
+                  <v-col cols="5" class="detail-label text-caption">{{ lvl.title }}:</v-col>
+                  <v-col cols="7" class="detail-value text-caption">{{ teksAtasan(item, lvl) }}</v-col>
+                </v-row>
+              </template>
 
               <!-- Approval Information -->
               <v-divider class="my-3"></v-divider>
@@ -184,12 +182,12 @@
               </v-row>
 
               <v-divider class="mb-3"></v-divider>
+              <div v-if="item.status_approval?.alasan && statusAkun(item) !== 'menunggu'" class="alasan-teks mb-2">
+                {{ labelStatus(item) }} oleh {{ item.status_approval.oleh_nama }}: {{ item.status_approval.alasan }}
+              </div>
               <div class="mobile-actions">
-                <v-btn size="small" :color="isUserApproved(item) ? 'grey' : 'success'"
-                  @click.stop="!isUserApproved(item) && showApproveDialog(item.id)" class="mb-2"
-                  prepend-icon="mdi-check-circle" style="min-width: 120px;" :disabled="isUserApproved(item)">
-                  {{ isUserApproved(item) ? 'Sudah Approve' : 'Approve' }}
-                </v-btn>
+                <v-btn v-for="a in aksiUntuk(item)" :key="a.key" size="small" :color="a.color" :variant="a.variant"
+                  :prepend-icon="a.icon" class="mb-2" @click.stop="jalankanAksi(a.key, item)">{{ a.label }}</v-btn>
               </div>
             </v-card-text>
           </div>
@@ -211,6 +209,30 @@
     </v-card>
   </v-dialog>
 
+  <!-- Dialog alasan Tunda / Tolak -->
+  <v-dialog v-model="dialogAlasan.show" max-width="520">
+    <v-card>
+      <v-card-title class="text-h6">{{ dialogAlasan.aksi === 'tolak' ? 'Tolak akun' : 'Tunda akun' }}</v-card-title>
+      <v-card-text>
+        <p class="mb-3">
+          <b>{{ dialogAlasan.item?.nama }}</b> ({{ dialogAlasan.item?.no_id || '-' }})
+          <template v-if="dialogAlasan.aksi === 'tolak'"> — akun tidak diaktifkan dan dikembalikan ke Verifikasi ID dengan status Ditolak.</template>
+          <template v-else> — akun tetap di daftar dengan status Ditunda.</template>
+        </p>
+        <v-textarea v-model="dialogAlasan.alasan" label="Alasan (wajib)" variant="outlined" rows="3" auto-grow
+          counter="500" maxlength="500" placeholder="Mis. foto KTP tidak jelas, data ganda, upline salah" />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn variant="text" @click="dialogAlasan.show = false">Batal</v-btn>
+        <v-btn :color="dialogAlasan.aksi === 'tolak' ? 'error' : 'warning'" variant="flat"
+          :disabled="!dialogAlasan.alasan.trim()" :loading="dialogAlasan.loading" @click="kirimAlasan">
+          {{ dialogAlasan.aksi === 'tolak' ? 'Ya, tolak' : 'Ya, tunda' }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <v-snackbar v-model="contentSnackbar.snackbar" :color="contentSnackbar.color">
     {{ contentSnackbar.text }}
   </v-snackbar>
@@ -222,7 +244,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { atasanLangsung, jalurRingkas } from "@/utils/jalur.js";
+import { JALUR_LEVELS, atasanLangsung, atasanPada, jalurRingkas, teksAtasan } from "@/utils/jalur.js";
 
 export default {
   components: { Breadcrumb, CardDataTable },
@@ -232,6 +254,8 @@ export default {
       search: "",
       filterJabatan: null,
       filterCabang: "",
+      filterStatus: "perlu",
+      dialogAlasan: { show: false, aksi: "", item: null, alasan: "", loading: false },
       loading: true,
       expandedMobileCard: null,
       isShowDialogApprove: false,
@@ -265,9 +289,12 @@ export default {
         { key: "no_id", title: "No ID" },
         { key: "cabang", title: "Cabang" },
         { key: "jabatan", title: "Jabatan" },
+        { key: "status", title: "Status", sortable: false },
         { key: "atasan", title: "Atasan langsung", sortable: false },
         { key: "jalur", title: "Jalur atasan", sortable: false },
         { key: "alamat", title: "Alamat" },
+        // Kolom terakhir dikunci di kanan (lihat CSS .custom-data-table)
+        { key: "action", title: "Aksi", sortable: false, align: "center" },
         // { key: "upline_6", title: "DISTRIBUTOR" },
         // { key: "upline_5", title: "SUPPILER" },
         // { key: "upline_4", title: "GENERAL MANAGER" },
@@ -315,12 +342,34 @@ export default {
     itemsCabang() {
       return this.itemsDasar.filter(i => !this.filterCabang || i.cabang === this.filterCabang);
     },
+    // Status: "perlu" = menunggu + ditunda (bawaan), lalu ditunda / ditolak / semua
+    itemsStatus() {
+      return this.itemsCabang.filter(i => {
+        const s = this.statusAkun(i);
+        if (this.filterStatus === "perlu") return s !== "ditolak";
+        if (this.filterStatus === "semua") return true;
+        return s === this.filterStatus;
+      });
+    },
     filteredItems() {
-      return this.itemsCabang.filter(i => !this.filterJabatan || String(i.mvo_type_id) === String(this.filterJabatan));
+      return this.itemsStatus.filter(i => !this.filterJabatan || String(i.mvo_type_id) === String(this.filterJabatan));
+    },
+    daftarStatus() {
+      const n = (s) => this.itemsCabang.filter(i => this.statusAkun(i) === s).length;
+      return [
+        { value: "perlu", label: "Perlu tindakan", jumlah: this.itemsCabang.length - n("ditolak") },
+        { value: "ditunda", label: "Ditunda", jumlah: n("ditunda") },
+        { value: "ditolak", label: "Ditolak", jumlah: n("ditolak") },
+        { value: "semua", label: "Semua", jumlah: this.itemsCabang.length },
+      ];
+    },
+    jalurLevels: () => JALUR_LEVELS,
+    isSuperadmin() {
+      return localStorage.getItem("mvo_type_id") === "superadmin";
     },
     metaFilter() {
       const jumlah = {};
-      this.itemsCabang.forEach(i => { jumlah[i.mvo_type_id] = (jumlah[i.mvo_type_id] || 0) + 1; });
+      this.itemsStatus.forEach(i => { jumlah[i.mvo_type_id] = (jumlah[i.mvo_type_id] || 0) + 1; });
       return {
         jabatan: this.mvoTypeList
           .filter(t => jumlah[t.id])
@@ -333,6 +382,8 @@ export default {
 
   methods: {
     atasanLangsung,
+    atasanPada,
+    teksAtasan,
     jalurRingkas,
     namaJabatan(id) {
       return this.mvoTypeList.find(t => String(t.id) === String(id))?.name || "";
@@ -465,6 +516,65 @@ export default {
         this.loading = false;
       }
     },
+    // ===== Status & aksi tunda / tolak / pulihkan (riwayat di tbl_approval_akun_history) =====
+    statusAkun(item) {
+      return item.status_approval?.status || "menunggu";
+    },
+    labelStatus(item) {
+      return { menunggu: "Menunggu", ditunda: "Ditunda", ditolak: "Ditolak" }[this.statusAkun(item)];
+    },
+    kelasStatus(item) {
+      return { menunggu: "status-belum", ditunda: "status-tunda", ditolak: "status-tolak" }[this.statusAkun(item)];
+    },
+    aksiUntuk(item) {
+      const s = this.statusAkun(item);
+      const aksi = [];
+      // Superadmin tidak punya kode upline → persetujuannya lewat Verifikasi ID (aktivasi)
+      if (!this.isSuperadmin && !this.isUserApproved(item) && s !== "ditolak") {
+        aksi.push({ key: "approve", label: "Approve", icon: "mdi-check-circle", color: "success", variant: "flat" });
+      }
+      if (this.isSuperadmin) {
+        aksi.push({ key: "verifikasi", label: "Verifikasi", icon: "mdi-account-check", color: "primary", variant: "flat" });
+      }
+      if (s !== "ditunda" && s !== "ditolak") {
+        aksi.push({ key: "tunda", label: "Tunda", icon: "mdi-pause-circle", color: "warning", variant: "tonal" });
+      }
+      if (s !== "ditolak") {
+        aksi.push({ key: "tolak", label: "Tolak", icon: "mdi-close-circle", color: "error", variant: "tonal" });
+      }
+      if (s === "ditunda" || s === "ditolak") {
+        aksi.push({ key: "pulihkan", label: "Pulihkan", icon: "mdi-restore", color: "grey-darken-1", variant: "tonal" });
+      }
+      return aksi;
+    },
+    jalankanAksi(key, item) {
+      if (key === "approve") return this.showApproveDialog(item.id);
+      if (key === "verifikasi") {
+        return this.$router.push({ path: "/admin/user", query: { cari: item.username || item.no_id || item.nama } });
+      }
+      if (key === "pulihkan") return this.kirimAksi("pulihkan", item);
+      Object.assign(this.dialogAlasan, { show: true, aksi: key, item, alasan: "", loading: false });
+    },
+    async kirimAlasan() {
+      this.dialogAlasan.loading = true;
+      const ok = await this.kirimAksi(this.dialogAlasan.aksi, this.dialogAlasan.item, this.dialogAlasan.alasan.trim());
+      this.dialogAlasan.loading = false;
+      if (ok) this.dialogAlasan.show = false;
+    },
+    async kirimAksi(aksi, item, alasan = null) {
+      try {
+        const { data } = await axios.post(`${API_URL}/api/approval-akun/${item.id}/${aksi}`, { alasan }, {
+          headers: { Authorization: `Bearer ${Cookies.get("token")}`, Accept: "application/json" },
+        });
+        this.showSnackbar(data.message || "Berhasil");
+        await this.loadData();
+        return true;
+      } catch (e) {
+        this.showSnackbar(e.response?.data?.message || "Gagal menyimpan", "error");
+        return false;
+      }
+    },
+
     showApproveDialog(id) {
       this.idToApprove = id;
       this.isShowDialogApprove = true;
@@ -592,6 +702,44 @@ export default {
   line-height: 1.4;
   display: flex;
   align-items: center;
+}
+
+/* Kolom Aksi dikunci di kanan; !important karena Vuetify memberi position: relative pada sel */
+:deep(.custom-data-table table > thead > tr > th:last-child),
+:deep(.custom-data-table table > tbody > tr > td:last-child) {
+  position: sticky !important;
+  right: 0;
+  z-index: 3;
+  background: #fff;
+  box-shadow: -4px 0 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.custom-data-table table > thead > tr > th:last-child) {
+  background: var(--baba-gold-soft) !important;
+  z-index: 4;
+}
+
+.alamat-ringkas {
+  display: inline-block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.aksi-baris {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.alasan-teks {
+  margin-top: 2px;
+  max-width: 240px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  white-space: normal;
+  color: var(--baba-muted);
 }
 
 .mobile-actions {

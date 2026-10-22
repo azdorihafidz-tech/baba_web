@@ -62,6 +62,16 @@
             <v-chip :color="item.aktivasi == 1 ? 'green' : 'red'" text-color="white" size="small" variant="flat">
               {{ item.aktivasi == 1 ? 'Active' : 'Inactive' }}
             </v-chip>
+            <!-- Status dari menu Akun Belum Approve (ditunda / ditolak + alasan) -->
+            <v-tooltip v-if="item.aktivasi != 1 && item.status_approval?.status" location="top"
+              :text="`${item.status_approval.oleh_nama}: ${item.status_approval.alasan || '-'}`">
+              <template #activator="{ props }">
+                <span v-bind="props" class="status-mini ml-1"
+                  :class="item.status_approval.status === 'ditolak' ? 'status-tolak' : 'status-tunda'">
+                  {{ item.status_approval.status === 'ditolak' ? 'Ditolak' : 'Ditunda' }}
+                </span>
+              </template>
+            </v-tooltip>
           </template>
 
           <template v-slot:item.created_at="{ item }">
@@ -135,6 +145,10 @@
             <template #tambahan>
               <span class="status-mini" :class="Number(item.aktivasi) === 1 ? 'status-aktif' : 'status-belum'">
                 {{ Number(item.aktivasi) === 1 ? 'Aktif' : 'Belum aktif' }}
+              </span>
+              <span v-if="Number(item.aktivasi) !== 1 && item.status_approval?.status" class="status-mini ml-1"
+                :class="item.status_approval.status === 'ditolak' ? 'status-tolak' : 'status-tunda'">
+                {{ item.status_approval.status === 'ditolak' ? 'Ditolak' : 'Ditunda' }}: {{ item.status_approval.alasan }}
               </span>
             </template>
           </KepalaKartuAkun>
@@ -961,6 +975,11 @@ export default {
   },
 
   created() {
+    // Dari tombol Verifikasi di Akun Belum Approve: /admin/user?cari=<username>
+    if (this.$route.query.cari) {
+      this.searchInput = String(this.$route.query.cari);
+      this.debouncedSearch = this.searchInput;
+    }
     this.loadItems();
     this.fetchProvinsiData();
     this.getAllMvoType();

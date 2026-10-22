@@ -237,6 +237,11 @@ html .v-tab.v-tab.v-btn {
     background: rgba(239, 108, 0, 0.14);
     color: #e65100;
   }
+
+  &.status-tolak {
+    background: rgba(198, 40, 40, 0.12);
+    color: #c62828;
+  }
 }
 
 // Jalur atasan ringkas di kartu HP: "TM01 › M01 › R03 › B02" (utils/jalur.js → jalurRingkas)

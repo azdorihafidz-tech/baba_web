@@ -74,6 +74,13 @@ export const PANDUAN = [
         judul: "Mengunduh data",
         isi: ["Pada tabel yang punya tombol Export, tekan Export untuk mengunduh file Excel."],
       },
+      {
+        judul: "Riwayat persetujuan akun",
+        isi: [
+          "Di tab Akun, bagian bawah Riwayat Persetujuan Akun menampilkan jumlah akun yang Disetujui upline, Diaktivasi, Ditunda, dan Ditolak pada periode tanggal yang dipilih.",
+          "Di bawahnya ada 20 riwayat terbaru: aksi, nama & No ID akun, siapa yang melakukan, waktu, dan alasan (untuk tunda/tolak).",
+        ],
+      },
     ],
     tips: [
       "Tab Akun: hijau = sudah approve, oranye = masih pending.",
@@ -162,6 +169,7 @@ export const PANDUAN = [
         judul: "Mengaktifkan pendaftar baru",
         isi: [
           "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID.",
+          "Akun yang ditunda/ditolak di menu Akun Belum Approve diberi label Ditunda / Ditolak di kolom Aktivasi (arahkan kursor untuk melihat alasannya). Akun tetap bisa diperbaiki dan diaktifkan.",
           "Periksa data dan foto profilnya (tombol Edit untuk melihat lengkap).",
           "Tekan Aktivasi. Pesan yang muncul menampilkan No ID baru akun tersebut.",
           "Bila aktivasi ditolak dengan pesan tentang No ID (misalnya rentang nomor penuh atau atasan belum punya No ID), perbaiki dulu atasannya atau rentang nomor di menu Tipe Akun.",
@@ -233,30 +241,48 @@ export const PANDUAN = [
     menu: "Akun Belum Approve",
     icon: "mdi-account-alert",
     peran: "semua",
-    ringkas: "Upline menyetujui akun downline yang menunggu persetujuannya.",
+    ringkas: "Pendaftar baru menunggu persetujuan: approve, tunda, atau tolak (dengan alasan).",
     kegunaan:
-      "Menampilkan akun bawahan yang menunggu persetujuan Anda sebagai upline. Setiap jenjang upline memberi persetujuannya sendiri.",
+      "Menampilkan akun baru yang belum aktif. Upline menyetujui (Approve) bawahannya; superadmin meneruskan ke Verifikasi ID untuk mengaktifkan. Akun bermasalah bisa Ditunda atau Ditolak dengan alasan, dan semuanya tercatat di Dashboard › Akun › Riwayat Persetujuan Akun.",
     langkah: [
       {
-        judul: "Menyetujui akun bawahan",
+        judul: "Mencari & menyaring",
         isi: [
-          "Cari nama / username / No ID bawahan, atau saring dengan tombol jabatan dan pilihan Cabang.",
-          "Setiap akun menampilkan jabatan, No ID, cabang, dan atasan langsungnya (No ID · nama). Di desktop ada kolom Atasan langsung dan Jalur atasan (mis. M05 › R09 › B09 › B96).",
-          "Di HP, ketuk kartu untuk melihat data dan struktur upline-nya.",
-          "Tekan tombol Approve (✔) lalu konfirmasi.",
-          "Status per jenjang menampilkan nama upline yang sudah menyetujui, atau Belum Approve.",
+          "Tombol status: Perlu tindakan (bawaan: menunggu + ditunda), Ditunda, Ditolak, Semua — angka di tombol = jumlahnya.",
+          "Cari nama / username / No ID, atau saring dengan tombol jabatan dan pilihan Cabang.",
+          "Setiap akun menampilkan jabatan, No ID, cabang, status, dan atasan langsungnya (No ID · nama). Di desktop ada juga kolom Jalur atasan (mis. M05 › R09 › B09 › B96).",
+          "Di HP, ketuk kartu untuk melihat data lengkap dan tombol aksinya.",
+        ],
+      },
+      {
+        judul: "Menyetujui (upline)",
+        isi: ["Tekan Approve lalu konfirmasi. Tombol ini hanya muncul untuk upline yang tercatat di akun tersebut."],
+      },
+      {
+        judul: "Meneruskan ke Verifikasi ID",
+        peran: "superadmin",
+        isi: ["Tekan Verifikasi — menu Verifikasi ID terbuka dengan akun itu langsung tercari, lalu aktifkan dari sana."],
+      },
+      {
+        judul: "Menunda atau menolak",
+        isi: [
+          "Tekan Tunda (mis. data perlu dilengkapi) atau Tolak (mis. data ganda / salah upline), isi Alasan, lalu Ya, tunda / Ya, tolak.",
+          "Akun Ditunda tetap di daftar dengan label oranye. Akun Ditolak hilang dari Perlu tindakan, tetap belum aktif, dan di Verifikasi ID tampil label Ditolak beserta alasannya.",
+          "Salah tekan? Tekan Pulihkan untuk mengembalikan akun ke status Menunggu.",
         ],
       },
     ],
     tips: [
-      "Anda hanya bisa menyetujui akun yang memang bawahan Anda pada jenjang tersebut.",
-      "Superadmin melihat seluruh akun.",
+      "Yang boleh Approve/Tunda/Tolak: superadmin dan upline yang tercatat di akun tersebut.",
+      "Superadmin melihat seluruh akun; upline hanya bawahannya.",
+      "Riwayat (siapa, kapan, alasan) bisa dilihat di Dashboard › Akun.",
     ],
     tanya: [
-      { t: "Kenapa daftarnya kosong?", j: "Belum ada bawahan yang menunggu persetujuan Anda, atau akun Anda bukan upline langsung pada jenjang itu." },
-      { t: "Muncul pesan 'Anda bukan upline dari akun ini'?", j: "Akun tersebut berada di bawah upline lain. Hanya upline sebenarnya yang bisa menyetujui." },
+      { t: "Kenapa daftarnya kosong?", j: "Belum ada bawahan yang menunggu persetujuan Anda, atau tombol status sedang di Ditunda/Ditolak — pilih Semua." },
+      { t: "Muncul pesan 'Anda bukan upline dari akun ini'?", j: "Akun tersebut berada di bawah upline lain. Hanya upline sebenarnya (atau superadmin) yang bisa menyetujui, menunda, atau menolak." },
+      { t: "Akun yang ditolak bisa diaktifkan?", j: "Bisa. Superadmin tetap bisa memperbaiki data dan mengaktifkannya di Verifikasi ID, atau tekan Pulihkan di menu ini." },
     ],
-    gambar: [{ src: "/panduan/approval-akun.jpg", ket: "Kartu akun bawahan dan struktur upline-nya" }],
+    gambar: [{ src: "/panduan/approval-akun.jpg", ket: "Filter status & jabatan, kartu akun dengan status, dan struktur upline (No ID · nama)" }],
   },
   {
     id: "data-cabang",
@@ -417,7 +443,7 @@ export const PANDUAN = [
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan atasan baru sama dengan sekarang. Untuk memindahkan satu anggota saja, pilih anggota tersebut sebagai member yang dimutasi." },
     ],
     gambar: [
-      { src: "/panduan/mutasi-pratinjau.jpg", ket: "Mutasi Baru: anggota yang ikut, penampung, dan pratinjau perubahan No ID" },
+      { src: "/panduan/mutasi-pratinjau.jpg", ket: "Mutasi Baru: anggota yang ikut dan pratinjau perubahan atasan / No ID" },
       { src: "/panduan/mutasi-saran.jpg", ket: "Saran RO: target per jabatan dan daftar saran" },
     ],
   },

@@ -378,6 +378,9 @@
             </v-card>
         </div>
 
+        <!-- Riwayat persetujuan akun (Akun Belum Approve & Verifikasi ID) -->
+        <RiwayatApprovalAkun :mulai="dateRange.start" :selesai="dateRange.end" />
+
         <!-- ================= DETAIL TABLE DIALOG ================= -->
         <v-dialog v-model="detailDialog" max-width="1200px" scrollable>
             <v-card>
@@ -468,8 +471,10 @@ import { API_URL } from "@/config";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
+import RiwayatApprovalAkun from "./RiwayatApprovalAkun.vue";
 
 export default {
+    components: { RiwayatApprovalAkun },
     name: "DashboardAkun",
     emits: ["show-detail"],
 
