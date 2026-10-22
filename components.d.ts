@@ -17,6 +17,7 @@ declare module 'vue' {
     CardForm: typeof import('./src/components/ui/CardForm.vue')['default']
     CardFormJurnal: typeof import('./src/components/ui/CardFormJurnal.vue')['default']
     Combobox: typeof import('./src/components/ui/Combobox.vue')['default']
+    DaftarPilihMember: typeof import('./src/components/mutasi/DaftarPilihMember.vue')['default']
     FileInput: typeof import('./src/components/ui/FileInput.vue')['default']
     FMain: typeof import('./src/components/layouts/frontend/FMain.vue')['default']
     Footer: typeof import('./src/components/layouts/admin/Footer.vue')['default']
