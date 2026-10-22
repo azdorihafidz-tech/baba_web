@@ -18,7 +18,7 @@
       </div>
 
       <!-- Content Container -->
-      <v-container fluid class="main-content-container">
+      <v-container fluid class="main-content-container" :class="{ 'tanpa-ruang-player': isOnChatPage }">
         <router-view />
       </v-container>
 

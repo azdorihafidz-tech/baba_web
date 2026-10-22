@@ -559,9 +559,19 @@ export const PANDUAN = [
       {
         judul: "Mengirim pesan",
         isi: [
-          "Pilih grup di Daftar Chat.",
-          "Ketik pesan di kolom Tulis pesan..., lalu tekan tombol kirim atau Enter.",
+          "Pilih grup di daftar Grup Chat. Di HP, daftar berganti menjadi percakapan; tekan panah kiri untuk kembali.",
+          "Ketik pesan di kolom Tulis pesan..., lalu tekan Enter atau tombol kirim. Shift + Enter untuk baris baru.",
+          "Ikon senyum untuk menambah emoji.",
           "Pesan maksimal 2.000 karakter. Bila mengirim terlalu cepat, tunggu beberapa detik.",
+        ],
+      },
+      {
+        judul: "Membaca percakapan",
+        isi: [
+          "Pesan terbaru tampil di bawah. Untuk pesan lama, gulir ke atas lalu tekan Muat pesan sebelumnya.",
+          "Saat Anda membaca pesan lama dan ada pesan masuk, tekan Pesan baru untuk langsung ke bawah.",
+          "Tekan tulisan … anggota di bawah nama grup untuk melihat dan mencari anggota grup.",
+          "Tulisan Menyambung ulang… berarti koneksi terputus sebentar; pesan yang terlewat dimuat otomatis setelah tersambung.",
         ],
       },
       {

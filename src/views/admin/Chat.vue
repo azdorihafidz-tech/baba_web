@@ -1,179 +1,164 @@
 <template>
-  <v-card class="chat-container rounded-xl" height="600">
-    <v-toolbar class="gradient-header" dark dense flat>
-      <v-btn icon @click="toggleSidebar" class="mobile-only">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
-      <v-toolbar-title class="header-title">
-        <v-icon class="me-2">mdi-chat-processing</v-icon>
-        Chat
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="getChatList" class="header-btn me-2" title="Refresh daftar chat">
-        <v-icon>mdi-refresh</v-icon>
-      </v-btn>
-    </v-toolbar>
+  <!-- Chat grup: GLOBAL (semua member) + grup cabang. Server: repo chatroom-baba (lihat utils/chatKoneksi.js) -->
+  <div class="chat-halaman">
+    <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Chat' }]" />
 
-    <v-row no-gutters class="chat-content">
-      <v-col :cols="12" :md="4" :class="['sidebar-col']" v-show="!selectedRoom || !isMobile">
-        <div class="sidebar-gradient">
-          <v-list class="sidebar-list">
-            <v-subheader class="sidebar-header">
-              <v-icon small class="me-2">mdi-message-text</v-icon>
-              Daftar Chat
-            </v-subheader>
-
-            <v-list-item v-for="(chat, index) in chatList" :key="chat.id ?? index" @click="selectRoom(chat)" :class="[
-              'chat-item',
-              { 'chat-item-active': selectedRoom?.id == chat.id },
-            ]">
-              <template v-slot:prepend>
-                <v-avatar :class="chat.is_group ? 'avatar-group' : 'avatar-private'" size="40">
-                  <v-icon v-if="chat.is_group" small>mdi-account-group</v-icon>
-                  <span v-else class="text-white text-body-2 font-weight-bold">
-                    {{ chat.room_name ? chat.room_name[0].toUpperCase() : "U" }}
-                  </span>
-                </v-avatar>
-              </template>
-
-              <v-list-item-title class="chat-name">{{
-                chat.label || chat.room_name
-              }}</v-list-item-title>
-              <v-list-item-subtitle v-if="chat.last_message" class="chat-preview">
-                <span class="preview-sender">{{ getLastMessageSender(chat) }}:</span>
-                {{ chat.last_message.dihapus ? "Pesan dihapus" : chat.last_message.message }}
-              </v-list-item-subtitle>
-
-              <template v-slot:append>
-                <span v-if="Number(chat.unread_count) > 0" class="chat-badge">
-                  {{ Number(chat.unread_count) }}
-                </span>
-              </template>
-            </v-list-item>
-
-            <div v-if="chatList.length === 0" class="no-chats">
-              Tidak ada percakapan.
-            </div>
-          </v-list>
+    <div class="chat-kartu" :class="{ 'buka-percakapan': !!grup }">
+      <!-- ===== Daftar grup ===== -->
+      <aside class="daftar">
+        <div class="daftar-kepala">
+          <span class="daftar-judul"><v-icon size="20" color="#E6B422">mdi-forum</v-icon> Grup Chat</span>
+          <span v-if="!chatState.terhubung" class="status-sambung" title="Koneksi realtime terputus">
+            <v-progress-circular indeterminate size="12" width="2" /> Menyambung ulang…
+          </span>
         </div>
-      </v-col>
+        <div class="daftar-isi baba-gulir">
+          <div v-if="loadingGrup && !grupList.length" class="kosong">Memuat grup…</div>
+          <div v-else-if="galatGrup" class="kosong">
+            {{ galatGrup }}
+            <div><v-btn size="small" variant="tonal" color="#B8890F" class="mt-2" @click="muatGrup">Coba lagi</v-btn></div>
+          </div>
+          <button v-for="g in grupList" :key="g.id" type="button" class="grup-item"
+            :class="{ aktif: grup && grup.id === g.id }" @click="bukaGrup(g)">
+            <span class="grup-avatar" :class="{ global: g.room_name === 'GLOBAL' }">
+              <v-icon size="22">{{ g.room_name === "GLOBAL" ? "mdi-earth" : "mdi-office-building-marker" }}</v-icon>
+            </span>
+            <span class="grup-teks">
+              <span class="grup-baris">
+                <span class="grup-nama">{{ g.label }}</span>
+                <span v-if="g.last_message" class="grup-waktu">{{ waktuSingkat(g.last_message.created_at) }}</span>
+              </span>
+              <span class="grup-baris">
+                <span class="grup-cuplikan">
+                  <template v-if="g.last_message">
+                    <b>{{ namaPengirimSingkat(g.last_message) }}:</b>
+                    {{ g.last_message.dihapus ? "Pesan dihapus" : g.last_message.message }}
+                  </template>
+                  <template v-else>Belum ada pesan</template>
+                </span>
+                <span v-if="belumDibaca(g)" class="grup-lencana">{{ belumDibaca(g) > 99 ? "99+" : belumDibaca(g) }}</span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </aside>
 
-      <v-col :cols="12" :md="8" :class="['chat-col']" v-show="selectedRoom || !isMobile">
-        <div class="chat-wrapper">
-          <div v-if="!selectedRoom" class="empty-state">
-            <div class="empty-state-content">
-              <v-icon size="80" class="empty-icon">mdi-chat-outline</v-icon>
-              <h3 class="empty-title">Selamat Datang!</h3>
-              <p class="empty-subtitle">Pilih percakapan untuk memulai</p>
+      <!-- ===== Percakapan ===== -->
+      <section class="percakapan">
+        <div v-if="!grup" class="sambutan">
+          <v-icon size="64" color="#E6B422">mdi-chat-processing-outline</v-icon>
+          <div class="sambutan-judul">Pilih grup untuk mulai mengobrol</div>
+          <div class="sambutan-sub">GLOBAL untuk semua member, grup cabang untuk member cabang Anda.</div>
+        </div>
+
+        <template v-else>
+          <div class="percakapan-kepala">
+            <v-btn icon variant="text" size="small" class="tombol-kembali" title="Kembali ke daftar grup" @click="tutupGrup">
+              <v-icon>mdi-arrow-left</v-icon>
+            </v-btn>
+            <span class="grup-avatar kecil" :class="{ global: grup.room_name === 'GLOBAL' }">
+              <v-icon size="18">{{ grup.room_name === "GLOBAL" ? "mdi-earth" : "mdi-office-building-marker" }}</v-icon>
+            </span>
+            <div class="percakapan-judul">
+              <div class="judul-nama">{{ grup.label }}</div>
+              <button type="button" class="judul-anggota" @click="bukaAnggota">
+                <v-icon size="14">mdi-account-group</v-icon>
+                {{ jumlahAnggota === null ? "Lihat anggota" : `${angka(jumlahAnggota)} anggota` }}
+              </button>
             </div>
           </div>
 
-          <template v-else>
-            <v-toolbar dense flat class="chat-room-header">
-              <v-btn icon @click="backToSidebar" class="mobile-only me-2">
-                <v-icon>mdi-arrow-left</v-icon>
-              </v-btn>
+          <div ref="badan" class="badan baba-gulir" @scroll="cekGulir">
+            <div v-if="adaLagi" class="muat-lagi">
+              <v-btn size="small" variant="tonal" color="#B8890F" :loading="loadingLama" @click="muatSebelumnya">
+                Muat pesan sebelumnya</v-btn>
+            </div>
+            <div v-if="loadingPesan" class="kosong">Memuat pesan…</div>
+            <div v-else-if="!pesan.length" class="kosong">Belum ada pesan. Mulai percakapan!</div>
 
-              <v-avatar :class="selectedRoom.is_group ? 'avatar-group' : 'avatar-private'
-                " size="36" class="me-3">
-                <v-icon v-if="selectedRoom.is_group" small>mdi-account-group</v-icon>
-                <span v-else class="text-white text-sm font-weight-bold">
-                  {{
-                    selectedRoom.room_name
-                      ? selectedRoom.room_name[0].toUpperCase()
-                      : "U"
-                  }}
-                </span>
-              </v-avatar>
-
-              <v-toolbar-title class="room-title">{{
-                selectedRoom.label || selectedRoom.room_name
-              }}</v-toolbar-title>
-              <v-spacer></v-spacer>
-            </v-toolbar>
-
-            <div class="chat-body flex-grow-1" ref="chatBody">
-              <!-- ganti blok v-for messages dengan kode ini -->
-              <div class="pa-4">
-                <div v-for="(msg, index) in messages" :key="msg.id ?? index" class="message-block">
-                  <!-- tanggal / group separator -->
-                  <div v-if="isNewDay(index)" class="date-separator">
-                    {{ formatDateGroup(msg.created_at) }}
+            <template v-for="(m, i) in pesan" :key="m.id">
+              <div v-if="hariBaru(i)" class="pemisah-hari"><span>{{ labelHari(m.created_at) }}</span></div>
+              <div class="baris-pesan" :class="{ saya: dariSaya(m) }">
+                <div class="gelembung" :class="{ saya: dariSaya(m), dihapus: m.dihapus }">
+                  <div v-if="!dariSaya(m) && !samaPengirim(i)" class="pengirim">
+                    <span class="pengirim-nama">{{ m.sender?.nama || "Member" }}</span>
+                    <span v-if="m.sender?.superadmin" class="tanda-admin">Admin</span>
+                    <span v-else class="pengirim-meta">{{ [m.sender?.no_id, m.sender?.cabang].filter(Boolean).join(" · ") }}</span>
                   </div>
-
-                  <v-row class="mb-3" :justify="msg.sender_id == user.id ? 'end' : 'start'">
-                    <v-col cols="auto" class="max-width-70">
-                      <!-- tampilkan nama pengirim untuk pesan dari orang lain, atau di grup tampilkan juga nama -->
-                      <div v-if="
-                        msg.sender &&
-                        (selectedRoom.is_group || msg.sender_id !== user.id)
-                      " class="sender-name">
-                        {{ senderName(msg) }}
-                      </div>
-
-                      <v-sheet :class="[
-                        'message-bubble',
-                        msg.sender_id == user.id
-                          ? 'message-sent'
-                          : 'message-received',
-                      ]">
-                        <div v-if="msg.dihapus" class="text-body-2 message-content message-dihapus">
-                          <v-icon size="14" class="me-1">mdi-cancel</v-icon>Pesan dihapus admin
-                        </div>
-                        <div v-else class="text-body-2 message-content">
-                          {{ msg.message }}
-                        </div>
-                        <div class="message-time">
-                          {{ formatTime(msg.created_at) }}
-                          <!-- Hapus pesan: khusus superadmin -->
-                          <v-btn v-if="isSuperadmin && !msg.dihapus" icon size="x-small" variant="text"
-                            class="hapus-btn" title="Hapus pesan" @click="mintaHapus(msg)">
-                            <v-icon size="16">mdi-delete-outline</v-icon>
-                          </v-btn>
-                        </div>
-                      </v-sheet>
-                    </v-col>
-                  </v-row>
+                  <div v-if="m.dihapus" class="isi isi-dihapus">
+                    <v-icon size="14" class="me-1">mdi-cancel</v-icon>Pesan dihapus admin
+                  </div>
+                  <div v-else class="isi">{{ m.message }}</div>
+                  <div class="kaki-pesan">
+                    <span>{{ jam(m.created_at) }}</span>
+                    <v-btn v-if="isSuperadmin && !m.dihapus" icon size="x-small" variant="text" class="hapus-btn"
+                      title="Hapus pesan" @click="mintaHapus(m)">
+                      <v-icon size="16">mdi-delete-outline</v-icon>
+                    </v-btn>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
+          </div>
 
-            <v-divider></v-divider>
-            <v-card-actions class="pa-3 chat-input-actions">
-              <v-menu v-model="showEmojiPicker" :close-on-content-click="false" location="top">
-                <template v-slot:activator="{ props }">
-                  <v-btn icon v-bind="props" size="small" class="emoji-btn">
-                    <v-icon>mdi-emoticon-happy-outline</v-icon>
-                  </v-btn>
-                </template>
-                <v-card class="emoji-picker-card pa-2" max-width="320">
-                  <v-card-text class="pa-2">
-                    <div class="emoji-grid">
-                      <span v-for="emoji in emojiList" :key="emoji" @click="addEmoji(emoji)" class="emoji-item">{{ emoji
-                      }}</span>
-                    </div>
-                  </v-card-text>
-                </v-card>
-              </v-menu>
+          <button v-if="adaPesanBaru" type="button" class="pesan-baru" @click="keBawah('smooth')">
+            Pesan baru <v-icon size="16">mdi-arrow-down</v-icon>
+          </button>
 
-              <v-text-field v-model="newMessage" placeholder="Tulis pesan..." variant="outlined" hide-details dense
-                class="flex-grow-1 mx-2 mb-5 message-input" @keyup.enter="sendMessage"></v-text-field>
+          <div class="tulis">
+            <v-menu v-model="menuEmoji" :close-on-content-click="false" location="top start">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon variant="text" size="small" title="Emoji">
+                  <v-icon>mdi-emoticon-happy-outline</v-icon>
+                </v-btn>
+              </template>
+              <div class="emoji-kotak">
+                <button v-for="e in EMOJI" :key="e" type="button" class="emoji" @click="tambahEmoji(e)">{{ e }}</button>
+              </div>
+            </v-menu>
+            <v-textarea v-model="draf" placeholder="Tulis pesan..." variant="outlined" density="compact" rows="1"
+              max-rows="4" auto-grow hide-details class="kolom-tulis" :maxlength="PANJANG_MAKS"
+              @keydown.enter.exact.prevent="kirim" />
+            <v-btn icon class="tombol-kirim" :disabled="!draf.trim() || mengirim" :loading="mengirim" title="Kirim"
+              @click="kirim">
+              <v-icon>mdi-send</v-icon>
+            </v-btn>
+          </div>
+          <div v-if="draf.length > PANJANG_MAKS - 200" class="hitung-karakter">{{ draf.length }}/{{ PANJANG_MAKS }}</div>
+        </template>
+      </section>
+    </div>
 
-              <v-btn icon color="primary" class="send-btn mb-5" @click="sendMessage"
-                :disabled="newMessage.trim() == ''">
-                <v-icon>mdi-send</v-icon>
-              </v-btn>
-            </v-card-actions>
-          </template>
-        </div>
-      </v-col>
-    </v-row>
+    <!-- Anggota grup -->
+    <v-dialog v-model="dialogAnggota" max-width="520" scrollable>
+      <v-card>
+        <v-card-title class="text-h6">Anggota {{ grup?.label }}</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="cariAnggota" placeholder="Cari nama / No ID" prepend-inner-icon="mdi-magnify"
+            variant="outlined" density="compact" hide-details clearable class="mb-3" />
+          <div class="hint mb-2">{{ angka(anggota.jumlah) }} anggota<template v-if="cariAnggota"> cocok</template></div>
+          <div v-for="a in anggota.data" :key="a.id" class="anggota-item">
+            <div class="anggota-nama">{{ a.nama }}</div>
+            <div class="anggota-meta">{{ [a.jabatan, a.no_id, a.cabang].filter(Boolean).join(" · ") }}</div>
+          </div>
+          <div v-if="anggota.data.length < anggota.jumlah" class="text-center mt-2">
+            <v-btn size="small" variant="text" color="#B8890F" :loading="anggota.loading" @click="muatAnggota(false)">
+              Muat lagi</v-btn>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="dialogAnggota = false">Tutup</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
+    <!-- Konfirmasi hapus pesan (khusus superadmin) -->
     <v-dialog v-model="dialogHapus" max-width="420">
       <v-card>
         <v-card-title class="text-h6">Hapus pesan?</v-card-title>
         <v-card-text>
-          Pesan dari <b>{{ pesanDihapus ? senderName(pesanDihapus) : "" }}</b> akan tampil sebagai
+          Pesan dari <b>{{ pesanDihapus?.sender?.nama || "member" }}</b> akan tampil sebagai
           "Pesan dihapus admin" untuk semua anggota grup.
         </v-card-text>
         <v-card-actions>
@@ -183,1163 +168,753 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-card>
+
+    <v-snackbar v-model="snack.show" :color="snack.color" :timeout="4000">{{ snack.text }}</v-snackbar>
+  </div>
 </template>
 
-<script>
-import { CHAT_SOCKET_PATH, CHAT_URL } from "@/config";
-import { setRuangTerbuka } from "@/utils/chatKoneksi";
-import { io } from "socket.io-client";
-import Cookies from "js-cookie";
-import axios from "axios";
+<script setup>
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import Breadcrumb from "@/components/ui/Breadcrumb.vue";
+import { chatApi, chatState, dengarChat, mulaiChat, setRuangTerbuka, socketChat } from "@/utils/chatKoneksi";
 
-export default {
-  name: "ChatView",
-  data() {
-    return {
-      socket: null,
-      currentChannelName: null,
-      user: {},
-      newMessage: "",
-      messages: [],
-      chatList: [],
-      selectedRoom: null,
-      isMobile: false,
-      api: null,
-      showEmojiPicker: false,
-      isSuperadmin: localStorage.getItem("mvo_type_id") === "superadmin",
-      dialogHapus: false,
-      pesanDihapus: null,
-      loadingHapus: false,
-      emojiList: [
-        "😀",
-        "😃",
-        "😄",
-        "😁",
-        "😆",
-        "😅",
-        "🤣",
-        "😂",
-        "🙂",
-        "🙃",
-        "😉",
-        "😊",
-        "😇",
-        "🥰",
-        "😍",
-        "🤩",
-        "😘",
-        "😗",
-        "😚",
-        "😙",
-        "😋",
-        "😛",
-        "😜",
-        "🤪",
-        "😝",
-        "🤑",
-        "🤗",
-        "🤭",
-        "🤫",
-        "🤔",
-        "🤐",
-        "🤨",
-        "😐",
-        "😑",
-        "😶",
-        "😏",
-        "😒",
-        "🙄",
-        "😬",
-        "🤥",
-        "😌",
-        "😔",
-        "😪",
-        "🤤",
-        "😴",
-        "😷",
-        "🤒",
-        "🤕",
-        "🤢",
-        "🤮",
-        "🤧",
-        "🥵",
-        "🥶",
-        "🥴",
-        "😵",
-        "🤯",
-        "🤠",
-        "🥳",
-        "😎",
-        "🤓",
-        "🧐",
-        "😕",
-        "😟",
-        "🙁",
-        "☹️",
-        "😮",
-        "😯",
-        "😲",
-        "😳",
-        "🥺",
-        "😦",
-        "😧",
-        "😨",
-        "😰",
-        "😥",
-        "😢",
-        "😭",
-        "😱",
-        "😖",
-        "😣",
-        "😞",
-        "😓",
-        "😩",
-        "😫",
-        "🥱",
-        "😤",
-        "😡",
-        "😠",
-        "🤬",
-        "👍",
-        "👎",
-        "👌",
-        "✌️",
-        "🤞",
-        "🤟",
-        "🤘",
-        "🤙",
-        "👈",
-        "👉",
-        "👆",
-        "👇",
-        "☝️",
-        "👏",
-        "🙌",
-        "👐",
-        "🤲",
-        "🤝",
-        "🙏",
-        "✍️",
-        "💪",
-        "🦾",
-        "🦿",
-        "🦵",
-        "🦶",
-        "👂",
-        "🦻",
-        "👃",
-        "🧠",
-        "🦷",
-        "🦴",
-        "👀",
-        "👁️",
-        "👅",
-        "👄",
-        "💋",
-        "🩸",
-      ],
-    };
-  },
-  methods: {
-    createApiInstance() {
-      const token = localStorage.getItem("token") || Cookies.get("token") || "";
-      const base = `${CHAT_URL}/api`;
-      this.api = axios.create({
-        baseURL: base,
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      });
-    },
+const PANJANG_MAKS = 2000;
+const EMOJI = ["😀", "😁", "😂", "🤣", "😊", "😍", "🥰", "😘", "😎", "🤗", "🤔", "😅", "😢", "😭", "😡", "🥳",
+  "😴", "🙄", "😇", "🤩", "👍", "👎", "👏", "🙌", "🙏", "💪", "🤝", "👌", "✌️", "🔥", "✨", "🎉", "💯", "❤️",
+  "💛", "🌹", "🌸", "⭐", "✅", "❌"];
 
-    async getUser() {
-      const userData = localStorage.getItem("user");
-      this.user = userData
-        ? JSON.parse(userData)
-        : { id: 1, username: "DemoUser" };
-      this.createApiInstance();
-      this.initSocket();
-    },
+const user = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (e) {
+    return {};
+  }
+})();
+const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
 
-    // tambahkan helper untuk memperbarui chatList dari pesan baru
-    updateChatListWithMessage(msg) {
-      if (!msg || !msg.room_id) return;
+const snack = reactive({ show: false, text: "", color: "error" });
+const toast = (text, color = "error") => Object.assign(snack, { show: true, text, color });
+const pesanGalat = (e, cadangan) => e?.response?.data?.message || cadangan;
 
-      // cari room di chatList
-      const idx = this.chatList.findIndex(
-        (c) => Number(c.id) === Number(msg.room_id),
-      );
-      const isFromMe = Number(msg.sender_id) === Number(this.user.id);
+/* ---------- daftar grup ---------- */
+const grupList = ref([]);
+const loadingGrup = ref(false);
+const galatGrup = ref("");
+const grup = ref(null);
 
-      // buat objek last_message minimal (sesuai frontend expectation)
-      const lastMessageForList = {
-        id: msg.id,
-        room_id: msg.room_id,
-        sender_id: msg.sender_id,
-        message: msg.message,
-        created_at: msg.created_at || new Date().toISOString(),
-        // jika server mengirim sender object sertakan itu
-        sender: msg.sender ? msg.sender : undefined,
-      };
+async function muatGrup() {
+  loadingGrup.value = true;
+  galatGrup.value = "";
+  try {
+    const { data } = await chatApi().get("/chat/rooms");
+    grupList.value = data;
+    if (grup.value) grup.value = data.find((g) => g.id === grup.value.id) || grup.value;
+  } catch (e) {
+    galatGrup.value = pesanGalat(e, "Server chat tidak bisa dihubungi.");
+  } finally {
+    loadingGrup.value = false;
+  }
+}
 
-      if (idx !== -1) {
-        // update last_message dan unread_count
-        this.chatList[idx].last_message = lastMessageForList;
+// Angka belum dibaca: dari koneksi bersama (sama dengan lencana menu)
+const belumDibaca = (g) => (grup.value?.id === g.id ? 0 : Number(chatState.perGrup[g.id] ?? g.unread_count) || 0);
 
-        // jika pesan bukan dari user, tambahkan badge
-        if (!isFromMe) {
-          const prev = Number(this.chatList[idx].unread_count) || 0;
-          this.chatList[idx].unread_count = prev + 1;
-        } else {
-          // jika pesan dari diri sendiri, biasanya unread_count tetap 0
-          this.chatList[idx].unread_count = 0;
-        }
+/* ---------- pesan ---------- */
+const pesan = ref([]);
+const adaLagi = ref(false);
+const loadingPesan = ref(false);
+const loadingLama = ref(false);
+const badan = ref(null);
+const adaPesanBaru = ref(false);
+const draf = ref("");
+const mengirim = ref(false);
+const menuEmoji = ref(false);
 
-        // optional: pindahkan room ke atas daftar (jika ingin sorted by recent)
-        // uncomment jika mau: move to top
-        const roomItem = this.chatList.splice(idx, 1)[0];
-        this.chatList.unshift(roomItem);
-      } else {
-        // room belum ada di daftar (kemungkinan baru), push minimal
-        this.chatList.unshift({
-          id: msg.room_id,
-          room_name: msg.room_name || "Private Chat",
-          is_group: !!msg.is_group,
-          last_message: lastMessageForList,
-          unread_count: isFromMe ? 0 : 1,
-        });
-      }
-    },
+const dariSaya = (m) => Number(m.sender_id) === Number(user.id);
 
-    // modifikasi initSocket() handlers: ganti existing socket.on('message'...) dan socket.on('new_message_notification'...)
-    initSocket() {
-      if (this.socket) return;
-      const rawToken =
-        localStorage.getItem("token") || Cookies.get("token") || null;
-      const host = new URL(CHAT_URL).origin;
-      const path = CHAT_SOCKET_PATH;
-      this.socket = io(host, {
-        path,
-        auth: { token: rawToken },
+async function bukaGrup(g) {
+  grup.value = g;
+  setRuangTerbuka(g.id);
+  pesan.value = [];
+  adaLagi.value = false;
+  adaPesanBaru.value = false;
+  jumlahAnggota.value = null;
+  loadingPesan.value = true;
+  try {
+    const { data } = await chatApi().get(`/chat/messages/${g.id}`, { params: { limit: 50 } });
+    if (grup.value?.id !== g.id) return; // sudah pindah grup
+    pesan.value = data.data;
+    adaLagi.value = data.ada_lagi;
+    loadingPesan.value = false;
+    await nextTick();
+    keBawah("auto");
+    tandaiDibaca();
+    muatJumlahAnggota();
+  } catch (e) {
+    toast(pesanGalat(e, "Gagal memuat pesan."));
+  } finally {
+    loadingPesan.value = false;
+  }
+}
 
-        reconnection: true,
-        timeout: 20000,
-      });
+function tutupGrup() {
+  grup.value = null;
+  setRuangTerbuka(null);
+}
 
-      this.socket.on("connect", () =>
-        console.log("Socket connected", this.socket.id),
-      );
-      this.socket.on("connect_error", (err) =>
-        console.error(
-          "Socket connect_error",
-          err && err.message ? err.message : err,
-        ),
-      );
+async function muatSebelumnya() {
+  if (!grup.value || !pesan.value.length) return;
+  loadingLama.value = true;
+  const el = badan.value;
+  const tinggiLama = el ? el.scrollHeight : 0;
+  try {
+    const { data } = await chatApi().get(`/chat/messages/${grup.value.id}`, { params: { limit: 50, sebelum: pesan.value[0].id } });
+    pesan.value = [...data.data, ...pesan.value];
+    adaLagi.value = data.ada_lagi;
+    await nextTick();
+    if (el) el.scrollTop = el.scrollHeight - tinggiLama; // posisi baca tidak melompat
+  } catch (e) {
+    toast(pesanGalat(e, "Gagal memuat pesan sebelumnya."));
+  } finally {
+    loadingLama.value = false;
+  }
+}
 
-      // ketika server mengirim event message
-      this.socket.on("message", (data) => {
-        if (!data || !data.message) return;
-        const msg = data.message;
+let tundaBaca = null;
+function tandaiDibaca() {
+  if (!grup.value) return;
+  clearTimeout(tundaBaca);
+  const id = grup.value.id;
+  tundaBaca = setTimeout(() => chatApi().post(`/chat/mark-read/${id}`).catch(() => {}), 300);
+}
 
-        // tambahkan pesan ke messages jika room terbuka
-        if (
-          this.selectedRoom &&
-          Number(this.selectedRoom.id) === Number(msg.room_id)
-        ) {
-          const exists = this.messages.find((m) => m.id === msg.id);
-          if (!exists) {
-            this.messages.push(msg);
+async function kirim() {
+  const isi = draf.value.trim();
+  if (!isi || !grup.value || mengirim.value) return;
+  mengirim.value = true;
+  const roomId = grup.value.id;
+  const s = socketChat();
+  try {
+    let hasil;
+    if (s && s.connected) {
+      hasil = await new Promise((ok) => s.timeout(10000).emit("send_message", { room_id: roomId, message: isi },
+        (err, ack) => ok(err ? { status: "error", message: "Koneksi lambat, coba lagi." } : ack)));
+      if (hasil?.status !== "success") throw new Error(hasil?.message || "Gagal mengirim pesan.");
+    } else {
+      const { data } = await chatApi().post("/chat/send", { room_id: roomId, message: isi });
+      hasil = data;
+    }
+    terimaPesan(hasil.data);
+    draf.value = "";
+    nextTick(() => keBawah("smooth"));
+  } catch (e) {
+    toast(e?.response ? pesanGalat(e, "Gagal mengirim pesan.") : e.message);
+  } finally {
+    mengirim.value = false;
+  }
+}
 
-            // hanya auto-scroll jika pengirim adalah user sendiri OR user sedang dekat bagian bawah
-            const fromMe = Number(msg.sender_id) === Number(this.user.id);
-            if (fromMe || this.isUserNearBottom()) {
-              // smooth scroll when new messages arrive naturally (if user is at bottom)
-              this.$nextTick(() => this.scrollToBottom("smooth"));
-            } else {
-              // jika user sedang membaca di atas, jangan scroll; bisa tambahkan indikator "Pesan baru"
-              // contoh: set property on chatList or show small badge — opsional
-              // this.showNewMessageToast = true;
-            }
+/** Pesan baru (dari socket atau balasan kirim): tampilkan & perbarui cuplikan grup. */
+function terimaPesan(m) {
+  if (!m) return;
+  const g = grupList.value.find((x) => x.id === Number(m.room_id));
+  if (g) g.last_message = m;
+  if (grup.value?.id !== Number(m.room_id) || pesan.value.some((x) => x.id === m.id)) return;
+  const dekatBawah = diBawah();
+  pesan.value.push(m);
+  if (dariSaya(m) || dekatBawah) nextTick(() => keBawah("smooth"));
+  else adaPesanBaru.value = true;
+  if (!dariSaya(m)) tandaiDibaca();
+}
 
-            // jika pesan dari orang lain, opsional: mark-read (kamu sudah memanggil mark-read earlier)
-            if (!fromMe) {
-              // notify server we read (only if room is open and you want immediate mark)
-              if (this.api) {
-                this.api
-                  .post(`/chat/mark-read/${this.selectedRoom.id}`, {})
-                  .catch(() => { });
-              }
-              // pastikan badge local di sidebar di-clear
-              const idxSel = this.chatList.findIndex(
-                (c) => Number(c.id) === Number(this.selectedRoom.id),
-              );
-              if (idxSel !== -1)
-                this.chatList[idxSel].unread_count = 0;
-            }
-          }
-        }
+function tandaiDihapus(d) {
+  const m = pesan.value.find((x) => x.id === Number(d?.id));
+  if (m) Object.assign(m, { dihapus: true, message: null });
+  const g = grupList.value.find((x) => x.last_message?.id === Number(d?.id));
+  if (g) g.last_message = { ...g.last_message, dihapus: true, message: null };
+}
 
-        // update sidebar preview realtime juga (kamu sudah punya helper)
-        this.updateChatListWithMessage(msg);
-      });
+/* ---------- gulir ---------- */
+function diBawah(ambang = 120) {
+  const el = badan.value;
+  return !el || el.scrollHeight - (el.scrollTop + el.clientHeight) <= ambang;
+}
+function keBawah(perilaku = "auto") {
+  const el = badan.value;
+  if (!el) return;
+  el.scrollTo({ top: el.scrollHeight, behavior: perilaku });
+  adaPesanBaru.value = false;
+}
+function cekGulir() {
+  if (diBawah()) adaPesanBaru.value = false;
+}
 
-      // event notifikasi unread_count — juga perbarui last_message jika data include last_message
-      this.socket.on("new_message_notification", (data) => {
-        if (!data || !data.room_id) return;
+/* ---------- hapus pesan (superadmin) ---------- */
+const dialogHapus = ref(false);
+const pesanDihapus = ref(null);
+const loadingHapus = ref(false);
+function mintaHapus(m) {
+  pesanDihapus.value = m;
+  dialogHapus.value = true;
+}
+async function hapusPesan() {
+  if (!pesanDihapus.value) return;
+  loadingHapus.value = true;
+  try {
+    const { data } = await chatApi().delete(`/chat/messages/${pesanDihapus.value.id}`);
+    tandaiDihapus(data.data);
+    dialogHapus.value = false;
+    toast("Pesan dihapus.", "success");
+  } catch (e) {
+    toast(pesanGalat(e, "Gagal menghapus pesan."));
+  } finally {
+    loadingHapus.value = false;
+  }
+}
 
-        const roomIndex = this.chatList.findIndex(
-          (c) => Number(c.id) === Number(data.room_id),
-        );
-        if (roomIndex !== -1) {
-          // jika server mengirim unread_count gunakan itu
-          if (typeof data.unread_count !== "undefined") {
-            this.chatList[roomIndex].unread_count = Number(data.unread_count);
-          }
+/* ---------- anggota grup ---------- */
+const jumlahAnggota = ref(null);
+const dialogAnggota = ref(false);
+const cariAnggota = ref("");
+const anggota = reactive({ data: [], jumlah: 0, loading: false });
 
-          // jika server juga mengirim last_message object, perbarui preview
-          if (data.last_message) {
-            this.chatList[roomIndex].last_message = data.last_message;
-          }
-        } else {
-          // jika room belum ada di daftar, bisa fetch ulang 1 room atau panggil getChatList()
-          // lebih ringan: tambahkan minimal entry jika server memberikan last_message
-          if (data.last_message) {
-            this.chatList.unshift({
-              id: data.room_id,
-              room_name: data.room_name || "Private Chat",
-              is_group: !!data.is_group,
-              last_message: data.last_message,
-              unread_count: Number(data.unread_count) || 1,
-            });
-          } else {
-            // fallback: refresh list
-            this.getChatList();
-          }
-        }
+async function muatJumlahAnggota() {
+  const id = grup.value?.id;
+  try {
+    const { data } = await chatApi().get(`/chat/group-members/${id}`, { params: { limit: 1 } });
+    if (grup.value?.id === id) jumlahAnggota.value = data.jumlah;
+  } catch (e) {
+    jumlahAnggota.value = null;
+  }
+}
+async function muatAnggota(ulang = true) {
+  if (!grup.value) return;
+  anggota.loading = true;
+  try {
+    const { data } = await chatApi().get(`/chat/group-members/${grup.value.id}`, {
+      params: { q: cariAnggota.value || undefined, limit: 30, offset: ulang ? 0 : anggota.data.length },
+    });
+    anggota.data = ulang ? data.data : [...anggota.data, ...data.data];
+    anggota.jumlah = data.jumlah;
+  } catch (e) {
+    toast(pesanGalat(e, "Gagal memuat anggota."));
+  } finally {
+    anggota.loading = false;
+  }
+}
+function bukaAnggota() {
+  cariAnggota.value = "";
+  dialogAnggota.value = true;
+  muatAnggota(true);
+}
+let tundaCari = null;
+watch(cariAnggota, () => {
+  clearTimeout(tundaCari);
+  tundaCari = setTimeout(() => muatAnggota(true), 350);
+});
 
-        // Jika pengguna sedang membuka room tersebut, refresh messages
-        if (
-          this.selectedRoom &&
-          Number(this.selectedRoom.id) === Number(data.room_id)
-        ) {
-          this.getAllMessages();
-        }
-      });
+/* ---------- format ---------- */
+const angka = (n) => Number(n || 0).toLocaleString("id-ID");
+const tgl = (s) => new Date(s);
+const sama = (a, b) => a.toDateString() === b.toDateString();
+const jam = (s) => (s ? tgl(s).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : "");
+function labelHari(s) {
+  const d = tgl(s);
+  const kemarin = new Date();
+  kemarin.setDate(kemarin.getDate() - 1);
+  if (sama(d, new Date())) return "Hari ini";
+  if (sama(d, kemarin)) return "Kemarin";
+  return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short", year: "numeric" });
+}
+function waktuSingkat(s) {
+  const d = tgl(s);
+  return sama(d, new Date()) ? jam(s) : d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+}
+const hariBaru = (i) => i === 0 || !sama(tgl(pesan.value[i].created_at), tgl(pesan.value[i - 1].created_at));
+// Nama pengirim tidak diulang untuk pesan beruntun dari orang yang sama di hari yang sama
+const samaPengirim = (i) => i > 0 && !hariBaru(i) && pesan.value[i - 1].sender_id === pesan.value[i].sender_id;
+const namaPengirimSingkat = (m) => (dariSaya(m) ? "Anda" : (m.sender?.nama || "Member").split(" ")[0]);
+function tambahEmoji(e) {
+  draf.value += e;
+  menuEmoji.value = false;
+}
 
-      // Pesan dihapus superadmin: tampilkan sebagai "Pesan dihapus admin" di semua layar
-      this.socket.on("message_deleted", (d) => this.tandaiDihapus(d));
-
-      this.socket.on("disconnect", (reason) =>
-        console.log("Socket disconnected", reason),
-      );
-    },
-
-    async getChatList() {
-      try {
-        if (!this.api) this.createApiInstance();
-        const res = await this.api.get("/chat/rooms"); // jika ganti backend route, ubah di sini
-        let list = Array.isArray(res.data)
-          ? res.data
-          : res.data && Array.isArray(res.data.data)
-            ? res.data.data
-            : [];
-
-        this.chatList = list.map((c) => {
-          const unread_count = Number(
-            c.unread_count ?? c.unreadCount ?? c.unreads ?? c.unread ?? 0,
-          );
-          const has_unread =
-            c.unread === true || unread_count > 0 || !!c.has_unread;
-          return {
-            ...c,
-            unread_count,
-            unread: c.unread === true || has_unread,
-            has_unread,
-          };
-        });
-
-      } catch (err) {
-        console.error("Gagal memuat daftar chat:", err);
-      }
-    },
-
-    async selectRoom(room) {
-      if (!room) return;
-      this.selectedRoom = room;
-      setRuangTerbuka(room.id);
-      this.messages = [];
-      this.currentChannelName = room.id;
-      await this.getAllMessages();
-
-      if (this.socket && this.socket.connected) {
-        this.socket.emit("join_room", room.id);
-      }
-
-      try {
-        if (!this.api) this.createApiInstance();
-        await this.api.post(`/chat/mark-read/${room.id}`, {});
-        const idx = this.chatList.findIndex((c) => c.id === room.id);
-        if (idx !== -1) this.chatList[idx].unread_count = 0;
-        this.getChatList();
-      } catch (err) {
-        console.error("Gagal mark read", err);
-      }
-    },
-
-    async getAllMessages() {
-      if (!this.selectedRoom) return;
-      try {
-        if (!this.api) this.createApiInstance();
-        const res = await this.api.get(
-          `/chat/messages/${this.selectedRoom.id}`,
-        );
-        // Server baru: { data, ada_lagi } (berhalaman); server lama: array
-        this.messages = Array.isArray(res.data) ? res.data : res.data?.data || [];
-
-        // langsung ke pesan terbaru ketika membuka room — instant (no smooth)
-        this.$nextTick(() => setTimeout(() => this.scrollToBottom("auto"), 50));
-      } catch (err) {
-        console.error("Gagal memuat pesan", err);
-      }
-    },
-
-    async sendMessage() {
-      if (!this.newMessage.trim() || !this.selectedRoom) return;
-      const payload = {
-        room_id: this.selectedRoom.id,
-        message: this.newMessage,
-      };
-
-      if (this.socket && this.socket.connected) {
-        this.socket.emit("send_message", payload, (ack) => {
-          if (ack && ack.status === "success") {
-            this.newMessage = "";
-            this.$nextTick(() => this.scrollToBottom());
-            this.getChatList();
-          } else {
-            console.error("send_message ack error", ack);
-          }
-        });
-      } else {
-        try {
-          if (!this.api) this.createApiInstance();
-          const res = await this.api.post("/chat/send", payload);
-          if (res.data && res.data.data) {
-            this.messages.push(res.data.data);
-            this.newMessage = "";
-            this.$nextTick(() => this.scrollToBottom());
-            this.getChatList();
-          }
-        } catch (err) {
-          console.error("Gagal mengirim pesan via REST", err);
-        }
-      }
-    },
-
-    scrollToBottom(mode = "smooth") {
-      this.$nextTick(() => {
-        const chatBody = this.$refs.chatBody;
-        if (!chatBody) return;
-
-        // simpan nilai scroll-behavior sebelumnya (jika ada)
-        const prevBehavior = chatBody.style.scrollBehavior;
-
-        try {
-          // atur behavior sementara sesuai mode (mode: "smooth" | "auto")
-          // jika mode bukan recognized, gunakan "auto"
-          const behavior = mode === "smooth" ? "smooth" : "auto";
-          chatBody.style.scrollBehavior = behavior;
-
-          // prefer native scrollTo with options but fallback ke scrollTop assignment
-          try {
-            // gunakan scrollTo agar modern browsers bisa memakai smooth/auto sesuai option
-            chatBody.scrollTo({ top: chatBody.scrollHeight, behavior });
-          } catch (e) {
-            // fallback (instant)
-            chatBody.scrollTop = chatBody.scrollHeight;
-          }
-        } finally {
-          // restore style setelah sedikit delay agar user merasakan smooth jika mode === 'smooth'
-          // namun untuk mode 'auto' kita kembalikan segera
-          if (mode === "smooth") {
-            // beri sedikit waktu agar smooth effect selesai (jarang perlu, tapi aman)
-            setTimeout(() => {
-              chatBody.style.scrollBehavior = prevBehavior || "";
-            }, 250);
-          } else {
-            // langsung kembalikan
-            chatBody.style.scrollBehavior = prevBehavior || "";
-          }
-        }
-      });
-    },
-
-    isUserNearBottom(threshold = 120) {
-      const chatBody = this.$refs.chatBody;
-      if (!chatBody) return true; // default scroll jika tidak ada ref
-      const scrollTop = chatBody.scrollTop;
-      const clientHeight = chatBody.clientHeight;
-      const scrollHeight = chatBody.scrollHeight;
-      return scrollHeight - (scrollTop + clientHeight) <= threshold;
-    },
-
-
-    mintaHapus(msg) {
-      this.pesanDihapus = msg;
-      this.dialogHapus = true;
-    },
-
-    async hapusPesan() {
-      if (!this.pesanDihapus) return;
-      this.loadingHapus = true;
-      try {
-        if (!this.api) this.createApiInstance();
-        const { data } = await this.api.delete(`/chat/messages/${this.pesanDihapus.id}`);
-        this.tandaiDihapus(data.data);
-        this.dialogHapus = false;
-      } catch (e) {
-        console.error("Gagal menghapus pesan", e);
-      } finally {
-        this.loadingHapus = false;
-      }
-    },
-
-    tandaiDihapus(d) {
-      if (!d || !d.id) return;
-      const m = this.messages.find((x) => Number(x.id) === Number(d.id));
-      if (m) Object.assign(m, { dihapus: true, message: null });
-      const room = this.chatList.find((c) => Number(c.last_message?.id) === Number(d.id));
-      if (room) room.last_message = { ...room.last_message, dihapus: true, message: null };
-    },
-
-    addEmoji(emoji) {
-      this.newMessage += emoji;
-      this.showEmojiPicker = false;
-    },
-    formatTime(datetime) {
-      if (!datetime) return "";
-      const d = new Date(datetime);
-      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    },
-    toggleSidebar() {
-      this.sidebarVisible = !this.sidebarVisible;
-    },
-    backToSidebar() {
-      if (this.isMobile) {
-        if (this.socket && this.currentChannelName)
-          this.socket.emit("leave_room", this.currentChannelName);
-        this.selectedRoom = null;
-        setRuangTerbuka(null);
-      }
-    },
-    checkMobile() {
-      this.isMobile = window.innerWidth < 960;
-    },
-
-    senderName(msg) {
-      // coba berbagai kemungkinan nama di payload pesan
-      if (!msg) return "Pengguna";
-      const s = msg.sender || msg.user || {};
-      // cek beberapa kemungkinan key
-      return (
-        s.nama ||
-        s.name ||
-        s.username ||
-        msg.sender_name ||
-        msg.senderName ||
-        msg.from ||
-        (msg.sender_id === this.user.id ? "Anda" : "Pengguna")
-      );
-    },
-
-    getLastMessageSender(chat) {
-      if (!chat) return "";
-
-      const last =
-        chat.last_message || chat.lastMessage || chat.lastMessageData || null;
-      if (!last) return "";
-
-      // objek sender (backend selalu mengirim ini untuk pesan normal)
-      const senderObj = last.sender || last.user || last.from || null;
-
-      // ambil ID pengirim dari berbagai kemungkinan sumber
-      const senderId =
-        (senderObj && senderObj.id) ||
-        last.sender_id ||
-        last.user_id ||
-        last.from_id ||
-        null;
-
-      // Jika pesan dari user sendiri
-      if (senderId && Number(senderId) === Number(this.user.id)) {
-        return "Anda";
-      }
-
-      // Jika ada objek sender → gunakan nama sender
-      if (senderObj) {
-        return (
-          senderObj.nama ||
-          senderObj.name ||
-          senderObj.username ||
-          senderObj.displayName ||
-          "Pengguna"
-        );
-      }
-
-      // Fallback jika tidak ada data senderObj
-      return (
-        last.sender_name ||
-        last.senderName ||
-        last.from_name ||
-        last.fromName ||
-        "Pengguna"
-      );
-    },
-
-    // returns true if this message should show a date separator (first message or different day than previous)
-    isNewDay(index) {
-      if (!this.messages || !Array.isArray(this.messages)) return false;
-      if (index === 0) return true;
-      const cur = this.messages[index];
-      const prev = this.messages[index - 1];
-      if (!cur || !prev || !cur.created_at || !prev.created_at) return true;
-
-      const dCur = new Date(cur.created_at);
-      const dPrev = new Date(prev.created_at);
-
-      return (
-        dCur.getFullYear() !== dPrev.getFullYear() ||
-        dCur.getMonth() !== dPrev.getMonth() ||
-        dCur.getDate() !== dPrev.getDate()
-      );
-    },
-
-    // formats group label: "Hari ini", "Kemarin", or "DD MMM YYYY"
-    formatDateGroup(datetime) {
-      if (!datetime) return "";
-      const d = new Date(datetime);
-      const today = new Date();
-      const yesterday = new Date();
-      yesterday.setDate(today.getDate() - 1);
-
-      function isSameDay(a, b) {
-        return (
-          a.getFullYear() === b.getFullYear() &&
-          a.getMonth() === b.getMonth() &&
-          a.getDate() === b.getDate()
-        );
-      }
-
-      if (isSameDay(d, today)) return "Hari ini";
-      if (isSameDay(d, yesterday)) return "Kemarin";
-
-      // contoh: 21 Jul 2025
-      const opts = { day: "2-digit", month: "short", year: "numeric" };
-      return d.toLocaleDateString(undefined, opts);
-    },
-  },
-
-  async mounted() {
-    this.checkMobile();
-    window.addEventListener("resize", this.checkMobile);
-    await this.getUser();
-    await this.getChatList();
-
-    this.chatListInterval = setInterval(() => this.getChatList(), 10000);
-  },
-
-  beforeUnmount() {
-    window.removeEventListener("resize", this.checkMobile);
-    if (this.socket) this.socket.disconnect();
-    setRuangTerbuka(null);
-    if (this.chatListInterval) clearInterval(this.chatListInterval);
-  },
-
-  computed: {
-    unreadCount() {
-      return this.chatList.reduce(
-        (sum, c) => sum + (Number(c.unread_count) || 0),
-        0,
-      );
-    },
-  },
+/* ---------- koneksi ---------- */
+let berhentiDengar = null;
+let socketTerpasang = null;
+// Tersambung ulang: ambil pesan yang mungkin terlewat
+const saatTersambung = () => {
+  muatGrup();
+  if (grup.value) bukaGrup(grup.value);
 };
+onMounted(async () => {
+  socketTerpasang = mulaiChat();
+  socketTerpasang?.io.on("reconnect", saatTersambung);
+  berhentiDengar = dengarChat((event, data) => {
+    if (event === "message") terimaPesan(data?.message);
+    else if (event === "message_deleted") tandaiDihapus(data);
+  });
+  await muatGrup();
+});
+onBeforeUnmount(() => {
+  if (berhentiDengar) berhentiDengar();
+  socketTerpasang?.io.off("reconnect", saatTersambung);
+  setRuangTerbuka(null);
+  clearTimeout(tundaBaca);
+});
 </script>
 
 <style scoped>
-/* semua style sama seperti sebelumnya, ditambah deep selectors untuk override Vuetify */
-.chat-container {
-  border-radius: 20px !important;
+.chat-halaman {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 96px);
+  min-height: 420px;
+  /* Desktop: ruang menu bawah HP (tersembunyi) yang dicadangkan layout Vuetify ikut dipakai */
+  margin-bottom: calc(-1 * var(--v-layout-bottom, 0px));
+}
+
+.chat-kartu {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  border: 1px solid var(--baba-border);
+  border-radius: var(--baba-radius);
+  background: var(--baba-surface);
+  box-shadow: var(--baba-shadow);
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-.gradient-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+/* ----- daftar grup ----- */
+.daftar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--baba-border);
 }
 
-.header-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.header-btn {
-  transition: all 0.3s ease;
-}
-
-.header-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: scale(1.1);
-}
-
-.chat-content {
-  height: calc(600px - 48px);
-}
-
-.sidebar-col {
-  transition: all 0.3s ease;
-  overflow-y: auto;
-}
-
-.sidebar-gradient {
-  height: 100%;
-  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-  overflow-y: auto;
-}
-
-.sidebar-list {
-  background: transparent !important;
-}
-
-.sidebar-header {
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 16px;
-}
-
-.chat-item {
-  margin: 4px 12px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  padding: 8px;
+.daftar-kepala {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--baba-ink);
+  color: #fff;
 }
 
-.chat-item:hover {
-  background: rgba(102, 126, 234, 0.06) !important;
-  transform: translateX(4px);
+.daftar-judul {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
 }
 
-.chat-item-active {
-  background: linear-gradient(135deg,
-      rgba(102, 126, 234, 0.12),
-      rgba(118, 75, 162, 0.06)) !important;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.08);
+.status-sambung {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--baba-gold-light);
 }
 
-.avatar-group {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+.daftar-isi {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
-.avatar-private {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+.grup-item {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--baba-border);
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
 }
 
-.chat-name {
-  font-weight: 600;
-  color: #212529;
-  font-size: 0.95rem;
+.grup-item:hover {
+  background: var(--baba-bg);
 }
 
-.chat-preview {
-  color: #6c757d;
-  font-size: 0.85rem;
+.grup-item.aktif {
+  background: var(--baba-gold-soft);
+  box-shadow: inset 3px 0 0 var(--baba-gold);
+}
+
+.grup-avatar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--baba-ink);
+  color: var(--baba-gold-light);
+}
+
+.grup-avatar.global {
+  background: var(--baba-gold);
+  color: var(--baba-ink);
+}
+
+.grup-avatar.kecil {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.grup-teks {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.grup-baris {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.grup-nama {
+  font-weight: 700;
+  color: var(--baba-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: block;
-  min-width: 0;
 }
 
-.chat-col {
-  transition: all 0.3s ease;
+.grup-waktu {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  color: var(--baba-muted);
 }
 
-.chat-wrapper {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+.grup-cuplikan {
+  font-size: 0.82rem;
+  color: var(--baba-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.empty-state {
-  height: 100%;
-  display: flex;
+.grup-lencana {
+  flex: 0 0 auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgb(var(--v-theme-error));
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.empty-state-content {
-  text-align: center;
-  color: white;
-}
-
-.empty-icon {
-  opacity: 0.3;
-  margin-bottom: 20px;
-}
-
-.empty-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.empty-subtitle {
-  font-size: 1rem;
-  opacity: 0.8;
-}
-
-.chat-room-header {
-  background: linear-gradient(135deg,
-      rgba(102, 126, 234, 0.05),
-      rgba(118, 75, 162, 0.05)) !important;
-  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-  display: flex;
-  align-items: center;
-}
-
-.room-title {
-  font-weight: 600;
-  color: #212529;
-  font-size: 1rem;
-}
-
-.selected-room-badge {
-  background: #e53935;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  margin-right: 12px;
-}
-
-.chat-body {
-  height: 400px;
-  overflow-y: auto;
-  background-color: #fafafa;
-  /* scroll-behavior diatur oleh JS agar bisa instant atau smooth sesuai kebutuhan */
+/* ----- percakapan ----- */
+.percakapan {
+  position: relative;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  background: var(--baba-bg);
 }
 
-.sender-name {
-  font-size: 0.75rem;
-  color: #667eea;
-  font-weight: 600;
-  margin-bottom: 4px;
-  padding-left: 12px;
-}
-
-.message-bubble {
-  padding: 12px 16px;
-  border-radius: 18px;
-  max-width: 100%;
-  word-wrap: break-word;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.message-bubble:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.message-sent {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
-  border-bottom-right-radius: 4px;
-}
-
-.message-received {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-  color: #212529 !important;
-  border-bottom-left-radius: 4px;
-}
-
-.message-content {
-  line-height: 1.5;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-}
-
-.message-time {
-  font-size: 0.7rem;
-  margin-top: 4px;
-  opacity: 0.7;
-  text-align: right;
-}
-
-.max-width-70 {
-  max-width: 70%;
-}
-
-.chat-input-actions {
-  gap: 8px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-}
-
-.emoji-btn {
-  transition: all 0.3s ease;
-}
-
-.emoji-btn:hover {
-  background-color: rgba(102, 126, 234, 0.1);
-  transform: scale(1.1);
-}
-
-.message-input {
+.sambutan {
   flex: 1;
-}
-
-.send-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
-  transition: all 0.3s ease;
-}
-
-.send-btn:hover:not(:disabled) {
-  transform: scale(1.1) rotate(15deg);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.send-btn:disabled {
-  opacity: 0.5;
-}
-
-.emoji-picker-card {
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 4px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.emoji-item {
-  font-size: 24px;
-  cursor: pointer;
-  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
   text-align: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
 }
 
-.emoji-item:hover {
-  background: linear-gradient(135deg,
-      rgba(102, 126, 234, 0.1),
-      rgba(118, 75, 162, 0.1));
-  transform: scale(1.2);
-}
-
-.dialog-card {
-  border-radius: 16px !important;
-  overflow: hidden;
-}
-
-.dialog-title {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: 600;
-  padding: 20px 24px;
-}
-
-.gradient-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: 0.5px;
-}
-
-.chat-badge {
-  background: #e53935;
-  color: white;
+.sambutan-judul {
   font-weight: 700;
-  font-size: 0.78rem;
-  padding: 4px 8px;
-  border-radius: 12px;
-  min-width: 24px;
-  text-align: center;
-  display: inline-block;
+  font-size: 1.05rem;
 }
 
-/* Ensure list layout (avatar left, content center, action right) */
-/* Use deep selector to override Vuetify generated DOM if scoped */
-:v-deep .v-list-item {
+.sambutan-sub,
+.hint {
+  font-size: 0.85rem;
+  color: var(--baba-muted);
+}
+
+.percakapan-kepala {
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--baba-surface);
+  border-bottom: 1px solid var(--baba-border);
 }
 
-:v-deep .v-list-item__avatar,
-:v-deep .v-list-item-avatar,
-.list-avatar-left {
-  order: 0;
-  margin-right: 12px;
-}
-
-.list-content-center {
-  order: 1;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.list-action-right,
-:v-deep .v-list-item__action {
-  order: 2;
-  margin-left: 8px;
-  display: flex;
-  align-items: center;
-}
-
-/* fallback message */
-.no-chats {
-  padding: 12px;
-  color: #6c757d;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.chat-body::-webkit-scrollbar,
-.sidebar-gradient::-webkit-scrollbar,
-.emoji-grid::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-body::-webkit-scrollbar-track,
-.sidebar-gradient::-webkit-scrollbar-track,
-.emoji-grid::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.chat-body::-webkit-scrollbar-thumb,
-.sidebar-gradient::-webkit-scrollbar-thumb,
-.emoji-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
-}
-
-.chat-body::-webkit-scrollbar-thumb:hover,
-.sidebar-gradient::-webkit-scrollbar-thumb:hover,
-.emoji-grid::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
-}
-
-.mobile-only {
+.tombol-kembali {
   display: none;
 }
 
-@media (max-width: 959px) {
-  .mobile-only {
-    display: inline-flex;
-  }
-
-  .max-width-70 {
-    max-width: 85%;
-  }
-
-  .emoji-grid {
-    grid-template-columns: repeat(8, 1fr);
-  }
-
-  .message-bubble {
-    padding: 10px 14px;
-  }
-
-  .chat-name {
-    font-size: 0.9rem;
-  }
-
-  .chat-preview {
-    font-size: 0.8rem;
-  }
-
-  .list-action-right {
-    margin-left: 8px;
-  }
+.percakapan-judul {
+  min-width: 0;
 }
 
-@media (max-width: 600px) {
-  .chat-container {
-    border-radius: 0 !important;
-  }
-
-  .header-title {
-    font-size: 1.1rem;
-  }
-
-  .empty-title {
-    font-size: 1.5rem;
-  }
-
-  .empty-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .emoji-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-
-  .emoji-item {
-    font-size: 20px;
-    padding: 6px;
-  }
+.judul-nama {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* date separator style */
-.date-separator {
+.judul-anggota {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--baba-gold-dark);
+  background: transparent;
+  cursor: pointer;
+}
+
+.badan {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+.muat-lagi {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.kosong {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--baba-muted);
+  font-size: 0.9rem;
+}
+
+.pemisah-hari {
   display: flex;
   justify-content: center;
-  margin: 12px 0;
-  color: #6c757d;
-  font-size: 0.85rem;
+  margin: 12px 0 8px;
+}
+
+.pemisah-hari span {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--baba-border);
+  color: var(--baba-muted);
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
-.date-separator::before,
-.date-separator::after {
-  content: "";
-  flex: 1 1 30%;
-  height: 1px;
-  background: rgba(0, 0, 0, 0.06);
-  margin: auto 12px;
-  border-radius: 2px;
-}
-
-.message-block {
-  /* small spacing to separate groups better */
+.baris-pesan {
+  display: flex;
   margin-bottom: 6px;
 }
 
-.message-dihapus {
+.baris-pesan.saya {
+  justify-content: flex-end;
+}
+
+.gelembung {
+  max-width: min(78%, 560px);
+  padding: 8px 12px 4px;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--baba-surface);
+  border: 1px solid var(--baba-border);
+}
+
+.gelembung.saya {
+  border-radius: 14px 14px 4px 14px;
+  background: var(--baba-gold-soft);
+  border-color: var(--baba-gold-light);
+}
+
+.gelembung.dihapus {
+  opacity: 0.75;
+}
+
+.pengirim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.pengirim-nama {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--baba-gold-dark);
+}
+
+.pengirim-meta {
+  font-size: 0.7rem;
+  color: var(--baba-muted);
+}
+
+.tanda-admin {
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--baba-ink);
+  color: var(--baba-gold-light);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.isi {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.92rem;
+  color: var(--baba-text);
+}
+
+.isi-dihapus {
   font-style: italic;
-  opacity: 0.7;
+  color: var(--baba-muted);
+}
+
+.kaki-pesan {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 22px;
+  font-size: 0.7rem;
+  color: var(--baba-muted);
 }
 
 .hapus-btn {
-  margin-left: 4px;
-  opacity: 0.75;
+  opacity: 0.7;
+}
+
+.pesan-baru {
+  position: absolute;
+  bottom: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--baba-ink);
+  color: var(--baba-gold-light);
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: var(--baba-shadow);
+  cursor: pointer;
+}
+
+.tulis {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--baba-surface);
+  border-top: 1px solid var(--baba-border);
+}
+
+.kolom-tulis {
+  flex: 1;
+}
+
+.tombol-kirim {
+  background: var(--baba-gold) !important;
+  color: var(--baba-ink) !important;
+}
+
+.hitung-karakter {
+  position: absolute;
+  right: 70px;
+  bottom: 4px;
+  font-size: 0.7rem;
+  color: var(--baba-muted);
+}
+
+.emoji-kotak {
+  display: grid;
+  grid-template-columns: repeat(8, 36px);
+  gap: 2px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--baba-surface);
+  box-shadow: var(--baba-shadow);
+}
+
+.emoji {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.emoji:hover {
+  background: var(--baba-gold-soft);
+}
+
+.anggota-item {
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--baba-border);
+}
+
+.anggota-nama {
+  font-weight: 600;
+}
+
+.anggota-meta {
+  font-size: 0.78rem;
+  color: var(--baba-muted);
+}
+
+/* ----- HP: daftar & percakapan bergantian ----- */
+@media (max-width: 959.98px) {
+  .chat-halaman {
+    height: calc(100dvh - 160px);
+    margin-bottom: 0;
+  }
+
+  .chat-kartu {
+    grid-template-columns: 1fr;
+  }
+
+  .percakapan {
+    display: none;
+  }
+
+  .chat-kartu.buka-percakapan .daftar {
+    display: none;
+  }
+
+  .chat-kartu.buka-percakapan .percakapan {
+    display: flex;
+  }
+
+  .tombol-kembali {
+    display: inline-flex;
+  }
+
+  .gelembung {
+    max-width: 86%;
+  }
+
+  .emoji-kotak {
+    grid-template-columns: repeat(7, 36px);
+  }
 }
 </style>
