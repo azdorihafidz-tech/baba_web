@@ -199,6 +199,8 @@ export const PANDUAN = [
       "Setiap perubahan No ID tercatat di riwayat.",
       "Kolom DISTRIBUTOR sampai TOP MANAGEMENT menampilkan No ID dan nama atasan. Untuk akun yang belum diaktivasi, isinya diambil dari pilihan upline saat registrasi.",
       "Akun yang belum diaktivasi tidak bisa login.",
+      "Hapus akun bersifat permanen. Sebelum menghapus, sistem memeriksa data terkait: bawahan, dokumen, persetujuan yang pernah diberikan, dan riwayat Mutasi. Bila masih ada, dialog Hapus menampilkan apa yang harus dibereskan dulu dan tombol Ya, hapus tidak muncul.",
+      "Pindah cabang akun yang sudah aktif hanya bisa bila akun itu belum punya bawahan dan tidak ada dokumen yang menunggu persetujuan. Bila berhasil, kode akunnya ikut berganti (mis. RESELLER-MDN-001 → RESELLER-BDG-357).",
     ],
     tanya: [
       { t: "Kenapa No ID tidak bisa diisi saat Tambah User?", j: "No ID dibuat otomatis saat Aktivasi supaya selalu urut, sesuai jabatan, dan tidak ganda." },

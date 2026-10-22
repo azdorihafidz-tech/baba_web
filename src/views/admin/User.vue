@@ -362,12 +362,29 @@
   <!-- Dialog Delete Confirmation -->
   <v-dialog v-model="isShowDialogDelete" :max-width="$vuetify.display.mobile ? '95%' : '500px'">
     <v-card :color="this.app.colors.background">
-      <v-card-title class="text-h5">Apakah anda yakin ingin menghapus data user ini?</v-card-title>
+      <!-- Dicek dulu ke server (GET /user/{id}/cek-hapus): data terkait harus dibereskan sebelum hapus permanen -->
+      <v-card-title class="text-h6">Hapus akun {{ modelDelete.nama }}</v-card-title>
+      <v-card-text>
+        <div v-if="modelDelete.memeriksa" class="d-flex align-center">
+          <v-progress-circular indeterminate size="18" width="2" color="#B8890F" class="mr-2" /> Memeriksa data terkait…
+        </div>
+        <template v-else-if="modelDelete.alasan.length">
+          <v-alert type="warning" variant="tonal" density="compact" class="mb-2">
+            Akun ini belum bisa dihapus. Bereskan dulu:
+          </v-alert>
+          <ul class="alasan-hapus">
+            <li v-for="(a, i) in modelDelete.alasan" :key="i">{{ a }}</li>
+          </ul>
+        </template>
+        <div v-else>Akun akan dihapus permanen (salinannya tersimpan di riwayat). Lanjutkan?</div>
+      </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">Cancel</v-btn>
-        <v-btn :color="app.colors.secondary" @click="confirmDeleteUser(modelDelete.id)"
-          :loading="isButtonLoading">OK</v-btn>
+        <v-btn :color="app.colors.primary" @click="isShowDialogDelete = false">
+          {{ modelDelete.alasan.length ? 'Tutup' : 'Batal' }}
+        </v-btn>
+        <v-btn v-if="!modelDelete.memeriksa && !modelDelete.alasan.length" :color="app.colors.secondary"
+          @click="confirmDeleteUser(modelDelete.id)" :loading="isButtonLoading">Ya, hapus</v-btn>
         <v-spacer></v-spacer>
       </v-card-actions>
     </v-card>
@@ -500,7 +517,7 @@ export default {
       },
 
       form: buildEmptyForm(),
-      modelDelete: { id: "" },
+      modelDelete: { id: "", nama: "", alasan: [], memeriksa: false },
       isTableLoading: false,
     };
   },
@@ -930,10 +947,21 @@ export default {
       }
     },
 
-    deleteUser(id) {
+    async deleteUser(id) {
       this.expandedMobileCard = null;
+      const item = this.datatable.items.find((u) => u.id === id);
+      Object.assign(this.modelDelete, { id, nama: item?.nama || "", alasan: [], memeriksa: true });
       this.isShowDialogDelete = true;
-      this.modelDelete.id = id;
+      try {
+        const { data } = await axios.get(`${API_BASE}/user/${id}/cek-hapus`, {
+          headers: { Authorization: `Bearer ${Cookies.get("token")}`, Accept: "application/json" },
+        });
+        this.modelDelete.alasan = data.alasan || [];
+      } catch (err) {
+        this.modelDelete.alasan = [err.response?.data?.message || "Gagal memeriksa data terkait."];
+      } finally {
+        this.modelDelete.memeriksa = false;
+      }
     },
 
     confirmDeleteUser(id) {
@@ -1017,6 +1045,16 @@ export default {
 </script>
 
 <style scoped>
+.alasan-hapus {
+  padding-left: 18px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.alasan-hapus li + li {
+  margin-top: 6px;
+}
+
 .box-glass {
   position: relative;
   padding: 22px 18px;
