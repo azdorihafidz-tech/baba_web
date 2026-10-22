@@ -207,6 +207,25 @@ html .v-tab.v-tab.v-btn {
   margin: 0 -2px;
 }
 
+// No ID di sel tabel / kartu
+.noid-teks {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  color: var(--baba-gold-dark);
+}
+
+// Jalur atasan ringkas di kartu HP: "TM01 › M01 › R03 › B02" (utils/jalur.js → jalurRingkas)
+.mobile-jalur {
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--baba-gold-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 // HP: kartu kolom cari dibuat rapat supaya ruang layar dipakai untuk data
 @media (max-width: 959.98px) {
   .v-card.mobile-header-card:has(> .v-card-text > .search-field-mobile) {

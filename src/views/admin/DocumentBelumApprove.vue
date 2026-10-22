@@ -30,9 +30,11 @@
             <template v-slot:item.no="{ index }">
               {{ ((currentPage - 1) * itemsPerPage) + index + 1 }}
             </template>
-
             <template v-slot:item.mvo_code="{ item }">
               {{ getMvoCodeById(item.mvo_id) }}
+            </template>
+            <template v-slot:item.akun_no_id="{ item }">
+              <span class="noid-teks">{{ item.mvo?.no_id || '-' }}</span>
             </template>
 
             <template v-slot:item.star_number="{ item }">
@@ -106,12 +108,13 @@
               </div>
             </template>
 
+            <!-- MVO / Regional: No ID · Nama dari struktur atasan pemilik dokumen -->
             <template v-slot:item.upline_1="{ item }">
-              {{ item.upline_1 || '-' }}
+              <SelAtasan :atasan="atasanPada(item, LVL_MVO)" />
             </template>
 
             <template v-slot:item.upline_2="{ item }">
-              {{ item.upline_2 || '-' }}
+              <SelAtasan :atasan="atasanPada(item, LVL_REGIONAL)" />
             </template>
 
 
@@ -183,6 +186,7 @@
                 </div>
                 <div class="mobile-document-code">
                   <strong>{{ getMvoCodeById(item.mvo_id) }}</strong>
+                  <span v-if="item.mvo?.no_id" class="noid-teks ml-2">{{ item.mvo.no_id }}</span>
                 </div>
                 <div class="mobile-status-preview mt-1">
                   <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" variant="flat">
@@ -231,8 +235,12 @@
                     Informasi Dokumen
                   </h4>
                   <v-row class="mb-2">
-                    <v-col cols="5" class="detail-label">Kode MVO:</v-col>
+                    <v-col cols="5" class="detail-label">KODE:</v-col>
                     <v-col cols="7" class="detail-value">{{ getMvoCodeById(item.mvo_id) }}</v-col>
+                  </v-row>
+                  <v-row class="mb-2">
+                    <v-col cols="5" class="detail-label">No ID:</v-col>
+                    <v-col cols="7" class="detail-value">{{ item.mvo?.no_id || '-' }}</v-col>
                   </v-row>
                   <v-row class="mb-2">
                     <v-col cols="5" class="detail-label">Rating Star:</v-col>
@@ -272,11 +280,11 @@
                   </h4>
                   <v-row class="mb-2">
                     <v-col cols="5" class="detail-label">MVO:</v-col>
-                    <v-col cols="7" class="detail-value">{{ item.upline_1 || '-' }}</v-col>
+                    <v-col cols="7" class="detail-value">{{ teksAtasan(item, LVL_MVO) }}</v-col>
                   </v-row>
                   <v-row class="mb-2">
                     <v-col cols="5" class="detail-label">Regional:</v-col>
-                    <v-col cols="7" class="detail-value">{{ item.upline_2 || '-' }}</v-col>
+                    <v-col cols="7" class="detail-value">{{ teksAtasan(item, LVL_REGIONAL) }}</v-col>
                   </v-row>
                 </div>
 
@@ -361,7 +369,8 @@
           <p class="text-body-1 mb-3">Apakah Anda yakin ingin menyetujui dokumen ini?</p>
           <div class="bg-grey-lighten-4 pa-3 rounded">
             <p class="mb-1"><strong>Nama File:</strong> {{ confirmDialog.document?.file_name }}</p>
-            <p class="mb-1"><strong>Kode MVO:</strong> {{ getMvoCodeById(confirmDialog.document?.mvo_id) }}</p>
+            <p class="mb-1"><strong>KODE:</strong> {{ getMvoCodeById(confirmDialog.document?.mvo_id) }}</p>
+            <p class="mb-1"><strong>No ID:</strong> {{ confirmDialog.document?.mvo?.no_id || '-' }}</p>
             <p class="mb-0"><strong>Anda Login Sebagai:</strong> {{ getLoggedInMvoCode() }}</p>
           </div>
         </v-card-text>
@@ -388,6 +397,10 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
+import { JALUR_LEVELS, atasanPada, teksAtasan } from "@/utils/jalur.js";
+
+const LVL_MVO = JALUR_LEVELS.find((l) => l.level === 1);
+const LVL_REGIONAL = JALUR_LEVELS.find((l) => l.level === 2);
 
 const API_BASE = `${API_URL}/api`;
 
@@ -405,6 +418,8 @@ export default {
 
   data() {
     return {
+      LVL_MVO,
+      LVL_REGIONAL,
       expandedMobileCard: null,
       allMvoData: [],
       contentSnackbar: {
@@ -448,7 +463,8 @@ export default {
         search: "",
         headers: [
           { key: "no", title: "No", sortable: false },
-          { key: "mvo_code", title: "Kode MVO" },
+          { key: "mvo_code", title: "KODE" },
+          { key: "akun_no_id", title: "No ID", sortable: false },
           { key: "mvo.nama", title: "Nama" },
           { key: "mvo.nama_panggilan", title: "Nama Panggilan" },
           { key: "file_name", title: "Nama File" },
@@ -459,8 +475,8 @@ export default {
           // { key: "status_mvo", title: "Status MVO", align: "center", width: "150px" },
           // { key: "status_regional", title: "Status Regional", align: "center", width: "150px" },
           { key: "approval_status", title: "Status Approval", align: "center", width: "200px" },
-          { key: "upline_1", title: "MVO" },
-          { key: "upline_2", title: "Regional" },
+          { key: "upline_1", title: "MVO", sortable: false },
+          { key: "upline_2", title: "Regional", sortable: false },
           { key: "file_path", title: "File Preview", sortable: false, width: "200px" },
           { key: "actions", title: "Actions", sortable: false, align: "center", width: "150px" },
         ],
@@ -482,6 +498,9 @@ export default {
           (this.getMvoCodeById(item.mvo_id) && this.getMvoCodeById(item.mvo_id).toLowerCase().includes(searchTerm)) ||
           (item.upline_1 && item.upline_1.toLowerCase().includes(searchTerm)) ||
           (item.upline_2 && item.upline_2.toLowerCase().includes(searchTerm)) ||
+          (item.mvo?.no_id && item.mvo.no_id.toLowerCase().includes(searchTerm)) ||
+          teksAtasan(item, LVL_MVO).toLowerCase().includes(searchTerm) ||
+          teksAtasan(item, LVL_REGIONAL).toLowerCase().includes(searchTerm) ||
           (item.upline_3 && item.upline_3.toLowerCase().includes(searchTerm))
         );
       });
@@ -489,6 +508,8 @@ export default {
   },
 
   methods: {
+    atasanPada,
+    teksAtasan,
     isDocumentFullyApproved(item) {
       // Jika status_inputan sudah approved, berarti sudah fully approved
       return item.status_inputan?.toLowerCase() === 'approved';
@@ -573,7 +594,8 @@ export default {
     exportExcel() {
       const exportData = this.datatable.items.map((item, index) => ({
         'No': index + 1,
-        'Kode MVO': this.getMvoCodeById(item.mvo_id),
+        'KODE': this.getMvoCodeById(item.mvo_id),
+        'No ID': item.mvo?.no_id || '-',
         'Nama File': item.file_name,
         'Rating Star': item.pointbintang || 0,
         'Tanggal Input': this.formatDate(item.tanggal_repeat_order),
@@ -581,8 +603,8 @@ export default {
         // 'Status MVO': this.getMvoStatusText(item),
         // 'Status Regional': this.getRegionalStatusText(item),
         'Status Approval': this.getApprovalStatusText(item),
-        'MVO': item.upline_1 || '-',
-        'Regional': item.upline_2 || '-',
+        'MVO': teksAtasan(item, LVL_MVO),
+        'Regional': teksAtasan(item, LVL_REGIONAL),
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);

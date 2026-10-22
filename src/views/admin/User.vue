@@ -29,12 +29,10 @@
           :items-per-page="pagination.itemsPerPage" :page="pagination.page" :sort-by="pagination.sortBy"
           :items-per-page-options="[10, 25, 50, 100]" @update:options="onTableOptionsUpdate">
 
-          <template v-slot:item.upline_6="{ item }">{{ getNamaAfterStrip(item.upline_6) || '-' }}</template>
-          <template v-slot:item.upline_5="{ item }">{{ getNamaAfterStrip(item.upline_5) || '-' }}</template>
-          <template v-slot:item.upline_4="{ item }">{{ getNamaAfterStrip(item.upline_4) || '-' }}</template>
-          <template v-slot:item.upline_3="{ item }">{{ getNamaAfterStrip(item.upline_3) || '-' }}</template>
-          <template v-slot:item.upline_2="{ item }">{{ getNamaAfterStrip(item.upline_2) || '-' }}</template>
-          <template v-slot:item.upline_1="{ item }">{{ getNamaAfterStrip(item.upline_1) || '-' }}</template>
+          <!-- Kolom atasan TM … Distributor: No ID · Nama dari struktur atasan -->
+          <template v-for="lvl in jalurLevels" :key="lvl.key" #[`item.${lvl.key}`]="{ item }">
+            <SelAtasan :atasan="atasanPada(item, lvl)" />
+          </template>
 
           <template v-slot:item.no="{ index }">
             {{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}
@@ -178,9 +176,9 @@
                   </div>
                 </v-col>
               </v-row>
-              <v-row v-for="lvl in cascadeLevels" :key="`mob-${lvl.key}`" class="mb-2">
-                <v-col cols="4" class="detail-label">{{ lvl.detailLabel }}:</v-col>
-                <v-col cols="8" class="detail-value">{{ getNamaAfterStrip(item[lvl.key]) || '-' }}</v-col>
+              <v-row v-for="lvl in jalurLevels.slice().reverse()" :key="`mob-${lvl.key}`" class="mb-2">
+                <v-col cols="4" class="detail-label">{{ lvl.title }}:</v-col>
+                <v-col cols="8" class="detail-value">{{ teksAtasan(item, lvl) }}</v-col>
               </v-row>
               <v-row class="mb-2">
                 <v-col cols="4" class="detail-label">Tgl Registrasi:</v-col>
@@ -382,6 +380,7 @@ import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { JALUR_LEVELS, atasanPada, teksAtasan } from "@/utils/jalur.js";
 
 const API_BASE = `${API_URL}/api`;
 
@@ -482,12 +481,7 @@ export default {
           { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
           { key: "jlh_bintang", title: "Bintang" },
-          { key: "upline_6", title: "DISTRIBUTOR" },
-          { key: "upline_5", title: "SUPPLIER" },
-          { key: "upline_4", title: "GENERAL MANAGER" },
-          { key: "upline_3", title: "FOUNDER" },
-          { key: "upline_2", title: "REGIONAL" },
-          { key: "upline_1", title: "MVO" },
+          ...JALUR_LEVELS.map((l) => ({ key: l.key, title: l.short, sortable: false })),
           { key: "aktivasi", title: "Aktivasi", align: "center" },
           { key: "created_at", title: "Tanggal Registrasi", align: "center" },
           { key: "action", title: "Actions", sortable: false, align: "center" },
@@ -508,6 +502,7 @@ export default {
       return !!j && j.name === "TM";
     },
     cascadeLevels: () => CASCADE_LEVELS,
+    jalurLevels: () => JALUR_LEVELS,
 
     isEditMode() {
       return this.dialog.mode === "edit";
@@ -524,6 +519,8 @@ export default {
   },
 
   methods: {
+    atasanPada,
+    teksAtasan,
     // ========== HELPERS ==========
     formatDate(dateString) {
       if (!dateString) return "";

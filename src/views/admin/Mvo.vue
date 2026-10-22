@@ -111,18 +111,10 @@
               <v-chip color="primary" size="small" variant="outlined">{{ formatNumber(item.repeat_order) }}</v-chip>
             </template>
 
-            <template v-slot:item.upline_1="{ item }">{{ item.upline_1 && item.upline_1 !== '-' ? item.upline_1 : '-'
-              }}</template>
-            <template v-slot:item.upline_2="{ item }">{{ item.upline_2 && item.upline_2 !== '-' ? item.upline_2 : '-'
-              }}</template>
-            <template v-slot:item.upline_3="{ item }">{{ item.upline_3 && item.upline_3 !== '-' ? item.upline_3 : '-'
-              }}</template>
-            <template v-slot:item.upline_4="{ item }">{{ item.upline_4 && item.upline_4 !== '-' ? item.upline_4 : '-'
-              }}</template>
-            <template v-slot:item.upline_5="{ item }">{{ item.upline_5 && item.upline_5 !== '-' ? item.upline_5 : '-'
-              }}</template>
-            <template v-slot:item.upline_6="{ item }">{{ item.upline_6 && item.upline_6 !== '-' ? item.upline_6 : '-'
-              }}</template>
+            <!-- Kolom atasan TM … Distributor: No ID · Nama dari struktur atasan -->
+            <template v-for="lvl in UPLINE_LEVELS" :key="lvl.key" #[`item.${lvl.key}`]="{ item }">
+              <SelAtasan :atasan="atasanPada(item, lvl)" />
+            </template>
 
           </v-data-table-server>
         </template>
@@ -156,7 +148,8 @@
               </v-col>
               <v-col cols="8" class="pl-3">
                 <div class="mobile-mvo-name"><strong>{{ item.nama }}</strong></div>
-                <div class="mobile-mvo-code"><strong>{{ item.code }}</strong></div>
+                <div class="mobile-mvo-code"><strong>{{ item.code }}</strong><span v-if="item.no_id" class="noid-teks ml-2">{{ item.no_id }}</span></div>
+                <div v-if="jalurRingkas(item)" class="mobile-jalur">{{ jalurRingkas(item) }}</div>
               </v-col>
               <v-col cols="2" class="text-center">
                 <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
@@ -357,7 +350,9 @@
                 <template v-slot:item.mvo_type="{ item }">{{ getMvoTypeName(item.mvo_type_id) }}</template>
                 <template v-slot:item.province="{ item }">{{ item.province_code || '-' }}</template>
                 <template v-slot:item.tgl_lahir="{ item }">{{ formatDate(item.tgl_lahir) }}</template>
-                <template v-slot:item.upline_1="{ item }">{{ item.upline_1 || '-' }}</template>
+                <template v-for="lvl in UPLINE_LEVELS" :key="lvl.key" #[`item.${lvl.key}`]="{ item }">
+                  <SelAtasan :atasan="atasanPada(item, lvl)" />
+                </template>
 
                 <template v-slot:item.action="{ item }">
                   <div class="d-flex justify-center">
@@ -701,18 +696,11 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
+import { JALUR_LEVELS as UPLINE_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
 
 const API_BASE = `${API_URL}/api`;
 const FILE_BASE = `${FILE_URL}/`;
 
-const UPLINE_LEVELS = [
-  { key: "upline_6", title: "Distributor", short: "DISTRIBUTOR" },
-  { key: "upline_5", title: "Supplier", short: "SUPPLIER" },
-  { key: "upline_4", title: "General Manager", short: "GENERAL MANAGER" },
-  { key: "upline_3", title: "Founder", short: "FOUNDER" },
-  { key: "upline_2", title: "Regional", short: "REGIONAL" },
-  { key: "upline_1", title: "MVO", short: "MVO" },
-];
 
 const buildEmptyDocForm = () => ({
   id: "",
@@ -795,7 +783,7 @@ export default {
           { key: "jaringan_mvo", title: "Jaringan" },
           { key: "mvo_type", title: "Tipe" },
           { key: "province", title: "Provinsi" },
-          ...UPLINE_LEVELS.map(lvl => ({ key: lvl.key, title: lvl.title })),
+          ...UPLINE_LEVELS.map(lvl => ({ key: lvl.key, title: lvl.title, sortable: false })),
           { key: "created_at", title: "Tgl Aktivasi", align: "center" },
           { key: "detail", title: "Detail", sortable: false, align: "center" },
           // { key: "print", title: "Print", sortable: false, align: "center" },
@@ -815,7 +803,7 @@ export default {
         { key: "jaringan_mvo", title: "Jaringan" },
         { key: "mvo_type", title: "Tipe" },
         { key: "province", title: "Provinsi" },
-        ...UPLINE_LEVELS.map(lvl => ({ key: lvl.key, title: lvl.title })),
+        ...UPLINE_LEVELS.map(lvl => ({ key: lvl.key, title: lvl.title, sortable: false })),
       ],
 
       documentHeaders: [
@@ -905,6 +893,8 @@ export default {
   },
 
   methods: {
+    atasanPada,
+    jalurRingkas,
     // ========== UTIL ==========
     formatNumber(value) {
       if (value === null || value === undefined || value === "") return "-";
@@ -1286,7 +1276,7 @@ export default {
             { label: "Provinsi", value: item.province_code || "-" },
             ...UPLINE_LEVELS.slice().reverse().map(lvl => ({
               label: lvl.short,
-              value: item[lvl.key] || "-",
+              value: teksAtasan(item, lvl),
             })),
           ],
         },

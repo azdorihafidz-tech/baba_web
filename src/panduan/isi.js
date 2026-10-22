@@ -137,6 +137,7 @@ export const PANDUAN = [
       "Yang bisa menambah, mengubah, dan menghapus dokumen: Superadmin, MVO, Regional, dan Founder.",
       "Print pada detail akun menghasilkan formulir registrasi dalam bentuk PDF.",
       "Range Point inilah yang dihitung sebagai RO di Dashboard dan Saran RO.",
+      "Kolom Distributor, Supplier, General Manager, Founder, Regional, MVO, dan TM menampilkan No ID dan nama atasan sesuai Struktur Akun saat ini (ikut berubah setelah Mutasi). Di HP, jalurnya tampil ringkas di bawah nama, mis. M01 › R03 › B02 › B78.",
     ],
     tanya: [
       { t: "Kenapa tombol Tambah Dokumen tidak bisa dipakai?", j: "Hanya Superadmin, MVO, Regional, dan Founder yang bisa menambah dokumen." },
@@ -185,6 +186,7 @@ export const PANDUAN = [
     ],
     tips: [
       "Setiap perubahan No ID tercatat di riwayat.",
+      "Kolom DISTRIBUTOR sampai TOP MANAGEMENT menampilkan No ID dan nama atasan. Untuk akun yang belum diaktivasi, isinya diambil dari pilihan upline saat registrasi.",
       "Akun yang belum diaktivasi tidak bisa login.",
     ],
     tanya: [
@@ -340,6 +342,7 @@ export const PANDUAN = [
     ],
     tips: [
       "Upline hanya bisa menyetujui dokumen milik bawahannya sendiri.",
+      "Kolom KODE = kode akun pemilik dokumen, No ID di sebelahnya. Kolom MVO dan Regional menampilkan No ID dan nama upline yang menyetujui.",
       "Dokumen yang diubah setelah disetujui akan kembali menunggu persetujuan.",
     ],
     tanya: [{ t: "Tombol approve tidak muncul?", j: "Dokumen tersebut bukan milik bawahan Anda pada jenjang Anda, atau sudah Anda setujui." }],

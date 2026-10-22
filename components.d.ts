@@ -27,6 +27,7 @@ declare module 'vue' {
     PanduanIsi: typeof import('./src/components/panduan/PanduanIsi.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SelAtasan: typeof import('./src/components/ui/SelAtasan.vue')['default']
     Select: typeof import('./src/components/ui/Select.vue')['default']
     Sidebar: typeof import('./src/components/layouts/admin/Sidebar.vue')['default']
     Snackbar: typeof import('./src/components/ui/Snackbar.vue')['default']
