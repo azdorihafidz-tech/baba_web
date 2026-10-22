@@ -5,18 +5,12 @@
         <div class="d-none d-md-block">
 
             <!-- ===== HEADER CARD - Total Regions ===== -->
-            <v-card  class="baba-stat baba-stat--gold mb-4" hover @click="handleShowAllAkun" style="cursor: pointer;">
-                <v-card-text class="text-center py-8">
-                    <v-icon size="64" class="mb-3">
-                        mdi-map-marker
-                    </v-icon>
-
-                    <div class="text-h2 font-weight-bold">
-                        {{ totalAkun }}
-                    </div>
-
-                    <div class="text-h6 mt-2">
-                        Total MVO
+            <v-card class="baba-stat baba-stat--gold mb-4" hover @click="handleShowAllAkun" style="cursor: pointer;">
+                <v-card-text class="total-ringkas">
+                    <v-icon size="32">mdi-map-marker</v-icon>
+                    <div>
+                        <div class="text-h4 font-weight-bold">{{ totalAkun }}</div>
+                        <div class="text-body-2">Total akun di semua cabang · klik untuk melihat semua</div>
                     </div>
                 </v-card-text>
             </v-card>
@@ -43,7 +37,8 @@
                     </div>
 
                     <v-data-table :headers="regionTableHeaders" :items="regionTableData" :search="searchRegion"
-                        :items-per-page="10" class="elevation-0 text-no-wrap bg-grey-lighten-4" density="comfortable">
+                        :items-per-page="10" class="elevation-0 text-no-wrap bg-grey-lighten-4 tabel-cabang" density="comfortable"
+                        hover @click:row="(e, { item }) => handleShowRegionDetail((item.raw || item).region)">
                         <!-- Custom slot for region column with icon -->
                         <template v-slot:item.region="{ item }">
                             <div class="d-flex align-center">
@@ -83,50 +78,6 @@
                 </v-card-text>
             </v-card>
 
-            <!-- ===== REGION CARDS SECTION ===== -->
-            <v-card>
-                <v-card-title>
-                    MVO
-                </v-card-title>
-
-                <v-divider></v-divider>
-
-                <v-card-text>
-                    <v-row>
-                        <v-col v-for="(region, index) in regionCardData" :key="index" cols="12" sm="6" md="4" lg="3">
-                            <v-card :color="getRegionColor(index)" dark hover
-                                @click="handleShowRegionDetail(region.name)" style="cursor:pointer;"
-                                class="region-card">
-                                <v-card-text class="text-center py-8">
-                                    <v-icon size="48" class="mb-3">
-                                        mdi-map-marker
-                                    </v-icon>
-
-                                    <div class="text-h3 font-weight-bold mb-2">
-                                        {{ region.count }}
-                                    </div>
-
-                                    <div class="text-h6 font-weight-bold mb-1">
-                                        {{ region.name }}
-                                    </div>
-
-                                    <div class="text-caption">
-                                        {{ region.percentage.toFixed(1) }}% of total
-                                    </div>
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-
-                        <!-- No data state -->
-                        <v-col v-if="regionCardData.length === 0" cols="12">
-                            <div class="text-center pa-4">
-                                <v-icon size="64" color="grey">mdi-map-marker-outline</v-icon>
-                                <div class="text-h6 mt-2">No MVO data available</div>
-                            </div>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
 
         </div>
 
@@ -134,17 +85,11 @@
         <div class="d-block d-md-none">
             <!-- Header Card Mobile -->
             <v-card  class="baba-stat baba-stat--gold mb-3" @click="handleShowAllAkun" style="cursor: pointer;">
-                <v-card-text class="text-center py-6">
-                    <v-icon size="48" class="mb-2">
-                        mdi-map-marker
-                    </v-icon>
-
-                    <div class="text-h3 font-weight-bold">
-                        {{ totalAkun }}
-                    </div>
-
-                    <div class="text-body-1 mt-1">
-                        Total MVO
+                <v-card-text class="total-ringkas">
+                    <v-icon size="28">mdi-map-marker</v-icon>
+                    <div>
+                        <div class="text-h5 font-weight-bold">{{ totalAkun }}</div>
+                        <div class="text-caption">Total akun di semua cabang</div>
                     </div>
                 </v-card-text>
             </v-card>
@@ -161,51 +106,13 @@
                         <v-text-field v-model="searchRegion" prepend-inner-icon="mdi-magnify" label="Search MVO"
                             single-line hide-details variant="outlined" density="compact"></v-text-field>
                     </div>
-                    <v-list density="compact">
-                        <v-list-item v-for="(item, i) in filteredRegionTableData" :key="i" class="py-2">
-                            <template v-slot:prepend>
-                                <v-icon size="20" color="primary" class="mr-3">mdi-map-marker</v-icon>
-                            </template>
-                            <v-list-item-title class="font-weight-medium">{{ item.region }}</v-list-item-title>
-                            <v-list-item-subtitle>
-                                <div class="d-flex align-center mt-1">
-                                    <v-progress-linear :model-value="item.percentage" color="primary" height="6" rounded
-                                        class="mr-2" style="width: 60px;"></v-progress-linear>
-                                    <span class="text-caption">{{ item.percentage.toFixed(1) }}%</span>
-                                </div>
-                            </v-list-item-subtitle>
-                            <template v-slot:append>
-                                <v-chip color="primary" size="small" variant="flat">{{ item.total_accounts }}</v-chip>
-                            </template>
-                        </v-list-item>
-                    </v-list>
+                    <!-- Ketuk cabang untuk melihat daftar akunnya -->
+                    <DaftarBatang class="px-2 pb-2" tampil-persen kosong="Tidak ada data cabang"
+                        :items="filteredRegionTableData.map((r) => ({ label: r.region, jumlah: r.total_accounts }))"
+                        @pilih="handleShowRegionDetail($event.label)" />
                 </v-card-text>
             </v-card>
 
-            <!-- Region Cards Mobile -->
-            <v-row dense>
-                <v-col v-for="(region, index) in regionCardData" :key="index" cols="6">
-                    <v-card :color="getRegionColor(index)" dark @click="handleShowRegionDetail(region.name)">
-                        <v-card-text class="text-center pa-3">
-                            <v-icon size="24" class="mb-1">
-                                mdi-map-marker
-                            </v-icon>
-
-                            <div class="text-h5 font-weight-bold">
-                                {{ region.count }}
-                            </div>
-
-                            <div class="text-caption font-weight-bold">
-                                {{ region.name }}
-                            </div>
-
-                            <div class="text-caption" style="font-size: 0.7rem;">
-                                {{ region.percentage.toFixed(1) }}%
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
         </div>
 
         <!-- ================= DETAIL TABLE DIALOG ================= -->
@@ -305,19 +212,6 @@ export default {
             cabang: null,
             searchRegion: "",
             detailSearch: "",
-
-            // Region colors
-            // Palet hitam-emas (selaras tema), tetap cukup berbeda antar wilayah.
-            regionColors: [
-                '#1F1F1F',
-                '#E6B422',
-                '#5C4A1E',
-                '#B8890F',
-                '#3A3A3A',
-                '#C9A96E',
-                '#8D6E2F',
-                '#2B2B2B',
-            ],
 
             // Detail Dialog
             detailDialog: false,
@@ -561,10 +455,6 @@ export default {
             });
         },
 
-        getRegionColor(index) {
-            return this.regionColors[index % this.regionColors.length];
-        },
-
         exportToExcel() {
             this.exporting = true;
 
@@ -606,6 +496,18 @@ export default {
 </script>
 
 <style scoped>
+.total-ringkas {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px !important;
+}
+
+/* Baris cabang bisa diklik untuk membuka daftar akunnya */
+.tabel-cabang :deep(tbody tr) {
+    cursor: pointer;
+}
+
 .v-data-table {
     font-size: 0.875rem;
 }

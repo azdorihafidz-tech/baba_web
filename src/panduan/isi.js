@@ -61,6 +61,8 @@ export const PANDUAN = [
         isi: [
           "Pilih tab di bagian atas: Overview, Akun, Dokumen, MVO/Wilayah, Star, atau Growth.",
           "Kartu angka di tiap tab bisa diklik untuk melihat rinciannya.",
+          "Tab Akun: Jabatan Akun (semua akun) dan Akun Terbaru (mendaftar pada periode tanggal) tampil sebagai daftar batang — panjang batang = banyaknya akun, di kanan jumlah dan persennya. Klik baris untuk melihat daftar akunnya.",
+          "Tab MVO/Wilayah: daftar cabang dengan jumlah akun dan persennya. Klik baris cabang untuk melihat daftar akunnya.",
         ],
       },
       {

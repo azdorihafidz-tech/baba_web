@@ -72,74 +72,30 @@
                 </v-col>
 
             </v-row>
-            <!-- ===== JABATAN CARDS ===== -->
-            <v-card class="mb-4">
-                <v-card-title>
-                    JABATAN AKUN
-                </v-card-title>
-
-                <v-card-text>
-                    <v-row>
-                        <v-col v-for="(jabatan, index) in jabatanList" :key="index" cols="12" sm="6" md="4" lg="3">
-                            <v-card hover @click="handleShowJabatanDetail(jabatan.name)" :color="getJabatanColor(index)"
-                                dark style="cursor:pointer;" class="jabatan-card">
-                                <v-card-text class="text-center">
-                                    <v-icon size="40" class="mb-2">
-                                        mdi-account-tie
-                                    </v-icon>
-
-                                    <div class="text-h5 mb-2">
-                                        {{ jabatan.count }}
-                                    </div>
-
-                                    <div class="text-subtitle-1 font-weight-bold">
-                                        {{ jabatan.name }}
-                                    </div>
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-
-                        <!-- No data state -->
-                        <v-col v-if="jabatanList.length === 0" cols="12">
-                            <div class="text-center pa-4">
-                                <v-icon size="64" color="grey">mdi-account-tie-outline</v-icon>
-                                <div class="text-h6 mt-2">No jabatan data available</div>
-                            </div>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
-
-            <!-- ===== JABATAN CARDS (FILTERED) ===== -->
-            <v-card class="mb-4">
-                <v-card-title class="d-flex align-center justify-space-between">
-                    <span>Akun Terbaru</span>
-
-                </v-card-title>
-
-                <v-card-text>
-                    <v-row>
-                        <v-col v-for="(jabatan, index) in filteredJabatanList" :key="index" cols="12" sm="6" md="4"
-                            lg="3">
-                            <v-card hover @click="handleShowJabatanDetailFiltered(jabatan.name)"
-                                :color="getJabatanColor(index)" dark style="cursor:pointer;" class="jabatan-card">
-                                <v-card-text class="text-center">
-                                    <v-icon size="40" class="mb-2">mdi-calendar-account</v-icon>
-                                    <div class="text-h5 mb-2">{{ jabatan.count }}</div>
-                                    <div class="text-subtitle-1 font-weight-bold">{{ jabatan.name }}</div>
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-
-                        <v-col v-if="filteredJabatanList.length === 0" cols="12">
-                            <div class="text-center pa-4">
-                                <v-icon size="64" color="grey">mdi-calendar-remove</v-icon>
-                                <div class="text-h6 mt-2">Tidak ada data pada periode ini</div>
-                            </div>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
+            <!-- ===== JABATAN AKUN & AKUN TERBARU: daftar batang ringkas (klik baris = rincian) ===== -->
+            <v-row dense class="mb-2">
+                <v-col cols="12" md="6">
+                    <v-card class="ringkas-card">
+                        <div class="ringkas-judul">
+                            <v-icon size="20" class="mr-2">mdi-account-tie</v-icon>Jabatan Akun
+                            <span class="ringkas-sub">semua akun</span>
+                        </div>
+                        <DaftarBatang :items="itemsBatang(jabatanList)" tampil-persen kosong="Belum ada data jabatan"
+                            @pilih="handleShowJabatanDetail($event.label)" />
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-card class="ringkas-card">
+                        <div class="ringkas-judul">
+                            <v-icon size="20" class="mr-2">mdi-calendar-account</v-icon>Akun Terbaru
+                            <span class="ringkas-sub">mendaftar pada periode tanggal di atas</span>
+                        </div>
+                        <DaftarBatang :items="itemsBatang(filteredJabatanList)" tampil-persen
+                            kosong="Tidak ada pendaftar pada periode ini"
+                            @pilih="handleShowJabatanDetailFiltered($event.label)" />
+                    </v-card>
+                </v-col>
+            </v-row>
 
             <!-- ===== STATISTICS ===== -->
             <v-card class="mb-4">
@@ -169,7 +125,7 @@
                             <div class="d-flex align-center">
                                 <v-progress-linear :model-value="getAkunPercentage('total_pending')" color="orange"
                                     height="25" rounded class="mr-3">
-                                    <span class="text-white font-weight-bold">
+                                    <span class="font-weight-bold" style="color: var(--baba-text);">
                                         {{ getAkunPercentage('total_pending').toFixed(1) }}%
                                     </span>
                                 </v-progress-linear>
@@ -273,65 +229,30 @@
 
             </v-row>
 
-            <!-- ===== JABATAN CARDS MOBILE ===== -->
-            <v-card class="mb-3">
-                <v-card-title class="text-subtitle-1 font-weight-bold">
-                    JABATAN AKUN
-                </v-card-title>
-                <v-card-text class="pa-2">
-                    <v-row dense>
-                        <v-col v-for="(jabatan, index) in jabatanList" :key="index" cols="6">
-                            <v-card hover @click="handleShowJabatanDetail(jabatan.name)" :color="getJabatanColor(index)"
-                                dark style="cursor:pointer;" class="jabatan-card">
-                                <v-card-text class="text-center pa-2">
-                                    <v-icon size="24" class="mb-1">
-                                        mdi-account-tie
-                                    </v-icon>
-                                    <div class="text-h6 mb-0">
-                                        {{ jabatan.count }}
-                                    </div>
-                                    <div class="text-caption font-weight-bold text-truncate">
-                                        {{ jabatan.name }}
-                                    </div>
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-                        <v-col v-if="jabatanList.length === 0" cols="12">
-                            <div class="text-center pa-4">
-                                <v-icon size="40" color="grey">mdi-account-tie-outline</v-icon>
-                                <div class="text-caption mt-2">No jabatan data available</div>
-                            </div>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
-
-            <!-- ===== JABATAN CARDS MOBILE (FILTERED) ===== -->
-            <v-card class="mb-3">
-                <v-card-title class="text-subtitle-1 font-weight-bold pb-0">
-                    Akun Terbaru
-                </v-card-title>
-                <v-card-text class="pa-2">
-                    <v-row dense>
-                        <v-col v-for="(jabatan, index) in filteredJabatanList" :key="index" cols="6">
-                            <v-card hover @click="handleShowJabatanDetailFiltered(jabatan.name)"
-                                :color="getJabatanColor(index)" dark style="cursor:pointer;" class="jabatan-card">
-                                <v-card-text class="text-center pa-2">
-                                    <v-icon size="24" class="mb-1">mdi-calendar-account</v-icon>
-                                    <div class="text-h6 mb-0">{{ jabatan.count }}</div>
-                                    <div class="text-caption font-weight-bold text-truncate">{{ jabatan.name }}</div>
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-                        <v-col v-if="filteredJabatanList.length === 0" cols="12">
-                            <div class="text-center pa-4">
-                                <v-icon size="40" color="grey">mdi-calendar-remove</v-icon>
-                                <div class="text-caption mt-2">Tidak ada data</div>
-                            </div>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-            </v-card>
+            <!-- ===== JABATAN AKUN & AKUN TERBARU: daftar batang ringkas (klik baris = rincian) ===== -->
+            <v-row dense class="mb-2">
+                <v-col cols="12" md="6">
+                    <v-card class="ringkas-card">
+                        <div class="ringkas-judul">
+                            <v-icon size="20" class="mr-2">mdi-account-tie</v-icon>Jabatan Akun
+                            <span class="ringkas-sub">semua akun</span>
+                        </div>
+                        <DaftarBatang :items="itemsBatang(jabatanList)" tampil-persen kosong="Belum ada data jabatan"
+                            @pilih="handleShowJabatanDetail($event.label)" />
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-card class="ringkas-card">
+                        <div class="ringkas-judul">
+                            <v-icon size="20" class="mr-2">mdi-calendar-account</v-icon>Akun Terbaru
+                            <span class="ringkas-sub">mendaftar pada periode tanggal di atas</span>
+                        </div>
+                        <DaftarBatang :items="itemsBatang(filteredJabatanList)" tampil-persen
+                            kosong="Tidak ada pendaftar pada periode ini"
+                            @pilih="handleShowJabatanDetailFiltered($event.label)" />
+                    </v-card>
+                </v-col>
+            </v-row>
 
             <!-- ===== STATISTICS MOBILE ===== -->
             <v-card class="mb-3">
@@ -352,7 +273,7 @@
                         <div class="d-flex align-center">
                             <v-progress-linear :model-value="getAkunPercentage('total_pending')" color="orange"
                                 height="20" rounded class="mr-3">
-                                <span class="text-white text-caption font-weight-bold">
+                                <span class="text-caption font-weight-bold" style="color: var(--baba-text);">
                                     {{ getAkunPercentage('total_pending').toFixed(1) }}%
                                 </span>
                             </v-progress-linear>
@@ -589,6 +510,15 @@ export default {
     },
 
     methods: {
+
+        // Data untuk DaftarBatang, urut jenjang (TM → Reseller); jabatan lain di akhir
+        itemsBatang(list) {
+            const urutan = ["TM", "TOP MANAGEMENT", "MVO", "REGIONAL", "FO", "FOUNDER", "GM", "GENERAL MANAGER", "SUPPLIER", "DIST", "DISTRIBUTOR", "RESELLER"];
+            const posisi = (n) => { const i = urutan.indexOf(String(n).toUpperCase()); return i === -1 ? 99 : i; };
+            return [...(list || [])]
+                .sort((a, b) => posisi(a.name) - posisi(b.name))
+                .map((j) => ({ label: j.name, jumlah: j.count }));
+        },
 
         // ================= INIT USER =================
         initUser() {
@@ -850,6 +780,34 @@ export default {
 </script>
 
 <style scoped>
+.ringkas-card {
+    height: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--baba-border);
+    border-radius: var(--baba-radius) !important;
+    box-shadow: var(--baba-shadow) !important;
+}
+
+.ringkas-judul {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+    font-weight: 800;
+    color: var(--baba-text);
+}
+
+.ringkas-judul .v-icon {
+    color: var(--baba-gold-dark);
+}
+
+.ringkas-sub {
+    margin-left: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--baba-muted);
+}
+
 .v-data-table {
     font-size: 0.875rem;
 }
