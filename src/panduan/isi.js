@@ -357,13 +357,20 @@ export const PANDUAN = [
     langkah: [
       {
         judul: "1. Pilih member",
-        isi: ["Di tab Mutasi Baru, ketik nama, No ID, atau username lalu pilih member. Data jabatan, No ID, dan atasannya tampil."],
+        isi: [
+          "Di tab Mutasi Baru, daftar semua member langsung tampil (urut dari jabatan tertinggi). Tidak perlu ingat nama: saring dengan tombol jabatan (TM, MVO, … Reseller) dan pilihan Cabang, lalu gulir daftarnya.",
+          "Bisa juga mengetik nama, No ID, atau username di kolom cari (mis. B78-04 untuk melihat Supplier B78-04 beserta anggotanya).",
+          "Setiap baris menampilkan jabatan, No ID, cabang, nama, atasan, dan jumlah anggota langsung. Ketuk baris untuk memilih.",
+          "Salah pilih? Tekan Ganti member untuk kembali ke daftar.",
+        ],
       },
       {
         judul: "2. Tentukan posisi baru",
         isi: [
           "Pilih Jabatan baru (sama dengan sekarang bila hanya pindah atasan).",
-          "Pilih Atasan baru. Daftar hanya berisi atasan dengan jenjang yang sah, dan bukan anggota orang itu sendiri.",
+          "Atasan baru awalnya terisi atasan sekarang. Tekan Ganti atasan untuk membuka daftar calon atasan — langsung tampil tanpa mengetik, cabang yang sama dengan member ditaruh paling atas.",
+          "Bila jabatan diganti, daftar calon atasan otomatis terbuka. Daftar hanya berisi atasan dengan jenjang yang sah, dan bukan anggota orang itu sendiri.",
+          "Top Management dan MVO boleh tanpa atasan: tekan Tanpa atasan.",
         ],
       },
       {

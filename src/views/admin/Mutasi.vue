@@ -18,18 +18,22 @@
         <v-card class="step-card mb-4">
           <div class="step-head"><span class="step-no">1</span> Pilih member</div>
           <v-card-text>
-            <v-autocomplete v-model="memberId" :items="memberItems" item-title="label" item-value="id"
-              :loading="loadingMember" no-filter clearable label="Cari nama / No ID / username" variant="outlined"
-              density="comfortable" prepend-inner-icon="mdi-magnify" hide-details
-              no-data-text="Ketik minimal 2 huruf untuk mencari"
-              @update:search="cariMember" @update:model-value="pilihMember" />
+            <!-- Daftar member langsung tampil; pilih dengan mengetuk baris -->
+            <DaftarPilihMember v-if="!member" :api="api" url="/mutasi/cari-member" filter-jabatan filter-cabang
+              placeholder="Cari nama / No ID / username" kosong="Tidak ada member yang cocok"
+              @pilih="pilihDariDaftar" />
 
-            <div v-if="member" class="member-info mt-3">
-              <div><span class="lbl">Jabatan</span><b>{{ member.jabatan }}</b></div>
-              <div><span class="lbl">No ID</span><b>{{ member.no_id || '-' }}</b></div>
-              <div><span class="lbl">Atasan</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : '-' }}</b></div>
-              <div><span class="lbl">Cabang</span><b>{{ member.cabang || '-' }}</b></div>
-            </div>
+            <template v-else>
+              <div class="member-info">
+                <div><span class="lbl">Nama</span><b>{{ member.nama }}</b></div>
+                <div><span class="lbl">Jabatan</span><b>{{ member.jabatan }}</b></div>
+                <div><span class="lbl">No ID</span><b>{{ member.no_id || '-' }}</b></div>
+                <div><span class="lbl">Atasan</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : '-' }}</b></div>
+                <div><span class="lbl">Cabang</span><b>{{ member.cabang || '-' }}</b></div>
+              </div>
+              <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-switch" class="mt-3"
+                @click="gantiMember">Ganti member</v-btn>
+            </template>
           </v-card-text>
         </v-card>
 
@@ -38,20 +42,35 @@
           <div class="step-head"><span class="step-no">2</span> Posisi baru</div>
           <v-card-text>
             <v-row dense>
-              <v-col cols="12" md="5">
+              <v-col cols="12" md="6">
                 <v-select v-model="jabatanBaru" :items="jabatanItems" item-title="label" item-value="id"
                   label="Jabatan baru" variant="outlined" density="comfortable" hide-details
                   @update:model-value="gantiJabatan" />
               </v-col>
-              <v-col cols="12" md="7">
-                <v-autocomplete v-model="atasanBaru" :items="atasanItems" item-title="label" item-value="id"
-                  :loading="loadingAtasan" no-filter clearable label="Atasan baru" variant="outlined"
-                  density="comfortable" hide-details prepend-inner-icon="mdi-account-arrow-up"
-                  :no-data-text="'Ketik nama / No ID atasan'" @update:search="cariAtasan"
-                  @update:model-value="jadwalkanPratinjau" />
-                <div v-if="bolehTanpaAtasan" class="hint mt-1">Kosongkan bila jabatan ini tidak punya atasan.</div>
-              </v-col>
             </v-row>
+
+            <div class="atasan-label mt-4">Atasan baru</div>
+            <!-- Atasan terpilih + tombol ganti; daftar calon atasan tampil saat memilih -->
+            <div v-if="!pilihAtasanTerbuka" class="atasan-terpilih">
+              <div v-if="atasanTerpilih" class="atasan-teks">
+                <b>{{ atasanTerpilih.nama }}</b>
+                <span class="atasan-meta">{{ atasanTerpilih.no_id || '-' }}<template v-if="atasanTerpilih.jabatan"> · {{ atasanTerpilih.jabatan }}</template></span>
+              </div>
+              <div v-else class="atasan-teks atasan-kosong">{{ bolehTanpaAtasan ? 'Tanpa atasan' : 'Belum dipilih' }}</div>
+              <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-arrow-up"
+                @click="pilihAtasanTerbuka = true">{{ atasanTerpilih ? 'Ganti atasan' : 'Pilih atasan' }}</v-btn>
+            </div>
+            <template v-else>
+              <p class="hint mb-2">Calon atasan yang sah untuk jabatan ini. Cabang {{ member.cabang }} ditampilkan paling atas.</p>
+              <DaftarPilihMember :api="api" url="/mutasi/kandidat-atasan"
+                :params="{ mvo_type_id: jabatanBaru, user_id: memberId, cabang_utama: member.cabang }"
+                :terpilih-id="atasanBaru" placeholder="Cari nama / No ID atasan"
+                kosong="Tidak ada calon atasan untuk jabatan ini" @pilih="pilihAtasan" />
+              <div class="d-flex flex-wrap ga-2 mt-2">
+                <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Tanpa atasan</v-btn>
+                <v-btn v-if="atasanTerpilih" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
+              </div>
+            </template>
           </v-card-text>
         </v-card>
 
@@ -281,6 +300,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
+import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 
 const api = axios.create({ baseURL: `${API_URL}/api`, timeout: 60000 });
 api.interceptors.request.use((cfg) => {
@@ -306,29 +326,27 @@ const debounce = (fn, ms = 350) => {
 /* ---------- 1. member ---------- */
 const memberId = ref(null);
 const memberItems = ref([]);
-const loadingMember = ref(false);
 const member = computed(() => memberItems.value.find((m) => m.id === memberId.value) || null);
 
-const cariMember = debounce(async (q) => {
-  if (!q || q.length < 2 || (member.value && q === member.value.label)) return;
-  loadingMember.value = true;
-  try {
-    const { data } = await api.get("/mutasi/cari-member", { params: { q } });
-    memberItems.value = data.data.map((m) => ({ ...m, label: `${m.nama} — ${m.no_id || "tanpa No ID"} — ${m.jabatan}` }));
-  } catch (e) {
-    toast(pesanError(e, "Gagal mencari member"), "error");
-  } finally {
-    loadingMember.value = false;
-  }
-});
+function pilihDariDaftar(m) {
+  memberItems.value = [m];
+  memberId.value = m.id;
+  pilihMember();
+}
+
+function gantiMember() {
+  reset();
+  memberItems.value = [];
+}
 
 /* ---------- 2. posisi baru ---------- */
 const jabatanList = ref([]);
 const jabatanBaru = ref(null);
 const atasanBaru = ref(null);
-const atasanItems = ref([]);
-const loadingAtasan = ref(false);
-const bolehTanpaAtasan = ref(false);
+const atasanTerpilih = ref(null); // { id, nama, no_id, jabatan }
+const pilihAtasanTerbuka = ref(false);
+// Jabatan teratas (TM, MVO) boleh tanpa atasan — sama dengan aturan di MutasiController::kandidatAtasan
+const bolehTanpaAtasan = computed(() => (jabatanList.value.find((j) => String(j.id) === String(jabatanBaru.value))?.level ?? 99) <= 1);
 
 const jabatanItems = computed(() => jabatanList.value.map((j) => ({ ...j, label: `${j.name} — ${j.jabatan || ""}` })));
 
@@ -343,10 +361,7 @@ async function muatJabatan() {
 
 async function ambilKandidat(typeId, q) {
   const { data } = await api.get("/mutasi/kandidat-atasan", { params: { mvo_type_id: typeId, user_id: memberId.value, q } });
-  return {
-    boleh: data.boleh_tanpa_atasan,
-    items: data.data.map((u) => ({ ...u, label: `${u.nama} — ${u.no_id || "-"} — ${u.jabatan}` })),
-  };
+  return data.data.map((u) => ({ ...u, label: `${u.nama} — ${u.no_id || "-"} — ${u.jabatan}` }));
 }
 
 // Pilihan yang sedang terpilih tetap ada di daftar (supaya labelnya tampil), tapi hanya
@@ -358,41 +373,32 @@ function gabungTerpilih(terpilih, items, q) {
   return cocok ? [terpilih, ...lain] : [...lain, terpilih];
 }
 
-const cariAtasan = debounce(async (q) => {
-  if (!jabatanBaru.value) return;
-  const terpilih = atasanItems.value.find((a) => a.id === atasanBaru.value);
-  if (terpilih && q === terpilih.label) return;
-  loadingAtasan.value = true;
-  try {
-    const r = await ambilKandidat(jabatanBaru.value, q || "");
-    bolehTanpaAtasan.value = r.boleh;
-    atasanItems.value = gabungTerpilih(terpilih, r.items, q);
-  } catch (e) {
-    toast(pesanError(e, "Gagal memuat kandidat atasan"), "error");
-  } finally {
-    loadingAtasan.value = false;
-  }
-});
-
 function pilihMember() {
   pratinjau.value = null;
   ikutState.value = {};
   penampung.value = null;
   penampungItems.value = [];
   if (!member.value) return;
-  jabatanBaru.value = String(member.value.mvo_type_id);
-  atasanBaru.value = member.value.parent_id || null;
-  atasanItems.value = member.value.parent_id
-    ? [{ id: member.value.parent_id, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"}` }]
-    : [];
-  cariAtasan("");
+  const m = member.value;
+  jabatanBaru.value = String(m.mvo_type_id);
+  atasanBaru.value = m.parent_id || null;
+  atasanTerpilih.value = m.parent_id ? { id: m.parent_id, nama: m.atasan_nama, no_id: m.atasan_no_id } : null;
+  pilihAtasanTerbuka.value = false;
   jadwalkanPratinjau();
 }
 
+// Jabatan berubah → atasan lama belum tentu sah, jadi daftar calon atasan langsung dibuka
 function gantiJabatan() {
   atasanBaru.value = null;
-  atasanItems.value = [];
-  cariAtasan("");
+  atasanTerpilih.value = null;
+  pilihAtasanTerbuka.value = true;
+  jadwalkanPratinjau();
+}
+
+function pilihAtasan(a) {
+  atasanBaru.value = a ? a.id : null;
+  atasanTerpilih.value = a;
+  pilihAtasanTerbuka.value = false;
   jadwalkanPratinjau();
 }
 
@@ -425,8 +431,8 @@ const cariPenampung = debounce(async (q) => {
   if (!typeId) return;
   loadingPenampung.value = true;
   try {
-    const r = await ambilKandidat(typeId, q || "");
-    penampungItems.value = gabungTerpilih(terpilih, r.items, q);
+    const items = await ambilKandidat(typeId, q || "");
+    penampungItems.value = gabungTerpilih(terpilih, items, q);
   } catch (e) {
     toast(pesanError(e, "Gagal memuat penampung"), "error");
   } finally {
@@ -523,7 +529,8 @@ function reset() {
   memberId.value = null;
   jabatanBaru.value = null;
   atasanBaru.value = null;
-  atasanItems.value = [];
+  atasanTerpilih.value = null;
+  pilihAtasanTerbuka.value = false;
   penampung.value = null;
   penampungItems.value = [];
   ikutState.value = {};
@@ -721,6 +728,40 @@ if (isSuperadmin) muatJabatan();
 .member-info .lbl {
   display: block;
   font-size: 0.75rem;
+  color: var(--baba-muted);
+}
+
+.atasan-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--baba-muted);
+  margin-bottom: 6px;
+}
+
+.atasan-terpilih {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--baba-radius);
+  border: 1px solid var(--baba-border);
+  background: #fff;
+}
+
+.atasan-teks {
+  flex: 1;
+  min-width: 0;
+}
+
+.atasan-meta {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--baba-gold-dark);
+}
+
+.atasan-kosong {
   color: var(--baba-muted);
 }
 
