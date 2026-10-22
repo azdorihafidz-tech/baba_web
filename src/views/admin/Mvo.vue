@@ -293,7 +293,7 @@
 
                 <template v-slot:item.action="{ item }">
                   <div class="d-flex justify-center">
-                    <v-tooltip text="Edit" color="#125C13" location="top start">
+                    <v-tooltip v-if="bolehKelolaDok(item)" text="Edit" color="#125C13" location="top start">
                       <template v-slot:activator="{ props }">
                         <v-btn size="small" :color="app.colors.primary" @click="openEditDocumentDialog(item.id)"
                           class="mx-1" v-bind="props" icon>
@@ -312,7 +312,7 @@
                       </template>
                     </v-tooltip>
 
-                    <v-tooltip text="Hapus" color="#125C13" location="top start">
+                    <v-tooltip v-if="bolehKelolaDok(item)" text="Hapus" color="#125C13" location="top start">
                       <template v-slot:activator="{ props }">
                         <v-btn size="small" :color="app.colors.secondary" @click="deleteDocument(item.id)" class="mx-1"
                           v-bind="props" icon>
@@ -450,7 +450,7 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                      <v-btn size="small" :color="app.colors.primary" variant="text"
+                      <v-btn v-if="bolehKelolaDok(document)" size="small" :color="app.colors.primary" variant="text"
                         @click="openEditDocumentDialog(document.id)">
                         <v-icon start size="16">mdi-pencil</v-icon>
                         Edit
@@ -463,7 +463,7 @@
                         Approve Admin
                       </v-btn>
 
-                      <v-btn size="small" :color="app.colors.secondary" variant="text"
+                      <v-btn v-if="bolehKelolaDok(document)" size="small" :color="app.colors.secondary" variant="text"
                         @click="deleteDocument(document.id)">
                         <v-icon start size="16">mdi-delete</v-icon>
                         Hapus
@@ -890,6 +890,11 @@ export default {
   methods: {
     atasanPada,
     jalurRingkas,
+
+    // Dokumen yang sudah disetujui final hanya bisa diubah/dihapus superadmin (aturan server)
+    bolehKelolaDok(doc) {
+      return this.mvo_type_id === "superadmin" || String(doc?.status_inputan || "").toLowerCase() !== "approved";
+    },
 
     gantiFilter() {
       this.expandedMobileCard = null;
@@ -1643,7 +1648,13 @@ export default {
     },
 
     async deleteDocument(id) {
-      if (!confirm("Apakah anda yakin ingin menghapus dokumen ini?")) return;
+      // Dokumen yang sudah disetujui final ikut dihitung di Star/RO (server hanya mengizinkan superadmin)
+      const doc = this.documentItems.find((d) => d.id === id);
+      const sudahFinal = String(doc?.status_inputan || "").toLowerCase() === "approved";
+      const pesan = sudahFinal
+        ? "Dokumen ini sudah disetujui final. Jika dihapus, angka Star, RO, ranking, dan Saran RO akan berubah. Tetap hapus?"
+        : "Apakah anda yakin ingin menghapus dokumen ini?";
+      if (!confirm(pesan)) return;
 
       const headers = this.getAuthHeaders();
       if (!headers) return;

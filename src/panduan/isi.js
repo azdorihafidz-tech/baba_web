@@ -144,7 +144,8 @@ export const PANDUAN = [
       },
     ],
     tips: [
-      "Yang bisa menambah, mengubah, dan menghapus dokumen: Superadmin, MVO, Regional, dan Founder.",
+      "Yang bisa menambah, mengubah, dan menghapus dokumen: Superadmin, MVO, Regional, dan Founder — selain superadmin hanya untuk akun di jaringannya sendiri.",
+      "Dokumen yang sudah disetujui final ikut dihitung di Star/RO, jadi hanya superadmin yang bisa mengubah atau menghapusnya (ada peringatan sebelum dihapus).",
       "Print pada detail akun menghasilkan formulir registrasi dalam bentuk PDF.",
       "Range Point inilah yang dihitung sebagai RO di Dashboard dan Saran RO.",
       "Kolom Distributor, Supplier, General Manager, Founder, Regional, MVO, dan TM menampilkan No ID dan nama atasan sesuai Struktur Akun saat ini (ikut berubah setelah Mutasi). Di HP, jalurnya tampil ringkas di bawah nama, mis. M01 › R03 › B02 › B78.",
