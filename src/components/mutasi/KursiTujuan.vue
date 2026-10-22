@@ -54,6 +54,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
+import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
 
 const props = defineProps({
   api: { type: Function, required: true },
@@ -62,6 +63,7 @@ const props = defineProps({
   memberId: [Number, String], // orang yang mengambil kursi pemegang lama
   namaMember: String,
   noIdMember: String,
+  barisRencana: { type: Array, default: () => [] }, // keadaan sesudah langkah rencana sebelumnya
 });
 // ubah: { mvo_type_id, parent_id, no_id_tujuan, pemegang, lengkap }; tukar: memilih kursi lama member = tukar posisi
 const emit = defineEmits(["ubah", "tukar"]);
@@ -78,16 +80,15 @@ const jabatanItems = computed(() => props.jabatanList.map((j) => ({ ...j, label:
 const aturan = computed(() => props.jabatanList.find((j) => String(j.id) === String(jabatan.value)));
 const turunan = computed(() => aturan.value?.mode === "turunan");
 const bolehTanpaAtasan = computed(() => (aturan.value?.level ?? 99) <= 1);
-const nomorItems = computed(() => nomorList.value
+const nomorRencana = computed(() => nomorMenurutRencana(nomorList.value, props.barisRencana));
+const nomorItems = computed(() => nomorRencana.value
   .filter((n) => !n.pemegang || n.pemegang.id !== props.orang.id)
   .map((n) => ({
     ...n,
-    label: !n.pemegang ? `${n.no_id} — kosong`
-      : n.pemegang.id === props.memberId ? `${n.no_id} — ${n.pemegang.nama} (kursi lama, = Tukar posisi)`
-        : `${n.no_id} — ${n.pemegang.nama} (${n.pemegang.jabatan})`,
+    label: n.pemegang?.id === props.memberId ? `${n.no_id} — ${n.pemegang.nama} (kursi lama, = Tukar posisi)` : labelNomor(n, null),
   })));
 const pemegang = computed(() => {
-  const p = nomorList.value.find((n) => n.no_id === noId.value)?.pemegang;
+  const p = nomorRencana.value.find((n) => n.no_id === noId.value)?.pemegang;
   return p && p.id !== props.orang.id && p.id !== props.memberId ? p : null;
 });
 
@@ -141,7 +142,7 @@ function gantiMode(v) {
 }
 
 function pilihNoId(v) {
-  const p = nomorList.value.find((n) => n.no_id === v)?.pemegang;
+  const p = nomorRencana.value.find((n) => n.no_id === v)?.pemegang;
   if (p && p.id === props.memberId) {
     noId.value = null;
     emit("tukar");
@@ -160,9 +161,11 @@ function pilihAtasan(a) {
   kirim();
 }
 
-// Upline awal = upline sekarang (nama diambil dari daftar member)
+// Upline awal = upline sekarang (menurut rencana bila ada; selain itu nama diambil dari daftar member)
 onMounted(async () => {
-  if (props.orang.parent_id) {
+  if (props.orang.parent_id && props.orang.atasan_nama !== undefined) {
+    atasan.value = { id: props.orang.parent_id, nama: props.orang.atasan_nama, no_id: null };
+  } else if (props.orang.parent_id) {
     try {
       const { data } = await props.api.get("/mutasi/cari-member", { params: { id: props.orang.id } });
       const m = data.data[0];

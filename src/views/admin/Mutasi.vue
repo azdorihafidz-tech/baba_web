@@ -55,6 +55,10 @@
                 <div><span class="lbl">Upline</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : '-' }}</b></div>
                 <div><span class="lbl">Cabang</span><b>{{ member.cabang || '-' }}</b></div>
               </div>
+              <v-alert v-if="posisiRencana" type="info" variant="tonal" density="compact" class="mt-2">
+                Sudah diubah di rencana: sekarang <b>{{ posisiRencana.jabatan_baru }} {{ posisiRencana.no_id_baru || '-' }}</b>,
+                upline {{ posisiRencana.atasan_baru || '-' }}. Langkah ini melanjutkan dari posisi itu.
+              </v-alert>
               <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-switch" class="mt-3"
                 @click="gantiMember">Ganti member</v-btn>
             </template>
@@ -118,7 +122,7 @@
                 <!-- Kursi baru untuk pemegang lama: kursi kosong lain, atau kursi orang ketiga (rotasi) -->
                 <KursiTujuan v-if="pemegangTujuan && nasibPemegang === 'lain'" :key="`${pemegangTujuan.id}-${noIdTujuan}`"
                   :api="api" :orang="pemegangTujuan" :jabatan-list="jabatanList" :member-id="memberId"
-                  :nama-member="member.nama" :no-id-member="member.no_id" @ubah="ubahKursiPemegang"
+                  :nama-member="member.nama" :no-id-member="member.no_id" :baris-rencana="barisRencana" @ubah="ubahKursiPemegang"
                   @tukar="nasibPemegang = 'tukar'; gantiNasib()" />
               </template>
             </template>
@@ -267,6 +271,9 @@
 
             <div class="d-flex justify-end mt-4" style="gap: 8px;">
               <v-btn variant="text" @click="reset">Batal</v-btn>
+              <!-- Tetapkan langkah ini ke rencana, lalu isi langkah berikutnya; semua disimpan sekaligus -->
+              <v-btn v-if="member" variant="tonal" color="#B8890F" prepend-icon="mdi-playlist-plus" :disabled="!bisaLanjut"
+                @click="tambahLangkah">Tambah langkah</v-btn>
               <v-btn color="primary" :disabled="!bisaSimpan" :loading="loadingSimpan" prepend-icon="mdi-content-save"
                 @click="konfirmasi = true">{{ jumlahLangkah > 1 ? `Simpan Rencana (${jumlahLangkah} langkah)` : 'Simpan Mutasi' }}</v-btn>
             </div>
@@ -357,6 +364,10 @@
             <v-data-table :headers="headersRiwayat" :items="riwayat" :loading="loadingRiwayat" :items-per-page="10"
               density="comfortable" :mobile="$vuetify.display.smAndDown" hover @click:row="(e, { item }) => bukaDetail(item)">
               <template #item.created_at="{ item }">{{ formatTanggal(item.created_at) }}</template>
+              <template #item.langkah="{ item }">
+                <span class="jenis-chip">{{ labelJenis[item.jenis] || 'Pindah' }}</span>
+                <div v-if="item.langkah" class="hint">Rencana #{{ item.rencana_id }} · langkah {{ item.langkah }}/{{ item.jumlah_langkah }}</div>
+              </template>
               <template #item.jabatan="{ item }">
                 <span v-if="item.jabatan_lama === item.jabatan_baru">{{ item.jabatan_lama }}</span>
                 <span v-else>{{ item.jabatan_lama }} → <b class="baru">{{ item.jabatan_baru }}</b></span>
@@ -415,8 +426,11 @@
     <!-- Detail riwayat -->
     <v-dialog v-model="detail.show" max-width="900">
       <v-card>
-        <v-card-title class="text-h6">Rincian mutasi</v-card-title>
+        <v-card-title class="text-h6">{{ detail.langkah.length ? `Rincian rencana (${detail.langkah.length} langkah)` : 'Rincian mutasi' }}</v-card-title>
         <v-card-text>
+          <ol v-if="detail.langkah.length" class="konfirmasi-langkah mb-3">
+            <li v-for="l in detail.langkah" :key="l.id">{{ l.catatan }}</li>
+          </ol>
           <v-data-table :headers="headersDetail" :items="detail.items" :loading="detail.loading" :items-per-page="10"
             density="compact" :mobile="$vuetify.display.smAndDown">
             <template #item.no_id="{ item }">{{ item.no_id_lama || '-' }} → <b class="baru">{{ item.no_id_baru }}</b></template>
@@ -442,6 +456,7 @@ import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 import KursiTujuan from "@/components/mutasi/KursiTujuan.vue";
+import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
 
 const api = axios.create({ baseURL: `${API_URL}/api`, timeout: 60000 });
 api.interceptors.request.use((cfg) => {
@@ -490,6 +505,28 @@ const kursiTarget = ref(null); // kursi kosong yang sedang dicarikan pengganti (
 const dialogPindahkan = reactive({ show: false, kursi: null });
 let kunciRencana = 0;
 
+// Keadaan sesudah langkah-langkah rencana (tanpa isian sekarang): pemegang kursi & posisi member terbaru
+const barisRencana = ref([]);
+let urutRencana = 0;
+async function muatKeadaanRencana() {
+  const nomor = ++urutRencana;
+  if (!rencana.value.length) {
+    barisRencana.value = [];
+    return;
+  }
+  try {
+    const { data } = await api.post("/mutasi/pratinjau", { langkah: langkahRencana.value });
+    if (nomor === urutRencana) barisRencana.value = data.baris || [];
+  } catch (e) {
+    if (nomor === urutRencana) barisRencana.value = [];
+  }
+}
+watch(rencana, muatKeadaanRencana);
+const posisiRencana = computed(() => {
+  const b = barisRencana.value.find((x) => x.id === memberId.value);
+  return b && (b.no_id_baru !== b.no_id_lama || b.jabatan_baru !== b.jabatan_lama || b.atasan_baru !== b.atasan_lama) ? b : null;
+});
+
 /* ---------- 2. posisi baru ---------- */
 const jabatanList = ref([]);
 const jabatanBaru = ref(null);
@@ -513,14 +550,11 @@ const jabatanDipilih = computed(() => jabatanList.value.find((x) => String(x.id)
 const namaJabatanBaru = computed(() => jabatanDipilih.value?.name || "");
 // Supplier ke bawah: No ID turunan dari upline, daftar kursinya dicari ke server
 const jabatanTurunan = computed(() => jabatanDipilih.value?.mode === "turunan");
-const nomorItems = computed(() => nomorList.value.map((n) => ({
-  ...n,
-  label: !n.pemegang ? `${n.no_id} — kosong`
-    : n.pemegang.id === memberId.value ? `${n.no_id} — ${n.pemegang.nama} (posisi sekarang)`
-      : `${n.no_id} — ${n.pemegang.nama} (${n.pemegang.jabatan})`,
-})));
+// Pemegang nomor menurut rencana (langkah yang sudah ditetapkan bisa memindahkan pemegang kursi)
+const nomorRencana = computed(() => nomorMenurutRencana(nomorList.value, barisRencana.value));
+const nomorItems = computed(() => nomorRencana.value.map((n) => ({ ...n, label: labelNomor(n, memberId.value) })));
 const pemegangTujuan = computed(() => {
-  const p = nomorList.value.find((n) => n.no_id === noIdTujuan.value)?.pemegang;
+  const p = nomorRencana.value.find((n) => n.no_id === noIdTujuan.value)?.pemegang;
   return p && p.id !== memberId.value ? p : null;
 });
 const ambilKursiTerisi = computed(() => !!pemegangTujuan.value && !!nasibPemegang.value);
@@ -626,10 +660,16 @@ function pilihMember() {
   penampungItems.value = [];
   if (!member.value) return;
   const m = member.value;
+  // Posisi awal = posisi menurut rencana bila member sudah diubah di langkah sebelumnya
+  const r = barisRencana.value.find((b) => b.id === m.id);
   // Pengganti: jabatan mengikuti kursi kosong yang diisi
-  jabatanBaru.value = String(kursiTarget.value ? kursiTarget.value.mvo_type_id : m.mvo_type_id);
-  atasanBaru.value = m.parent_id || null;
-  atasanTerpilih.value = m.parent_id ? { id: m.parent_id, nama: m.atasan_nama, no_id: m.atasan_no_id } : null;
+  jabatanBaru.value = String(kursiTarget.value ? kursiTarget.value.mvo_type_id : r ? r.mvo_type_id : m.mvo_type_id);
+  const parent = r ? r.parent_id : m.parent_id;
+  atasanBaru.value = parent || null;
+  const noIdParent = barisRencana.value.find((b) => b.id === parent)?.no_id_baru
+    ?? (parent === m.parent_id ? m.atasan_no_id : null);
+  atasanTerpilih.value = !parent ? null
+    : { id: parent, nama: r ? r.atasan_baru : m.atasan_nama, no_id: noIdParent };
   pilihAtasanTerbuka.value = false;
   modeNoId.value = "otomatis";
   nomorList.value = [];
@@ -925,6 +965,12 @@ function tetapkanDraft() {
   resetDraft();
 }
 
+function tambahLangkah() {
+  tetapkanDraft();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  jadwalkanPratinjau();
+}
+
 function mulaiPengganti(k) {
   tetapkanDraft();
   kursiTarget.value = k;
@@ -1053,10 +1099,12 @@ async function prosesSaran(item) {
 const riwayat = ref([]);
 const loadingRiwayat = ref(false);
 const cariRiwayat = ref("");
-const detail = reactive({ show: false, items: [], loading: false });
+const detail = reactive({ show: false, items: [], langkah: [], loading: false });
 
+const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline" };
 const headersRiwayat = [
   { title: "Tanggal", key: "created_at" },
+  { title: "Jenis", key: "langkah", sortable: false },
   { title: "Nama", key: "nama" },
   { title: "Jabatan", key: "jabatan", sortable: false },
   { title: "No ID", key: "no_id", sortable: false },
@@ -1065,12 +1113,14 @@ const headersRiwayat = [
   { title: "No ID berubah", key: "jumlah_no_id_berubah" },
   { title: "Oleh", key: "created_by" },
 ];
-const headersDetail = [
+// Kolom Langkah hanya untuk mutasi yang merupakan bagian dari rencana
+const headersDetail = computed(() => [
+  ...(detail.langkah.length ? [{ title: "Langkah", key: "langkah" }] : []),
   { title: "Nama", key: "nama" },
   { title: "No ID", key: "no_id", sortable: false },
   { title: "Upline", key: "atasan", sortable: false },
   { title: "Keterangan", key: "keterangan" },
-];
+]);
 
 async function muatRiwayat() {
   loadingRiwayat.value = true;
@@ -1086,10 +1136,11 @@ async function muatRiwayat() {
 const muatRiwayatDebounce = debounce(muatRiwayat);
 
 async function bukaDetail(item) {
-  Object.assign(detail, { show: true, items: [], loading: true });
+  Object.assign(detail, { show: true, items: [], langkah: [], loading: true });
   try {
     const { data } = await api.get(`/mutasi/${item.id}`);
     detail.items = data.data;
+    detail.langkah = data.langkah || [];
   } catch (e) {
     toast(pesanError(e, "Gagal memuat rincian"), "error");
   } finally {
@@ -1349,6 +1400,16 @@ if (isSuperadmin) muatJabatan();
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.jenis-chip {
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .konfirmasi-langkah {
