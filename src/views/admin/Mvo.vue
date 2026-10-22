@@ -27,8 +27,9 @@
     <div class="d-none d-md-block">
       <CardDataTable :title="title">
         <template v-slot:search>
-          <v-text-field v-model="searchInput" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
-            variant="outlined" class="search-field" clearable />
+          <FilterDaftar v-model:q="searchInput" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+            :daftar-jabatan="filterMeta.jabatan" :daftar-cabang="filterMeta.cabang"
+            placeholder="Cari nama / kode / No ID / no HP" />
         </template>
 
         <template v-slot:datatable>
@@ -125,8 +126,9 @@
     <div class="d-block d-md-none">
       <v-card class="mobile-header-card mb-4">
         <v-card-text>
-          <v-text-field v-model="searchInput" prepend-inner-icon="mdi-magnify" label="Cari akun..." single-line
-            hide-details variant="outlined" class="search-field-mobile" clearable />
+          <FilterDaftar v-model:q="searchInput" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+            :daftar-jabatan="filterMeta.jabatan" :daftar-cabang="filterMeta.cabang" class="search-field-mobile"
+            placeholder="Cari nama / kode / No ID" />
         </v-card-text>
       </v-card>
 
@@ -141,22 +143,11 @@
 
         <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-mvo-card mb-3"
           @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
-          <v-card-text class="mobile-card-header">
-            <v-row no-gutters align="center">
-              <v-col cols="2" class="text-center">
-                <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
-              </v-col>
-              <v-col cols="8" class="pl-3">
-                <div class="mobile-mvo-name"><strong>{{ item.nama }}</strong></div>
-                <div class="mobile-mvo-code"><strong>{{ item.code }}</strong><span v-if="item.no_id" class="noid-teks ml-2">{{ item.no_id }}</span></div>
-                <div v-if="jalurRingkas(item)" class="mobile-jalur">{{ jalurRingkas(item) }}</div>
-              </v-col>
-              <v-col cols="2" class="text-center">
-                <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                  mdi-chevron-down
-                </v-icon>
-              </v-col>
-            </v-row>
+          <v-card-text class="pa-0">
+            <KepalaKartuAkun :nomor="((pagination.page - 1) * pagination.itemsPerPage) + index + 1"
+              :jabatan="getMvoTypeName(item.mvo_type_id)" :no-id="item.no_id" :cabang="item.province_code"
+              :nama="item.nama" :info="[item.code, jalurRingkas(item)].filter(Boolean).join(' · ')"
+              :terbuka="expandedMobileCard === item.id" />
           </v-card-text>
 
           <v-expand-transition>
@@ -735,6 +726,10 @@ export default {
       },
       totalItems: 0,
       searchInput: "",
+      // Filter daftar (FilterDaftar): jabatan & cabang, jumlah per jabatan dari backend (?meta=1)
+      filterJabatan: null,
+      filterCabang: "",
+      filterMeta: { jabatan: [], cabang: [] },
       debouncedSearch: "",
       _searchTimer: null,
       mvoCodeCache: {},
@@ -895,6 +890,12 @@ export default {
   methods: {
     atasanPada,
     jalurRingkas,
+
+    gantiFilter() {
+      this.expandedMobileCard = null;
+      this.pagination.page = 1;
+      this.loadItems();
+    },
     // ========== UTIL ==========
     formatNumber(value) {
       if (value === null || value === undefined || value === "") return "-";
@@ -1166,6 +1167,9 @@ export default {
         page: this.pagination.page,
         per_page: this.pagination.itemsPerPage,
         search: this.debouncedSearch || "",
+        mvo_type_id: this.filterJabatan || undefined,
+        cabang: this.filterCabang || undefined,
+        meta: 1,
       };
       if (userCabang) params.user_cabang = userCabang;
       if (sort) {
@@ -1178,6 +1182,7 @@ export default {
         if (response.data.status === "success") {
           this.datatable.items = response.data.data || [];
           this.totalItems = response.data.meta?.total ?? this.datatable.items.length;
+          if (response.data.filter) this.filterMeta = response.data.filter;
           this.cacheMvoCodes(this.datatable.items);
         } else {
           this.showSnackbar(response.data.message);
@@ -1803,6 +1808,12 @@ export default {
         this.pagination.page = 1;
         this.loadItems();
       }, 300);
+    },
+    filterJabatan() {
+      this.gantiFilter();
+    },
+    filterCabang() {
+      this.gantiFilter();
     },
   },
 };

@@ -2,22 +2,8 @@
   <!-- Daftar member yang langsung tampil (tanpa harus mengetik), bisa dicari & disaring, dimuat bertahap saat digulir.
        Dipakai di Mutasi: langkah 1 (pilih member) dan langkah 2 (pilih atasan baru). -->
   <div class="dpm">
-    <div class="dpm-filter">
-      <v-text-field v-model="q" :placeholder="placeholder" density="compact" variant="outlined" hide-details
-        clearable prepend-inner-icon="mdi-magnify" class="dpm-cari" />
-      <v-select v-if="filterCabang" v-model="cabang" :items="pilihanCabang" density="compact" variant="outlined"
-        hide-details label="Cabang" class="dpm-cabang" />
-    </div>
-
-    <div v-if="filterJabatan && meta.jabatan.length" class="dpm-chips">
-      <button type="button" class="dpm-chip" :class="{ aktif: !jabatan }" @click="jabatan = null">
-        Semua <b>{{ totalSemua }}</b>
-      </button>
-      <button v-for="j in meta.jabatan" :key="j.id" type="button" class="dpm-chip"
-        :class="{ aktif: String(jabatan) === String(j.id) }" @click="jabatan = j.id">
-        {{ j.name }} <b>{{ j.jumlah }}</b>
-      </button>
-    </div>
+    <FilterDaftar v-model:q="q" v-model:jabatan="jabatan" v-model:cabang="cabang" :placeholder="placeholder"
+      :daftar-jabatan="filterJabatan ? meta.jabatan : []" :daftar-cabang="filterCabang ? meta.cabang : []" />
 
     <div class="dpm-daftar baba-gulir" @scroll="cekGulir">
       <button v-for="m in items" :key="m.id" type="button" class="dpm-baris"
@@ -49,7 +35,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
   api: { type: Function, required: true }, // instance axios dengan token
@@ -65,14 +51,11 @@ const emit = defineEmits(["pilih"]);
 
 const q = ref("");
 const jabatan = ref(null);
-const cabang = ref("Semua");
+const cabang = ref("");
 const items = ref([]);
 const adaLagi = ref(false);
 const loading = ref(false);
 const meta = ref({ jabatan: [], cabang: [] });
-
-const totalSemua = computed(() => meta.value.jabatan.reduce((n, j) => n + Number(j.jumlah), 0));
-const pilihanCabang = computed(() => ["Semua", ...meta.value.cabang]);
 
 let urut = 0;
 async function muat(ulang) {
@@ -85,7 +68,7 @@ async function muat(ulang) {
         ...props.params,
         q: q.value || undefined,
         mvo_type_id: jabatan.value || props.params.mvo_type_id || undefined,
-        cabang: cabang.value !== "Semua" ? cabang.value : undefined,
+        cabang: cabang.value || undefined,
         offset: ulang ? 0 : items.value.length,
         limit: 30,
         meta: butuhMeta ? 1 : undefined,
@@ -108,71 +91,13 @@ function cekGulir(e) {
   if (adaLagi.value && !loading.value && el.scrollTop + el.clientHeight >= el.scrollHeight - 120) muat(false);
 }
 
-let tunda;
-watch(q, () => {
-  clearTimeout(tunda);
-  tunda = setTimeout(() => muat(true), 350);
-});
-watch([jabatan, cabang], () => muat(true));
+// q sudah ditunda 350 ms oleh FilterDaftar
+watch([q, jabatan, cabang], () => muat(true));
 watch(() => JSON.stringify(props.params), () => muat(true));
 onMounted(() => muat(true));
 </script>
 
 <style scoped>
-.dpm-filter {
-  display: flex;
-  gap: 8px;
-}
-
-.dpm-cari {
-  flex: 1;
-}
-
-.dpm-cabang {
-  flex: 0 0 140px;
-}
-
-.dpm-chips {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.dpm-chips::-webkit-scrollbar {
-  display: none;
-}
-
-.dpm-chip {
-  flex-shrink: 0;
-  border: 1px solid var(--baba-border);
-  background: #fff;
-  color: var(--baba-text);
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-
-.dpm-chip b {
-  margin-left: 4px;
-  color: var(--baba-gold-dark);
-}
-
-.dpm-chip.aktif {
-  background: var(--baba-ink);
-  border-color: var(--baba-ink);
-  color: var(--baba-gold-light);
-}
-
-.dpm-chip.aktif b {
-  color: #fff;
-}
-
 .dpm-daftar {
   margin-top: 10px;
   max-height: min(56vh, 520px);
@@ -269,13 +194,4 @@ onMounted(() => muat(true));
   color: var(--baba-muted);
 }
 
-@media (max-width: 599.98px) {
-  .dpm-filter {
-    flex-wrap: wrap;
-  }
-
-  .dpm-cabang {
-    flex: 1 1 100%;
-  }
-}
 </style>

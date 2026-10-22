@@ -33,6 +33,15 @@ export function teksAtasan(item, lvl) {
   return id ? `${id} · ${a.nama}` : a.nama;
 }
 
+/** Atasan langsung = jenjang terdekat yang terisi: { ...atasan, title } atau null. */
+export function atasanLangsung(item) {
+  for (const lvl of JALUR_LEVELS) {
+    const a = atasanPada(item, lvl);
+    if (a) return { ...a, title: lvl.title };
+  }
+  return null;
+}
+
 /** Jalur ringkas dari atas ke bawah: "TM01 › M01 › R03 › B02" (untuk HP). */
 export function jalurRingkas(item) {
   return JALUR_LEVELS.slice()

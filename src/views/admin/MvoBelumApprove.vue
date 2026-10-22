@@ -6,14 +6,22 @@
     <CardDataTable title="DATA Downline - MENUNGGU APPROVE">
       <!-- SEARCH -->
       <template #search>
-        <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
-          variant="outlined" />
+        <FilterDaftar v-model:q="search" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+          :daftar-jabatan="metaFilter.jabatan" :daftar-cabang="metaFilter.cabang" placeholder="Cari nama / username / No ID" />
       </template>
 
       <!-- TABLE -->
       <template #datatable>
         <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" :headers="headers" :items="filteredItems"
           :loading="loading">
+          <!-- JABATAN & ATASAN -->
+          <template #item.jabatan="{ item }">{{ namaJabatan(item.mvo_type_id) || "-" }}</template>
+          <template #item.atasan="{ item }">
+            <SelAtasan :atasan="atasanLangsung(item)" />
+          </template>
+          <template #item.jalur="{ item }">
+            <span class="mobile-jalur">{{ jalurRingkas(item) || "-" }}</span>
+          </template>
           <!-- TGL -->
           <template #item.tgl_lahir="{ item }">
             {{ formatDate(item.tgl_lahir) }}
@@ -67,8 +75,9 @@
   <div class="d-block d-md-none">
     <v-card class="mobile-header-card mb-4">
       <v-card-text>
-        <v-text-field v-model="search" prepend-inner-icon="mdi-magnify" label="Cari Downline..." single-line
-          hide-details variant="outlined" class="search-field-mobile" />
+        <FilterDaftar v-model:q="search" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+          :daftar-jabatan="metaFilter.jabatan" :daftar-cabang="metaFilter.cabang" class="search-field-mobile"
+          placeholder="Cari nama / username / No ID" />
       </v-card-text>
     </v-card>
 
@@ -85,26 +94,11 @@
         @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
 
         <!-- Header -->
-        <v-card-text class="mobile-card-header">
-          <v-row no-gutters align="center">
-            <v-col cols="2" class="text-center">
-              <span class="mobile-number">{{ index + 1 }}</span>
-            </v-col>
-            <v-col cols="8" class="pl-3">
-              <div class="mobile-mvo-name">{{ item.nama }}</div>
-              <div class="text-caption text-grey">{{ item.no_id }}</div>
-              <div class="d-flex align-center mt-1">
-                <v-chip size="x-small" color="primary" class="mr-1">{{ item.cabang }}</v-chip>
-              </div>
-            </v-col>
-            <v-col cols="2" class="text-center">
-              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                mdi-chevron-down
-              </v-icon>
-            </v-col>
-          </v-row>
+        <v-card-text class="pa-0">
+          <KepalaKartuAkun :nomor="index + 1" :jabatan="namaJabatan(item.mvo_type_id)" :no-id="item.no_id"
+            :cabang="item.cabang" :nama="item.nama" :info="teksAtasanLangsung(item)"
+            :terbuka="expandedMobileCard === item.id" />
         </v-card-text>
-
         <!-- Details -->
         <v-expand-transition>
           <div v-show="expandedMobileCard === item.id">
@@ -228,6 +222,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import CardDataTable from "@/components/ui/CardDataTable.vue";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { atasanLangsung, jalurRingkas } from "@/utils/jalur.js";
 
 export default {
   components: { Breadcrumb, CardDataTable },
@@ -235,6 +230,8 @@ export default {
   data() {
     return {
       search: "",
+      filterJabatan: null,
+      filterCabang: "",
       loading: true,
       expandedMobileCard: null,
       isShowDialogApprove: false,
@@ -267,6 +264,9 @@ export default {
         { key: "nama", title: "Nama" },
         { key: "no_id", title: "No ID" },
         { key: "cabang", title: "Cabang" },
+        { key: "jabatan", title: "Jabatan" },
+        { key: "atasan", title: "Atasan langsung", sortable: false },
+        { key: "jalur", title: "Jalur atasan", sortable: false },
         { key: "alamat", title: "Alamat" },
         // { key: "upline_6", title: "DISTRIBUTOR" },
         // { key: "upline_5", title: "SUPPILER" },
@@ -286,7 +286,7 @@ export default {
   },
 
   computed: {
-    filteredItems() {
+    itemsDasar() {
       // Filter superadmin berdasarkan mvo_type_id yang didapat dari API mvo-type
       // Jika superadminTypeId belum di-load, fallback ke cek nama
       let itemsWithoutSuperadmin = this.items.filter(i => {
@@ -304,17 +304,43 @@ export default {
       itemsWithoutSuperadmin = itemsWithoutSuperadmin.filter(i => i.aktivasi == 0);
 
       // Apply search filter
-      return itemsWithoutSuperadmin.filter(i => {
-        const s = this.search.toLowerCase();
-        return (
-          i.nama?.toLowerCase().includes(s) ||
-          i.username?.toLowerCase().includes(s)
-        );
-      });
+      const s = (this.search || "").toLowerCase();
+      return itemsWithoutSuperadmin.filter(i => (
+        i.nama?.toLowerCase().includes(s) ||
+        i.username?.toLowerCase().includes(s) ||
+        i.no_id?.toLowerCase().includes(s)
+      ));
+    },
+    // Filter daftar (FilterDaftar): cabang lalu jabatan; angka tombol dihitung dari data yang sudah dimuat
+    itemsCabang() {
+      return this.itemsDasar.filter(i => !this.filterCabang || i.cabang === this.filterCabang);
+    },
+    filteredItems() {
+      return this.itemsCabang.filter(i => !this.filterJabatan || String(i.mvo_type_id) === String(this.filterJabatan));
+    },
+    metaFilter() {
+      const jumlah = {};
+      this.itemsCabang.forEach(i => { jumlah[i.mvo_type_id] = (jumlah[i.mvo_type_id] || 0) + 1; });
+      return {
+        jabatan: this.mvoTypeList
+          .filter(t => jumlah[t.id])
+          .sort((a, b) => (a.level ?? 99) - (b.level ?? 99))
+          .map(t => ({ id: String(t.id), name: t.name, jumlah: jumlah[t.id] })),
+        cabang: [...new Set(this.itemsDasar.map(i => i.cabang).filter(Boolean))].sort(),
+      };
     },
   },
 
   methods: {
+    atasanLangsung,
+    jalurRingkas,
+    namaJabatan(id) {
+      return this.mvoTypeList.find(t => String(t.id) === String(id))?.name || "";
+    },
+    teksAtasanLangsung(item) {
+      const a = atasanLangsung(item);
+      return a ? `Atasan: ${a.no_id || a.kode || "-"} · ${a.nama}` : "Atasan: -";
+    },
     formatDate(date) {
       if (!date) return "-";
       return new Date(date).toLocaleDateString("id-ID");
@@ -424,7 +450,7 @@ export default {
 
         const res = await axios.post(
           `${API_URL}/api/cekApprovalBawahan`,
-          { code: codeLogin },
+          { code: codeLogin, hanya_belum_aktif: 1 },
           {
             headers: {
               Authorization: `Bearer ${token}`,

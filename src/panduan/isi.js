@@ -40,6 +40,7 @@ export const MULAI_CEPAT = {
     { t: "Menu di HP", j: "Menu utama ada di bar bawah. Menu lain ada di tombol Lainnya. Foto profil di kanan atas berisi Profil Saya, Info Cabang, Muat Ulang Data, dan Keluar." },
     { t: "Kembali ke Dashboard", j: "Tekan tulisan 🏠 Dashboard di kepala halaman (kotak hitam bertuliskan nama menu) di bagian atas setiap halaman." },
     { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
+    { t: "Menyaring daftar", j: "Di Input Data, Verifikasi ID, Akun Belum Approve, Document Belum Approve, dan Mutasi ada baris filter yang sama: kolom cari (nama / No ID), pilihan Cabang, dan tombol jabatan beserta jumlahnya (TM, MVO, Regional, FO, GM, Supplier, Dist, Reseller). Klik tombol jabatan untuk menampilkan jabatan itu saja, klik Semua untuk kembali." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
   ],
 };
@@ -160,7 +161,7 @@ export const PANDUAN = [
       {
         judul: "Mengaktifkan pendaftar baru",
         isi: [
-          "Cari nama pendaftar di kolom pencarian.",
+          "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID.",
           "Periksa data dan foto profilnya (tombol Edit untuk melihat lengkap).",
           "Tekan Aktivasi. Pesan yang muncul menampilkan No ID baru akun tersebut.",
           "Bila aktivasi ditolak dengan pesan tentang No ID (misalnya rentang nomor penuh atau atasan belum punya No ID), perbaiki dulu atasannya atau rentang nomor di menu Tipe Akun.",
@@ -239,8 +240,9 @@ export const PANDUAN = [
       {
         judul: "Menyetujui akun bawahan",
         isi: [
-          "Cari nama bawahan di kolom pencarian.",
-          "Di HP, ketuk kartu untuk melihat data dan struktur upline-nya. Di desktop, lihat langsung di tabel.",
+          "Cari nama / username / No ID bawahan, atau saring dengan tombol jabatan dan pilihan Cabang.",
+          "Setiap akun menampilkan jabatan, No ID, cabang, dan atasan langsungnya (No ID · nama). Di desktop ada kolom Atasan langsung dan Jalur atasan (mis. M05 › R09 › B09 › B96).",
+          "Di HP, ketuk kartu untuk melihat data dan struktur upline-nya.",
           "Tekan tombol Approve (✔) lalu konfirmasi.",
           "Status per jenjang menampilkan nama upline yang sudah menyetujui, atau Belum Approve.",
         ],

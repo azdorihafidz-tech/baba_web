@@ -12,13 +12,14 @@
     <div class="d-none d-md-block">
       <CardDataTable :title="title">
         <template v-slot:search>
-          <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Search" single-line
-            hide-details variant="outlined" class="search-field" />
+          <FilterDaftar v-model:q="datatable.search" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+            v-model:status="filterStatus" :daftar-jabatan="metaFilter.jabatan" :daftar-cabang="metaFilter.cabang"
+            :daftar-status="metaFilter.status" placeholder="Cari nama / kode / No ID / file" />
         </template>
 
         <template v-slot:datatable>
           <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-data-table" hover :headers="datatable.headers"
-            :items="datatable.items" :search="datatable.search" :loading="isTableLoading" :items-per-page="10"
+            :items="filteredItems" :loading="isTableLoading" :items-per-page="10"
             @update:options="updateCurrentPageInfo">
             <template v-slot:item.nama="{ item }">
               {{ item.mvo?.nama }}
@@ -156,8 +157,9 @@
     <div class="d-block d-md-none">
       <v-card class="mobile-header-card mb-4">
         <v-card-text>
-          <v-text-field v-model="datatable.search" prepend-inner-icon="mdi-magnify" label="Cari dokumen..." single-line
-            hide-details variant="outlined" class="search-field-mobile" />
+          <FilterDaftar v-model:q="datatable.search" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+            v-model:status="filterStatus" :daftar-jabatan="metaFilter.jabatan" :daftar-cabang="metaFilter.cabang"
+            :daftar-status="metaFilter.status" class="search-field-mobile" placeholder="Cari nama / kode / No ID" />
         </v-card-text>
       </v-card>
 
@@ -174,33 +176,14 @@
           @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
 
           <!-- Header Card - Always Visible -->
-          <v-card-text class="mobile-card-header">
-            <v-row no-gutters align="center">
-              <v-col cols="2" class="text-center">
-                <span class="mobile-number">{{ index + 1 }}</span>
-              </v-col>
-
-              <v-col cols="8" class="pl-3">
-                <div class="mobile-document-name">
-                  <strong>{{ item.mvo?.nama || item.file_name }}</strong>
-                </div>
-                <div class="mobile-document-code">
-                  <strong>{{ getMvoCodeById(item.mvo_id) }}</strong>
-                  <span v-if="item.mvo?.no_id" class="noid-teks ml-2">{{ item.mvo.no_id }}</span>
-                </div>
-                <div class="mobile-status-preview mt-1">
-                  <v-chip :color="getStatusColor(item.status_inputan)" size="x-small" variant="flat">
-                    {{ getStatusText(item.status_inputan) }}
-                  </v-chip>
-                </div>
-              </v-col>
-
-              <v-col cols="2" class="text-center">
-                <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                  mdi-chevron-down
-                </v-icon>
-              </v-col>
-            </v-row>
+          <v-card-text class="pa-0">
+            <KepalaKartuAkun :nomor="index + 1" :jabatan="namaJabatan(item.mvo?.mvo_type_id)"
+              :no-id="item.mvo?.no_id" :cabang="item.mvo?.province_code" :nama="item.mvo?.nama || item.file_name"
+              :info="getMvoCodeById(item.mvo_id)" :terbuka="expandedMobileCard === item.id">
+              <template #tambahan>
+                <span class="status-mini status-belum">{{ getApprovalStatusText(item) }}</span>
+              </template>
+            </KepalaKartuAkun>
           </v-card-text>
 
           <!-- Detail Card - Expandable -->
@@ -422,6 +405,10 @@ export default {
       LVL_REGIONAL,
       expandedMobileCard: null,
       allMvoData: [],
+      mvoTypeList: [],
+      filterJabatan: null,
+      filterCabang: "",
+      filterStatus: "",
       contentSnackbar: {
         snackbar: false,
         text: "",
@@ -486,7 +473,7 @@ export default {
   },
 
   computed: {
-    filteredItems() {
+    itemsDasar() {
       if (!this.datatable.search) {
         return this.datatable.items;
       }
@@ -494,6 +481,7 @@ export default {
       const searchTerm = this.datatable.search.toLowerCase();
       return this.datatable.items.filter(item => {
         return (
+          (item.mvo?.nama && item.mvo.nama.toLowerCase().includes(searchTerm)) ||
           (item.file_name && item.file_name.toLowerCase().includes(searchTerm)) ||
           (this.getMvoCodeById(item.mvo_id) && this.getMvoCodeById(item.mvo_id).toLowerCase().includes(searchTerm)) ||
           (item.upline_1 && item.upline_1.toLowerCase().includes(searchTerm)) ||
@@ -504,11 +492,52 @@ export default {
           (item.upline_3 && item.upline_3.toLowerCase().includes(searchTerm))
         );
       });
-    }
+    },
+    // Filter daftar (FilterDaftar): cabang → status approval → jabatan pemilik dokumen
+    itemsCabang() {
+      return this.itemsDasar.filter(i => !this.filterCabang || i.mvo?.province_code === this.filterCabang);
+    },
+    itemsStatus() {
+      return this.itemsCabang.filter(i => !this.filterStatus || this.getApprovalStatusText(i) === this.filterStatus);
+    },
+    filteredItems() {
+      return this.itemsStatus.filter(i => !this.filterJabatan || String(i.mvo?.mvo_type_id) === String(this.filterJabatan));
+    },
+    metaFilter() {
+      const hitung = (list, kunci) => list.reduce((m, i) => {
+        const k = kunci(i);
+        m[k] = (m[k] || 0) + 1;
+        return m;
+      }, {});
+      const perJabatan = hitung(this.itemsStatus, i => i.mvo?.mvo_type_id);
+      const perStatus = hitung(this.itemsCabang, i => this.getApprovalStatusText(i));
+      return {
+        jabatan: this.mvoTypeList
+          .filter(t => perJabatan[t.id])
+          .sort((a, b) => (a.level ?? 99) - (b.level ?? 99))
+          .map(t => ({ id: String(t.id), name: t.name, jumlah: perJabatan[t.id] })),
+        cabang: [...new Set(this.itemsDasar.map(i => i.mvo?.province_code).filter(Boolean))].sort(),
+        status: Object.keys(perStatus).length
+          ? [{ value: "", label: "Semua status", jumlah: this.itemsCabang.length },
+            ...Object.keys(perStatus).sort().map(s => ({ value: s, label: s, jumlah: perStatus[s] }))]
+          : [],
+      };
+    },
   },
 
   methods: {
     atasanPada,
+    namaJabatan(id) {
+      return this.mvoTypeList.find((t) => String(t.id) === String(id))?.name || "";
+    },
+
+    // Nama jabatan untuk tombol filter (endpoint publik)
+    async muatJenisAkun() {
+      try {
+        const { data } = await axios.get(`${API_BASE}/mvo-type`);
+        this.mvoTypeList = data.data || [];
+      } catch { /* filter jabatan tidak tampil */ }
+    },
     teksAtasan,
     isDocumentFullyApproved(item) {
       // Jika status_inputan sudah approved, berarti sudah fully approved
@@ -1049,6 +1078,7 @@ export default {
 
 
     // Load MVO data first, then load documents
+    this.muatJenisAkun();
     await this.getAllMvo();
     await this.getPendingApprovalDocuments();
 

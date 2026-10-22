@@ -19,8 +19,9 @@
   <div class="d-none d-md-block">
     <CardDataTable :title="title">
       <template v-slot:search>
-        <v-text-field v-model="searchInput" prepend-inner-icon="mdi-magnify" label="Search" single-line hide-details
-          variant="outlined" class="search-field" clearable />
+        <FilterDaftar v-model:q="searchInput" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+          v-model:status="filterAktivasi" :daftar-jabatan="filterMeta.jabatan" :daftar-cabang="filterMeta.cabang"
+          :daftar-status="daftarStatusAktivasi" placeholder="Cari nama / username / No ID" />
       </template>
 
       <template v-slot:datatable>
@@ -108,8 +109,9 @@
   <div class="d-block d-md-none">
     <v-card class="mobile-header-card mb-4">
       <v-card-text>
-        <v-text-field v-model="searchInput" prepend-inner-icon="mdi-magnify" label="Cari user..." single-line
-          hide-details variant="outlined" class="search-field-mobile" clearable />
+        <FilterDaftar v-model:q="searchInput" v-model:jabatan="filterJabatan" v-model:cabang="filterCabang"
+          v-model:status="filterAktivasi" :daftar-jabatan="filterMeta.jabatan" :daftar-cabang="filterMeta.cabang"
+          :daftar-status="daftarStatusAktivasi" class="search-field-mobile" placeholder="Cari nama / username / No ID" />
       </v-card-text>
     </v-card>
 
@@ -125,29 +127,18 @@
       <v-card v-for="(item, index) in datatable.items" :key="item.id" class="mobile-user-card mb-3"
         @click="toggleMobileDetail(item.id)" :class="{ 'mobile-card-expanded': expandedMobileCard === item.id }">
 
-        <v-card-text class="mobile-card-header">
-          <v-row no-gutters align="center">
-            <v-col cols="1" class="text-center">
-              <span class="mobile-number">{{ ((pagination.page - 1) * pagination.itemsPerPage) + index + 1 }}</span>
-            </v-col>
-
-            <v-col cols="9" class="pl-3">
-              <div class="mobile-username">
-                <strong>Username:</strong> {{ item.username }}
-              </div>
-              <div class="mobile-name">
-                <strong>Nama:</strong> {{ item.nama }}
-              </div>
-            </v-col>
-
-            <v-col cols="2" class="text-center">
-              <v-icon :class="{ 'rotate-180': expandedMobileCard === item.id }" class="transition-all">
-                mdi-chevron-down
-              </v-icon>
-            </v-col>
-          </v-row>
+        <v-card-text class="pa-0">
+          <KepalaKartuAkun :nomor="((pagination.page - 1) * pagination.itemsPerPage) + index + 1"
+            :jabatan="getJabatanNameById(item.mvo_type_id) || item.mvo_type_id" :no-id="item.no_id" :cabang="item.cabang"
+            :nama="item.nama" :info="[item.username, jalurRingkas(item)].filter(Boolean).join(' · ')"
+            :terbuka="expandedMobileCard === item.id">
+            <template #tambahan>
+              <span class="status-mini" :class="Number(item.aktivasi) === 1 ? 'status-aktif' : 'status-belum'">
+                {{ Number(item.aktivasi) === 1 ? 'Aktif' : 'Belum aktif' }}
+              </span>
+            </template>
+          </KepalaKartuAkun>
         </v-card-text>
-
         <v-expand-transition>
           <div v-show="expandedMobileCard === item.id">
             <v-divider></v-divider>
@@ -380,7 +371,7 @@ import CardDataTable from "@/components/ui/CardDataTable.vue";
 import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { JALUR_LEVELS, atasanPada, teksAtasan } from "@/utils/jalur.js";
+import { JALUR_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
 
 const API_BASE = `${API_URL}/api`;
 
@@ -441,6 +432,11 @@ export default {
       },
       totalItems: 0,
       searchInput: "",
+      // Filter daftar (FilterDaftar): jabatan, cabang, status aktivasi; jumlah dari backend (?meta=1)
+      filterJabatan: null,
+      filterCabang: "",
+      filterAktivasi: "",
+      filterMeta: { jabatan: [], cabang: [], aktivasi: {} },
       debouncedSearch: "",
       _searchTimer: null,
       expandedMobileCard: null,
@@ -504,6 +500,16 @@ export default {
     cascadeLevels: () => CASCADE_LEVELS,
     jalurLevels: () => JALUR_LEVELS,
 
+    daftarStatusAktivasi() {
+      const a = this.filterMeta.aktivasi || {};
+      const n = (k) => Number(a[k] ?? 0);
+      return [
+        { value: "", label: "Semua status", jumlah: n(0) + n(1) },
+        { value: 0, label: "Belum aktif", jumlah: n(0) },
+        { value: 1, label: "Aktif", jumlah: n(1) },
+      ];
+    },
+
     isEditMode() {
       return this.dialog.mode === "edit";
     },
@@ -520,6 +526,13 @@ export default {
 
   methods: {
     atasanPada,
+    jalurRingkas,
+
+    gantiFilter() {
+      this.expandedMobileCard = null;
+      this.pagination.page = 1;
+      this.loadItems();
+    },
     teksAtasan,
     // ========== HELPERS ==========
     formatDate(dateString) {
@@ -734,6 +747,10 @@ export default {
         page: this.pagination.page,
         per_page: this.pagination.itemsPerPage,
         search: this.debouncedSearch || "",
+        mvo_type_id: this.filterJabatan || undefined,
+        cabang: this.filterCabang || undefined,
+        aktivasi: this.filterAktivasi === "" ? undefined : this.filterAktivasi,
+        meta: 1,
         sort_by: sort.key,
         sort_desc: sort.order === "desc",
       };
@@ -747,6 +764,7 @@ export default {
         if (response.data.status === "success") {
           this.datatable.items = this.mapUserWithBintang(response.data.data || []);
           this.totalItems = response.data.meta?.total ?? this.datatable.items.length;
+          if (response.data.filter) this.filterMeta = response.data.filter;
         } else {
           this.showSnackbar(response.data.message);
         }
@@ -956,6 +974,15 @@ export default {
     "form.mvo_type_id"() {
       // Reset semua upline jika jabatan diubah
       this.resetCascadeFrom(1);
+    },
+    filterJabatan() {
+      this.gantiFilter();
+    },
+    filterCabang() {
+      this.gantiFilter();
+    },
+    filterAktivasi() {
+      this.gantiFilter();
     },
     searchInput(val) {
       this.expandedMobileCard = null;

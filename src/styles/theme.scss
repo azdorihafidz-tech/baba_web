@@ -214,6 +214,31 @@ html .v-tab.v-tab.v-btn {
   color: var(--baba-gold-dark);
 }
 
+// Label status kecil di kepala kartu HP (KepalaKartuAkun slot "tambahan")
+.status-mini {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+
+  &.status-aktif {
+    background: rgba(46, 125, 50, 0.12);
+    color: #2e7d32;
+  }
+
+  &.status-belum {
+    background: rgba(230, 180, 34, 0.18);
+    color: var(--baba-gold-dark);
+  }
+
+  &.status-tunda {
+    background: rgba(239, 108, 0, 0.14);
+    color: #e65100;
+  }
+}
+
 // Jalur atasan ringkas di kartu HP: "TM01 › M01 › R03 › B02" (utils/jalur.js → jalurRingkas)
 .mobile-jalur {
   margin-top: 2px;
