@@ -167,6 +167,7 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import CaraPakai from "@/components/panduan/CaraPakai.vue";
+import { hentikanChat } from "@/utils/chatKoneksi";
 
 export default {
   components: { CaraPakai },
@@ -616,6 +617,7 @@ export default {
 
     performLocalLogout(apiSuccess = true) {
 
+      hentikanChat();
       Cookies.remove("token");
       localStorage.removeItem("peran");
       localStorage.removeItem("user");

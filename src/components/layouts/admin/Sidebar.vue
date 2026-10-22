@@ -19,6 +19,9 @@
           <v-icon class="drawer-icon">{{ icon }}</v-icon>
         </template>
         <v-list-item-title class="drawer-text">{{ text }}</v-list-item-title>
+        <template v-if="lencana(url)" v-slot:append>
+          <span class="menu-lencana" :title="`${lencana(url)} pesan baru`">{{ teksLencana(lencana(url)) }}</span>
+        </template>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -30,12 +33,14 @@
       :class="{ 'bottom-btn-active': $route.path === url }">
       <v-icon size="22">{{ icon }}</v-icon>
       <span class="bottom-label">{{ getShortText(text) }}</span>
+      <span v-if="lencana(url)" class="bottom-lencana">{{ teksLencana(lencana(url)) }}</span>
     </v-btn>
 
     <v-btn v-if="hiddenMobileMenu.length" value="__more" class="bottom-btn"
       :class="{ 'bottom-btn-active': showMoreMenu || isHiddenRouteActive }" @click.prevent="toggleMoreMenu">
       <v-icon size="22">mdi-dots-grid</v-icon>
       <span class="bottom-label">Lainnya</span>
+      <span v-if="lencanaLainnya" class="bottom-lencana">{{ teksLencana(lencanaLainnya) }}</span>
     </v-btn>
   </v-bottom-navigation>
 
@@ -47,7 +52,8 @@
       <div class="more-grid">
         <router-link v-for="[icon, text, url] in hiddenMobileMenu" :key="url" :to="url" class="more-tile"
           :class="{ 'more-tile-active': $route.path === url }" @click="closeMoreMenu">
-          <span class="more-tile-icon"><v-icon size="24">{{ icon }}</v-icon></span>
+          <span class="more-tile-icon"><v-icon size="24">{{ icon }}</v-icon>
+            <span v-if="lencana(url)" class="tile-lencana">{{ teksLencana(lencana(url)) }}</span></span>
           <span class="more-tile-text">{{ text }}</span>
         </router-link>
       </div>
@@ -57,11 +63,12 @@
 
 <script>
 import { useAppStore } from "@/stores/app.js";
+import { chatState, mulaiChat } from "@/utils/chatKoneksi";
 
 export default {
   setup() {
     const app = useAppStore();
-    return { app };
+    return { app, chatState };
   },
   data() {
     return {
@@ -156,11 +163,22 @@ export default {
     hiddenMobileMenu() {
       return this.orderedMobileMenu.slice(this.displayedMobileMenu.length);
     },
+    // Lencana menu yang tersembunyi di "Lainnya" (HP)
+    lencanaLainnya() {
+      return this.hiddenMobileMenu.reduce((n, item) => n + this.lencana(item[2]), 0);
+    },
     isHiddenRouteActive() {
       return this.hiddenMobileMenu.some((item) => item[2] === this.$route.path);
     },
   },
   methods: {
+    // Jumlah pesan chat belum dibaca (lencana menu Chat)
+    lencana(url) {
+      return url === "/admin/chat" ? this.chatState.total : 0;
+    },
+    teksLencana(n) {
+      return n > 99 ? "99+" : n;
+    },
     toggleMoreMenu() {
       this.showMoreMenu = !this.showMoreMenu;
     },
@@ -233,6 +251,7 @@ export default {
 
   mounted() {
     this.initializeScreen();
+    mulaiChat(); // koneksi chat bersama untuk lencana pesan baru
 
     if (typeof window !== "undefined") {
       window.addEventListener("resize", this.handleResize);
@@ -246,6 +265,7 @@ export default {
   watch: {
     "$route.path"(newPath) {
       this.bottomNavModel = newPath;
+      mulaiChat(); // sambung ulang bila token login berganti
     },
     isDesktop(newVal, oldVal) {
       if (newVal !== oldVal) {
@@ -434,5 +454,43 @@ export default {
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.2;
+}
+
+/* Lencana jumlah pesan chat belum dibaca */
+.menu-lencana,
+.bottom-lencana,
+.tile-lencana {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgb(var(--v-theme-error));
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bottom-btn,
+.more-tile-icon {
+  position: relative;
+}
+
+.bottom-lencana,
+.tile-lencana {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 26px);
+  min-width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+}
+
+.tile-lencana {
+  top: -6px;
+  right: -8px;
 }
 </style>

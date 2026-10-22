@@ -565,6 +565,14 @@ export const PANDUAN = [
         ],
       },
       {
+        judul: "Pesan baru",
+        isi: [
+          "Angka merah di menu Chat = jumlah pesan yang belum Anda baca. Di HP, angkanya juga tampil di tombol Lainnya.",
+          "Angka di samping nama grup = pesan belum dibaca di grup itu. Angka hilang setelah grup dibuka.",
+          "Status dibaca berlaku untuk masing-masing orang: grup yang Anda buka tidak membuat pesan terbaca untuk member lain.",
+        ],
+      },
+      {
         judul: "Grup yang tersedia",
         isi: [
           "Grup dibuat otomatis, tidak perlu dibuat sendiri.",

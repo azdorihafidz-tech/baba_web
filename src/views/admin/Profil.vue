@@ -306,6 +306,7 @@
 import { API_URL, FILE_URL } from "@/config";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { hentikanChat } from '@/utils/chatKoneksi';
 
 export default {
     name: 'ProfilPage',
@@ -446,6 +447,7 @@ export default {
                     this.showSnackbar('Foto profil berhasil diperbarui. Anda akan logout otomatis...', 'success');
 
                     setTimeout(() => {
+                        hentikanChat();
                         Cookies.remove('token');
                         localStorage.removeItem('user');
                         localStorage.removeItem('token');

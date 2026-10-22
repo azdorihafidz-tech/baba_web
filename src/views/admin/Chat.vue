@@ -166,6 +166,7 @@
 
 <script>
 import { CHAT_SOCKET_PATH, CHAT_URL } from "@/config";
+import { setRuangTerbuka } from "@/utils/chatKoneksi";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -535,6 +536,7 @@ export default {
     async selectRoom(room) {
       if (!room) return;
       this.selectedRoom = room;
+      setRuangTerbuka(room.id);
       this.messages = [];
       this.currentChannelName = room.id;
       await this.getAllMessages();
@@ -669,6 +671,7 @@ export default {
         if (this.socket && this.currentChannelName)
           this.socket.emit("leave_room", this.currentChannelName);
         this.selectedRoom = null;
+        setRuangTerbuka(null);
       }
     },
     checkMobile() {
@@ -790,6 +793,7 @@ export default {
   beforeUnmount() {
     window.removeEventListener("resize", this.checkMobile);
     if (this.socket) this.socket.disconnect();
+    setRuangTerbuka(null);
     if (this.chatListInterval) clearInterval(this.chatListInterval);
   },
 
