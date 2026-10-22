@@ -429,10 +429,10 @@ export default {
   },
 
   methods: {
-    // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM1, TM2, …", "Turunan atasan"
+    // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM01, TM02, …", "Turunan atasan"
     formatKode(item) {
       const pad = (n) => String(n ?? "").padStart(2, "0");
-      if (item.kode_mode === "urut") return `${item.kode_awalan}1, ${item.kode_awalan}2, …`;
+      if (item.kode_mode === "urut") return `${item.kode_awalan}01, ${item.kode_awalan}02, …`;
       if (item.kode_mode === "rentang") return `${item.kode_awalan}${pad(item.kode_mulai)}–${item.kode_awalan}${pad(item.kode_akhir)}`;
       if (item.kode_mode === "turunan") return "Turunan atasan";
       return "-";

@@ -40,7 +40,7 @@
               @click:close="onRoleCardClick(activeRoleFilter)">{{ getDisplayRole(activeRoleFilter) }}</v-chip>
           </span>
           <v-text-field v-model="searchQuery" density="compact" variant="outlined" hide-details theme="dark"
-            placeholder="Cari nama..." prepend-inner-icon="mdi-magnify" style="max-width:260px; flex-shrink:0;"
+            class="cari-struktur" placeholder="Cari nama / No ID..." prepend-inner-icon="mdi-magnify"
             @update:modelValue="onSearch">
             <template #append-inner>
               <v-btn variant="tonal" size="x-small" style="margin-right:-4px;" @click="clearSearch">Semua</v-btn>
@@ -64,15 +64,21 @@
             <TreeNode v-for="node in filteredRoots" :key="node.id" :node="node" :depth="0" :selected-id="selectedId"
               :filtered-ids="filteredIds" :role-filtered-ids="roleFilteredIds"
               :search-active="searchQuery.trim().length > 0" :collapse-signal="collapseSignal"
-              :expand-signal="expandSignal" @select="onSelect" />
+              :expand-signal="expandSignal" :compact="compact" @select="onSelect" />
           </template>
           <div v-else class="state-center"><span>Tidak ada hasil</span></div>
         </div>
       </div>
 
       <!-- Detail Panel -->
+      <!-- HP: panel detail dipindah ke body supaya tampil di atas header & menu bawah aplikasi -->
+      <Teleport to="body" :disabled="!compact">
       <div class="detail-panel" :class="{ 'detail-panel--open': mobileDetailOpen }">
-        <div class="detail-topbar">DETAIL AKUN</div>
+        <div class="detail-topbar">
+          <span>DETAIL AKUN</span>
+          <v-btn class="d-md-none" icon="mdi-close" variant="text" size="small" color="#F6D365"
+            aria-label="Tutup detail" @click="closeMobileDetail" />
+        </div>
 
         <template v-if="selected">
           <div class="detail-avatar-row">
@@ -82,14 +88,12 @@
               <span style="font-size:20px; font-weight:700; color:#fff; letter-spacing:1px;">{{ initials(selected.nama)
               }}</span>
             </v-avatar>
-            <v-btn class="d-md-none ml-auto" icon="mdi-close" variant="text" size="small" @click="closeMobileDetail" />
           </div>
 
           <div class="detail-name">{{ selected.nama }}</div>
           <div class="detail-meta">
             <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.label_jabatan || selected.jabatan) }}</span>
-            <span class="dot">·</span>
-            <span class="meta-small">ID: {{ selected.no_id }}</span>
+            <span class="noid-chip">No ID {{ selected.no_id || '—' }}</span>
             <span class="dot">·</span>
             <span class="meta-small">{{ formatDate(selected.tanggal_bergabung) }}</span>
           </div>
@@ -109,6 +113,7 @@
             <div class="dcell">
               <div class="dcell-lbl">UPLINE</div>
               <div class="dcell-val">{{ getParentName(selected) }}</div>
+              <div v-if="getParent(selected)?.no_id" class="bawahan-noid">{{ getParent(selected).no_id }}</div>
             </div>
             <div class="dcell">
               <div class="dcell-lbl">LEVEL</div>
@@ -133,6 +138,7 @@
             <div v-for="b in selected.children" :key="b.id" class="bawahan-item" @click="onSelect(b)">
               <div class="bawahan-dot" :style="{ background: roleColor(b.jabatan) }"></div>
               <span class="bawahan-name">{{ b.nama }}</span>
+              <span class="bawahan-noid">{{ b.no_id }}</span>
               <span class="meta-badge" :style="badgeStyle(b.jabatan)">{{ getDisplayRole(b.label_jabatan || b.jabatan) }}</span>
             </div>
           </div>
@@ -143,6 +149,7 @@
           <p>Klik akun di pohon untuk melihat detail</p>
         </div>
       </div>
+      </Teleport>
 
     </div>
   </div>
@@ -153,6 +160,11 @@ import { API_URL, FILE_URL } from "@/config";
 import { ref, computed, onMounted, defineComponent, h } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useDisplay } from 'vuetify';
+
+// HP/tablet (< 960px): baris pohon dua tingkat (nama, lalu jabatan · No ID) dan indentasi lebih kecil
+const { smAndDown } = useDisplay();
+const compact = computed(() => smAndDown.value);
 
 const ROLE_ORDER = ['MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
 const ROLE_COLORS = {
@@ -258,7 +270,11 @@ function getParentName(node) {
   if (!node.parent_id) {
     return (node.jabatan?.toUpperCase() === 'MVO') ? 'OWNER' : '—';
   }
-  return rawData.value.find(r => r.id === node.parent_id)?.nama ?? '—';
+  return getParent(node)?.nama ?? '—';
+}
+function getParent(node) {
+  if (!node.parent_id) return null;
+  return rawData.value.find(r => String(r.id) === String(node.parent_id)) ?? null;
 }
 function initials(name) {
   if (!name) return '?';
@@ -280,7 +296,7 @@ const TreeNode = defineComponent({
   props: {
     node: Object, depth: Number, selectedId: [String, Number],
     filteredIds: Object, roleFilteredIds: Object, searchActive: Boolean,
-    collapseSignal: Number, expandSignal: Number,
+    collapseSignal: Number, expandSignal: Number, compact: Boolean,
   },
   emits: ['select'],
   setup(props, { emit }) {
@@ -306,6 +322,8 @@ const TreeNode = defineComponent({
 
       const node = props.node;
       const hasChildren = node.children?.length > 0;
+      // Saat mencari, cabang yang berisi hasil pencarian otomatis terbuka
+      const terbuka = open.value || (props.searchActive && hasChildren && node.children.some(ch => hasDescLocal(ch, props.filteredIds)));
       const isSelected = String(props.selectedId) === String(node.id);
       const isMatch = props.searchActive && props.filteredIds.has(node.id);
       const isRoleMatch = props.roleFilteredIds ? props.roleFilteredIds.has(node.id) : false;
@@ -321,10 +339,11 @@ const TreeNode = defineComponent({
       else if (isMatch) leftColor = '#f59e0b';
       else if (isRoleMatch) leftColor = '#10b981';
 
+      const c = props.compact;
       const rowStyle = {
-        display: 'flex', alignItems: 'center', gap: '12px',
-        padding: `11px 20px 11px ${18 + props.depth * 24}px`,
-        cursor: 'pointer', minHeight: '46px', userSelect: 'none',
+        display: 'flex', alignItems: 'center', gap: c ? '8px' : '12px',
+        padding: c ? `8px 12px 8px ${6 + props.depth * 14}px` : `11px 20px 11px ${18 + props.depth * 24}px`,
+        cursor: 'pointer', minHeight: c ? '54px' : '46px', userSelect: 'none',
         background: rowBg, borderLeft: `4px solid ${leftColor}`,
         borderBottom: '1px solid rgba(255,255,255,0.05)', boxSizing: 'border-box',
         transition: 'background 0.12s',
@@ -347,8 +366,31 @@ const TreeNode = defineComponent({
       const countSty = {
         fontSize: '11px', fontFamily: "'JetBrains Mono', monospace",
         color: '#9ca3af', background: '#27272a', border: '1px solid rgba(255,255,255,0.12)',
-        padding: '2px 10px', borderRadius: '10px', flexShrink: '0', minWidth: '34px', textAlign: 'center',
+        padding: c ? '2px 8px' : '2px 10px', borderRadius: '10px', flexShrink: '0', minWidth: '34px', textAlign: 'center',
       };
+
+      const noIdSty = {
+        fontSize: c ? '11.5px' : '12px', fontWeight: '600', fontFamily: "'JetBrains Mono', monospace",
+        color: 'var(--baba-gold-light)', whiteSpace: 'nowrap', flexShrink: '0',
+        ...(c ? {} : { minWidth: '92px' }),
+      };
+
+      const jabatan = getDisplayRole(node.label_jabatan || node.jabatan);
+      const isi = c
+        // HP: nama utuh di baris atas, jabatan · No ID di bawahnya
+        ? [h('div', { style: { flex: '1', minWidth: '0' } }, [
+            h('div', { style: { ...nameSty, display: 'block', fontSize: '14px' } }, node.nama),
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', minWidth: '0' } }, [
+              h('span', { style: { fontSize: '10.5px', fontWeight: '700', color, letterSpacing: '0.3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, jabatan),
+              node.no_id ? h('span', { style: { color: '#4b5563' } }, '·') : null,
+              node.no_id ? h('span', { style: noIdSty }, node.no_id) : null,
+            ]),
+          ])]
+        : [
+            h('span', { style: badgeSty }, jabatan),
+            h('span', { style: noIdSty }, node.no_id || '—'),
+            h('span', { style: nameSty }, node.nama),
+          ];
 
       return h('div', { style: { width: '100%' } }, [
         h('div', {
@@ -362,19 +404,19 @@ const TreeNode = defineComponent({
             onClick: hasChildren ? toggle : undefined,
           }, hasChildren ? h('svg', {
             width: 10, height: 10, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '3',
-            style: { transform: open.value ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.17s ease', display: 'block' },
+            style: { transform: terbuka ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.17s ease', display: 'block' },
           }, [h('path', { d: 'M9 18l6-6-6-6' })]) : null),
-          h('span', { style: badgeSty }, getDisplayRole(node.label_jabatan || node.jabatan)),
-          h('span', { style: nameSty }, node.nama),
+          ...isi,
           Number(node.jumlah_bawahan) > 0 ? h('span', { style: countSty }, String(node.jumlah_bawahan)) : null,
         ]),
-        hasChildren && open.value
+        hasChildren && terbuka
           ? h('div', null, node.children.map(child =>
             h(TreeNode, {
               key: child.id, node: child, depth: props.depth + 1,
               selectedId: props.selectedId, filteredIds: props.filteredIds,
               roleFilteredIds: props.roleFilteredIds, searchActive: props.searchActive,
               collapseSignal: props.collapseSignal, expandSignal: props.expandSignal,
+              compact: props.compact,
               onSelect: n => emit('select', n),
             })
           ))
@@ -586,7 +628,11 @@ onMounted(fetchData);
 }
 
 .detail-topbar {
-  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 4px 8px 4px 18px;
   font-size: 10px;
   font-weight: 700;
   color: #9ca3af;
@@ -627,6 +673,43 @@ onMounted(fetchData);
 
 .dot {
   color: #4b5563;
+}
+
+.noid-chip {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--baba-gold-light);
+  background: rgba(230, 180, 34, 0.12);
+  border: 1px solid rgba(230, 180, 34, 0.35);
+  padding: 2px 9px;
+  border-radius: 10px;
+}
+
+.bawahan-noid {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--baba-gold-light);
+  flex-shrink: 0;
+}
+
+.cari-struktur {
+  max-width: 260px;
+  flex-shrink: 0;
+}
+
+.cari-struktur :deep(input) {
+  color: #f3f4f6;
+}
+
+.cari-struktur :deep(input::placeholder) {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+.cari-struktur :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.3;
 }
 
 .meta-small {
@@ -762,31 +845,83 @@ onMounted(fetchData);
   padding: 24px;
 }
 
-/* ── Mobile ──────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
+/* ── HP & tablet (< 960px, sama dengan breakpoint md Vuetify) ─────────────── */
+@media (max-width: 959px) {
+  /* Halaman ikut digulir biasa (bukan kotak bergulir di dalam layar) */
+  .page {
+    height: auto;
+    overflow: visible;
+    border-radius: 12px;
+  }
+
   .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  /* diawali .page-header karena aturan dasarnya ditulis setelah blok ini */
+  .page-header .header-right {
+    flex: 1 1 100%;
+    gap: 8px;
+  }
+
+  .page-header .total-chip {
+    padding: 5px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .page-header .hdr-btn {
+    flex: 1;
+    padding: 6px 8px;
+    white-space: nowrap;
   }
 
   .stat-row {
-    padding: 12px 16px;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .stat-card {
-    min-width: 120px;
+    min-width: 92px;
     flex: 0 0 auto;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  .stat-label {
+    font-size: 9.5px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+
+  .stat-value {
+    font-size: 20px;
   }
 
   .body {
-    padding: 0 16px 16px;
+    padding: 0 8px 8px;
   }
 
   .tree-topbar {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .cari-struktur {
+    max-width: none;
+  }
+
+  .tree-scroll {
+    overflow: visible;
   }
 
   .detail-panel {
@@ -796,14 +931,23 @@ onMounted(fetchData);
     bottom: 0;
     left: 0;
     width: 100% !important;
-    z-index: 100;
+    /* di atas header & menu bawah aplikasi */
+    z-index: 2100;
     border-radius: 0;
+    border: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .detail-panel--open {
     transform: translateX(0);
+  }
+
+  .detail-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 }
 

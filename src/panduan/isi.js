@@ -27,7 +27,7 @@ export const MULAI_CEPAT = {
     { judul: "4. Input dokumen RO", isi: "Dokumen repeat order (RO) diinput di menu Input Data, lalu disetujui upline dan superadmin di menu Document Belum Approve." },
   ],
   istilah: [
-    { t: "No ID", j: "Nomor anggota yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM1 (Top Management), M1 (MVO), R1 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID atasannya." },
+    { t: "No ID", j: "Nomor anggota yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID atasannya." },
     { t: "Upline / atasan", j: "Akun satu jenjang di atas Anda dalam struktur jaringan." },
     { t: "Downline / bawahan", j: "Akun di bawah Anda dalam struktur jaringan." },
     { t: "RO (Repeat Order)", j: "Nilai pembelian ulang yang dicatat lewat dokumen di menu Input Data (kolom Range Point)." },
@@ -204,7 +204,7 @@ export const PANDUAN = [
         judul: "Mengubah aturan No ID",
         isi: [
           "Tekan Edit (✎) pada jabatan.",
-          "Di bagian Aturan No ID pilih cara penomoran: Nomor urut (TM1, M1, R1), Rentang nomor (mis. Founder B01–B50, GM B51–B150), atau Turunan dari No ID atasan (Supplier ke bawah).",
+          "Di bagian Aturan No ID pilih cara penomoran: Nomor urut (TM01, M01, R01), Rentang nomor (mis. Founder B01–B50, GM B51–B150), atau Turunan dari No ID atasan (Supplier ke bawah).",
           "Untuk rentang, isi Awalan, Nomor awal, dan Nomor akhir, lalu tekan Update.",
         ],
       },
@@ -287,20 +287,25 @@ export const PANDUAN = [
       {
         judul: "Menjelajah pohon",
         isi: [
+          "Setiap baris menampilkan jabatan, No ID (warna emas), dan nama. Di HP, nama di baris atas lalu jabatan · No ID di bawahnya.",
           "Tekan panah ( › ) di samping nama untuk membuka bawahannya, atau Buka Semua / Tutup Semua.",
           "Angka di kanan nama adalah jumlah seluruh bawahannya.",
-          "Klik nama untuk melihat detail akun di panel Detail Akun (atasan, jumlah bawahan langsung, total jaringan).",
+          "Klik nama untuk melihat detail akun: No ID, atasan (nama dan No ID), jumlah bawahan langsung, dan total jaringan. Di HP detail tampil satu layar penuh; tekan ✕ di kanan atas untuk kembali ke pohon.",
         ],
       },
       {
         judul: "Mencari dan menyaring",
         isi: [
-          "Ketik nama atau No ID di kolom Cari nama.",
-          "Klik kartu jabatan di atas (mis. GENERAL MANAGER) untuk menyorot jabatan tersebut.",
+          "Ketik nama atau No ID di kolom Cari nama / No ID (mis. B78-04 untuk melihat jaringan Supplier B78-04).",
+          "Cabang yang berisi hasil pencarian terbuka otomatis dan hasilnya disorot.",
+          "Klik kartu jabatan di atas (mis. GENERAL MANAGER) untuk menyorot jabatan tersebut. Di HP, geser kartu ke kiri untuk melihat jabatan lainnya.",
         ],
       },
     ],
-    tips: ["Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office."],
+    tips: [
+      "Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office.",
+      "No ID Supplier ke bawah mengikuti No ID atasannya, jadi dari No ID saja sudah terlihat jalurnya: B78-04-01-04 = Reseller di bawah Distributor B78-04-01.",
+    ],
     tanya: [{ t: "Akun saya tidak muncul?", j: "Hanya akun yang sudah aktif (diverifikasi) yang tampil di pohon." }],
   },
   {

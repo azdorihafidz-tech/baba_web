@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       modeOptions: [
-        { text: "Nomor urut (TM1, M1, R1)", value: "urut" },
+        { text: "Nomor urut (TM01, M01, R01)", value: "urut" },
         { text: "Rentang nomor (B01–B50)", value: "rentang" },
         { text: "Turunan dari No ID atasan (B51-01)", value: "turunan" },
       ],
@@ -58,7 +58,7 @@ export default {
     contoh() {
       const m = this.model;
       const pad = (n) => String(n ?? "").padStart(2, "0");
-      if (m.kode_mode === "urut") return `Contoh: ${m.kode_awalan || "?"}1, ${m.kode_awalan || "?"}2, …`;
+      if (m.kode_mode === "urut") return `Contoh: ${m.kode_awalan || "?"}01, ${m.kode_awalan || "?"}02, …`;
       if (m.kode_mode === "rentang") {
         return `Contoh: ${m.kode_awalan || "?"}${pad(m.kode_mulai || 1)} sampai ${m.kode_awalan || "?"}${pad(m.kode_akhir || 1)}`;
       }
