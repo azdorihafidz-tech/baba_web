@@ -17,7 +17,7 @@
           <div class="dpm-nama">{{ m.nama }}</div>
           <div class="dpm-info">
             Upline: {{ m.atasan_nama ? `${m.atasan_nama} (${m.atasan_no_id || '-'})` : '—' }}
-            · {{ m.jumlah_anggota || 0 }} anggota langsung
+            · {{ m.jumlah_anggota || 0 }} downline langsung
           </div>
         </div>
         <v-icon class="dpm-panah">{{ terpilihId != null && String(m.id) === String(terpilihId) ? 'mdi-check-circle' : 'mdi-chevron-right' }}</v-icon>

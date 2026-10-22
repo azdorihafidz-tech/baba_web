@@ -1,7 +1,7 @@
 <template>
   <div class="mutasi-page">
     <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Mutasi Jabatan' }]"
-      sub="Naikkan, turunkan, atau pindahkan upline member beserta anggotanya" />
+      sub="Naikkan, turunkan, atau pindahkan upline member beserta downline-nya" />
 
     <v-alert v-if="!isSuperadmin" type="info" variant="tonal">Halaman ini khusus superadmin.</v-alert>
 
@@ -44,11 +44,48 @@
             <v-row dense>
               <v-col cols="12" md="6">
                 <v-select v-model="jabatanBaru" :items="jabatanItems" item-title="label" item-value="id"
-                  label="Jabatan baru" variant="outlined" density="comfortable" hide-details
+                  label="Jabatan baru" variant="outlined" density="comfortable" hide-details :disabled="tukar"
                   @update:model-value="gantiJabatan" />
               </v-col>
             </v-row>
 
+            <!-- No ID tujuan: hanya jabatan TM–GM (kursi). Supplier ke bawah mengikuti No ID upline-nya. -->
+            <template v-if="jabatanKursi">
+              <div class="atasan-label mt-4">No ID</div>
+              <v-btn-toggle v-model="modeNoId" mandatory density="comfortable" color="#B8890F" variant="outlined"
+                class="mb-2" @update:model-value="gantiModeNoId">
+                <v-btn value="otomatis" size="small">Otomatis</v-btn>
+                <v-btn value="pilih" size="small">Pilih No ID</v-btn>
+              </v-btn-toggle>
+              <div v-if="modeNoId === 'otomatis'" class="hint">
+                No ID dipertahankan bila masih sesuai jabatan, atau diberi nomor kosong berikutnya.
+              </div>
+              <template v-else>
+                <v-autocomplete v-model="noIdTujuan" :items="nomorItems" item-title="label" item-value="no_id"
+                  :loading="loadingNomor" label="No ID tujuan" variant="outlined" density="comfortable" hide-details
+                  prepend-inner-icon="mdi-identifier" no-data-text="Tidak ada nomor untuk jabatan ini"
+                  @update:model-value="pilihNoId" />
+                <div class="hint mt-1">
+                  Daftar berisi No ID jabatan {{ jabatanItems.find((j) => String(j.id) === String(jabatanBaru))?.name }}.
+                  Untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.
+                </div>
+                <v-alert v-if="pemegangTujuan" :type="tukar ? 'info' : 'warning'" variant="tonal" density="compact"
+                  class="mt-2">
+                  {{ noIdTujuan }} masih dipakai <b>{{ pemegangTujuan.nama }}</b> ({{ pemegangTujuan.jabatan }}).
+                  Kursi tidak boleh bertabrakan, jadi pilih <b>Tukar posisi</b> atau pindahkan dulu pemegang {{ noIdTujuan }}.
+                  <v-switch v-model="tukar" color="#B8890F" density="compact" hide-details class="mt-1"
+                    :label="`Tukar posisi dengan ${pemegangTujuan.nama}`" @update:model-value="gantiTukar" />
+                </v-alert>
+              </template>
+            </template>
+
+            <!-- Tukar posisi: jabatan & upline mengikuti kursi tujuan -->
+            <v-alert v-if="tukar && pemegangTujuan" type="info" variant="tonal" density="compact" class="mt-4">
+              {{ member.nama }} menempati kursi {{ noIdTujuan }} (jabatan & upline kursi itu), dan
+              {{ pemegangTujuan.nama }} menempati kursi lama {{ member.no_id }}.
+            </v-alert>
+
+            <template v-if="!tukar">
             <div class="atasan-label mt-4">Upline baru</div>
             <!-- Atasan terpilih + tombol ganti; daftar calon atasan tampil saat memilih -->
             <div v-if="!pilihAtasanTerbuka" class="atasan-terpilih">
@@ -71,32 +108,44 @@
                 <v-btn v-if="atasanTerpilih" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
               </div>
             </template>
+            </template>
           </v-card-text>
         </v-card>
 
         <!-- 3. Anggota -->
-        <v-card v-if="member && anakLangsung.length" class="step-card mb-4">
-          <div class="step-head"><span class="step-no">3</span> Anggota yang ikut
-            <span class="head-note">{{ anakLangsung.length }} anggota langsung</span></div>
+        <v-card v-if="member && (anakLangsung.length || anakTukar.length)" class="step-card mb-4">
+          <div class="step-head"><span class="step-no">3</span> Downline yang ikut
+            <span class="head-note">{{ anakLangsung.length + anakTukar.length }} downline langsung</span></div>
           <v-card-text>
-            <p class="hint mb-2">Centang = ikut pindah bersama timnya. Yang tidak dicentang pindah ke penampung.</p>
-            <div class="anak-list">
-              <label v-for="a in anakLangsung" :key="a.id" class="anak-item"
-                :class="{ 'anak-off': !ikutState[a.id], 'anak-blok': a.boleh_ikut === false }">
-                <v-checkbox-btn :model-value="!!ikutState[a.id]" :disabled="a.boleh_ikut === false" color="#B8890F"
-                  @update:model-value="toggleIkut(a.id, $event)" />
-                <div class="anak-text">
-                  <div class="anak-nama">{{ a.nama }}</div>
-                  <div class="anak-meta">{{ a.jabatan_lama }} · {{ a.no_id_lama || '-' }}
-                    <span v-if="a.jumlah_tim"> · beserta {{ a.jumlah_tim }} anggota</span></div>
-                  <div v-if="a.boleh_ikut === false" class="anak-alasan">Jenjang tidak cocok dengan jabatan baru — harus ke penampung</div>
-                </div>
-              </label>
+            <!-- Satu kelompok per pemilik downline (orang yang dipindah, dan pada tukar posisi: orang yang ditukar) -->
+            <div v-for="g in kelompokDownline" :key="g.kunci" class="mb-4">
+              <div class="kelompok-head">
+                <b>{{ g.judul }}</b>
+                <v-spacer />
+                <v-btn size="x-small" variant="text" color="#B8890F" @click="setSemua(g, true)">Centang semua</v-btn>
+                <v-btn size="x-small" variant="text" @click="setSemua(g, false)">Kosongkan semua</v-btn>
+              </div>
+              <p class="hint mb-2">Centang = ikut {{ g.nama }} bersama timnya. Tidak dicentang = {{ g.kalauTidak }}.</p>
+              <div class="anak-list">
+                <label v-for="a in g.daftar" :key="a.id" class="anak-item"
+                  :class="{ 'anak-off': !g.state[a.id], 'anak-blok': a.boleh_ikut === false }">
+                  <v-checkbox-btn :model-value="!!g.state[a.id]" :disabled="a.boleh_ikut === false" color="#B8890F"
+                    @update:model-value="toggleIkut(g.kunci, a.id, $event)" />
+                  <div class="anak-text">
+                    <div class="anak-nama">{{ a.nama }}</div>
+                    <div class="anak-meta">{{ a.jabatan_lama }} · {{ a.no_id_lama || '-' }}
+                      <span v-if="a.jumlah_tim"> · beserta {{ a.jumlah_tim }} downline</span></div>
+                    <div v-if="a.boleh_ikut === false" class="anak-alasan">
+                      Jenjang tidak cocok dengan jabatan baru {{ g.nama }} — {{ g.kalauTidak }}
+                    </div>
+                  </div>
+                </label>
+              </div>
             </div>
 
-            <div v-if="adaTidakIkut" class="mt-4">
+            <div v-if="adaTidakIkut && !tukar" class="mt-4">
               <v-autocomplete v-model="penampung" :items="penampungItems" item-title="label" item-value="id"
-                :loading="loadingPenampung" no-filter clearable label="Upline penampung untuk anggota yang tidak ikut"
+                :loading="loadingPenampung" no-filter clearable label="Upline penampung untuk downline yang tidak ikut"
                 variant="outlined" density="comfortable" hide-details prepend-inner-icon="mdi-account-group"
                 @update:search="cariPenampung" @update:model-value="jadwalkanPratinjau" />
             </div>
@@ -105,7 +154,7 @@
 
         <!-- 4. Pratinjau -->
         <v-card v-if="member && pratinjau" class="step-card mb-4">
-          <div class="step-head"><span class="step-no">{{ anakLangsung.length ? 4 : 3 }}</span> Pratinjau perubahan
+          <div class="step-head"><span class="step-no">{{ anakLangsung.length || anakTukar.length ? 4 : 3 }}</span> Pratinjau perubahan
             <v-progress-circular v-if="loadingPratinjau" indeterminate size="16" width="2" color="#B8890F" class="ml-2" />
           </div>
           <v-card-text>
@@ -113,9 +162,9 @@
               class="mb-2">{{ e }}</v-alert>
 
             <div v-if="!pratinjau.errors.length" class="ringkas mb-3">
-              <span class="r-chip">Anggota: <b>{{ pratinjau.ringkasan.jumlah_anggota }}</b></span>
+              <span class="r-chip">Downline: <b>{{ pratinjau.ringkasan.jumlah_anggota }}</b></span>
               <span class="r-chip">Ikut: <b>{{ pratinjau.ringkasan.jumlah_ikut }}</b></span>
-              <span class="r-chip">Tidak ikut: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
+              <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
               <span class="r-chip r-gold">No ID berubah: <b>{{ pratinjau.ringkasan.no_id_berubah }}</b></span>
             </div>
 
@@ -350,6 +399,65 @@ const bolehTanpaAtasan = computed(() => (jabatanList.value.find((j) => String(j.
 
 const jabatanItems = computed(() => jabatanList.value.map((j) => ({ ...j, label: `${j.name} — ${j.jabatan || ""}` })));
 
+// No ID tujuan (kursi TM–GM). Nomor yang dipegang orang lain → wajib Tukar posisi.
+const modeNoId = ref("otomatis");
+const noIdTujuan = ref(null);
+const tukar = ref(false);
+const nomorList = ref([]);
+const loadingNomor = ref(false);
+const jabatanKursi = computed(() => {
+  const j = jabatanList.value.find((x) => String(x.id) === String(jabatanBaru.value));
+  return !!j && j.mode !== "turunan";
+});
+const nomorItems = computed(() => nomorList.value.map((n) => ({
+  ...n,
+  label: !n.pemegang ? `${n.no_id} — kosong`
+    : n.pemegang.id === memberId.value ? `${n.no_id} — ${n.pemegang.nama} (posisi sekarang)`
+      : `${n.no_id} — ${n.pemegang.nama} (${n.pemegang.jabatan})`,
+})));
+const pemegangTujuan = computed(() => {
+  const p = nomorList.value.find((n) => n.no_id === noIdTujuan.value)?.pemegang;
+  return p && p.id !== memberId.value ? p : null;
+});
+
+async function muatNomor() {
+  if (!jabatanKursi.value) return;
+  loadingNomor.value = true;
+  try {
+    const { data } = await api.get("/mutasi/nomor", { params: { mvo_type_id: jabatanBaru.value } });
+    nomorList.value = data.data;
+  } catch (e) {
+    toast(pesanError(e, "Gagal memuat daftar No ID"), "error");
+  } finally {
+    loadingNomor.value = false;
+  }
+}
+
+function aturUlangNoId() {
+  noIdTujuan.value = null;
+  tukar.value = false;
+  ikutStateTukar.value = {};
+}
+
+function gantiModeNoId(v) {
+  aturUlangNoId();
+  if (v === "pilih") muatNomor();
+  jadwalkanPratinjau();
+}
+
+function pilihNoId() {
+  tukar.value = false;
+  ikutStateTukar.value = {};
+  jadwalkanPratinjau();
+}
+
+// Tukar posisi berubah → pilihan ikut/tetap dihitung ulang dari jenjang yang baru
+function gantiTukar() {
+  ikutState.value = {};
+  ikutStateTukar.value = {};
+  jadwalkanPratinjau();
+}
+
 async function muatJabatan() {
   try {
     const { data } = await api.get("/mutasi/jabatan");
@@ -384,6 +492,9 @@ function pilihMember() {
   atasanBaru.value = m.parent_id || null;
   atasanTerpilih.value = m.parent_id ? { id: m.parent_id, nama: m.atasan_nama, no_id: m.atasan_no_id } : null;
   pilihAtasanTerbuka.value = false;
+  modeNoId.value = "otomatis";
+  nomorList.value = [];
+  aturUlangNoId();
   jadwalkanPratinjau();
 }
 
@@ -392,6 +503,10 @@ function gantiJabatan() {
   atasanBaru.value = null;
   atasanTerpilih.value = null;
   pilihAtasanTerbuka.value = true;
+  aturUlangNoId();
+  nomorList.value = [];
+  if (!jabatanKursi.value) modeNoId.value = "otomatis";
+  else if (modeNoId.value === "pilih") muatNomor();
   jadwalkanPratinjau();
 }
 
@@ -403,23 +518,61 @@ function pilihAtasan(a) {
 }
 
 /* ---------- 3. anggota ---------- */
-const ikutState = ref({});
+const ikutState = ref({}); // downline langsung orang yang dipindah: true = ikut
+const ikutStateTukar = ref({}); // tukar posisi: downline langsung orang yang ditukar
 const penampung = ref(null);
 const penampungItems = ref([]);
 const loadingPenampung = ref(false);
 
 const anakLangsung = computed(() => (pratinjau.value?.baris || []).filter((b) => b.anak_langsung));
+const anakTukar = computed(() => (pratinjau.value?.baris || []).filter((b) => b.anak_tukar));
 const adaTidakIkut = computed(() => anakLangsung.value.some((a) => !ikutState.value[a.id]));
 
-function toggleIkut(id, nilai) {
-  ikutState.value = { ...ikutState.value, [id]: nilai };
-  if (adaTidakIkut.value && !penampung.value && pratinjau.value?.ringkasan?.atasan_lama_id) {
+// Kelompok checklist: downline orang yang dipindah, dan (tukar posisi) downline orang yang ditukar
+const kelompokDownline = computed(() => {
+  const g = [];
+  if (anakLangsung.value.length) {
+    g.push({
+      kunci: "x", judul: `Downline ${member.value?.nama || ""}`, nama: member.value?.nama || "",
+      daftar: anakLangsung.value, state: ikutState.value,
+      kalauTidak: tukar.value && pemegangTujuan.value
+        ? `tetap di posisi, pindah ke ${pemegangTujuan.value.nama}` : "pindah ke upline penampung",
+    });
+  }
+  if (tukar.value && pemegangTujuan.value && anakTukar.value.length) {
+    g.push({
+      kunci: "y", judul: `Downline ${pemegangTujuan.value.nama} (yang ditukar)`, nama: pemegangTujuan.value.nama,
+      daftar: anakTukar.value, state: ikutStateTukar.value,
+      kalauTidak: `tetap di posisi, pindah ke ${member.value?.nama || ""}`,
+    });
+  }
+  return g;
+});
+
+function setStateIkut(kunci, id, nilai) {
+  const s = kunci === "y" ? ikutStateTukar : ikutState;
+  s.value = { ...s.value, [id]: nilai };
+}
+
+function setelahUbahIkut(kunci) {
+  if (kunci === "x" && !tukar.value && adaTidakIkut.value && !penampung.value && pratinjau.value?.ringkasan?.atasan_lama_id) {
     // Saran awal: atasan lama orang yang dipindah
     penampung.value = pratinjau.value.ringkasan.atasan_lama_id;
     penampungItems.value = [{ id: penampung.value, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"} (upline lama)` }];
   }
-  cariPenampung("");
+  if (kunci === "x" && !tukar.value) cariPenampung("");
   jadwalkanPratinjau();
+}
+
+function toggleIkut(kunci, id, nilai) {
+  setStateIkut(kunci, id, nilai);
+  setelahUbahIkut(kunci);
+}
+
+// Centang semua (yang jenjangnya cocok) / kosongkan semua
+function setSemua(g, nilai) {
+  g.daftar.forEach((a) => setStateIkut(g.kunci, a.id, nilai && a.boleh_ikut !== false));
+  setelahUbahIkut(g.kunci);
 }
 
 const cariPenampung = debounce(async (q) => {
@@ -447,16 +600,22 @@ const hanyaBerubah = ref(true);
 const catatan = ref("");
 const konfirmasi = ref(false);
 const loadingSimpan = ref(false);
-const labelPeran = { dipindah: "Dipindah", ikut: "Ikut", tidak_ikut: "Tidak ikut" };
+const labelPeran = { dipindah: "Dipindah", ikut: "Ikut", tidak_ikut: "Tidak ikut", ditukar: "Ditukar", tetap: "Tetap di posisi" };
 
-const payload = () => ({
-  user_id: memberId.value,
-  mvo_type_id: jabatanBaru.value,
-  parent_id: atasanBaru.value,
-  penampung_id: adaTidakIkut.value ? penampung.value : null,
-  tidak_ikut: anakLangsung.value.filter((a) => !ikutState.value[a.id]).map((a) => a.id),
-  catatan: catatan.value,
-});
+const payload = () => {
+  const pakaiTukar = tukar.value && !!pemegangTujuan.value;
+  return {
+    user_id: memberId.value,
+    mvo_type_id: jabatanBaru.value,
+    parent_id: atasanBaru.value,
+    no_id_tujuan: modeNoId.value === "pilih" ? noIdTujuan.value : null,
+    tukar: pakaiTukar,
+    penampung_id: !pakaiTukar && adaTidakIkut.value ? penampung.value : null,
+    tidak_ikut: anakLangsung.value.filter((a) => !ikutState.value[a.id]).map((a) => a.id),
+    tidak_ikut_tukar: pakaiTukar ? anakTukar.value.filter((a) => !ikutStateTukar.value[a.id]).map((a) => a.id) : [],
+    catatan: catatan.value,
+  };
+};
 
 let urutPratinjau = 0;
 const jadwalkanPratinjau = debounce(async () => {
@@ -466,16 +625,20 @@ const jadwalkanPratinjau = debounce(async () => {
   try {
     const { data } = await api.post("/mutasi/pratinjau", payload());
     if (nomor !== urutPratinjau) return; // abaikan respons lama
-    // Anggota langsung yang belum punya status: ikut bila jenjangnya cocok
+    // Downline langsung yang belum punya status: ikut bila jenjangnya cocok (bawaan: ikut orangnya)
     const st = { ...ikutState.value };
-    data.baris.filter((b) => b.anak_langsung).forEach((b) => {
-      if (!(b.id in st)) st[b.id] = b.boleh_ikut !== false;
+    const stT = { ...ikutStateTukar.value };
+    data.baris.forEach((b) => {
+      if (b.anak_langsung && !(b.id in st)) st[b.id] = b.boleh_ikut !== false;
+      if (b.anak_tukar && !(b.id in stT)) stT[b.id] = b.boleh_ikut !== false;
     });
-    const berubah = JSON.stringify(st) !== JSON.stringify(ikutState.value);
+    const berubah = JSON.stringify(st) !== JSON.stringify(ikutState.value)
+      || JSON.stringify(stT) !== JSON.stringify(ikutStateTukar.value);
     ikutState.value = st;
+    ikutStateTukar.value = stT;
     pratinjau.value = data;
     if (berubah) {
-      if (adaTidakIkut.value && !penampung.value && data.ringkasan?.atasan_lama_id) {
+      if (!tukar.value && adaTidakIkut.value && !penampung.value && data.ringkasan?.atasan_lama_id) {
         penampung.value = data.ringkasan.atasan_lama_id;
         penampungItems.value = [{ id: penampung.value, label: `${member.value.atasan_nama} — ${member.value.atasan_no_id || "-"} (upline lama)` }];
       }
@@ -494,7 +657,7 @@ const dipindah = computed(() => pratinjau.value?.baris?.find((b) => b.peran === 
 const barisTampil = computed(() => {
   const b = pratinjau.value?.baris || [];
   return hanyaBerubah.value
-    ? b.filter((x) => x.peran === "dipindah" || x.no_id_lama !== x.no_id_baru || x.atasan_lama !== x.atasan_baru)
+    ? b.filter((x) => x.peran === "dipindah" || x.peran === "ditukar" || x.no_id_lama !== x.no_id_baru || x.atasan_lama !== x.atasan_baru)
     : b;
 });
 const bisaSimpan = computed(() => pratinjau.value && !pratinjau.value.errors.length && !loadingPratinjau.value);
@@ -526,6 +689,9 @@ async function simpan() {
 }
 
 function reset() {
+  modeNoId.value = "otomatis";
+  nomorList.value = [];
+  aturUlangNoId();
   memberId.value = null;
   jabatanBaru.value = null;
   atasanBaru.value = null;
@@ -640,7 +806,7 @@ const headersRiwayat = [
   { title: "Jabatan", key: "jabatan", sortable: false },
   { title: "No ID", key: "no_id", sortable: false },
   { title: "Upline", key: "atasan", sortable: false },
-  { title: "Anggota", key: "anggota", sortable: false },
+  { title: "Downline", key: "anggota", sortable: false },
   { title: "No ID berubah", key: "jumlah_no_id_berubah" },
   { title: "Oleh", key: "created_by" },
 ];
@@ -859,6 +1025,24 @@ if (isSuperadmin) muatJabatan();
 .peran-tidak_ikut {
   background: #fff3e0;
   color: #c77700;
+}
+
+.peran-ditukar {
+  background: var(--baba-gold);
+  color: var(--baba-ink);
+}
+
+.peran-tetap {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.kelompok-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
 }
 
 .aturan-row {

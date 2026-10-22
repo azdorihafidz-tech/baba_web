@@ -27,7 +27,7 @@ export const MULAI_CEPAT = {
     { judul: "4. Input dokumen RO", isi: "Dokumen repeat order (RO) diinput di menu Input Data, lalu disetujui upline dan superadmin di menu Document Belum Approve." },
   ],
   istilah: [
-    { t: "No ID", j: "Nomor anggota yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID upline-nya." },
+    { t: "No ID", j: "Nomor member yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID upline-nya." },
     { t: "Upline", j: "Akun di atas Anda dalam struktur jaringan. Upline langsung = satu jenjang tepat di atas Anda." },
     { t: "Downline", j: "Akun di bawah Anda dalam struktur jaringan. Downline langsung = satu jenjang tepat di bawah Anda." },
     { t: "RO (Repeat Order)", j: "Nilai pembelian ulang yang dicatat lewat dokumen di menu Input Data (kolom Range Point)." },
@@ -205,7 +205,7 @@ export const PANDUAN = [
     ],
     tanya: [
       { t: "Kenapa No ID tidak bisa diisi saat Tambah User?", j: "No ID dibuat otomatis saat Aktivasi supaya selalu urut, sesuai jabatan, dan tidak ganda." },
-      { t: "Kenapa jabatan akun aktif tidak bisa diubah?", j: "Perubahan jabatan/upline memengaruhi No ID anggotanya, jadi harus lewat Mutasi Jabatan yang menyesuaikan semuanya sekaligus." },
+      { t: "Kenapa jabatan akun aktif tidak bisa diubah?", j: "Perubahan jabatan/upline memengaruhi No ID downline-nya, jadi harus lewat Mutasi Jabatan yang menyesuaikan semuanya sekaligus." },
     ],
   },
   {
@@ -400,16 +400,16 @@ export const PANDUAN = [
     menu: "Mutasi Jabatan",
     icon: "mdi-account-switch",
     peran: "superadmin",
-    ringkas: "Menaikkan, menurunkan, atau memindahkan upline member beserta anggotanya.",
+    ringkas: "Menaikkan, menurunkan, atau memindahkan upline member beserta downline-nya.",
     kegunaan:
-      "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh anggotanya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
+      "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh downline-nya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
     langkah: [
       {
         judul: "1. Pilih member",
         isi: [
           "Di tab Mutasi Baru, daftar semua member langsung tampil (urut dari jabatan tertinggi). Tidak perlu ingat nama: saring dengan tombol jabatan (TM, MVO, … Reseller) dan pilihan Cabang, lalu gulir daftarnya.",
-          "Bisa juga mengetik nama, No ID, atau username di kolom cari (mis. B78-04 untuk melihat Supplier B78-04 beserta anggotanya).",
-          "Setiap baris menampilkan jabatan, No ID, cabang, nama, upline, dan jumlah anggota langsung. Ketuk baris untuk memilih.",
+          "Bisa juga mengetik nama, No ID, atau username di kolom cari (mis. B78-04 untuk melihat Supplier B78-04 beserta downline-nya).",
+          "Setiap baris menampilkan jabatan, No ID, cabang, nama, upline, dan jumlah downline langsung. Ketuk baris untuk memilih.",
           "Salah pilih? Tekan Ganti member untuk kembali ke daftar.",
         ],
       },
@@ -418,16 +418,19 @@ export const PANDUAN = [
         isi: [
           "Pilih Jabatan baru (sama dengan sekarang bila hanya pindah upline).",
           "Upline baru awalnya terisi upline sekarang. Tekan Ganti upline untuk membuka daftar calon upline — langsung tampil tanpa mengetik, cabang yang sama dengan member ditaruh paling atas.",
-          "Bila jabatan diganti, daftar calon upline otomatis terbuka. Daftar hanya berisi upline dengan jenjang yang sah, dan bukan anggota orang itu sendiri.",
+          "Bila jabatan diganti, daftar calon upline otomatis terbuka. Daftar hanya berisi upline dengan jenjang yang sah, dan bukan downline orang itu sendiri.",
           "Top Management dan MVO boleh tanpa upline: tekan Tanpa upline.",
+          "No ID (khusus jabatan TM sampai GM): pilih Otomatis (No ID dipertahankan bila masih sesuai, atau nomor kosong berikutnya) atau Pilih No ID untuk menentukan nomor tujuan, mis. B136. Daftar nomor mengikuti Jabatan baru — untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.",
+          "Bila No ID tujuan masih dipakai orang lain, kursi tidak boleh bertabrakan: aktifkan Tukar posisi. Orang yang dipindah menempati kursi itu (jabatan, No ID, dan upline kursi tersebut), dan pemegang lamanya menempati kursi lama orang yang dipindah. Tanpa Tukar posisi, mutasi ditolak.",
         ],
       },
       {
-        judul: "3. Pilih anggota yang ikut",
+        judul: "3. Pilih downline yang ikut",
         isi: [
-          "Centang = anggota langsung ikut pindah bersama seluruh timnya.",
-          "Hilangkan centang untuk anggota yang tidak ikut, lalu pilih Upline penampung untuk mereka.",
-          "Anggota yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang dan wajib ke penampung (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor).",
+          "Centang = downline langsung ikut pindah bersama seluruh timnya (bawaan: semua ikut). Tombol Centang semua / Kosongkan semua mempercepat pilihan.",
+          "Pada Tukar posisi ada dua daftar: downline orang yang dipindah dan downline orang yang ditukar. Yang tidak dicentang tetap di posisi — mereka pindah ke orang yang kini menempati kursi itu, No ID-nya tidak berubah.",
+          "Hilangkan centang untuk downline yang tidak ikut, lalu pilih Upline penampung untuk mereka.",
+          "Downline yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang dan wajib ke penampung (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor).",
         ],
       },
       {
@@ -457,11 +460,13 @@ export const PANDUAN = [
       "Semua mutasi tersimpan dalam satu proses: berhasil semua atau tidak sama sekali.",
     ],
     tanya: [
-      { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh anggota orang yang dipindah." },
-      { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu anggota saja, pilih anggota tersebut sebagai member yang dimutasi." },
+      { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
+      { t: "B02 mau pindah ke B03 yang sudah terisi?", j: "Pilih member B02, Pilih No ID → B03, lalu aktifkan Tukar posisi. Pemegang B03 otomatis menempati B02. Atur downline masing-masing: ikut orangnya, atau tetap di posisi." },
+      { t: "Kenapa downline tidak bisa dicentang saat tukar posisi?", j: "Jenjangnya tidak cocok dengan jabatan baru orang itu (mis. GM naik menjadi Founder: Supplier-nya tidak bisa ikut karena Supplier harus di bawah GM). Downline tersebut otomatis tetap di posisi." },
+      { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
     ],
     gambar: [
-      { src: "/panduan/mutasi-pratinjau.jpg", ket: "Mutasi Baru: anggota yang ikut dan pratinjau perubahan upline / No ID" },
+      { src: "/panduan/mutasi-pratinjau.jpg", ket: "Mutasi Baru: downline yang ikut dan pratinjau perubahan upline / No ID" },
       { src: "/panduan/mutasi-saran.jpg", ket: "Saran RO: target per jabatan dan daftar saran" },
     ],
   },
