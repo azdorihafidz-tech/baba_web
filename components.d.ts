@@ -26,6 +26,7 @@ declare module 'vue' {
     Header: typeof import('./src/components/layouts/admin/Header.vue')['default']
     KepalaKartuAkun: typeof import('./src/components/ui/KepalaKartuAkun.vue')['default']
     KodeNoIdFields: typeof import('./src/components/ui/KodeNoIdFields.vue')['default']
+    KursiTujuan: typeof import('./src/components/mutasi/KursiTujuan.vue')['default']
     Main: typeof import('./src/components/layouts/admin/Main.vue')['default']
     PanduanIsi: typeof import('./src/components/panduan/PanduanIsi.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
