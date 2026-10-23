@@ -1,0 +1,17 @@
+# Aplikasi satu halaman (Vue Router mode history): semua alamat yang bukan file/folder nyata
+# diarahkan ke index.html, supaya refresh di /admin/... tidak 404.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# index.html & service worker selalu diambil baru, supaya versi baru langsung terpakai
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|sw\.js|registerSW\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+</IfModule>
