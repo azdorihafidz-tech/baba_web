@@ -93,6 +93,8 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Port 3001 dipakai server chat (chatroom-baba): jangan pindah port diam-diam bila 3000 terpakai
+    strictPort: true,
   },
   css: {
     preprocessorOptions: {
