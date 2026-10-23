@@ -198,12 +198,13 @@
                   <span class="text-caption text-grey ml-2">{{ originalDetailMvoData?.nama || '-' }}</span>
                 </h3>
 
-                <v-btn color="primary" size="small" @click="openAddDocumentDialog" :disabled="!getDocumentMvoId()">
+                <v-btn color="primary" size="small" @click="openAddDocumentDialog" :disabled="!getDocumentMvoId() || !!documentLuarJaringan">
                   <v-icon start>mdi-plus</v-icon>
                   Tambah Dokumen
                 </v-btn>
               </div>
 
+              <v-alert v-if="documentLuarJaringan" type="info" variant="tonal" density="compact" class="mb-3">{{ documentLuarJaringan }}</v-alert>
               <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
@@ -212,7 +213,7 @@
                 items-per-page="-1">
 
                 <template v-slot:no-data>
-                  <div class="text-center pa-4">
+                  <div v-if="!documentLuarJaringan" class="text-center pa-4">
                     <v-icon size="64" color="grey-lighten-2">mdi-file-document-off</v-icon>
                     <p class="text-grey mt-2 mb-0">Tidak ada dokumen untuk data ini</p>
                   </div>
@@ -361,7 +362,7 @@
             <v-window v-model="mobileDetailTab">
               <v-window-item value="documents">
                 <div class="mb-4">
-                  <v-btn color="primary" block @click="openAddDocumentDialog" :disabled="!getDocumentMvoId()"
+                  <v-btn color="primary" block @click="openAddDocumentDialog" :disabled="!getDocumentMvoId() || !!documentLuarJaringan"
                     class="text-white">
                     <v-icon start>mdi-plus</v-icon>
                     Tambah Dokumen
@@ -373,13 +374,14 @@
                   </div>
                 </div>
 
+                <v-alert v-if="documentLuarJaringan" type="info" variant="tonal" density="compact" class="mb-3">{{ documentLuarJaringan }}</v-alert>
                 <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
                 <v-progress-linear v-if="isLoadingDocuments" indeterminate color="#E6B422"
                   class="mb-4"></v-progress-linear>
 
-                <div v-if="documentItems.length === 0 && !isLoadingDocuments" class="text-center pa-4">
+                <div v-if="documentItems.length === 0 && !isLoadingDocuments && !documentLuarJaringan" class="text-center pa-4">
                   <v-icon size="64" color="grey">mdi-file-document-off</v-icon>
                   <p class="text-grey mt-2">Tidak ada dokumen untuk data ini</p>
                 </div>
@@ -782,6 +784,8 @@ export default {
         { key: "action", title: "Actions", sortable: false, align: "center" },
       ],
       documentItems: [],
+      // Dokumen akun di luar jaringan member ditolak server (403): tampilkan keterangan, bukan "tidak ada dokumen"
+      documentLuarJaringan: "",
 
       originalDetailMvoId: null,
       originalDetailMvoData: {},
@@ -1427,6 +1431,7 @@ export default {
       }
 
       this.isLoadingDocuments = true;
+      this.documentLuarJaringan = "";
       try {
         const response = await axios.get(`${API_BASE}/mvo-document`, {
           headers,
@@ -1435,8 +1440,11 @@ export default {
         this.documentItems = response.data.status === "success"
           ? (response.data.data || [])
           : [];
-      } catch {
+      } catch (e) {
         this.documentItems = [];
+        if (e?.response?.status === 403) {
+          this.documentLuarJaringan = "Akun ini di luar jaringan Anda. Dokumennya hanya bisa dilihat upline akun tersebut atau superadmin.";
+        }
       } finally {
         this.isLoadingDocuments = false;
       }

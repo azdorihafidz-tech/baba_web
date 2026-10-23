@@ -144,6 +144,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Dokumen hanya bisa dilihat untuk akun Anda sendiri dan downline Anda. Akun cabang yang sama tapi di luar jaringan Anda menampilkan keterangan \"Akun ini di luar jaringan Anda\", dan tombol Tambah Dokumen tidak aktif.",
       "Yang bisa menambah, mengubah, dan menghapus dokumen: Superadmin, MVO, Regional, dan Founder — selain superadmin hanya untuk akun di jaringannya sendiri.",
       "Dokumen yang sudah disetujui final ikut dihitung di Star/RO, jadi hanya superadmin yang bisa mengubah atau menghapusnya (ada peringatan sebelum dihapus).",
       "Print pada detail akun menghasilkan formulir registrasi dalam bentuk PDF.",
