@@ -10,15 +10,19 @@ export const chatState = reactive({
   total: 0, // jumlah pesan belum dibaca di semua grup
   perGrup: {}, // { roomId: jumlah }
   terhubung: false,
+  galat: "", // alasan belum tersambung (ditampilkan di halaman Chat)
   ruangTerbuka: null, // grup yang sedang dibuka di halaman Chat (pesannya tidak dihitung belum dibaca)
   userId: null,
+  superadmin: false,
 });
 
 let socket = null;
 let tokenSocket = null;
 const pendengar = new Set();
 
-const ambilToken = () => localStorage.getItem("token") || Cookies.get("token") || "";
+// Urutan sama dengan bagian aplikasi lain (cookie dulu): localStorage terpisah per port, cookie tidak,
+// jadi localStorage bisa menyimpan token lama yang sudah tidak berlaku.
+const ambilToken = () => Cookies.get("token") || localStorage.getItem("token") || "";
 
 /** axios ke server chat dengan token login aplikasi. */
 export function chatApi() {
@@ -64,10 +68,21 @@ export function mulaiChat() {
   socket = io(new URL(CHAT_URL).origin, { path: CHAT_SOCKET_PATH, auth: { token }, reconnection: true });
   socket.on("connect", () => {
     chatState.terhubung = true;
+    chatState.galat = "";
     muatBelumDibaca();
   });
   socket.on("disconnect", () => {
     chatState.terhubung = false;
+  });
+  // Ditolak server (token tidak berlaku): Socket.IO tidak mencoba lagi, jadi beri alasan yang jelas
+  socket.on("connect_error", (e) => {
+    chatState.galat = /authentication/i.test(e?.message || "")
+      ? "Sesi chat ditolak. Silakan logout lalu login ulang."
+      : "Server chat tidak terjangkau. Mencoba lagi…";
+  });
+  socket.on("saya", (u) => {
+    chatState.userId = Number(u?.id) || chatState.userId;
+    chatState.superadmin = !!u?.superadmin;
   });
   socket.on("unread_update", terapkanRingkas);
   socket.on("message", (d) => {
@@ -90,7 +105,7 @@ export function hentikanChat() {
   if (socket) socket.disconnect();
   socket = null;
   tokenSocket = null;
-  Object.assign(chatState, { total: 0, perGrup: {}, terhubung: false, ruangTerbuka: null });
+  Object.assign(chatState, { total: 0, perGrup: {}, terhubung: false, galat: "", ruangTerbuka: null });
 }
 
 /** Dengarkan event chat; kembalikan fungsi untuk berhenti mendengar. */

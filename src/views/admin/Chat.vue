@@ -8,9 +8,12 @@
       <aside class="daftar">
         <div class="daftar-kepala">
           <span class="daftar-judul"><v-icon size="20" color="#E6B422">mdi-forum</v-icon> Grup Chat</span>
-          <span v-if="!chatState.terhubung" class="status-sambung" title="Koneksi realtime terputus">
+          <span v-if="!chatState.terhubung" class="status-sambung" :title="chatState.galat || 'Koneksi realtime terputus'">
             <v-progress-circular indeterminate size="12" width="2" /> Menyambung ulang…
           </span>
+        </div>
+        <div v-if="!chatState.terhubung && chatState.galat" class="alasan-sambung">
+          <v-icon size="16">mdi-alert-circle-outline</v-icon> {{ chatState.galat }}
         </div>
         <div class="daftar-isi baba-gulir">
           <div v-if="loadingGrup && !grupList.length" class="kosong">Memuat grup…</div>
@@ -174,7 +177,7 @@
 </template>
 
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import { chatApi, chatState, dengarChat, mulaiChat, setRuangTerbuka, socketChat } from "@/utils/chatKoneksi";
 
@@ -190,7 +193,8 @@ const user = (() => {
     return {};
   }
 })();
-const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
+// Identitas dari server chat (chatState); localStorage hanya cadangan sebelum tersambung
+const isSuperadmin = computed(() => chatState.superadmin || localStorage.getItem("mvo_type_id") === "superadmin");
 
 const snack = reactive({ show: false, text: "", color: "error" });
 const toast = (text, color = "error") => Object.assign(snack, { show: true, text, color });
@@ -230,7 +234,7 @@ const draf = ref("");
 const mengirim = ref(false);
 const menuEmoji = ref(false);
 
-const dariSaya = (m) => Number(m.sender_id) === Number(user.id);
+const dariSaya = (m) => Number(m.sender_id) === Number(chatState.userId || user.id);
 
 async function bukaGrup(g) {
   grup.value = g;
@@ -517,6 +521,16 @@ onBeforeUnmount(() => {
   gap: 6px;
   font-size: 0.72rem;
   color: var(--baba-gold-light);
+}
+
+.alasan-sambung {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
 }
 
 .daftar-isi {
