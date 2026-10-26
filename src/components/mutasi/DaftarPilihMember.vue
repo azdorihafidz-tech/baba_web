@@ -16,7 +16,7 @@
           </div>
           <div class="dpm-nama">{{ m.nama }}</div>
           <div class="dpm-info">
-            Upline: {{ m.atasan_nama ? `${m.atasan_nama} (${m.atasan_no_id || '-'})` : '—' }}
+            Upline: {{ m.atasan_nama ? `${m.atasan_nama} (${m.atasan_no_id || '-'})` : 'Owner' }}
             · {{ m.jumlah_anggota || 0 }} downline langsung
           </div>
         </div>

@@ -121,7 +121,7 @@
             </div>
             <div class="dcell">
               <div class="dcell-lbl">LEVEL</div>
-              <div class="dcell-val dcell-big" :style="{ color: roleColor(selected.jabatan) }">{{ selected.jabatan_level
+              <div class="dcell-val dcell-big" :style="{ color: roleColor(selected.jabatan) }">{{ selected.jabatan_level ?? 'Puncak'
               }}</div>
             </div>
           </div>
@@ -170,12 +170,13 @@ import { useDisplay } from 'vuetify';
 const { smAndDown } = useDisplay();
 const compact = computed(() => smAndDown.value);
 
-const ROLE_ORDER = ['TOP MANAGEMENT', 'MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
+// OWNER = puncak di atas Top Management (akun Owner, No ID OW01) — akar pohon dari backend
+const ROLE_ORDER = ['OWNER', 'TOP MANAGEMENT', 'MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
 // Label pendek untuk kartu total di HP (grid 4 kolom)
 const ROLE_SINGKAT = { 'TOP MANAGEMENT': 'TM', 'GENERAL MANAGER': 'GM', 'DISTRIBUTOR': 'DIST', 'REGIONAL': 'RGO' };
 const ROLE_COLORS = {
   'MVO': '#ef4444', 'REGIONAL': '#f97316', 'FOUNDER': '#a855f7',
-  'TOP MANAGEMENT': '#E6B422',   'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'RESELLER': '#6b7280',
+  'OWNER': '#F6D365', 'TOP MANAGEMENT': '#E6B422',   'GENERAL MANAGER': '#22d3ee', 'SUPPLIER': '#3b82f6', 'DISTRIBUTOR': '#10b981', 'RESELLER': '#6b7280',
 };
 
 const rawData = ref([]);
@@ -273,9 +274,8 @@ function getImageUrl(path) {
   return `${FILE_URL}/${path.startsWith('/') ? path.substring(1) : path}`;
 }
 function getParentName(node) {
-  if (!node.parent_id) {
-    return (node.jabatan?.toUpperCase() === 'MVO') ? 'OWNER' : '—';
-  }
+  // Akun tanpa upline langsung di bawah Owner (backend); yang tanpa parent hanya Owner sendiri
+  if (!node.parent_id) return '—';
   return getParent(node)?.nama ?? '—';
 }
 function getParent(node) {
@@ -306,7 +306,8 @@ const TreeNode = defineComponent({
   },
   emits: ['select'],
   setup(props, { emit }) {
-    const open = ref(Number(props.node?.depth ?? 0) < 2);
+    // Owner (0) → TM (1) → MVO (2) terbuka saat halaman dibuka
+    const open = ref(Number(props.node?.depth ?? 0) < 3);
     let prevCollapse = props.collapseSignal;
     let prevExpand = props.expandSignal;
 
@@ -891,10 +892,10 @@ onMounted(fetchData);
     display: none;
   }
 
-  /* Semua kartu total terlihat: grid 4 kolom × 2 baris */
+  /* Semua kartu total terlihat: grid 5 kolom × 2 baris (Owner … Reseller) */
   .stat-row {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
     padding: 8px 12px;
     overflow: visible;
@@ -902,7 +903,7 @@ onMounted(fetchData);
 
   .stat-card {
     min-width: 0;
-    padding: 6px 8px;
+    padding: 6px 5px;
     border-radius: 8px;
     border-top-width: 2px;
   }
@@ -913,7 +914,7 @@ onMounted(fetchData);
 
   .stat-label {
     font-size: 9px;
-    letter-spacing: 0.4px;
+    letter-spacing: 0;
     margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;

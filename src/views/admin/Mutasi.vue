@@ -52,12 +52,12 @@
                 <div><span class="lbl">Nama</span><b>{{ member.nama }}</b></div>
                 <div><span class="lbl">Jabatan</span><b>{{ member.jabatan }}</b></div>
                 <div><span class="lbl">No ID</span><b>{{ member.no_id || '-' }}</b></div>
-                <div><span class="lbl">Upline</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : '-' }}</b></div>
+                <div><span class="lbl">Upline</span><b>{{ member.atasan_nama ? `${member.atasan_nama} (${member.atasan_no_id || '-'})` : teksOwner() }}</b></div>
                 <div><span class="lbl">Cabang</span><b>{{ member.cabang || '-' }}</b></div>
               </div>
               <v-alert v-if="posisiRencana" type="info" variant="tonal" density="compact" class="mt-2">
                 Sudah diubah di rencana: sekarang <b>{{ posisiRencana.jabatan_baru }} {{ posisiRencana.no_id_baru || '-' }}</b>,
-                upline {{ posisiRencana.atasan_baru || '-' }}. Langkah ini melanjutkan dari posisi itu.
+                upline {{ posisiRencana.atasan_baru || 'Owner' }}. Langkah ini melanjutkan dari posisi itu.
               </v-alert>
               <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-switch" class="mt-3"
                 @click="gantiMember">Ganti member</v-btn>
@@ -145,7 +145,7 @@
                 <b>{{ atasanTerpilih.nama }}</b>
                 <span class="atasan-meta">{{ atasanTerpilih.no_id || '-' }}<template v-if="atasanTerpilih.jabatan"> · {{ atasanTerpilih.jabatan }}</template></span>
               </div>
-              <div v-else class="atasan-teks atasan-kosong">{{ bolehTanpaAtasan ? 'Tanpa upline' : 'Belum dipilih' }}</div>
+              <div v-else class="atasan-teks atasan-kosong">{{ bolehTanpaAtasan ? `Langsung di bawah ${teksOwner()}` : 'Belum dipilih' }}</div>
               <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-arrow-up"
                 @click="pilihAtasanTerbuka = true">{{ atasanTerpilih ? 'Ganti upline' : 'Pilih upline' }}</v-btn>
             </div>
@@ -156,7 +156,7 @@
                 :terpilih-id="atasanBaru" placeholder="Cari nama / No ID upline"
                 kosong="Tidak ada calon upline untuk jabatan ini" @pilih="pilihAtasan" />
               <div class="d-flex flex-wrap ga-2 mt-2">
-                <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Tanpa upline</v-btn>
+                <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Langsung di bawah Owner</v-btn>
                 <v-btn v-if="atasanTerpilih" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
               </div>
             </template>
@@ -261,8 +261,8 @@
                 <span v-else>{{ item.no_id_lama || '-' }} → <b class="baru">{{ item.no_id_baru }}</b></span>
               </template>
               <template #item.atasan="{ item }">
-                <span v-if="item.atasan_lama === item.atasan_baru">{{ item.atasan_lama || '-' }}</span>
-                <span v-else>{{ item.atasan_lama || '-' }} → <b class="baru">{{ item.atasan_baru || '-' }}</b></span>
+                <span v-if="item.atasan_lama === item.atasan_baru">{{ item.atasan_lama || 'Owner' }}</span>
+                <span v-else>{{ item.atasan_lama || 'Owner' }} → <b class="baru">{{ item.atasan_baru || 'Owner' }}</b></span>
               </template>
             </v-data-table>
 
@@ -376,7 +376,7 @@
                 <span v-if="item.no_id_lama === item.no_id_baru">{{ item.no_id_lama || '-' }}</span>
                 <span v-else>{{ item.no_id_lama || '-' }} → <b class="baru">{{ item.no_id_baru }}</b></span>
               </template>
-              <template #item.atasan="{ item }">{{ item.atasan_lama || '-' }} → {{ item.atasan_baru || '-' }}</template>
+              <template #item.atasan="{ item }">{{ item.atasan_lama || 'Owner' }} → {{ item.atasan_baru || 'Owner' }}</template>
               <template #item.anggota="{ item }">{{ item.jumlah_ikut }} ikut · {{ item.jumlah_tidak_ikut }} tidak</template>
             </v-data-table>
           </v-card-text>
@@ -434,7 +434,7 @@
           <v-data-table :headers="headersDetail" :items="detail.items" :loading="detail.loading" :items-per-page="10"
             density="compact" :mobile="$vuetify.display.smAndDown">
             <template #item.no_id="{ item }">{{ item.no_id_lama || '-' }} → <b class="baru">{{ item.no_id_baru }}</b></template>
-            <template #item.atasan="{ item }">{{ item.atasan_lama || '-' }} → {{ item.atasan_baru || '-' }}</template>
+            <template #item.atasan="{ item }">{{ item.atasan_lama || 'Owner' }} → {{ item.atasan_baru || 'Owner' }}</template>
           </v-data-table>
         </v-card-text>
         <v-card-actions>
@@ -457,6 +457,9 @@ import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 import KursiTujuan from "@/components/mutasi/KursiTujuan.vue";
 import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
+import { muatOwner, teksOwner } from "@/utils/owner";
+
+muatOwner();
 
 const api = axios.create({ baseURL: `${API_URL}/api`, timeout: 60000 });
 api.interceptors.request.use((cfg) => {

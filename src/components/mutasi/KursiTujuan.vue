@@ -33,7 +33,7 @@
           <template v-if="atasan"><b>{{ atasan.nama }}</b>
             <span class="kt-meta">{{ atasan.no_id || '-' }}<template v-if="atasan.jabatan"> · {{ atasan.jabatan }}</template></span>
           </template>
-          <span v-else class="kt-kosong">{{ bolehTanpaAtasan ? 'Tanpa upline' : 'Belum dipilih' }}</span>
+          <span v-else class="kt-kosong">{{ bolehTanpaAtasan ? `Langsung di bawah ${teksOwner()}` : 'Belum dipilih' }}</span>
         </div>
         <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-arrow-up"
           @click="pilihAtasanTerbuka = true">{{ atasan ? 'Ganti upline' : 'Pilih upline' }}</v-btn>
@@ -43,7 +43,7 @@
           :params="{ mvo_type_id: jabatan, user_id: orang.id, cabang_utama: orang.cabang }" :terpilih-id="atasan?.id"
           placeholder="Cari nama / No ID upline" kosong="Tidak ada calon upline untuk jabatan ini" @pilih="pilihAtasan" />
         <div class="d-flex flex-wrap ga-2 mt-2">
-          <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Tanpa upline</v-btn>
+          <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Langsung di bawah Owner</v-btn>
           <v-btn v-if="atasan" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
         </div>
       </template>
@@ -55,6 +55,7 @@
 import { computed, onMounted, ref } from "vue";
 import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
+import { teksOwner } from "@/utils/owner";
 
 const props = defineProps({
   api: { type: Function, required: true },

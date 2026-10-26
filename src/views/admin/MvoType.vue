@@ -14,6 +14,16 @@
     </v-btn>
   </div>
 
+  <!-- Owner: puncak di atas TM, satu orang (bukan tipe akun di tabel) -->
+  <div class="owner-strip mb-4">
+    <v-icon size="20" class="owner-ikon">mdi-crown</v-icon>
+    <div class="owner-teks">
+      <b>OWNER</b> · puncak struktur, di atas Top Management (jenjang 0). No ID <b>OW01</b>
+      <template v-if="owner"> · dipegang {{ owner.nama }}</template>.
+      <span class="owner-catatan">Hanya satu orang dan bukan tipe akun, jadi tidak ada di tabel ini.</span>
+    </div>
+  </div>
+
   <!-- Desktop View - Data Table -->
   <div class="d-none d-md-block">
     <CardDataTable :title="title">
@@ -308,6 +318,7 @@ import CardDataTable from "@/components/ui/CardDataTable.vue";
 import CardForm from "@/components/ui/CardForm.vue";
 import KodeNoIdFields from "@/components/ui/KodeNoIdFields.vue";
 import { useAppStore } from "@/stores/app.js";
+import { muatOwner, owner } from "@/utils/owner";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -321,8 +332,10 @@ export default {
 
   setup() {
     const app = useAppStore();
+    muatOwner();
     return {
       app,
+      owner,
     };
   },
 
@@ -423,11 +436,11 @@ export default {
     isLuarStruktur(item) {
       return String(item.name || "").toLowerCase() === "superadmin";
     },
-    // Jenjang: 0 = puncak (TM). SUPERADMIN tidak termasuk struktur jabatan.
+    // Jenjang: 0 = jabatan teratas (TM), tepat di bawah Owner. SUPERADMIN tidak termasuk struktur jabatan.
     labelJenjang(item) {
       if (this.isLuarStruktur(item)) return "Di luar struktur";
       if (item.level === null || item.level === undefined || item.level === "") return "-";
-      return Number(item.level) === 0 ? "0 · Puncak" : String(item.level);
+      return Number(item.level) === 0 ? "0 · Di bawah Owner" : String(item.level);
     },
     // Ringkasan aturan No ID untuk kolom tabel: "B01–B50", "TM01, TM02, …", "Turunan upline"
     formatKode(item) {
@@ -700,6 +713,34 @@ export default {
 </script>
 
 <style scoped>
+.owner-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--baba-ink);
+  color: #fff;
+  border-left: 4px solid var(--baba-gold);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.owner-ikon {
+  color: var(--baba-gold);
+  margin-top: 1px;
+}
+
+.owner-teks b {
+  color: var(--baba-gold);
+}
+
+.owner-catatan {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
 .jenjang-chip {
   display: inline-block;
   padding: 2px 10px;

@@ -203,6 +203,13 @@ export default {
         return null;
       }
 
+      // Owner = akun superadmin pemegang No ID OW01 (puncak di atas TM)
+      if (mvoTypeId === 'superadmin' && this.getCurrentUser()?.no_id === 'OW01') {
+        this.currentUserMvoTypeName = 'OWNER';
+        localStorage.setItem('mvoTypeName', 'OWNER');
+        return 'OWNER';
+      }
+
       this.isLoadingMvoType = true;
 
       try {

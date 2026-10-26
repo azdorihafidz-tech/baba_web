@@ -80,6 +80,12 @@
                             <v-icon size="20" class="mr-2">mdi-account-tie</v-icon>Jabatan Akun
                             <span class="ringkas-sub">semua akun</span>
                         </div>
+                        <!-- Owner: puncak di atas TM (satu orang, tidak dihitung sebagai akun member) -->
+                        <div v-if="owner" class="owner-baris">
+                            <v-icon size="16" class="mr-1">mdi-crown</v-icon><b>OWNER</b>
+                            <span class="owner-nama">{{ owner.nama }} ({{ owner.no_id }})</span>
+                            <span class="ringkas-sub ml-auto d-none d-sm-inline">puncak, di atas TM</span>
+                        </div>
                         <DaftarBatang :items="itemsBatang(jabatanList)" tampil-persen kosong="Belum ada data jabatan"
                             @pilih="handleShowJabatanDetail($event.label)" />
                     </v-card>
@@ -237,6 +243,12 @@
                             <v-icon size="20" class="mr-2">mdi-account-tie</v-icon>Jabatan Akun
                             <span class="ringkas-sub">semua akun</span>
                         </div>
+                        <!-- Owner: puncak di atas TM (satu orang, tidak dihitung sebagai akun member) -->
+                        <div v-if="owner" class="owner-baris">
+                            <v-icon size="16" class="mr-1">mdi-crown</v-icon><b>OWNER</b>
+                            <span class="owner-nama">{{ owner.nama }} ({{ owner.no_id }})</span>
+                            <span class="ringkas-sub ml-auto d-none d-sm-inline">puncak, di atas TM</span>
+                        </div>
                         <DaftarBatang :items="itemsBatang(jabatanList)" tampil-persen kosong="Belum ada data jabatan"
                             @pilih="handleShowJabatanDetail($event.label)" />
                     </v-card>
@@ -393,11 +405,17 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 import RiwayatApprovalAkun from "./RiwayatApprovalAkun.vue";
+import { muatOwner, owner } from "@/utils/owner";
 
 export default {
     components: { RiwayatApprovalAkun },
     name: "DashboardAkun",
     emits: ["show-detail"],
+
+    setup() {
+        muatOwner();
+        return { owner };
+    },
 
     data() {
         const today = new Date();
@@ -799,6 +817,26 @@ export default {
 
 .ringkas-judul .v-icon {
     color: var(--baba-gold-dark);
+}
+
+.owner-baris {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--baba-ink);
+    color: var(--baba-gold);
+    font-size: 0.85rem;
+}
+
+.owner-baris .owner-nama {
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .ringkas-sub {
