@@ -522,6 +522,47 @@ export const PANDUAN = [
     ],
   },
   {
+    id: "hak-akses",
+    route: "/admin/hak-akses",
+    menu: "Hak Akses",
+    icon: "mdi-shield-account",
+    peran: "superadmin",
+    ringkas: "Memberi atau mencabut hak tambahan untuk akun tertentu, mis. Mutasi di gerbong Founder.",
+    kegunaan:
+      "Hak akses terpisah dari jabatan: jabatan mengatur posisi di struktur, hak akses mengatur apa yang boleh dikerjakan di aplikasi. Contoh: Founder B27 diberi hak Mutasi Jabatan untuk gerbongnya sendiri, sehingga bisa membantu superadmin memutasi akun di bawahnya tanpa bisa menyentuh gerbong Founder lain.",
+    langkah: [
+      {
+        judul: "Memberi hak",
+        isi: [
+          "Tekan Beri hak.",
+          "Akun yang diberi hak: cari nama, No ID, atau username (mis. akun Founder itu sendiri).",
+          "Hak: pilih Mutasi Jabatan.",
+          "Cakupan: pilih Founder yang gerbongnya boleh diurus. Pemegang hak hanya bisa memutasi akun di bawah Founder itu (GM ke bawah); Founder-nya sendiri tidak bisa dimutasi.",
+          "Isi Catatan bila perlu, lalu tekan Simpan.",
+        ],
+      },
+      {
+        judul: "Mencabut hak",
+        isi: [
+          "Di tab Hak aktif, tekan Cabut pada kartu hak tersebut, isi alasan bila perlu, lalu tekan Cabut.",
+          "Menu terkait langsung hilang dari akun itu saat halaman dibuka ulang.",
+        ],
+      },
+      {
+        judul: "Riwayat",
+        isi: ["Tab Riwayat mencatat setiap hak yang diberi dan dicabut: siapa, untuk gerbong mana, kapan, dan oleh siapa."],
+      },
+    ],
+    tips: [
+      "Satu akun boleh diberi hak untuk beberapa gerbong Founder.",
+      "Superadmin sudah memiliki semua hak, tidak perlu diberi hak tambahan.",
+      "Akun yang memegang hak atau menjadi cakupan gerbong tidak bisa dihapus sebelum haknya dicabut.",
+    ],
+    tanya: [
+      { t: "Cakupan tidak bisa memilih akun selain Founder?", j: "Benar. Cakupan hak Mutasi adalah gerbong Founder, jadi yang bisa dipilih hanya akun berjabatan Founder yang aktif." },
+    ],
+  },
+  {
     id: "dokumentasi",
     route: "/admin/uplouddocumentasi",
     menu: "Uploud Documentasi",

@@ -100,6 +100,7 @@ export default {
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
           // ["mdi-file-document-alert", "Pending Approval Documen", "/admin/pendingapprovaldocumen"],
           ["mdi-account-switch", "Mutasi Jabatan", "/admin/mutasi"],
+          ["mdi-shield-account", "Hak Akses", "/admin/hak-akses"],
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
           ["mdi-chat", "Chat", "/admin/chat"],

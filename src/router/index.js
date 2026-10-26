@@ -192,6 +192,15 @@ const routes = [
         },
       },
       {
+        path: "hak-akses",
+        name: "hak-akses",
+        component: () => import("@/views/admin/HakAkses.vue"),
+        meta: {
+          title: "Hak Akses || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "chat",
         name: "chat",
         component: () => import("@/views/admin/Chat.vue"),
