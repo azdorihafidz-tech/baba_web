@@ -27,12 +27,13 @@ export const MULAI_CEPAT = {
     { judul: "4. Input dokumen RO", isi: "Dokumen repeat order (RO) diinput di menu Input Data, lalu disetujui upline dan superadmin di menu Document Belum Approve." },
   ],
   istilah: [
-    { t: "No ID", j: "Nomor member yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID upline-nya." },
+    { t: "Owner", j: "Puncak struktur, di atas Top Management. Hanya satu orang, No ID OW01. Akun tanpa upline (Top Management, juga MVO yang belum di bawah Top Management) berarti langsung di bawah Owner." },
+    { t: "No ID", j: "Nomor member yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: OW01 (Owner), TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID upline-nya." },
     { t: "Upline", j: "Akun di atas Anda dalam struktur jaringan. Upline langsung = satu jenjang tepat di atas Anda." },
     { t: "Downline", j: "Akun di bawah Anda dalam struktur jaringan. Downline langsung = satu jenjang tepat di bawah Anda." },
     { t: "RO (Repeat Order)", j: "Nilai pembelian ulang yang dicatat lewat dokumen di menu Input Data (kolom Range Point)." },
     { t: "Rating Star", j: "Nilai bintang 0–8 pada dokumen star; dijumlahkan untuk peringkat di Dashboard → Star." },
-    { t: "Urutan jabatan", j: "Top Management → MVO → Regional → Founder → GM → Supplier → Distributor → Reseller." },
+    { t: "Urutan jabatan", j: "Owner → Top Management → MVO → Regional → Founder → GM → Supplier → Distributor → Reseller." },
   ],
   akses: [
     { t: "Login", j: "Masukkan username dan password di halaman Login. Akun yang belum diverifikasi superadmin belum bisa masuk." },
@@ -61,6 +62,7 @@ export const PANDUAN = [
         isi: [
           "Pilih tab di bagian atas: Overview, Akun, Dokumen, MVO/Wilayah, Star, atau Growth.",
           "Kartu angka di tiap tab bisa diklik untuk melihat rinciannya.",
+          "Tab Akun: baris hitam paling atas di Jabatan Akun menampilkan Owner (nama dan No ID OW01). Owner tidak ikut dihitung sebagai akun member.",
           "Tab Akun: Jabatan Akun (semua akun) dan Akun Terbaru (mendaftar pada periode tanggal) tampil sebagai daftar batang — panjang batang = banyaknya akun, di kanan jumlah dan persennya. Klik baris untuk melihat daftar akunnya.",
           "Tab MVO/Wilayah: daftar cabang dengan jumlah akun dan persennya. Klik baris cabang untuk melihat daftar akunnya.",
         ],
@@ -234,9 +236,10 @@ export const PANDUAN = [
       {
         judul: "Membaca kolom Jenjang",
         isi: [
-          "Jenjang = urutan jabatan dalam struktur: 0 · Puncak (TM), 1 MVO, 2 Regional, 3 Founder, 4 GM, 5 Supplier, 6 Distributor, 7 Reseller.",
+          "Jenjang = urutan jabatan dalam struktur: 0 · Di bawah Owner (TM), 1 MVO, 2 Regional, 3 Founder, 4 GM, 5 Supplier, 6 Distributor, 7 Reseller.",
           "Angka jenjang juga dipakai sistem sebagai nomor kolom upline, approval, dan aturan No ID, jadi jangan diubah untuk jabatan yang sudah berjalan.",
           "SUPERADMIN bertanda Di luar struktur karena bukan bagian dari jenjang jabatan.",
+          "Baris hitam OWNER di atas tabel: Owner adalah puncak di atas Top Management, satu orang dengan No ID OW01. Owner bukan tipe akun, jadi tidak ada di tabel dan tidak bisa ditambah dari sini.",
         ],
       },
     ],
@@ -331,13 +334,14 @@ export const PANDUAN = [
     menu: "Struktur Akun",
     icon: "mdi-sitemap",
     peran: "semua",
-    ringkas: "Pohon jaringan dari Top Management/MVO sampai Reseller.",
+    ringkas: "Pohon jaringan dari Owner sampai Reseller.",
     kegunaan:
       "Melihat susunan jaringan dalam bentuk pohon: siapa upline siapa, jumlah downline, dan total jaringan setiap akun.",
     langkah: [
       {
         judul: "Menjelajah pohon",
         isi: [
+          "Baris paling atas adalah Owner (No ID OW01). Di bawahnya Top Management, lalu MVO dan seterusnya. MVO yang belum di bawah Top Management langsung berada di bawah Owner.",
           "Setiap baris menampilkan jabatan dan No ID (warna emas) di atas, lalu nama di bawahnya.",
           "Tekan panah ( › ) di samping nama untuk membuka downline-nya, atau Buka Semua / Tutup Semua. Di HP kedua tombol ini berupa ikon panah di samping jumlah akun.",
           "Daftar akun digulir di dalam kotaknya sendiri, jadi kartu total dan kolom cari tetap terlihat di atas.",
@@ -350,7 +354,7 @@ export const PANDUAN = [
         isi: [
           "Ketik nama atau No ID di kolom Cari nama / No ID (mis. B78-04 untuk melihat jaringan Supplier B78-04).",
           "Cabang yang berisi hasil pencarian terbuka otomatis dan hasilnya disorot.",
-          "Kartu di atas menampilkan total akun per jabatan (TM, MVO, Regional, Founder, GM, Supplier, Distributor, Reseller). Klik kartu untuk menyorot jabatan tersebut; klik lagi untuk membatalkan.",
+          "Kartu di atas menampilkan total akun per jabatan (Owner, TM, MVO, Regional, Founder, GM, Supplier, Distributor, Reseller). Klik kartu untuk menyorot jabatan tersebut; klik lagi untuk membatalkan.",
         ],
       },
     ],
@@ -358,7 +362,10 @@ export const PANDUAN = [
       "Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office.",
       "No ID Supplier ke bawah mengikuti No ID upline-nya, jadi dari No ID saja sudah terlihat jalurnya: B78-04-01-04 = Reseller di bawah Distributor B78-04-01.",
     ],
-    tanya: [{ t: "Akun saya tidak muncul?", j: "Hanya akun yang sudah aktif (diverifikasi) yang tampil di pohon." }],
+    tanya: [
+      { t: "Akun saya tidak muncul?", j: "Hanya akun yang sudah aktif (diverifikasi) yang tampil di pohon." },
+      { t: "Kenapa upline Top Management tertulis Owner?", j: "Owner adalah puncak struktur. Semua akun tanpa upline berada langsung di bawah Owner." },
+    ],
   },
   {
     id: "approval-dokumen",
@@ -420,7 +427,7 @@ export const PANDUAN = [
           "Pilih Jabatan baru (sama dengan sekarang bila hanya pindah upline).",
           "Upline baru awalnya terisi upline sekarang. Tekan Ganti upline untuk membuka daftar calon upline — langsung tampil tanpa mengetik, cabang yang sama dengan member ditaruh paling atas.",
           "Bila jabatan diganti, daftar calon upline otomatis terbuka. Daftar hanya berisi upline dengan jenjang yang sah, dan bukan downline orang itu sendiri.",
-          "Top Management dan MVO boleh tanpa upline: tekan Tanpa upline.",
+          "Top Management dan MVO boleh langsung di bawah Owner: tekan Langsung di bawah Owner.",
           "No ID: pilih Otomatis (No ID dipertahankan bila masih sesuai, atau nomor kosong berikutnya) atau Pilih No ID untuk menentukan kursi tujuan, mis. B136 atau B52-01. Daftar nomor mengikuti Jabatan baru — untuk naik/turun ke kursi jabatan lain, ganti Jabatan baru dulu.",
           "Supplier ke bawah: daftar No ID berisi kursi downline dan rekan se-upline member. Ketik No ID atau nama untuk mencari kursi lain. Nomor kosong muncul setelah Upline baru dipilih.",
           "Bila No ID tujuan masih dipakai orang lain, kursi tidak boleh bertabrakan. Orang yang dipindah menempati kursi itu (jabatan, No ID, dan upline kursi tersebut), lalu tentukan ke mana pemegang lamanya pindah. Berlaku untuk semua jabatan, dari TM sampai Reseller.",
