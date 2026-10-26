@@ -311,7 +311,7 @@
 
             <template v-for="lvl in cascadeLevels" :key="`form-${lvl.key}`">
               <v-col v-if="isCascadeVisible(lvl)" :cols="$vuetify.display.mobile ? 12 : 6">
-                <v-select :label="lvl.formLabel" v-model="form[lvl.key]" :items="cascadeOptions[lvl.key]"
+                <v-select :label="lvl.formLabel" v-model="form[lvl.key]" :items="cascadeOptions[lvl.key]" :item-props="propsUpline"
                   item-title="text" item-value="value" :loading="cascadeLoading[lvl.key]"
                   @update:modelValue="onCascadeChange(lvl, $event)" density="compact" variant="outlined" color="amber"
                   base-color="grey-lighten-1" clearable />
@@ -403,6 +403,7 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
+import { opsiUpline, propsUpline } from "@/utils/pilihanUpline";
 
 const API_BASE = `${API_URL}/api`;
 
@@ -556,6 +557,7 @@ export default {
   },
 
   methods: {
+    propsUpline,
     atasanPada,
     jalurRingkas,
 
@@ -685,10 +687,7 @@ export default {
           ? { cabang: currentValue }
           : this.buildCascadePayload(lvl, currentValue);
         const res = await axios.post(`${API_BASE}/get/${lvl.endpoint}`, payload);
-        this.cascadeOptions[lvl.key] = res.data.data.map(i => ({
-          text: `${i.code} - ${i.nama}`,
-          value: `${i.code} - ${i.nama}`,
-        }));
+        this.cascadeOptions[lvl.key] = res.data.data.map(opsiUpline);
       } catch {
         // Pertahankan perilaku lama: snackbar hanya ditampilkan untuk mode "add".
         if (!this.isEditMode) {
@@ -880,10 +879,11 @@ export default {
     },
 
     buildUserFormData() {
+      // Upline disimpan sebagai nilai pilihan "KODE - Nama" (teks tampilannya "No ID · Nama")
       const getUplineText = (val, key) => {
         if (!val) return "";
         const opt = this.cascadeOptions[key].find(o => o.value === val);
-        return opt ? opt.text : val;
+        return opt ? opt.value : val;
       };
 
       const formData = new FormData();

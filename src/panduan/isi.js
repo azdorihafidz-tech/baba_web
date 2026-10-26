@@ -21,7 +21,7 @@ export const MULAI_CEPAT = {
   judul: "Mulai cepat",
   ringkas: "Alur akun member dari daftar sampai aktif, dan istilah penting di aplikasi.",
   alur: [
-    { judul: "1. Daftar", isi: "Calon member membuka halaman Login → Daftar sekarang, mengisi data diri, memilih jabatan, cabang, dan upline (upline), lalu mengunggah foto profil." },
+    { judul: "1. Daftar", isi: "Calon member membuka halaman Login → Daftar sekarang, mengisi data diri, memilih jabatan, cabang, dan upline (pilihan upline tampil sebagai No ID · Nama, mis. B70-04 · Budi Santoso), lalu mengunggah foto profil." },
     { judul: "2. Verifikasi", isi: "Superadmin memeriksa data di menu Verifikasi ID lalu menekan Aktivasi. Saat itu No ID dibuat otomatis dan akun bisa dipakai untuk login." },
     { judul: "3. Approval upline", isi: "Upline menyetujui akun downline-nya di menu Akun Belum Approve." },
     { judul: "4. Input dokumen RO", isi: "Dokumen repeat order (RO) diinput di menu Input Data, lalu disetujui upline dan superadmin di menu Document Belum Approve." },
@@ -184,7 +184,7 @@ export const PANDUAN = [
       {
         judul: "Menambah user secara manual",
         isi: [
-          "Tekan Tambah User, isi data pribadi, pilih Jabatan, Cabang, dan upline secara berurutan (MVO → Regional → Founder → GM → Supplier → Distributor), lalu simpan.",
+          "Tekan Tambah User, isi data pribadi, pilih Jabatan, Cabang, dan upline secara berurutan (MVO → Regional → Founder → GM → Supplier → Distributor), lalu simpan. Pilihan upline tampil sebagai No ID · Nama; kode akun (mis. SUPPLIER-MDN-016) tertulis kecil di bawahnya.",
           "No ID tidak perlu diisi — dibuat otomatis saat Aktivasi.",
           "Untuk Top Management, pilih jabatan TOP MANAGEMENT lalu isi Judul Jabatan (mis. Head Office) dan Singkatan (mis. HO). Singkatan dipakai sebagai label downline, contoh: MVO HO.",
         ],

@@ -65,32 +65,32 @@
 
                             <!-- MVO -->
                             <v-select v-if="inputRegister.cabang && !isJabatanMvo" v-model="inputRegister.upline_1"
-                                label="Pilih MVO" :items="mvoOptions" item-title="text" item-value="value"
+                                label="Pilih MVO" :item-props="propsUpline" :items="mvoOptions" item-title="text" item-value="value"
                                 @update:modelValue="onMvoChange" />
 
                             <!-- REGIONAL -->
                             <v-select v-if="inputRegister.upline_1 && hideUplineLevel !== 'upline_2'"
-                                v-model="inputRegister.upline_2" label="Pilih Regional" :items="regionalOptions"
+                                v-model="inputRegister.upline_2" label="Pilih Regional" :item-props="propsUpline" :items="regionalOptions"
                                 item-title="text" item-value="value" @update:modelValue="onRegionalChange" />
 
                             <!-- FOUNDER -->
                             <v-select v-if="inputRegister.upline_2 && hideUplineLevel !== 'upline_3'"
-                                v-model="inputRegister.upline_3" label="Pilih Founder" :items="founderOptions"
+                                v-model="inputRegister.upline_3" label="Pilih Founder" :item-props="propsUpline" :items="founderOptions"
                                 item-title="text" item-value="value" @update:modelValue="onFounderChange" />
 
                             <!-- GM -->
                             <v-select v-if="inputRegister.upline_3 && hideUplineLevel !== 'upline_4'"
-                                v-model="inputRegister.upline_4" label="Pilih GM" :items="gmOptions" item-title="text"
+                                v-model="inputRegister.upline_4" label="Pilih GM" :item-props="propsUpline" :items="gmOptions" item-title="text"
                                 item-value="value" @update:modelValue="onGmChange" />
 
                             <!-- SUPPLIER -->
                             <v-select v-if="inputRegister.upline_4 && hideUplineLevel !== 'upline_5'"
-                                v-model="inputRegister.upline_5" label="Pilih Supplier" :items="supplierOptions"
+                                v-model="inputRegister.upline_5" label="Pilih Supplier" :item-props="propsUpline" :items="supplierOptions"
                                 item-title="text" item-value="value" @update:modelValue="onSupplierChange" />
 
                             <!-- DISTRIBUTOR -->
                             <v-select v-if="inputRegister.upline_5 && hideUplineLevel !== 'upline_6'"
-                                v-model="inputRegister.upline_6" label="Pilih Distributor" :items="distributorOptions"
+                                v-model="inputRegister.upline_6" label="Pilih Distributor" :item-props="propsUpline" :items="distributorOptions"
                                 item-title="text" item-value="value" />
 
 
@@ -158,6 +158,7 @@
 <script>
 import { API_URL } from "@/config";
 import axios from 'axios'
+import { opsiUpline, propsUpline } from "@/utils/pilihanUpline";
 
 export default {
     code: 'RegisterForm',
@@ -370,6 +371,7 @@ export default {
 
     },
     methods: {
+        propsUpline,
         onCabangChange(val) {
 
             this.inputRegister.upline_1 = ''
@@ -438,10 +440,7 @@ export default {
                 }
             )
 
-            this.distributorOptions = res.data.data.map(i => ({
-                text: `${i.code} - ${i.nama}`,
-                value: `${i.code} - ${i.nama}`
-            }))
+            this.distributorOptions = res.data.data.map(opsiUpline)
 
             this.loadingDistributor = false
         },
@@ -460,10 +459,7 @@ export default {
                 }
             )
 
-            this.supplierOptions = res.data.data.map(i => ({
-                text: `${i.code} - ${i.nama}`,
-                value: `${i.code} - ${i.nama}`
-            }))
+            this.supplierOptions = res.data.data.map(opsiUpline)
 
             this.loadingSupplier = false
         },
@@ -483,10 +479,7 @@ export default {
                     }
                 )
 
-                this.gmOptions = res.data.data.map(i => ({
-                    text: `${i.code} - ${i.nama}`,
-                    value: `${i.code} - ${i.nama}`
-                }))
+                this.gmOptions = res.data.data.map(opsiUpline)
 
             } catch (err) {
                 this.showSnackbar('Gagal memuat data GM', 'error')
@@ -509,10 +502,7 @@ export default {
                     }
                 )
 
-                this.founderOptions = res.data.data.map(i => ({
-                    text: `${i.code} - ${i.nama}`,
-                    value: `${i.code} - ${i.nama}`
-                }))
+                this.founderOptions = res.data.data.map(opsiUpline)
 
             } catch (err) {
                 this.showSnackbar('Gagal memuat data Founder', 'error')
@@ -532,10 +522,7 @@ export default {
                 }
             )
 
-            this.regionalOptions = res.data.data.map(i => ({
-                text: `${i.code} - ${i.nama}`,
-                value: `${i.code} - ${i.nama}`
-            }))
+            this.regionalOptions = res.data.data.map(opsiUpline)
 
             this.loadingRegional = false
         },
@@ -548,10 +535,7 @@ export default {
                 { cabang }
             )
 
-            this.mvoOptions = res.data.data.map(i => ({
-                text: `${i.code} - ${i.nama}`,
-                value: `${i.code} - ${i.nama}`
-            }))
+            this.mvoOptions = res.data.data.map(opsiUpline)
 
             this.loadingMvo = false
         },
@@ -698,11 +682,11 @@ export default {
 
             this.isButtonLoading = true
 
-            // Helper function untuk mendapatkan text dari options
+            // Upline disimpan sebagai nilai pilihan "KODE - Nama" (teks tampilannya "No ID · Nama")
             const getUplineText = (uplineValue, optionsArray) => {
                 if (!uplineValue) return ''
                 const option = optionsArray.find(opt => opt.value === uplineValue)
-                return option ? option.text : uplineValue
+                return option ? option.value : uplineValue
             }
 
             // Mapping upline dengan format "code - nama"
