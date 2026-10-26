@@ -7,8 +7,9 @@
       Anda tidak memiliki hak akses Mutasi Jabatan. Hubungi superadmin bila perlu.</v-alert>
     <!-- Pemegang hak (bukan superadmin): hanya gerbong Founder cakupannya -->
     <v-alert v-if="cakupanMutasi" type="info" variant="tonal" density="compact" class="mb-3" icon="mdi-shield-account">
-      Anda memutasi gerbong Founder <b>{{ cakupanMutasi.map((c) => `${c.no_id} · ${c.nama}`).join(", ") }}</b>:
-      hanya akun di bawahnya (GM ke bawah) yang bisa dipilih dan dipindah.
+      Anda memutasi gerbong <b>{{ cakupanMutasi.map((c) => `${c.jabatan} ${c.no_id} · ${c.nama}`).join(", ") }}</b>:
+      hanya akun di bawahnya yang bisa dipilih dan dipindah, dengan jabatan paling tinggi
+      {{ cakupanMutasi.map((c) => c.jabatan_maks).filter(Boolean).join(" / ") }}.
     </v-alert>
 
     <v-tabs v-if="bolehMutasi" v-model="tab" color="#B8890F" class="mb-4">

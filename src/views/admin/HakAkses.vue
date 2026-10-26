@@ -34,7 +34,7 @@
           </div>
           <div class="hak-baris">
             <span class="lbl">Cakupan</span>
-            <b>Gerbong {{ h.cakupan_no_id }} · {{ h.cakupan_nama }}</b>
+            <b>Gerbong {{ h.cakupan_jabatan }} {{ h.cakupan_no_id }} · {{ h.cakupan_nama }}</b>
             <span class="meta">{{ h.jumlah_gerbong }} akun di bawahnya · {{ h.cakupan_cabang || '-' }}</span>
           </div>
           <div v-if="h.catatan" class="hak-catatan">{{ h.catatan }}</div>
@@ -71,9 +71,8 @@
         <v-select v-model="form.hak" :items="hakItems" item-title="label" item-value="kode" label="Hak" variant="outlined"
           density="comfortable" class="mb-3" prepend-inner-icon="mdi-shield-key" />
         <v-autocomplete v-model="form.cakupan_id" :items="founderItems" item-title="label" item-value="id" no-filter clearable
-          :loading="memuatFounder" label="Cakupan: gerbong Founder" variant="outlined" density="comfortable" class="mb-3"
-          prepend-inner-icon="mdi-sitemap" persistent-hint
-          hint="Pemegang hak hanya bisa memutasi akun di bawah Founder ini (GM ke bawah). Founder-nya sendiri tidak bisa dimutasi."
+          :loading="memuatFounder" label="Cakupan: pemilik gerbong" variant="outlined" density="comfortable" class="mb-3"
+          prepend-inner-icon="mdi-sitemap" persistent-hint :hint="hintCakupan"
           @update:search="cariFounder" />
         <v-textarea v-model="form.catatan" label="Catatan (opsional)" variant="outlined" density="comfortable" rows="2" auto-grow hide-details />
       </v-card-text>
@@ -176,6 +175,14 @@ const akunItems = ref([]);
 const founderItems = ref([]);
 const memuatAkun = ref(false);
 const memuatFounder = ref(false);
+// Jabatan tertinggi yang bisa dipilih pemegang hak = 1 jenjang di bawah pemilik gerbong (jabatan_maks dari server)
+const hintCakupan = computed(() => {
+  const akar = founderItems.value.find((x) => x.id === form.cakupan_id);
+  const maks = akar?.jabatan_maks;
+  return akar && maks
+    ? `Pemegang hak bisa memutasi seluruh akun di bawah ${akar.nama}, dengan jabatan paling tinggi ${maks}. ${akar.nama} sendiri tidak bisa dimutasi.`
+    : "Pilih akun TM sampai Distributor. Pemegang hak bisa memutasi seluruh akun di bawahnya, dengan jabatan paling tinggi 1 jenjang di bawah akun itu.";
+});
 
 // Pilihan yang sedang terpilih tetap ada di daftar supaya labelnya tampil
 const gabung = (lama, baru, id) => {
@@ -192,12 +199,14 @@ const cariAkun = debounce(async (q) => {
     memuatAkun.value = false;
   }
 });
+// Akar gerbong: akun TM sampai Distributor; pemegang hak bisa memutasi seluruh downline-nya
 const cariFounder = debounce(async (q) => {
   if (q && founderItems.value.some((x) => x.id === form.cakupan_id && x.label === q)) return;
   memuatFounder.value = true;
   try {
-    const { data } = await api.get("/hak-akses/cari-founder", { params: { q: q || "" } });
-    founderItems.value = gabung(founderItems.value, data.data.map((u) => ({ ...u, label: labelAkun(u) })), form.cakupan_id);
+    const { data } = await api.get("/hak-akses/cari-cakupan", { params: { q: q || "" } });
+    founderItems.value = gabung(founderItems.value, data.data.map((u) => ({ ...u,
+      label: `${labelAkun(u)} · ${u.jumlah_downline ? `${u.jumlah_downline} downline langsung` : "belum punya downline"}` })), form.cakupan_id);
   } finally {
     memuatFounder.value = false;
   }

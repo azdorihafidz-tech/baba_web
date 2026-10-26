@@ -502,7 +502,7 @@ export const PANDUAN = [
       "Saran RO hanya saran — sistem tidak mengubah jabatan secara otomatis.",
       "Seluruh langkah rencana tersimpan dalam satu proses: berhasil semua atau tidak sama sekali. Setiap langkah tercatat terpisah di Riwayat.",
       "Mutasi satu gerbong tercatat di Riwayat dengan Jenis Satu gerbong.",
-      "Founder yang diberi hak Mutasi (menu Hak Akses) hanya bisa memutasi akun di bawahnya sendiri, dengan jabatan paling tinggi GM. Founder itu sendiri dan akun di gerbong Founder lain tidak bisa dipilih. Daftar member, upline, No ID, Riwayat, dan Saran RO otomatis hanya berisi gerbongnya.",
+      "Akun yang diberi hak Mutasi (menu Hak Akses) hanya bisa memutasi akun di bawah pemilik gerbongnya, dengan jabatan paling tinggi 1 jenjang di bawah pemilik gerbong (gerbong Regional → paling tinggi Founder, gerbong Founder → GM, gerbong GM → Supplier). Pemilik gerbong sendiri dan akun di gerbong lain tidak bisa dipilih. Daftar member, upline, No ID, Riwayat, dan Saran RO otomatis hanya berisi gerbongnya.",
     ],
     tanya: [
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
@@ -515,7 +515,7 @@ export const PANDUAN = [
       { t: "Founder turun menjadi GM, tapi downline tidak bisa dicentang?", j: "Tanpa Satu gerbong, GM tidak boleh berada di bawah GM, jadi downline-nya terkunci. Nyalakan Satu gerbong agar seluruh tim ikut turun 1 jenjang, atau biarkan mati bila hanya Founder itu yang turun (downline-nya menunggu di kursi lama lalu Pilih pengganti / Upline penampung)." },
       { t: "Muncul 'Satu gerbong tidak bisa: … akun RESELLER tidak punya jenjang di bawahnya'?", j: "Reseller adalah jenjang paling bawah, jadi tidak bisa ikut turun. Pindahkan dulu Reseller yang disebut ke upline lain (Mutasi biasa), atau hilangkan centang downline yang membawahinya agar tim itu tidak ikut turun." },
       { t: "Muncul 'Nomor FO (B01–B50) sudah penuh' saat satu gerbong naik?", j: "Tim yang naik butuh nomor baru dan rentangnya habis. Pesan menyebut berapa nomor yang dibutuhkan per jabatan. Kosongkan dulu sebagian nomor (mis. turunkan Founder lain), atau perlebar rentang di Tipe Akun." },
-      { t: "Muncul 'Mutasi ini mengubah akun di luar gerbong Anda'?", j: "Akun Anda diberi hak Mutasi hanya untuk gerbong Founder tertentu. Pilihan itu ikut mengubah akun di gerbong lain (mis. tukar posisi dengan Supplier gerbong lain). Pilih kursi atau upline yang ada di gerbong Anda, atau minta superadmin yang memprosesnya." },
+      { t: "Muncul 'Mutasi ini mengubah akun di luar gerbong Anda'?", j: "Akun Anda diberi hak Mutasi hanya untuk gerbong tertentu. Pilihan itu ikut mengubah akun di gerbong lain (mis. tukar posisi dengan Supplier gerbong lain). Pilih kursi atau upline yang ada di gerbong Anda, atau minta superadmin yang memprosesnya." },
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
     ],
     gambar: [
@@ -529,17 +529,17 @@ export const PANDUAN = [
     menu: "Hak Akses",
     icon: "mdi-shield-account",
     peran: "superadmin",
-    ringkas: "Memberi atau mencabut hak tambahan untuk akun tertentu, mis. Mutasi di gerbong Founder.",
+    ringkas: "Memberi atau mencabut hak tambahan untuk akun tertentu, mis. Mutasi di gerbong Regional atau Founder.",
     kegunaan:
-      "Hak akses terpisah dari jabatan: jabatan mengatur posisi di struktur, hak akses mengatur apa yang boleh dikerjakan di aplikasi. Contoh: Founder B27 diberi hak Mutasi Jabatan untuk gerbongnya sendiri, sehingga bisa membantu superadmin memutasi akun di bawahnya tanpa bisa menyentuh gerbong Founder lain.",
+      "Hak akses terpisah dari jabatan: jabatan mengatur posisi di struktur, hak akses mengatur apa yang boleh dikerjakan di aplikasi. Contoh: Founder B27 diberi hak Mutasi Jabatan untuk gerbongnya sendiri, sehingga bisa membantu superadmin memutasi akun di bawahnya tanpa bisa menyentuh gerbong lain. Satu gerbong = pemilik gerbong beserta seluruh jaringan di bawahnya (mis. Founder → GM → Supplier → Distributor → Reseller).",
     langkah: [
       {
         judul: "Memberi hak",
         isi: [
           "Tekan Beri hak.",
-          "Akun yang diberi hak: cari nama, No ID, atau username (mis. akun Founder itu sendiri).",
+          "Akun yang diberi hak: cari nama, No ID, atau username (mis. akun Regional atau Founder itu sendiri).",
           "Hak: pilih Mutasi Jabatan.",
-          "Cakupan: pilih Founder yang gerbongnya boleh diurus. Pemegang hak hanya bisa memutasi akun di bawah Founder itu (GM ke bawah); Founder-nya sendiri tidak bisa dimutasi.",
+          "Di isian Cakupan: pemilik gerbong, pilih akun TM sampai Distributor yang gerbongnya boleh diurus (daftar menampilkan jabatan dan jumlah downline langsungnya). Pemegang hak bisa memutasi seluruh akun di bawahnya, dengan jabatan paling tinggi 1 jenjang di bawah pemilik gerbong; pemilik gerbong sendiri tidak bisa dimutasi.",
           "Isi Catatan bila perlu, lalu tekan Simpan.",
         ],
       },
@@ -556,12 +556,14 @@ export const PANDUAN = [
       },
     ],
     tips: [
-      "Satu akun boleh diberi hak untuk beberapa gerbong Founder.",
+      "Satu akun boleh diberi hak untuk beberapa gerbong.",
+      "Gerbong boleh bertumpuk: bila Regional R03 dan Founder B27 di bawahnya sama-sama diberi hak, keduanya bisa memutasi gerbong B27. Riwayat Mutasi mencatat siapa yang melakukannya.",
       "Superadmin sudah memiliki semua hak, tidak perlu diberi hak tambahan.",
       "Akun yang memegang hak atau menjadi cakupan gerbong tidak bisa dihapus sebelum haknya dicabut.",
     ],
     tanya: [
-      { t: "Cakupan tidak bisa memilih akun selain Founder?", j: "Benar. Cakupan hak Mutasi adalah gerbong Founder, jadi yang bisa dipilih hanya akun berjabatan Founder yang aktif." },
+      { t: "Kenapa Reseller tidak ada di pilihan Cakupan?", j: "Reseller adalah jenjang paling bawah dan tidak punya downline, jadi tidak bisa menjadi pemilik gerbong. Yang bisa dipilih: akun aktif TM sampai Distributor." },
+      { t: "Regional diberi hak, apakah bisa menjadikan anggotanya Regional?", j: "Tidak. Jabatan paling tinggi yang bisa dipilih adalah 1 jenjang di bawah pemilik gerbong: untuk gerbong Regional paling tinggi Founder." },
     ],
   },
   {
