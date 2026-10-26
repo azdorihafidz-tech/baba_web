@@ -1,7 +1,8 @@
 <template>
     <v-container fluid class="register-container">
         <v-row justify="center" align="center" class="fullscreen-row">
-            <v-col cols="12" sm="8" md="6" lg="4" xl="3">
+            <!-- Laptop: kartu lebar dua kolom; HP/tablet kecil: satu kolom -->
+            <v-col cols="12" sm="10" md="11" lg="9" xl="7">
                 <v-card class="baba-dark-form" :class="cardClass" elevation="24" rounded="xl" border="1px solid amber">
                     <!-- Logo -->
                     <div class="text-center logo-section">
@@ -15,6 +16,8 @@
 
                     <!-- Form -->
                     <v-form @submit.prevent="handleRegister" :class="formClass">
+                        <v-row class="kolom-form">
+                        <v-col cols="12" md="6" class="py-0">
                         <div class="input-box">
                             <div class="input-box-title">DATA PRIBADI</div>
                             <v-text-field v-model="inputRegister.nama" label="Nama Lengkap" density="compact"
@@ -46,6 +49,8 @@
                                 :items="jenisKelaminOptions" item-title="text" item-value="value" :class="inputClass"
                                 color="#E6B422" base-color="grey-lighten-1" clearable />
                         </div>
+                        </v-col>
+                        <v-col cols="12" md="6" class="py-0">
                         <div class="box-glass">
                             <div class="input-box-title">STRUKTUR UPLINE</div>
                             <v-select v-model="inputRegister.mvo_type_id" label="Jabatan" :items="jabatanOptions"
@@ -65,32 +70,32 @@
 
                             <!-- MVO -->
                             <v-select v-if="inputRegister.cabang && !isJabatanMvo" v-model="inputRegister.upline_1"
-                                label="Pilih MVO" :item-props="propsUpline" :items="mvoOptions" item-title="text" item-value="value"
+                                label="Pilih MVO" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="mvoOptions" item-title="text" item-value="value"
                                 @update:modelValue="onMvoChange" />
 
                             <!-- REGIONAL -->
                             <v-select v-if="inputRegister.upline_1 && hideUplineLevel !== 'upline_2'"
-                                v-model="inputRegister.upline_2" label="Pilih Regional" :item-props="propsUpline" :items="regionalOptions"
+                                v-model="inputRegister.upline_2" label="Pilih Regional" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="regionalOptions"
                                 item-title="text" item-value="value" @update:modelValue="onRegionalChange" />
 
                             <!-- FOUNDER -->
                             <v-select v-if="inputRegister.upline_2 && hideUplineLevel !== 'upline_3'"
-                                v-model="inputRegister.upline_3" label="Pilih Founder" :item-props="propsUpline" :items="founderOptions"
+                                v-model="inputRegister.upline_3" label="Pilih Founder" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="founderOptions"
                                 item-title="text" item-value="value" @update:modelValue="onFounderChange" />
 
                             <!-- GM -->
                             <v-select v-if="inputRegister.upline_3 && hideUplineLevel !== 'upline_4'"
-                                v-model="inputRegister.upline_4" label="Pilih GM" :item-props="propsUpline" :items="gmOptions" item-title="text"
+                                v-model="inputRegister.upline_4" label="Pilih GM" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="gmOptions" item-title="text"
                                 item-value="value" @update:modelValue="onGmChange" />
 
                             <!-- SUPPLIER -->
                             <v-select v-if="inputRegister.upline_4 && hideUplineLevel !== 'upline_5'"
-                                v-model="inputRegister.upline_5" label="Pilih Supplier" :item-props="propsUpline" :items="supplierOptions"
+                                v-model="inputRegister.upline_5" label="Pilih Supplier" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="supplierOptions"
                                 item-title="text" item-value="value" @update:modelValue="onSupplierChange" />
 
                             <!-- DISTRIBUTOR -->
                             <v-select v-if="inputRegister.upline_5 && hideUplineLevel !== 'upline_6'"
-                                v-model="inputRegister.upline_6" label="Pilih Distributor" :item-props="propsUpline" :items="distributorOptions"
+                                v-model="inputRegister.upline_6" label="Pilih Distributor" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="distributorOptions"
                                 item-title="text" item-value="value" />
 
 
@@ -112,6 +117,8 @@
                                 density="compact" hint="Format: PNG, JPG, JPEG • Maksimal 2 MB" persistent-hint
                                 @change="handleFotoProfileChange" />
                         </div>
+                        </v-col>
+                        </v-row>
                         <!-- Preview Foto Profil -->
                         <v-img v-if="previewFotoProfile" :src="previewFotoProfile" max-width="150" height="150"
                             class="mx-auto my-2 rounded-xl" contain />
@@ -850,6 +857,7 @@ export default {
 <style scoped>
 .box-glass {
     position: relative;
+    margin-top: 16px;
     padding: 22px 18px;
     margin-bottom: 26px;
     border-radius: 18px;
