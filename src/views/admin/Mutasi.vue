@@ -704,6 +704,7 @@ function pilihAtasan(a) {
 const ikutState = ref({}); // downline langsung orang yang dipindah: true = ikut
 const ikutStateTukar = ref({}); // downline langsung pemegang lama kursi tujuan: true = ikut dia, false = tetap di kursi
 const ikutStateKetiga = ref({}); // rotasi: downline langsung orang ketiga
+const dilepasOtomatis = new Map(); // state centang → id downline yang dilepas otomatis karena jenjang tidak cocok
 const penampung = ref(null);
 const penampungItems = ref([]);
 const loadingPenampung = ref(false);
@@ -867,9 +868,24 @@ const jadwalkanPratinjau = debounce(async () => {
     if (nomor !== urutPratinjau) return; // abaikan respons lama
     pratinjau.value = data;
     // Downline langsung yang belum punya status: ikut bila jenjangnya cocok (bawaan: ikut orangnya)
+    // Jabatan/upline tujuan berubah: downline yang jenjangnya tidak cocok lagi dilepas centangnya,
+    // dan dicentang kembali bila pilihan dikembalikan sehingga jenjangnya cocok lagi
     const isi = (daftar, st) => {
       const baru = { ...st.value };
-      daftar.forEach((a) => { if (!(a.id in baru)) baru[a.id] = a.boleh_ikut !== false; });
+      if (!dilepasOtomatis.has(st)) dilepasOtomatis.set(st, new Set());
+      const lepas = dilepasOtomatis.get(st);
+      daftar.forEach((a) => {
+        if (!(a.id in baru)) {
+          baru[a.id] = a.boleh_ikut !== false;
+          lepas.delete(a.id);
+        } else if (a.boleh_ikut === false && baru[a.id]) {
+          baru[a.id] = false;
+          lepas.add(a.id);
+        } else if (a.boleh_ikut !== false && lepas.has(a.id)) {
+          baru[a.id] = true;
+          lepas.delete(a.id);
+        }
+      });
       st.value = baru;
     };
     isi(anakLangsung.value, ikutState);

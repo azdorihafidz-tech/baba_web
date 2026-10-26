@@ -434,7 +434,7 @@ export const PANDUAN = [
           "Centang = downline langsung ikut pindah bersama seluruh timnya (bawaan: semua ikut). Tombol Centang semua / Kosongkan semua mempercepat pilihan.",
           "Bila mengambil kursi yang terisi, ada daftar terpisah untuk downline pemegang lama (dan orang ketiga pada rotasi). Yang tidak dicentang tetap di kursinya — mereka pindah ke orang yang kini menempati kursi itu, No ID-nya tidak berubah.",
           "Downline orang yang dipindah yang tidak dicentang menunggu di kursi lama yang kosong. Pilih Upline penampung (opsional) untuk memindahkan mereka langsung ke upline lain.",
-          "Downline yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor).",
+          "Downline yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor; Regional yang turun menjadi GM tidak bisa membawa Founder). Bila jabatan dikembalikan, centangnya kembali sendiri.",
           "Selama masih ada kursi kosong yang punya downline, muncul peringatan \"Kursi … kosong, masih ada … downline\" dan Simpan Mutasi belum bisa ditekan.",
         ],
       },
