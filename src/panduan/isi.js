@@ -413,6 +413,18 @@ export const PANDUAN = [
       "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh downline-nya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
     langkah: [
       {
+        judul: "Jenis mutasi & caranya",
+        isi: [
+          "Satu gerbong naik/turun (timnya ikut naik/turun): pilih member, pilih Jabatan baru 1 jenjang di atas atau di bawah, lalu nyalakan saklar Satu gerbong di bagian Downline yang ikut.",
+          "Naik/turun sendiri (timnya tetap di jabatannya): pilih Jabatan baru dan biarkan Satu gerbong mati. Kursi lamanya jadi kosong: tekan Pilih pengganti, atau pilih Upline penampung untuk downline-nya.",
+          "Pindah upline (jabatan tetap, tim ikut): biarkan Jabatan baru seperti sekarang, lalu tekan Ganti upline.",
+          "Rotasi bersama anggota: tekan Pilih No ID, pilih No ID yang sudah dipegang orang lain, lalu pilih Tukar posisi. Biarkan anggota dicentang: anggota ikut orangnya.",
+          "Rotasi sendiri (anggota tetap di kursinya): sama seperti rotasi, tetapi hilangkan centang anggota. Anggota pindah ke orang yang kini menempati kursi itu, No ID-nya tidak berubah.",
+          "Rotasi 3 orang: setelah memilih No ID yang terisi, pilih \"… pindah ke kursi lain\" lalu pilih No ID milik orang ketiga.",
+          "Naik/turun 2 jenjang: lakukan 1 jenjang, tekan Tambah langkah, pilih orang yang sama, lalu 1 jenjang lagi. Keduanya tersimpan sekali dengan Simpan Rencana.",
+        ],
+      },
+      {
         judul: "1. Pilih member",
         isi: [
           "Di tab Mutasi Baru, daftar semua member langsung tampil (urut dari jabatan tertinggi). Tidak perlu ingat nama: saring dengan tombol jabatan (TM, MVO, … Reseller) dan pilihan Cabang, lalu gulir daftarnya.",
