@@ -442,6 +442,8 @@ export const PANDUAN = [
           "Bila mengambil kursi yang terisi, ada daftar terpisah untuk downline pemegang lama (dan orang ketiga pada rotasi). Yang tidak dicentang tetap di kursinya — mereka pindah ke orang yang kini menempati kursi itu, No ID-nya tidak berubah.",
           "Downline orang yang dipindah yang tidak dicentang menunggu di kursi lama yang kosong. Pilih Upline penampung (opsional) untuk memindahkan mereka langsung ke upline lain.",
           "Downline yang jenjangnya tidak cocok dengan jabatan baru otomatis tidak dicentang (mis. Supplier yang naik menjadi GM tidak bisa membawa Distributor; Regional yang turun menjadi GM tidak bisa membawa Founder). Bila jabatan dikembalikan, centangnya kembali sendiri.",
+          "Satu gerbong: bila jabatan baru naik atau turun 1 jenjang, nyalakan saklar Satu gerbong di atas daftar downline. Downline yang dicentang beserta seluruh jaringannya ikut naik/turun 1 jenjang (mis. GM turun menjadi Supplier: Supplier di timnya menjadi Distributor, Distributor menjadi Reseller). No ID seluruh tim ikut berubah. Saklar mati = hanya orang itu yang ganti jabatan.",
+          "Satu gerbong hanya 1 jenjang per langkah. Untuk 2 jenjang: turunkan/naikkan 1 jenjang, tekan Tambah langkah, pilih orang yang sama, lalu turunkan/naikkan 1 jenjang lagi.",
           "Selama masih ada kursi kosong yang punya downline, muncul peringatan \"Kursi … kosong, masih ada … downline\" dan Simpan Mutasi belum bisa ditekan.",
         ],
       },
@@ -487,6 +489,7 @@ export const PANDUAN = [
       "Founder dan GM pindah upline: No ID tidak berubah. Supplier ke bawah: No ID mengikuti No ID upline barunya (nomor belakang dipertahankan bila masih kosong).",
       "Saran RO hanya saran — sistem tidak mengubah jabatan secara otomatis.",
       "Seluruh langkah rencana tersimpan dalam satu proses: berhasil semua atau tidak sama sekali. Setiap langkah tercatat terpisah di Riwayat.",
+      "Mutasi satu gerbong tercatat di Riwayat dengan Jenis Satu gerbong.",
     ],
     tanya: [
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
@@ -496,6 +499,9 @@ export const PANDUAN = [
       { t: "Kursi B52-01 kosong, siapa yang menggantikan?", j: "Tekan Pilih pengganti pada kotak kursi itu, lalu pilih orangnya, mis. Distributor B52-01-04 dinaikkan. Bila kursi Distributor itu jadi kosong, pilih pengganti lagi sampai tidak ada kursi kosong, lalu Simpan Rencana." },
       { t: "Supplier B52-01 naik menggantikan GM B52?", j: "Pilih member B52-01, Jabatan baru GM, Pilih No ID → B52, lalu aktifkan Tukar posisi. GM lama otomatis menempati kursi B52-01. Downline yang jenjangnya tidak cocok otomatis tetap di posisi, jadi hanya 2 No ID yang berubah." },
       { t: "Kenapa downline tidak bisa dicentang saat tukar posisi?", j: "Jenjangnya tidak cocok dengan jabatan baru orang itu (mis. GM naik menjadi Founder: Supplier-nya tidak bisa ikut karena Supplier harus di bawah GM). Downline tersebut otomatis tetap di posisi." },
+      { t: "Founder turun menjadi GM, tapi downline tidak bisa dicentang?", j: "Tanpa Satu gerbong, GM tidak boleh berada di bawah GM, jadi downline-nya terkunci. Nyalakan Satu gerbong agar seluruh tim ikut turun 1 jenjang, atau biarkan mati bila hanya Founder itu yang turun (downline-nya menunggu di kursi lama lalu Pilih pengganti / Upline penampung)." },
+      { t: "Muncul 'Satu gerbong tidak bisa: … akun RESELLER tidak punya jenjang di bawahnya'?", j: "Reseller adalah jenjang paling bawah, jadi tidak bisa ikut turun. Pindahkan dulu Reseller yang disebut ke upline lain (Mutasi biasa), atau hilangkan centang downline yang membawahinya agar tim itu tidak ikut turun." },
+      { t: "Muncul 'Nomor FO (B01–B50) sudah penuh' saat satu gerbong naik?", j: "Tim yang naik butuh nomor baru dan rentangnya habis. Pesan menyebut berapa nomor yang dibutuhkan per jabatan. Kosongkan dulu sebagian nomor (mis. turunkan Founder lain), atau perlebar rentang di Tipe Akun." },
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
     ],
     gambar: [

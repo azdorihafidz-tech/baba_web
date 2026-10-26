@@ -169,6 +169,22 @@
           <div class="step-head"><span class="step-no">3</span> Downline yang ikut
             <span class="head-note">{{ jumlahAnakLangsung }} downline langsung</span></div>
           <v-card-text>
+            <!-- Satu gerbong: seluruh tim ikut naik/turun 1 jenjang bersama orangnya -->
+            <div v-if="tampilGerbong" class="gerbong-box mb-4">
+              <template v-if="bisaGerbong">
+                <v-switch v-model="gerbong" color="#B8890F" inset hide-details density="compact"
+                  :label="`Satu gerbong: tim ikut ${arahGerbong} 1 jenjang`" @update:model-value="jadwalkanPratinjau" />
+                <p class="hint mb-0">
+                  <template v-if="gerbong">Downline yang dicentang beserta seluruh jaringannya ikut {{ arahGerbong }} 1 jenjang
+                    (mis. {{ contohGerbong }}). No ID seluruh tim ikut berubah.</template>
+                  <template v-else>Mati = hanya {{ member.nama }} yang ganti jabatan; downline yang jenjangnya tidak cocok tidak bisa ikut.</template>
+                </p>
+              </template>
+              <v-alert v-else type="info" variant="tonal" density="compact">
+                Satu gerbong hanya 1 jenjang. Pilih jabatan 1 jenjang {{ selisihJenjang > 0 ? 'di bawah' : 'di atas' }} dulu,
+                lalu tekan Tambah langkah untuk jenjang berikutnya.
+              </v-alert>
+            </div>
             <!-- Satu kelompok per pemilik downline: orang yang dipindah, pemegang lama kursi tujuan, dan (rotasi) orang ketiga -->
             <div v-for="g in kelompokDownline" :key="g.kunci" class="mb-4">
               <div class="kelompok-head">
@@ -188,7 +204,8 @@
                     <div class="anak-meta">{{ a.jabatan_lama }} · {{ a.no_id_lama || '-' }}
                       <span v-if="a.jumlah_tim"> · beserta {{ a.jumlah_tim }} downline</span></div>
                     <div v-if="a.boleh_ikut === false" class="anak-alasan">
-                      Jenjang tidak cocok dengan jabatan baru {{ g.nama }} — {{ g.kalauTidak }}
+                      Jenjang tidak cocok dengan jabatan baru {{ g.nama }} — {{ g.kalauTidak }}<template
+                        v-if="g.kunci === 'x' && bisaGerbong && !gerbong">. Nyalakan Satu gerbong di atas agar ikut {{ arahGerbong }} bersama.</template>
                     </div>
                   </div>
                 </label>
@@ -566,6 +583,23 @@ const rotasi = computed(() => ambilKursiTerisi.value && nasibPemegang.value === 
 const pakaiTukar = computed(() => ambilKursiTerisi.value && (nasibPemegang.value === "tukar" || rotasi.value));
 const duaLangkah = computed(() => ambilKursiTerisi.value && nasibPemegang.value === "lain" && !rotasi.value);
 
+// Satu gerbong: tim ikut naik/turun jenjang bersama orangnya (hanya 1 jenjang per langkah; jenjang besar = di bawah)
+const gerbong = ref(false);
+const levelJabatan = (id) => jabatanList.value.find((j) => String(j.id) === String(id))?.level;
+const selisihJenjang = computed(() => {
+  if (!member.value || !jabatanDipilih.value) return 0;
+  const r = barisRencana.value.find((b) => b.id === member.value.id);
+  const awal = levelJabatan(r ? r.mvo_type_id : member.value.mvo_type_id);
+  return awal == null ? 0 : jabatanDipilih.value.level - awal;
+});
+const tampilGerbong = computed(() => selisihJenjang.value !== 0 && !kursiTarget.value && !pakaiTukar.value && !duaLangkah.value
+  && anakLangsung.value.length > 0);
+const bisaGerbong = computed(() => tampilGerbong.value && Math.abs(selisihJenjang.value) === 1);
+const arahGerbong = computed(() => (selisihJenjang.value > 0 ? "turun" : "naik"));
+const contohGerbong = computed(() => (selisihJenjang.value > 0
+  ? "Supplier di tim menjadi Distributor, Distributor menjadi Reseller"
+  : "Distributor di tim menjadi Supplier, Reseller menjadi Distributor"));
+
 async function muatNomor(q = "") {
   if (!jabatanBaru.value) return;
   loadingNomor.value = true;
@@ -659,6 +693,7 @@ function gabungTerpilih(terpilih, items, q) {
 function pilihMember() {
   pratinjau.value = null;
   ikutState.value = {};
+  gerbong.value = false;
   penampung.value = null;
   penampungItems.value = [];
   if (!member.value) return;
@@ -848,6 +883,7 @@ const draftLangkah = () => {
     tidak_ikut: tidakX,
     tidak_ikut_tukar: pakaiTukar.value ? tidak(anakTukar.value, ikutStateTukar.value) : [],
     tidak_ikut_ketiga: rotasi.value ? tidak(anakKetiga.value, ikutStateKetiga.value) : [],
+    gerbong: bisaGerbong.value && gerbong.value,
   }];
 };
 
@@ -1120,7 +1156,7 @@ const loadingRiwayat = ref(false);
 const cariRiwayat = ref("");
 const detail = reactive({ show: false, items: [], langkah: [], loading: false });
 
-const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline" };
+const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline", gerbong: "Satu gerbong" };
 const headersRiwayat = [
   { title: "Tanggal", key: "created_at" },
   { title: "Jenis", key: "langkah", sortable: false },
@@ -1454,6 +1490,13 @@ if (isSuperadmin) muatJabatan();
 .peran-pindah_upline {
   background: #fff3e0;
   color: #c77700;
+}
+
+.gerbong-box {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--baba-gold-soft);
+  border: 1px solid var(--baba-gold);
 }
 
 .kelompok-head {
