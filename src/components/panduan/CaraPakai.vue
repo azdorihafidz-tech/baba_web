@@ -21,7 +21,7 @@
       </div>
 
       <v-card-text class="cp-body">
-        <PanduanIsi v-if="panduan" :panduan="panduan" :is-superadmin="isSuperadmin" />
+        <PanduanIsi v-if="panduan" :panduan="panduan" :is-superadmin="isSuperadmin" :hak="hakSaya" />
         <div v-else class="cp-kosong">
           Belum ada panduan khusus untuk halaman ini. Lihat semua panduan di menu Panduan.
         </div>
@@ -43,15 +43,18 @@ import { useRoute, useRouter } from "vue-router";
 import { VBottomSheet, VDialog } from "vuetify/components";
 import PanduanIsi from "@/components/panduan/PanduanIsi.vue";
 import { bolehLihat, cariPanduan } from "@/panduan/isi.js";
+import { hakState, muatHak } from "@/utils/hakAkses";
 
 const route = useRoute();
 const router = useRouter();
 const buka = ref(false);
 const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
-// Panduan khusus superadmin tidak ditampilkan ke member (mis. member membuka URL /admin/mutasi)
+if (!isSuperadmin) muatHak();
+const hakSaya = computed(() => hakState.daftar.map((h) => h.hak));
+// Panduan khusus superadmin / pemegang hak tidak ditampilkan ke member lain (mis. member membuka URL /admin/mutasi)
 const panduan = computed(() => {
   const p = cariPanduan(route.path);
-  return p && bolehLihat(p.peran, isSuperadmin) ? p : null;
+  return p && bolehLihat(p.peran, isSuperadmin, hakSaya.value) ? p : null;
 });
 
 function keSemua() {

@@ -64,6 +64,7 @@
 <script>
 import { useAppStore } from "@/stores/app.js";
 import { chatState, mulaiChat } from "@/utils/chatKoneksi";
+import { MENU_HAK, muatHak, punyaHak } from "@/utils/hakAkses";
 
 export default {
   setup() {
@@ -173,6 +174,11 @@ export default {
     },
   },
   methods: {
+    aturMenuMember() {
+      this.linkMenu = this.allMenus.DIREKSI.filter((item) =>
+        this.nonSuperadminMenus.includes(item[1]) || (MENU_HAK[item[1]] && punyaHak(MENU_HAK[item[1]]))
+      );
+    },
     // Jumlah pesan chat belum dibaca (lencana menu Chat)
     lencana(url) {
       return url === "/admin/chat" ? this.chatState.total : 0;
@@ -242,9 +248,9 @@ export default {
     if (mvo_type_id === "superadmin") {
       this.linkMenu = this.allMenus.DIREKSI;
     } else {
-      this.linkMenu = this.allMenus.DIREKSI.filter((item) =>
-        this.nonSuperadminMenus.includes(item[1])
-      );
+      this.aturMenuMember();
+      // Menu tambahan dari hak akses (mis. Mutasi Jabatan untuk Founder yang diberi hak)
+      muatHak().then(() => this.aturMenuMember());
     }
 
     this.bottomNavModel = this.$route.path;

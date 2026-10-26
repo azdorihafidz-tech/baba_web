@@ -407,7 +407,7 @@ export const PANDUAN = [
     route: "/admin/mutasi",
     menu: "Mutasi Jabatan",
     icon: "mdi-account-switch",
-    peran: "superadmin",
+    peran: "hak:mutasi",
     ringkas: "Menaikkan, menurunkan, atau memindahkan upline member beserta downline-nya.",
     kegunaan:
       "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh downline-nya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
@@ -485,7 +485,7 @@ export const PANDUAN = [
         judul: "Saran RO",
         isi: [
           "Tab Saran RO menampilkan member yang layak naik atau perlu turun berdasarkan RO dokumen yang sudah disetujui.",
-          "Isi target per jabatan di Atur target per jabatan: periode (bulan), basis (Pribadi atau Tim = termasuk downline), Naik bila RO ≥, dan Turun bila RO <. Kosongkan bila jabatan tidak perlu dinilai.",
+          { teks: "Isi target per jabatan di Atur target per jabatan: periode (bulan), basis (Pribadi atau Tim = termasuk downline), Naik bila RO ≥, dan Turun bila RO <. Kosongkan bila jabatan tidak perlu dinilai.", peran: "superadmin" },
           "Tekan Proses pada baris saran untuk membuka Mutasi Baru dengan member dan jabatan tujuan sudah terisi.",
         ],
       },
@@ -502,6 +502,7 @@ export const PANDUAN = [
       "Saran RO hanya saran — sistem tidak mengubah jabatan secara otomatis.",
       "Seluruh langkah rencana tersimpan dalam satu proses: berhasil semua atau tidak sama sekali. Setiap langkah tercatat terpisah di Riwayat.",
       "Mutasi satu gerbong tercatat di Riwayat dengan Jenis Satu gerbong.",
+      "Founder yang diberi hak Mutasi (menu Hak Akses) hanya bisa memutasi akun di bawahnya sendiri, dengan jabatan paling tinggi GM. Founder itu sendiri dan akun di gerbong Founder lain tidak bisa dipilih. Daftar member, upline, No ID, Riwayat, dan Saran RO otomatis hanya berisi gerbongnya.",
     ],
     tanya: [
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
@@ -514,6 +515,7 @@ export const PANDUAN = [
       { t: "Founder turun menjadi GM, tapi downline tidak bisa dicentang?", j: "Tanpa Satu gerbong, GM tidak boleh berada di bawah GM, jadi downline-nya terkunci. Nyalakan Satu gerbong agar seluruh tim ikut turun 1 jenjang, atau biarkan mati bila hanya Founder itu yang turun (downline-nya menunggu di kursi lama lalu Pilih pengganti / Upline penampung)." },
       { t: "Muncul 'Satu gerbong tidak bisa: … akun RESELLER tidak punya jenjang di bawahnya'?", j: "Reseller adalah jenjang paling bawah, jadi tidak bisa ikut turun. Pindahkan dulu Reseller yang disebut ke upline lain (Mutasi biasa), atau hilangkan centang downline yang membawahinya agar tim itu tidak ikut turun." },
       { t: "Muncul 'Nomor FO (B01–B50) sudah penuh' saat satu gerbong naik?", j: "Tim yang naik butuh nomor baru dan rentangnya habis. Pesan menyebut berapa nomor yang dibutuhkan per jabatan. Kosongkan dulu sebagian nomor (mis. turunkan Founder lain), atau perlebar rentang di Tipe Akun." },
+      { t: "Muncul 'Mutasi ini mengubah akun di luar gerbong Anda'?", j: "Akun Anda diberi hak Mutasi hanya untuk gerbong Founder tertentu. Pilihan itu ikut mengubah akun di gerbong lain (mis. tukar posisi dengan Supplier gerbong lain). Pilih kursi atau upline yang ada di gerbong Anda, atau minta superadmin yang memprosesnya." },
       { t: "Muncul 'Tidak ada perubahan'?", j: "Jabatan dan upline baru sama dengan sekarang. Untuk memindahkan satu downline saja, pilih downline tersebut sebagai member yang dimutasi." },
     ],
     gambar: [
@@ -704,7 +706,21 @@ export function cariPanduan(path) {
   return PANDUAN.find((g) => g.route.toLowerCase() === p) || null;
 }
 
-/** Apakah user ini boleh melihat panduan/elemen dengan peran tertentu. */
-export function bolehLihat(peran, isSuperadmin) {
-  return !peran || peran === "semua" || (peran === "superadmin" && isSuperadmin);
+/**
+ * Apakah user ini boleh melihat panduan/elemen dengan peran tertentu.
+ * peran: "semua" | "superadmin" | "hak:<kode>" (superadmin + pemegang hak itu, lihat menu Hak Akses).
+ * hakSaya: kode hak milik akun login, mis. ["mutasi"].
+ */
+export function bolehLihat(peran, isSuperadmin, hakSaya = []) {
+  if (!peran || peran === "semua") return true;
+  if (peran === "superadmin") return isSuperadmin;
+  if (String(peran).startsWith("hak:")) return isSuperadmin || hakSaya.includes(peran.slice(4));
+  return false;
+}
+
+/** Teks "siapa yang bisa" untuk satu panduan. */
+export function labelPeran(peran) {
+  if (peran === "superadmin") return "Khusus superadmin";
+  if (String(peran || "").startsWith("hak:")) return "Superadmin & akun yang diberi hak di menu Hak Akses";
+  return "Semua member";
 }

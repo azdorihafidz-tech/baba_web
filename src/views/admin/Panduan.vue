@@ -44,13 +44,14 @@
             <div>
               <div class="panel-menu">{{ p.menu }}
                 <span v-if="p.peran === 'superadmin'" class="badge-sa">Superadmin</span>
+                <span v-else-if="String(p.peran || '').startsWith('hak:')" class="badge-sa">Hak akses</span>
               </div>
               <div class="panel-ringkas">{{ p.ringkas }}</div>
             </div>
           </div>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <PanduanIsi :panduan="p" :is-superadmin="isSuperadmin" />
+          <PanduanIsi :panduan="p" :is-superadmin="isSuperadmin" :hak="hakSaya" />
           <div class="d-flex justify-end mt-2">
             <v-btn v-if="p.route" variant="tonal" color="primary" size="small" append-icon="mdi-arrow-right"
               :to="p.route">Buka menu {{ p.menu }}</v-btn>
@@ -69,9 +70,12 @@ import { useRoute } from "vue-router";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import PanduanIsi from "@/components/panduan/PanduanIsi.vue";
 import { MULAI_CEPAT, PANDUAN, bolehLihat } from "@/panduan/isi.js";
+import { hakState, muatHak } from "@/utils/hakAkses";
 
 const route = useRoute();
 const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
+if (!isSuperadmin) muatHak();
+const hakSaya = computed(() => hakState.daftar.map((h) => h.hak));
 const cari = ref("");
 const terbuka = ref([]);
 
@@ -84,7 +88,7 @@ const teksPanduan = (p) =>
 
 const daftar = computed(() => {
   const q = (cari.value || "").toLowerCase().trim();
-  return PANDUAN.filter((p) => bolehLihat(p.peran, isSuperadmin)).filter((p) => !q || teksPanduan(p).includes(q));
+  return PANDUAN.filter((p) => bolehLihat(p.peran, isSuperadmin, hakSaya.value)).filter((p) => !q || teksPanduan(p).includes(q));
 });
 
 onMounted(async () => {

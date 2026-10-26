@@ -3,7 +3,7 @@
     <p class="pi-kegunaan">{{ panduan.kegunaan }}</p>
     <div class="pi-siapa">
       <v-icon size="16">mdi-account-key</v-icon>
-      {{ panduan.peran === 'superadmin' ? 'Khusus superadmin' : 'Semua member' }}
+      {{ labelPeran(panduan.peran) }}
     </div>
 
     <template v-for="(l, i) in langkah" :key="i">
@@ -47,26 +47,27 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { bolehLihat } from "@/panduan/isi.js";
+import { bolehLihat, labelPeran } from "@/panduan/isi.js";
 
 const props = defineProps({
   panduan: { type: Object, required: true },
   isSuperadmin: { type: Boolean, default: false },
+  hak: { type: Array, default: () => [] }, // kode hak akun login (menu Hak Akses)
 });
 
 const perbesar = ref(null);
 const teks = (x) => (typeof x === "string" ? x : x.teks);
-const lihat = (x) => typeof x === "string" || bolehLihat(x.peran, props.isSuperadmin);
+const lihat = (x) => typeof x === "string" || bolehLihat(x.peran, props.isSuperadmin, props.hak);
 
 // Langkah/tips khusus superadmin disembunyikan dari member
 const langkah = computed(() =>
   (props.panduan.langkah || [])
-    .filter((l) => bolehLihat(l.peran, props.isSuperadmin))
+    .filter((l) => bolehLihat(l.peran, props.isSuperadmin, props.hak))
     .map((l) => ({ judul: l.judul, isi: l.isi.filter(lihat).map(teks) }))
     .filter((l) => l.isi.length),
 );
 const tips = computed(() => (props.panduan.tips || []).filter(lihat).map(teks));
-const tanya = computed(() => (props.panduan.tanya || []).filter((q) => bolehLihat(q.peran, props.isSuperadmin)));
+const tanya = computed(() => (props.panduan.tanya || []).filter((q) => bolehLihat(q.peran, props.isSuperadmin, props.hak)));
 const gambar = computed(() => props.panduan.gambar || []);
 </script>
 

@@ -3,15 +3,21 @@
     <Breadcrumb :items="[{ title: 'Dashboard', to: '/admin/dashboard' }, { title: 'Mutasi Jabatan' }]"
       sub="Naikkan, turunkan, atau pindahkan upline member beserta downline-nya" />
 
-    <v-alert v-if="!isSuperadmin" type="info" variant="tonal">Halaman ini khusus superadmin.</v-alert>
+    <v-alert v-if="hakDimuat && !bolehMutasi" type="info" variant="tonal">
+      Anda tidak memiliki hak akses Mutasi Jabatan. Hubungi superadmin bila perlu.</v-alert>
+    <!-- Pemegang hak (bukan superadmin): hanya gerbong Founder cakupannya -->
+    <v-alert v-if="cakupanMutasi" type="info" variant="tonal" density="compact" class="mb-3" icon="mdi-shield-account">
+      Anda memutasi gerbong Founder <b>{{ cakupanMutasi.map((c) => `${c.no_id} · ${c.nama}`).join(", ") }}</b>:
+      hanya akun di bawahnya (GM ke bawah) yang bisa dipilih dan dipindah.
+    </v-alert>
 
-    <v-tabs v-if="isSuperadmin" v-model="tab" color="#B8890F" class="mb-4">
+    <v-tabs v-if="bolehMutasi" v-model="tab" color="#B8890F" class="mb-4">
       <v-tab value="baru" prepend-icon="mdi-account-switch">Mutasi Baru</v-tab>
       <v-tab value="saran" prepend-icon="mdi-chart-timeline-variant" @click="muatSaranAwal">Saran RO</v-tab>
       <v-tab value="riwayat" prepend-icon="mdi-history" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
 
-    <v-window v-if="isSuperadmin" v-model="tab">
+    <v-window v-if="bolehMutasi" v-model="tab">
       <!-- ================= MUTASI BARU ================= -->
       <v-window-item value="baru">
         <!-- Rencana: langkah yang sudah ditetapkan, disimpan sekaligus bersama langkah yang sedang diisi -->
@@ -306,7 +312,7 @@
           Sistem hanya memberi saran — perubahan jabatan tetap lewat tombol <b>Proses</b> (Mutasi Baru).
         </v-alert>
 
-        <v-expansion-panels v-model="panelAturan" class="mb-4">
+        <v-expansion-panels v-if="isSuperadmin" v-model="panelAturan" class="mb-4">
           <v-expansion-panel value="aturan" class="step-card">
             <v-expansion-panel-title><b>Atur target per jabatan</b></v-expansion-panel-title>
             <v-expansion-panel-text>
@@ -350,7 +356,7 @@
 
             <v-data-table :headers="headersSaran" :items="saran" :loading="loadingSaran" :items-per-page="10"
               density="comfortable" :mobile="$vuetify.display.smAndDown"
-              no-data-text="Belum ada saran. Atur target per jabatan terlebih dahulu.">
+              :no-data-text="isSuperadmin ? 'Belum ada saran. Atur target per jabatan terlebih dahulu.' : 'Belum ada saran untuk gerbong Anda. Target RO diatur oleh superadmin.'">
               <template #item.ro="{ item }">
                 <b>{{ formatAngka(item.ro) }}</b>
                 <div class="hint">{{ item.basis === 'tim' ? 'Tim' : 'Pribadi' }} · {{ item.periode_bulan }} bln</div>
@@ -475,6 +481,7 @@ import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 import KursiTujuan from "@/components/mutasi/KursiTujuan.vue";
 import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
 import { muatOwner, teksOwner } from "@/utils/owner";
+import { muatHak, punyaHak } from "@/utils/hakAkses";
 
 muatOwner();
 
@@ -549,6 +556,7 @@ const posisiRencana = computed(() => {
 
 /* ---------- 2. posisi baru ---------- */
 const jabatanList = ref([]);
+const cakupanMutasi = ref(null); // null = superadmin; [{id, nama, no_id}] = Founder cakupan pemegang hak
 const jabatanBaru = ref(null);
 const atasanBaru = ref(null);
 const atasanTerpilih = ref(null); // { id, nama, no_id, jabatan }
@@ -671,6 +679,7 @@ async function muatJabatan() {
   try {
     const { data } = await api.get("/mutasi/jabatan");
     jabatanList.value = data.data;
+    cakupanMutasi.value = data.cakupan || null;
   } catch (e) {
     toast(pesanError(e, "Gagal memuat jabatan"), "error");
   }
@@ -1206,7 +1215,17 @@ async function bukaDetail(item) {
 const formatTanggal = (s) => (s ? new Date(s.replace(" ", "T")).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }) : "-");
 
 const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
+// Superadmin: semua akun. Pemegang hak "mutasi" (menu Hak Akses): gerbong Founder cakupannya saja (dijaga server).
+const bolehMutasi = ref(isSuperadmin);
+const hakDimuat = ref(isSuperadmin);
 if (isSuperadmin) muatJabatan();
+else {
+  muatHak().then(() => {
+    bolehMutasi.value = punyaHak("mutasi");
+    hakDimuat.value = true;
+    if (bolehMutasi.value) muatJabatan();
+  });
+}
 </script>
 
 <style scoped>
