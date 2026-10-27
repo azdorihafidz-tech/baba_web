@@ -14,6 +14,7 @@ export const chatState = reactive({
   ruangTerbuka: null, // grup yang sedang dibuka di halaman Chat (pesannya tidak dihitung belum dibaca)
   userId: null,
   superadmin: false,
+  bolehKirim: true, // false = dilarang kirim pesan oleh superadmin (menu Hak Akses)
 });
 
 let socket = null;
@@ -83,6 +84,7 @@ export function mulaiChat() {
   socket.on("saya", (u) => {
     chatState.userId = Number(u?.id) || chatState.userId;
     chatState.superadmin = !!u?.superadmin;
+    chatState.bolehKirim = u?.boleh_kirim !== false;
   });
   socket.on("unread_update", terapkanRingkas);
   socket.on("message", (d) => {

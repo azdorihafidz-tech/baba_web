@@ -108,7 +108,11 @@
             Pesan baru <v-icon size="16">mdi-arrow-down</v-icon>
           </button>
 
-          <div class="tulis">
+          <div v-if="!chatState.bolehKirim" class="tulis-dilarang">
+            <v-icon size="18">mdi-message-lock-outline</v-icon>
+            Hak kirim pesan untuk akun Anda dinonaktifkan superadmin. Anda tetap bisa membaca pesan.
+          </div>
+          <div v-else class="tulis">
             <v-menu v-model="menuEmoji" :close-on-content-click="false" location="top start">
               <template #activator="{ props }">
                 <v-btn v-bind="props" icon variant="text" size="small" title="Emoji">
@@ -839,6 +843,16 @@ onBeforeUnmount(() => {
   gap: 6px;
   padding: 10px 12px;
   background: var(--baba-surface);
+  border-top: 1px solid var(--baba-border);
+}
+
+.tulis-dilarang {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: var(--baba-muted);
   border-top: 1px solid var(--baba-border);
 }
 

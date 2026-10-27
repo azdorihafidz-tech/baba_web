@@ -549,7 +549,7 @@ export const PANDUAN = [
           "Larang akun ini — akun tersebut tidak boleh, walau jabatannya boleh. Izinkan akun ini — akun tersebut boleh, walau jabatannya tidak.",
           "Ikuti aturan jabatan (untuk hak approve: Ikuti aturan) — menghapus pengecualian, akun kembali mengikuti aturan jabatan / posisinya sebagai upline.",
           "Isi alasan bila perlu, lalu Simpan. Keterangan baris menyebut siapa yang mengizinkan/melarang dan alasannya.",
-          "Saat ini yang bisa diubah: Tambah / ubah / hapus / import dokumen (izinkan atau larang), dan Approve / Tunda / Tolak / Pulihkan pendaftar (hanya bisa dilarang, karena hak ini mengikuti posisi akun sebagai upline).",
+          "Saat ini yang bisa diubah: Tambah / ubah / hapus / import dokumen (izinkan atau larang), Approve / Tunda / Tolak / Pulihkan pendaftar (hanya bisa dilarang, karena hak ini mengikuti posisi akun sebagai upline), dan Kirim pesan Chat (hanya bisa dilarang; akun tetap bisa membaca pesan).",
         ],
       },
       {
@@ -699,6 +699,7 @@ export const PANDUAN = [
     tanya: [
       { t: "Bisakah saya menghapus pesan yang sudah terkirim?", j: "Tidak. Hanya superadmin yang bisa menghapus pesan. Periksa pesan sebelum dikirim, atau minta bantuan superadmin." },
       { t: "Kenapa saya tidak bisa membuat grup?", j: "Grup dibuat otomatis: GLOBAL untuk semua member dan satu grup per cabang." },
+      { t: "Kolom tulis berganti keterangan \"Hak kirim pesan … dinonaktifkan superadmin\"?", j: "Superadmin menonaktifkan hak kirim pesan untuk akun Anda di menu Hak Akses. Anda tetap bisa membaca semua pesan grup. Hubungi superadmin bila perlu." },
     ],
   },
   {
