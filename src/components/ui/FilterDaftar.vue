@@ -71,17 +71,13 @@ watch(() => props.q, (v) => {
   flex: 0 0 140px;
 }
 
+/* Tombol turun ke baris berikut bila tidak muat: semua jabatan selalu terlihat
+   (dulu digeser ke samping tanpa scrollbar, tidak bisa digeser dengan mouse di layar sempit) */
 .fd-chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.fd-chips::-webkit-scrollbar {
-  display: none;
 }
 
 .fd-chip {
