@@ -292,7 +292,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
-      "Yang boleh Approve/Tunda/Tolak: superadmin dan upline yang tercatat di akun tersebut.",
+      "Yang boleh Approve/Tunda/Tolak: superadmin dan upline yang tercatat di akun tersebut, kecuali upline yang haknya dinonaktifkan superadmin di menu Hak Akses (muncul keterangan kuning dan tombolnya disembunyikan).",
       "Superadmin melihat seluruh akun; upline hanya downline-nya.",
       "Riwayat (siapa, kapan, alasan) bisa dilihat di Dashboard › Akun.",
     ],
@@ -547,9 +547,9 @@ export const PANDUAN = [
         isi: [
           "Di tab Per akun, kemampuan yang bisa diubah punya tombol di barisnya:",
           "Larang akun ini — akun tersebut tidak boleh, walau jabatannya boleh. Izinkan akun ini — akun tersebut boleh, walau jabatannya tidak.",
-          "Ikuti aturan jabatan — menghapus pengecualian, akun kembali mengikuti aturan jabatannya.",
+          "Ikuti aturan jabatan (untuk hak approve: Ikuti aturan) — menghapus pengecualian, akun kembali mengikuti aturan jabatan / posisinya sebagai upline.",
           "Isi alasan bila perlu, lalu Simpan. Keterangan baris menyebut siapa yang mengizinkan/melarang dan alasannya.",
-          "Saat ini yang bisa diubah: Tambah / ubah / hapus / import dokumen.",
+          "Saat ini yang bisa diubah: Tambah / ubah / hapus / import dokumen (izinkan atau larang), dan Approve / Tunda / Tolak / Pulihkan pendaftar (hanya bisa dilarang, karena hak ini mengikuti posisi akun sebagai upline).",
         ],
       },
       {

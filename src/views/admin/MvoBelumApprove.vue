@@ -1,5 +1,9 @@
 <template>
   <Breadcrumb :items="itemsBreadcrumb" />
+  <v-alert v-if="approveDilarang" type="warning" variant="tonal" density="compact" class="mb-3" icon="mdi-cancel">
+    Hak approve akun pendaftar untuk akun Anda dinonaktifkan superadmin. Daftar tetap bisa dilihat; tombol Approve, Tunda,
+    Tolak, dan Pulihkan disembunyikan. Hubungi superadmin bila perlu.
+  </v-alert>
 
   <!-- Desktop View -->
   <div class="d-none d-md-block">
@@ -245,10 +249,15 @@ import CardDataTable from "@/components/ui/CardDataTable.vue";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanLangsung, atasanPada, jalurRingkas, teksAtasan } from "@/utils/jalur.js";
+import { hakState, muatHak } from "@/utils/hakAkses";
 
 export default {
   components: { Breadcrumb, CardDataTable },
 
+  setup() {
+    muatHak();
+    return { hakState };
+  },
   data() {
     return {
       search: "",
@@ -313,6 +322,10 @@ export default {
   },
 
   computed: {
+    // Dilarang per akun oleh superadmin (menu Hak Akses, kemampuan "akun_approve"); server tetap menolak
+    approveDilarang() {
+      return !this.isSuperadmin && this.hakState.kemampuan.akun_approve === false;
+    },
     itemsDasar() {
       // Filter superadmin berdasarkan mvo_type_id yang didapat dari API mvo-type
       // Jika superadminTypeId belum di-load, fallback ke cek nama
@@ -529,6 +542,7 @@ export default {
     aksiUntuk(item) {
       const s = this.statusAkun(item);
       const aksi = [];
+      if (this.approveDilarang) return aksi;
       // Superadmin tidak punya kode upline → persetujuannya lewat Verifikasi ID (aktivasi)
       if (!this.isSuperadmin && !this.isUserApproved(item) && s !== "ditolak") {
         aksi.push({ key: "approve", label: "Approve", icon: "mdi-check-circle", color: "success", variant: "flat" });

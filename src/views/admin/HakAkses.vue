@@ -40,9 +40,9 @@
               <div class="meta">{{ k.ket }}</div>
             </div>
             <template v-if="k.ubah === 'akun'">
-              <v-btn v-if="k.pengecualian" size="small" variant="text" prepend-icon="mdi-undo" @click="bukaUbah(k, 'hapus')">Ikuti aturan jabatan</v-btn>
+              <v-btn v-if="k.pengecualian" size="small" variant="text" prepend-icon="mdi-undo" @click="bukaUbah(k, 'hapus')">{{ k.hanya_larang ? 'Ikuti aturan' : 'Ikuti aturan jabatan' }}</v-btn>
               <v-btn v-else-if="k.boleh" size="small" variant="text" color="error" prepend-icon="mdi-cancel" @click="bukaUbah(k, 'larang')">Larang akun ini</v-btn>
-              <v-btn v-else size="small" variant="text" color="#B8890F" prepend-icon="mdi-check" @click="bukaUbah(k, 'izinkan')">Izinkan akun ini</v-btn>
+              <v-btn v-else-if="!k.hanya_larang" size="small" variant="text" color="#B8890F" prepend-icon="mdi-check" @click="bukaUbah(k, 'izinkan')">Izinkan akun ini</v-btn>
             </template>
             <template v-if="k.kode === 'mutasi' && profil.akun.aktif">
               <v-btn v-if="k.boleh" size="small" variant="text" color="#B8890F" @click="lihatHakAktif(profil.akun)">Lihat</v-btn>
@@ -165,10 +165,10 @@
   <!-- Dialog ubah kemampuan satu akun -->
   <v-dialog v-model="dialogUbah" max-width="480">
     <v-card v-if="ubah">
-      <v-card-title>{{ { izinkan: 'Izinkan akun ini?', larang: 'Larang akun ini?', hapus: 'Ikuti aturan jabatan?' }[ubah.aksi] }}</v-card-title>
+      <v-card-title>{{ { izinkan: 'Izinkan akun ini?', larang: 'Larang akun ini?', hapus: ubah.hanyaLarang ? 'Ikuti aturan?' : 'Ikuti aturan jabatan?' }[ubah.aksi] }}</v-card-title>
       <v-card-text>
         <p class="mb-3"><b>{{ ubah.label }}</b> untuk <b>{{ profil?.akun.nama }}</b>:
-          <template v-if="ubah.aksi === 'hapus'">pengecualian dihapus, akun kembali mengikuti aturan jabatannya
+          <template v-if="ubah.aksi === 'hapus'">pengecualian dihapus, akun kembali mengikuti {{ ubah.hanyaLarang ? 'posisinya sebagai upline' : 'aturan jabatannya' }}
             ({{ ubah.bawaan ? 'boleh' : 'tidak boleh' }}).</template>
           <template v-else>{{ ubah.aksi === 'izinkan' ? 'diizinkan' : 'dilarang' }} khusus untuk akun ini, apa pun aturan jabatannya.</template>
         </p>
@@ -303,7 +303,7 @@ function beriUntuk(akun) {
 const dialogUbah = ref(false);
 const ubah = ref(null); // { kode, label, aksi: izinkan|larang|hapus, bawaan, catatan }
 function bukaUbah(k, aksi) {
-  ubah.value = { kode: k.kode, label: k.label, aksi, bawaan: k.bawaan, catatan: "" };
+  ubah.value = { kode: k.kode, label: k.label, aksi, bawaan: k.bawaan, hanyaLarang: !!k.hanya_larang, catatan: "" };
   dialogUbah.value = true;
 }
 async function simpanUbah() {
