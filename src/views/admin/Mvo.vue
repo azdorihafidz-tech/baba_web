@@ -198,13 +198,14 @@
                   <span class="text-caption text-grey ml-2">{{ originalDetailMvoData?.nama || '-' }}</span>
                 </h3>
 
-                <v-btn color="primary" size="small" @click="openAddDocumentDialog" :disabled="!getDocumentMvoId() || !!documentLuarJaringan">
+                <v-btn color="primary" size="small" @click="openAddDocumentDialog" :disabled="!getDocumentMvoId() || !!documentLuarJaringan || !bolehKelolaDokumen">
                   <v-icon start>mdi-plus</v-icon>
                   Tambah Dokumen
                 </v-btn>
               </div>
 
               <v-alert v-if="documentLuarJaringan" type="info" variant="tonal" density="compact" class="mb-3">{{ documentLuarJaringan }}</v-alert>
+              <v-alert v-else-if="!bolehKelolaDokumen" type="info" variant="tonal" density="compact" class="mb-3">{{ teksTanpaHakDokumen }}</v-alert>
               <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                 single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
@@ -362,7 +363,7 @@
             <v-window v-model="mobileDetailTab">
               <v-window-item value="documents">
                 <div class="mb-4">
-                  <v-btn color="primary" block @click="openAddDocumentDialog" :disabled="!getDocumentMvoId() || !!documentLuarJaringan"
+                  <v-btn color="primary" block @click="openAddDocumentDialog" :disabled="!getDocumentMvoId() || !!documentLuarJaringan || !bolehKelolaDokumen"
                     class="text-white">
                     <v-icon start>mdi-plus</v-icon>
                     Tambah Dokumen
@@ -375,6 +376,7 @@
                 </div>
 
                 <v-alert v-if="documentLuarJaringan" type="info" variant="tonal" density="compact" class="mb-3">{{ documentLuarJaringan }}</v-alert>
+              <v-alert v-else-if="!bolehKelolaDokumen" type="info" variant="tonal" density="compact" class="mb-3">{{ teksTanpaHakDokumen }}</v-alert>
                 <v-text-field v-model="documentSearch" prepend-inner-icon="mdi-magnify" label="Cari Dokumen..."
                   single-line hide-details variant="outlined" class="mb-3" density="compact" />
 
@@ -659,6 +661,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 import { JALUR_LEVELS as UPLINE_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
+import { hakState, muatHak } from "@/utils/hakAkses";
 
 const API_BASE = `${API_URL}/api`;
 const FILE_BASE = `${FILE_URL}/`;
@@ -683,7 +686,8 @@ export default {
 
   setup() {
     const app = useAppStore();
-    return { app };
+    muatHak();
+    return { app, hakState };
   },
 
   data() {
@@ -799,6 +803,13 @@ export default {
   },
 
   computed: {
+    // Tambah/ubah/hapus dokumen: diatur superadmin di menu Hak Akses (aturan per jabatan + pengecualian akun)
+    bolehKelolaDokumen() {
+      return this.mvo_type_id === "superadmin" || !!this.hakState.kemampuan.dokumen_kelola;
+    },
+    teksTanpaHakDokumen() {
+      return "Akun Anda bisa melihat dokumen, tetapi belum memiliki hak menambah, mengubah, atau menghapus dokumen. Hubungi superadmin bila perlu.";
+    },
     isDocEditMode() {
       return this.documentDialog.mode === "edit";
     },
@@ -863,6 +874,7 @@ export default {
 
     // Dokumen yang sudah disetujui final hanya bisa diubah/dihapus superadmin (aturan server)
     bolehKelolaDok(doc) {
+      if (!this.bolehKelolaDokumen) return false;
       return this.mvo_type_id === "superadmin" || String(doc?.status_inputan || "").toLowerCase() !== "approved";
     },
 

@@ -5,7 +5,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { API_URL } from "@/config";
 
-export const hakState = reactive({ daftar: [] });
+// daftar: hak tambahan (Mutasi …); kemampuan: kemampuan yang bisa diubah superadmin, mis. { dokumen_kelola: true }
+export const hakState = reactive({ daftar: [], kemampuan: {} });
 
 let janji = null;
 let tokenDimuat = null;
@@ -18,8 +19,8 @@ export function muatHak() {
   tokenDimuat = token;
   janji = axios
     .get(`${API_URL}/api/hak-akses/saya`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
-    .then((r) => { hakState.daftar = r.data?.data || []; return hakState.daftar; })
-    .catch(() => { janji = null; hakState.daftar = []; return []; });
+    .then((r) => { hakState.daftar = r.data?.data || []; hakState.kemampuan = r.data?.kemampuan || {}; return hakState.daftar; })
+    .catch(() => { janji = null; hakState.daftar = []; hakState.kemampuan = {}; return []; });
   return janji;
 }
 

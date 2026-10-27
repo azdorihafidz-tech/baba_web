@@ -4,6 +4,7 @@
   <div class="d-flex flex-wrap align-center ga-2 mb-3">
     <v-tabs v-model="tab" color="#B8890F" density="compact">
       <v-tab value="akun">Per akun</v-tab>
+      <v-tab value="jabatan" @click="muatAturan">Aturan per jabatan</v-tab>
       <v-tab value="aktif">Hak aktif ({{ daftar.length }})</v-tab>
       <v-tab value="riwayat" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
@@ -38,6 +39,11 @@
               <div class="kem-label">{{ k.label }}</div>
               <div class="meta">{{ k.ket }}</div>
             </div>
+            <template v-if="k.ubah === 'akun'">
+              <v-btn v-if="k.pengecualian" size="small" variant="text" prepend-icon="mdi-undo" @click="bukaUbah(k, 'hapus')">Ikuti aturan jabatan</v-btn>
+              <v-btn v-else-if="k.boleh" size="small" variant="text" color="error" prepend-icon="mdi-cancel" @click="bukaUbah(k, 'larang')">Larang akun ini</v-btn>
+              <v-btn v-else size="small" variant="text" color="#B8890F" prepend-icon="mdi-check" @click="bukaUbah(k, 'izinkan')">Izinkan akun ini</v-btn>
+            </template>
             <template v-if="k.kode === 'mutasi' && profil.akun.aktif">
               <v-btn v-if="k.boleh" size="small" variant="text" color="#B8890F" @click="lihatHakAktif(profil.akun)">Lihat</v-btn>
               <v-btn size="small" variant="text" color="#B8890F" prepend-icon="mdi-shield-plus" @click="beriUntuk(profil.akun)">Beri hak</v-btn>
@@ -82,15 +88,32 @@
     </div>
   </template>
 
+  <!-- Aturan per jabatan: berlaku untuk semua akun berjabatan itu, kecuali akun yang diberi pengecualian -->
+  <template v-else-if="tab === 'jabatan'">
+    <v-progress-linear v-if="memuatAturan" indeterminate color="primary" class="mb-2" />
+    <div v-isi-layar class="baba-gulir">
+      <p class="meta mb-3">Centang jabatan yang boleh. Berlaku untuk semua akun berjabatan itu, kecuali akun yang diizinkan /
+        dilarang khusus di tab Per akun. Superadmin selalu boleh.</p>
+      <v-card v-for="a in aturan" :key="a.kode" class="aturan-kartu mb-3" variant="outlined">
+        <div class="aturan-judul">{{ a.label }}</div>
+        <div class="aturan-grid">
+          <v-checkbox v-for="j in jabatanAturan" :key="j.id" :model-value="!!a.boleh[j.id]" :label="j.name" color="#B8890F"
+            density="compact" hide-details :disabled="menyimpan" @update:model-value="ubahAturan(a, j, $event)" />
+        </div>
+      </v-card>
+    </div>
+  </template>
+
   <!-- Riwayat -->
-  <template v-else>
+  <template v-else-if="tab === 'riwayat'">
     <v-progress-linear v-if="memuatRiwayat" indeterminate color="primary" class="mb-2" />
     <div v-isi-layar class="baba-gulir">
       <div v-if="!memuatRiwayat && !riwayat.length" class="kosong"><p>Belum ada riwayat.</p></div>
       <div v-for="r in riwayat" :key="r.id" class="riwayat-baris">
-        <span class="aksi-chip" :class="r.aksi === 'beri' ? 'aksi-beri' : 'aksi-cabut'">{{ r.aksi === 'beri' ? 'Diberi' : 'Dicabut' }}</span>
+        <span class="aksi-chip" :class="AKSI[r.aksi]?.kelas || 'aksi-beri'">{{ AKSI[r.aksi]?.teks || r.aksi }}</span>
         <div class="riwayat-isi">
-          <div><b>{{ r.label }}</b> · {{ r.nama }} ({{ r.no_id || '-' }}) · gerbong {{ r.cakupan_no_id }} · {{ r.cakupan_nama }}</div>
+          <div v-if="r.jenis"><b>{{ r.label }}</b> · {{ r.nama }}<template v-if="r.no_id"> ({{ r.no_id }})</template></div>
+          <div v-else><b>{{ r.label }}</b> · {{ r.nama }} ({{ r.no_id || '-' }}) · gerbong {{ r.cakupan_no_id }} · {{ r.cakupan_nama }}</div>
           <div class="meta">{{ tanggal(r.created_at, true) }} oleh {{ r.oleh_nama || '-' }}<template v-if="r.catatan"> · {{ r.catatan }}</template></div>
         </div>
       </div>
@@ -135,6 +158,26 @@
         <v-spacer />
         <v-btn variant="text" @click="dialogCabut = false">Batal</v-btn>
         <v-btn color="error" variant="flat" :loading="menyimpan" @click="simpanCabut">Cabut</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Dialog ubah kemampuan satu akun -->
+  <v-dialog v-model="dialogUbah" max-width="480">
+    <v-card v-if="ubah">
+      <v-card-title>{{ { izinkan: 'Izinkan akun ini?', larang: 'Larang akun ini?', hapus: 'Ikuti aturan jabatan?' }[ubah.aksi] }}</v-card-title>
+      <v-card-text>
+        <p class="mb-3"><b>{{ ubah.label }}</b> untuk <b>{{ profil?.akun.nama }}</b>:
+          <template v-if="ubah.aksi === 'hapus'">pengecualian dihapus, akun kembali mengikuti aturan jabatannya
+            ({{ ubah.bawaan ? 'boleh' : 'tidak boleh' }}).</template>
+          <template v-else>{{ ubah.aksi === 'izinkan' ? 'diizinkan' : 'dilarang' }} khusus untuk akun ini, apa pun aturan jabatannya.</template>
+        </p>
+        <v-textarea v-model="ubah.catatan" label="Alasan (opsional)" variant="outlined" density="comfortable" rows="2" auto-grow hide-details />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn variant="text" @click="dialogUbah = false">Batal</v-btn>
+        <v-btn :color="ubah.aksi === 'larang' ? 'error' : 'primary'" variant="flat" :loading="menyimpan" @click="simpanUbah">Simpan</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -255,6 +298,71 @@ function beriUntuk(akun) {
   akunItems.value = [item, ...akunItems.value.filter((x) => x.id !== akun.id)];
   form.user_id = akun.id;
 }
+
+/* ---------- Ubah kemampuan per akun ---------- */
+const dialogUbah = ref(false);
+const ubah = ref(null); // { kode, label, aksi: izinkan|larang|hapus, bawaan, catatan }
+function bukaUbah(k, aksi) {
+  ubah.value = { kode: k.kode, label: k.label, aksi, bawaan: k.bawaan, catatan: "" };
+  dialogUbah.value = true;
+}
+async function simpanUbah() {
+  menyimpan.value = true;
+  const isi = { user_id: profil.value.akun.id, kemampuan: ubah.value.kode, catatan: ubah.value.catatan };
+  try {
+    const { data } = ubah.value.aksi === "hapus"
+      ? await api.delete("/hak-akses/pengecualian", { data: isi })
+      : await api.post("/hak-akses/pengecualian", { ...isi, izin: ubah.value.aksi === "izinkan" });
+    toast(data.message);
+    dialogUbah.value = false;
+    muatKemampuan(profil.value.akun.id);
+  } catch (e) {
+    toast(pesanError(e, "Gagal menyimpan"), "error");
+  } finally {
+    menyimpan.value = false;
+  }
+}
+
+/* ---------- Aturan per jabatan ---------- */
+const aturan = ref([]);
+const jabatanAturan = ref([]);
+const memuatAturan = ref(false);
+async function muatAturan() {
+  memuatAturan.value = true;
+  try {
+    const { data } = await api.get("/hak-akses/aturan-jabatan");
+    aturan.value = data.data;
+    jabatanAturan.value = data.jabatan;
+  } catch (e) {
+    toast(pesanError(e, "Gagal memuat aturan"), "error");
+  } finally {
+    memuatAturan.value = false;
+  }
+}
+async function ubahAturan(a, j, boleh) {
+  menyimpan.value = true;
+  try {
+    const { data } = await api.put("/hak-akses/aturan-jabatan", { kemampuan: a.kode, mvo_type_id: j.id, boleh: !!boleh });
+    toast(data.message);
+    await muatAturan();
+    if (profil.value) muatKemampuan(profil.value.akun.id);
+  } catch (e) {
+    toast(pesanError(e, "Gagal menyimpan aturan"), "error");
+  } finally {
+    menyimpan.value = false;
+  }
+}
+
+// Label & warna aksi di Riwayat (hak tambahan + kemampuan)
+const AKSI = {
+  beri: { teks: "Diberi", kelas: "aksi-beri" },
+  cabut: { teks: "Dicabut", kelas: "aksi-cabut" },
+  izinkan: { teks: "Diizinkan", kelas: "aksi-beri" },
+  larang: { teks: "Dilarang", kelas: "aksi-cabut" },
+  hapus: { teks: "Ikut aturan", kelas: "aksi-netral" },
+  boleh: { teks: "Jabatan boleh", kelas: "aksi-beri" },
+  tidak: { teks: "Jabatan tidak", kelas: "aksi-cabut" },
+};
 
 /* ---------- Beri hak ---------- */
 const dialogBeri = ref(false);
@@ -492,6 +600,26 @@ onMounted(muat);
 .aksi-beri {
   background: var(--baba-gold-soft);
   color: var(--baba-gold-dark);
+}
+
+.aksi-netral {
+  border: 1px solid var(--baba-border);
+  color: var(--baba-muted);
+}
+
+.aturan-kartu {
+  padding: 12px 14px;
+  border-color: var(--baba-gold);
+}
+
+.aturan-judul {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.aturan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 }
 
 .aksi-cabut {

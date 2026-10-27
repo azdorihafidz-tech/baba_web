@@ -147,14 +147,14 @@ export const PANDUAN = [
     ],
     tips: [
       "Dokumen hanya bisa dilihat untuk akun Anda sendiri dan downline Anda. Akun cabang yang sama tapi di luar jaringan Anda menampilkan keterangan \"Akun ini di luar jaringan Anda\", dan tombol Tambah Dokumen tidak aktif.",
-      "Yang bisa menambah, mengubah, dan menghapus dokumen: Superadmin, MVO, Regional, dan Founder — selain superadmin hanya untuk akun di jaringannya sendiri.",
+      "Yang bisa menambah, mengubah, dan menghapus dokumen diatur superadmin di menu Hak Akses (awalnya: MVO, Regional, dan Founder). Selain superadmin hanya untuk akun di jaringannya sendiri. Akun tanpa hak ini tetap bisa melihat dokumen; tombol Tambah Dokumen tidak aktif dan ada keterangannya.",
       "Dokumen yang sudah disetujui final ikut dihitung di Star/RO, jadi hanya superadmin yang bisa mengubah atau menghapusnya (ada peringatan sebelum dihapus).",
       "Print pada detail akun menghasilkan formulir registrasi dalam bentuk PDF.",
       "Range Point inilah yang dihitung sebagai RO di Dashboard dan Saran RO.",
       "Kolom Distributor, Supplier, General Manager, Founder, Regional, MVO, dan TM menampilkan No ID dan nama upline sesuai Struktur Akun saat ini (ikut berubah setelah Mutasi). Di HP, jalurnya tampil ringkas di bawah nama, mis. M01 › R03 › B02 › B78.",
     ],
     tanya: [
-      { t: "Kenapa tombol Tambah Dokumen tidak bisa dipakai?", j: "Hanya Superadmin, MVO, Regional, dan Founder yang bisa menambah dokumen." },
+      { t: "Kenapa tombol Tambah Dokumen tidak bisa dipakai?", j: "Akun Anda belum memiliki hak menambah dokumen (diatur superadmin di menu Hak Akses), atau akun yang dibuka di luar jaringan Anda." },
       { t: "Dokumen saya belum dihitung di Dashboard?", j: "Dokumen baru dihitung setelah disetujui. Cek statusnya di menu Document Belum Approve." },
     ],
     gambar: [
@@ -543,6 +543,23 @@ export const PANDUAN = [
         ],
       },
       {
+        judul: "Mengubah hak satu akun",
+        isi: [
+          "Di tab Per akun, kemampuan yang bisa diubah punya tombol di barisnya:",
+          "Larang akun ini — akun tersebut tidak boleh, walau jabatannya boleh. Izinkan akun ini — akun tersebut boleh, walau jabatannya tidak.",
+          "Ikuti aturan jabatan — menghapus pengecualian, akun kembali mengikuti aturan jabatannya.",
+          "Isi alasan bila perlu, lalu Simpan. Keterangan baris menyebut siapa yang mengizinkan/melarang dan alasannya.",
+          "Saat ini yang bisa diubah: Tambah / ubah / hapus / import dokumen.",
+        ],
+      },
+      {
+        judul: "Aturan per jabatan",
+        isi: [
+          "Tab Aturan per jabatan: centang jabatan yang boleh untuk tiap kemampuan, mis. GM ikut boleh menambah dokumen. Perubahan langsung berlaku.",
+          "Aturan jabatan berlaku untuk semua akun berjabatan itu, kecuali akun yang diizinkan / dilarang khusus di tab Per akun.",
+        ],
+      },
+      {
         judul: "Memberi hak",
         isi: [
           "Tekan Beri hak.",
@@ -561,7 +578,7 @@ export const PANDUAN = [
       },
       {
         judul: "Riwayat",
-        isi: ["Tab Riwayat mencatat setiap hak yang diberi dan dicabut: siapa, untuk gerbong mana, kapan, dan oleh siapa."],
+        isi: ["Tab Riwayat mencatat setiap hak yang diberi dan dicabut (gerbong mana), setiap akun yang diizinkan / dilarang, dan setiap perubahan aturan jabatan: kapan dan oleh siapa."],
       },
     ],
     tips: [
