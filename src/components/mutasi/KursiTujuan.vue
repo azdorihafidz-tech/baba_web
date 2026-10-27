@@ -65,6 +65,7 @@ const props = defineProps({
   namaMember: String,
   noIdMember: String,
   barisRencana: { type: Array, default: () => [] }, // keadaan sesudah langkah rencana sebelumnya
+  bolehTanpaUpline: { type: Boolean, default: true }, // false untuk pemegang hak gerbong (upline wajib di gerbongnya)
 });
 // ubah: { mvo_type_id, parent_id, no_id_tujuan, pemegang, lengkap }; tukar: memilih kursi lama member = tukar posisi
 const emit = defineEmits(["ubah", "tukar"]);
@@ -80,7 +81,7 @@ const pilihAtasanTerbuka = ref(false);
 const jabatanItems = computed(() => props.jabatanList.map((j) => ({ ...j, label: `${j.name} — ${j.jabatan || ""}` })));
 const aturan = computed(() => props.jabatanList.find((j) => String(j.id) === String(jabatan.value)));
 const turunan = computed(() => aturan.value?.mode === "turunan");
-const bolehTanpaAtasan = computed(() => (aturan.value?.level ?? 99) <= 1);
+const bolehTanpaAtasan = computed(() => props.bolehTanpaUpline && (aturan.value?.level ?? 99) <= 1);
 const nomorRencana = computed(() => nomorMenurutRencana(nomorList.value, props.barisRencana));
 const nomorItems = computed(() => nomorRencana.value
   .filter((n) => !n.pemegang || n.pemegang.id !== props.orang.id)

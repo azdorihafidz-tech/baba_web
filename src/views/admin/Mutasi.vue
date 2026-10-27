@@ -129,7 +129,8 @@
                 <!-- Kursi baru untuk pemegang lama: kursi kosong lain, atau kursi orang ketiga (rotasi) -->
                 <KursiTujuan v-if="pemegangTujuan && nasibPemegang === 'lain'" :key="`${pemegangTujuan.id}-${noIdTujuan}`"
                   :api="api" :orang="pemegangTujuan" :jabatan-list="jabatanList" :member-id="memberId"
-                  :nama-member="member.nama" :no-id-member="member.no_id" :baris-rencana="barisRencana" @ubah="ubahKursiPemegang"
+                  :nama-member="member.nama" :no-id-member="member.no_id" :baris-rencana="barisRencana" :boleh-tanpa-upline="!cakupanMutasi"
+                  @ubah="ubahKursiPemegang"
                   @tukar="nasibPemegang = 'tukar'; gantiNasib()" />
               </template>
             </template>
@@ -557,13 +558,15 @@ const posisiRencana = computed(() => {
 
 /* ---------- 2. posisi baru ---------- */
 const jabatanList = ref([]);
-const cakupanMutasi = ref(null); // null = superadmin; [{id, nama, no_id}] = Founder cakupan pemegang hak
+const cakupanMutasi = ref(null); // null = superadmin; [{id, nama, no_id, jabatan, jabatan_maks}] = akar gerbong pemegang hak
 const jabatanBaru = ref(null);
 const atasanBaru = ref(null);
 const atasanTerpilih = ref(null); // { id, nama, no_id, jabatan }
 const pilihAtasanTerbuka = ref(false);
 // Jabatan teratas (TM, MVO) boleh tanpa atasan — sama dengan aturan di MutasiController::kandidatAtasan
-const bolehTanpaAtasan = computed(() => (jabatanList.value.find((j) => String(j.id) === String(jabatanBaru.value))?.level ?? 99) <= 1);
+// Pemegang hak gerbong (cakupanMutasi) selalu butuh upline di dalam gerbongnya
+const bolehTanpaAtasan = computed(() => !cakupanMutasi.value
+  && (jabatanList.value.find((j) => String(j.id) === String(jabatanBaru.value))?.level ?? 99) <= 1);
 
 const jabatanItems = computed(() => jabatanList.value.map((j) => ({ ...j, label: `${j.name} — ${j.jabatan || ""}` })));
 
