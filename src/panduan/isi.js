@@ -42,6 +42,7 @@ export const MULAI_CEPAT = {
     { t: "Kembali ke Dashboard", j: "Tekan tulisan 🏠 Dashboard di kepala halaman (kotak hitam bertuliskan nama menu) di bagian atas setiap halaman." },
     { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
     { t: "Menyaring daftar", j: "Di Input Data, Verifikasi ID, Akun Belum Approve, Document Belum Approve, dan Mutasi ada baris filter yang sama: kolom cari (nama / No ID), pilihan Cabang, dan tombol jabatan beserta jumlahnya (TM, MVO, Regional, FO, GM, Supplier, Dist, Reseller). Klik tombol jabatan untuk menampilkan jabatan itu saja, klik Semua untuk kembali." },
+    { t: "Angka merah di menu", j: "Menunjukkan pekerjaan yang menunggu Anda. Chat: pesan baru. Akun Belum Approve: pendaftar yang belum Anda approve. Document Belum Approve: dokumen yang sedang giliran Anda setujui. Verifikasi ID (superadmin): akun yang semua uplinenya sudah approve. Di HP, angka menu yang tersimpan di Lainnya dijumlah di tombol Lainnya. Angka berkurang sendiri setelah pekerjaannya selesai." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
   ],
 };
@@ -175,6 +176,7 @@ export const PANDUAN = [
         judul: "Mengaktifkan pendaftar baru",
         isi: [
           "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID.",
+          "Tombol Siap diverifikasi = pendaftar yang semua uplinenya sudah approve (tidak termasuk yang ditolak). Jumlah ini juga tampil sebagai angka merah di menu Verifikasi ID.",
           "Akun yang ditunda/ditolak di menu Akun Belum Approve diberi label Ditunda / Ditolak di kolom Aktivasi (arahkan kursor untuk melihat alasannya). Akun tetap bisa diperbaiki dan diaktifkan.",
           "Periksa data dan foto profilnya (tombol Edit untuk melihat lengkap).",
           "Tekan Aktivasi. Pesan yang muncul menampilkan No ID baru akun tersebut.",
@@ -294,6 +296,8 @@ export const PANDUAN = [
     tips: [
       "Yang boleh Approve/Tunda/Tolak: superadmin dan upline yang tercatat di akun tersebut, kecuali upline yang haknya dinonaktifkan superadmin di menu Hak Akses (muncul keterangan kuning dan tombolnya disembunyikan).",
       "Superadmin melihat seluruh akun; upline hanya downline-nya.",
+      "Angka merah di menu Akun Belum Approve = pendaftar yang belum Anda approve (yang ditolak tidak dihitung). Angkanya berkurang setelah Anda approve atau tolak.",
+      { teks: "Superadmin: angka merah ada di menu Verifikasi ID, yaitu akun yang semua uplinenya sudah approve dan tinggal diaktifkan.", peran: "superadmin" },
       "Riwayat (siapa, kapan, alasan) bisa dilihat di Dashboard › Akun.",
     ],
     tanya: [
@@ -375,7 +379,7 @@ export const PANDUAN = [
     peran: "semua",
     ringkas: "Persetujuan dokumen RO/star oleh upline lalu superadmin.",
     kegunaan:
-      "Dokumen yang diinput di Input Data menunggu persetujuan di sini: pertama oleh upline (MVO, lalu Regional), kemudian persetujuan akhir oleh superadmin. Hanya dokumen yang sudah disetujui akhir yang dihitung di Dashboard dan Saran RO.",
+      "Dokumen yang diinput di Input Data menunggu persetujuan di sini: pertama oleh upline (Regional, lalu MVO), kemudian persetujuan akhir oleh superadmin. Hanya dokumen yang sudah disetujui akhir yang dihitung di Dashboard dan Saran RO.",
     langkah: [
       {
         judul: "Menyetujui dokumen (upline)",
@@ -396,6 +400,8 @@ export const PANDUAN = [
     ],
     tips: [
       "Upline hanya bisa menyetujui dokumen milik downline-nya sendiri.",
+      "Angka merah di menu Document Belum Approve = dokumen yang sedang giliran Anda setujui. Urutannya Regional dulu, lalu MVO.",
+      { teks: "Superadmin: angka merah = dokumen yang semua uplinenya sudah approve dan tinggal persetujuan akhir.", peran: "superadmin" },
       "Kolom KODE = kode akun pemilik dokumen, No ID di sebelahnya. Kolom MVO dan Regional menampilkan No ID dan nama upline yang menyetujui.",
       "Dokumen yang diubah setelah disetujui akan kembali menunggu persetujuan.",
     ],

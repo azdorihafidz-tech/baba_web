@@ -381,6 +381,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 import { JALUR_LEVELS, atasanPada, teksAtasan } from "@/utils/jalur.js";
+import { muatTugas } from "@/utils/tugasMenunggu";
 
 const LVL_MVO = JALUR_LEVELS.find((l) => l.level === 1);
 const LVL_REGIONAL = JALUR_LEVELS.find((l) => l.level === 2);
@@ -593,7 +594,7 @@ export default {
           // (DashboardController: SUM(CASE WHEN d.status_inputan IS NULL ...)),
           // supaya jumlah di halaman ini konsisten dengan dashboard.
           this.datatable.items = (response.data.data || []).filter(doc => doc.status_inputan == null);
-          console.log("Fetched documents:", this.datatable.items);
+          muatTugas(true); // angka merah di menu ikut diperbarui setelah approve
         } else {
           this.showSnackbar(response.data.message || "Error loading data", "error");
         }

@@ -20,7 +20,7 @@
         </template>
         <v-list-item-title class="drawer-text">{{ text }}</v-list-item-title>
         <template v-if="lencana(url)" v-slot:append>
-          <span class="menu-lencana" :title="`${lencana(url)} pesan baru`">{{ teksLencana(lencana(url)) }}</span>
+          <span class="menu-lencana" :title="judulLencana(url)">{{ teksLencana(lencana(url)) }}</span>
         </template>
       </v-list-item>
     </v-list>
@@ -65,11 +65,12 @@
 import { useAppStore } from "@/stores/app.js";
 import { chatState, mulaiChat } from "@/utils/chatKoneksi";
 import { MENU_HAK, muatHak, punyaHak } from "@/utils/hakAkses";
+import { KETERANGAN_TUGAS, muatTugas, tugasState } from "@/utils/tugasMenunggu";
 
 export default {
   setup() {
     const app = useAppStore();
-    return { app, chatState };
+    return { app, chatState, tugasState };
   },
   data() {
     return {
@@ -179,9 +180,12 @@ export default {
         this.nonSuperadminMenus.includes(item[1]) || (MENU_HAK[item[1]] && punyaHak(MENU_HAK[item[1]]))
       );
     },
-    // Jumlah pesan chat belum dibaca (lencana menu Chat)
+    // Lencana menu: pesan chat belum dibaca, atau pekerjaan yang menunggu tindakan (approve, verifikasi)
     lencana(url) {
-      return url === "/admin/chat" ? this.chatState.total : 0;
+      return url === "/admin/chat" ? this.chatState.total : this.tugasState.jumlah[url] || 0;
+    },
+    judulLencana(url) {
+      return `${this.lencana(url)} ${url === "/admin/chat" ? "pesan baru" : KETERANGAN_TUGAS[url] || ""}`;
     },
     teksLencana(n) {
       return n > 99 ? "99+" : n;
@@ -259,12 +263,16 @@ export default {
   mounted() {
     this.initializeScreen();
     mulaiChat(); // koneksi chat bersama untuk lencana pesan baru
+    muatTugas(true);
+    // Jumlah tugas diperbarui berkala (juga saat pindah halaman)
+    this.timerTugas = setInterval(() => { if (!document.hidden) muatTugas(); }, 60000);
 
     if (typeof window !== "undefined") {
       window.addEventListener("resize", this.handleResize);
     }
   },
   beforeUnmount() {
+    clearInterval(this.timerTugas);
     if (typeof window !== "undefined") {
       window.removeEventListener("resize", this.handleResize);
     }
@@ -273,6 +281,7 @@ export default {
     "$route.path"(newPath) {
       this.bottomNavModel = newPath;
       mulaiChat(); // sambung ulang bila token login berganti
+      muatTugas();
     },
     isDesktop(newVal, oldVal) {
       if (newVal !== oldVal) {

@@ -404,6 +404,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
 import { opsiUpline, propsUpline } from "@/utils/pilihanUpline";
+import { muatTugas } from "@/utils/tugasMenunggu";
 
 const API_BASE = `${API_URL}/api`;
 
@@ -467,7 +468,8 @@ export default {
       // Filter daftar (FilterDaftar): jabatan, cabang, status aktivasi; jumlah dari backend (?meta=1)
       filterJabatan: null,
       filterCabang: "",
-      filterAktivasi: "",
+      // ?status=siap (dari notifikasi) → langsung tampilkan akun siap diverifikasi
+      filterAktivasi: this.$route?.query?.status === "siap" ? "siap" : "",
       filterMeta: { jabatan: [], cabang: [], aktivasi: {} },
       debouncedSearch: "",
       _searchTimer: null,
@@ -539,6 +541,9 @@ export default {
         { value: "", label: "Semua status", jumlah: n(0) + n(1) },
         { value: 0, label: "Belum aktif", jumlah: n(0) },
         { value: 1, label: "Aktif", jumlah: n(1) },
+        // Belum aktif + semua upline sudah approve (angka merah di menu Verifikasi ID)
+        ...(this.filterMeta.siap !== undefined
+          ? [{ value: "siap", label: "Siap diverifikasi", jumlah: Number(this.filterMeta.siap) }] : []),
       ];
     },
 
@@ -995,6 +1000,7 @@ export default {
       })
         .then((response) => {
           this.loadItems();
+          muatTugas(true);
           this.showSnackbar(response.data?.message || "Status aktivasi berhasil diubah", "success");
         })
         .catch(error => { this.showSnackbar(error.response?.data?.message, "error"); })
@@ -1007,8 +1013,7 @@ export default {
     if (this.$route.query.cari) {
       this.searchInput = String(this.$route.query.cari);
       this.debouncedSearch = this.searchInput;
-    }
-    this.loadItems();
+    }    this.loadItems();
     this.fetchProvinsiData();
     this.getAllMvoType();
   },

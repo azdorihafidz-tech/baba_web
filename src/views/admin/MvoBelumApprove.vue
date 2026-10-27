@@ -250,6 +250,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanLangsung, atasanPada, jalurRingkas, teksAtasan } from "@/utils/jalur.js";
 import { hakState, muatHak } from "@/utils/hakAkses";
+import { muatTugas } from "@/utils/tugasMenunggu";
 
 export default {
   components: { Breadcrumb, CardDataTable },
@@ -524,6 +525,7 @@ export default {
 
         const fetchedItems = res.data.data || [];
         this.items = this.mapUserWithBintang(fetchedItems);
+        muatTugas(true); // angka merah di menu ikut diperbarui setelah approve / tunda / tolak
       } catch (err) {
       } finally {
         this.loading = false;
