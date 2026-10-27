@@ -41,7 +41,7 @@ export const MULAI_CEPAT = {
     { t: "Menu di HP", j: "Menu utama ada di bar bawah. Menu lain ada di tombol Lainnya. Foto profil di kanan atas berisi Profil Saya, Info Cabang, Muat Ulang Data, dan Keluar." },
     { t: "Kembali ke Dashboard", j: "Tekan tulisan 🏠 Dashboard di kepala halaman (kotak hitam bertuliskan nama menu) di bagian atas setiap halaman." },
     { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
-    { t: "Menyaring daftar", j: "Di Input Data, Verifikasi ID, Akun Belum Approve, Document Belum Approve, dan Mutasi ada baris filter yang sama: kolom cari (nama / No ID), pilihan Cabang, dan tombol jabatan beserta jumlahnya (TM, MVO, Regional, FO, GM, Supplier, Dist, Reseller). Klik tombol jabatan untuk menampilkan jabatan itu saja, klik Semua untuk kembali." },
+    { t: "Menyaring daftar", j: "Di Input Data, Verifikasi ID, Akun Belum Approve, Document Belum Approve, dan Mutasi ada baris filter yang sama: kolom cari (nama / No ID), pilihan Cabang, dan tombol jabatan beserta jumlahnya (TM, MVO, Regional, FO, GM, Supplier, Dist, Reseller). Klik tombol jabatan untuk menampilkan jabatan itu saja, klik Semua untuk kembali. Di HP, Cabang, tombol status, dan tombol jabatan ada di dalam tombol ⚙ Saring di samping kolom cari: ketuk Saring, pilih, lalu Tampilkan hasil. Filter yang sedang aktif tampil di bawah kolom cari (mis. Belum aktif ✕, GM ✕); ketuk ✕ untuk menghapusnya, atau Hapus semua. Angka di tombol Saring = jumlah filter yang aktif." },
     { t: "Angka merah di menu", j: "Menunjukkan pekerjaan yang menunggu Anda. Chat: pesan baru. Akun Belum Approve: pendaftar yang belum Anda approve. Document Belum Approve: dokumen yang sedang giliran Anda setujui. Verifikasi ID (superadmin): akun yang semua uplinenya sudah approve. Di HP, angka menu yang tersimpan di Lainnya dijumlah di tombol Lainnya. Angka berkurang sendiri setelah pekerjaannya selesai." },
     { t: "Lonceng notifikasi 🔔", j: "Tombol lonceng di kanan atas berisi kabar untuk Anda; angka merahnya = notifikasi yang belum dibaca. Kabar baru juga muncul sebentar di atas layar (tekan Lihat). Ketuk satu notifikasi untuk langsung membuka halamannya, atau tekan Tandai semua dibaca. Isinya: pendaftar baru yang mencantumkan Anda sebagai upline, dokumen yang giliran Anda approve, akun Anda sudah aktif, downline baru sudah aktif, dokumen RO Anda disetujui, posisi Anda berubah lewat Mutasi Jabatan, downline langsung baru dari Mutasi, dan perubahan hak Anda di menu Hak Akses. Superadmin hanya menerima yang menunggu tindakannya: akun siap diverifikasi dan dokumen menunggu persetujuan akhir." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
@@ -176,7 +176,7 @@ export const PANDUAN = [
       {
         judul: "Mengaktifkan pendaftar baru",
         isi: [
-          "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID.",
+          "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID. Di HP, tombol-tombol ini ada di dalam ⚙ Saring.",
           "Tombol Siap diverifikasi = pendaftar yang semua uplinenya sudah approve (tidak termasuk yang ditolak). Jumlah ini juga tampil sebagai angka merah di menu Verifikasi ID.",
           "Akun yang ditunda/ditolak di menu Akun Belum Approve diberi label Ditunda / Ditolak di kolom Aktivasi (arahkan kursor untuk melihat alasannya). Akun tetap bisa diperbaiki dan diaktifkan.",
           "Periksa data dan foto profilnya (tombol Edit untuk melihat lengkap).",
@@ -270,7 +270,7 @@ export const PANDUAN = [
       {
         judul: "Mencari & menyaring",
         isi: [
-          "Tombol status: Perlu tindakan (bawaan: menunggu + ditunda), Ditunda, Ditolak, Semua — angka di tombol = jumlahnya.",
+          "Tombol status: Perlu tindakan (bawaan: menunggu + ditunda), Ditunda, Ditolak, Semua — angka di tombol = jumlahnya. Di HP, tombol status dan jabatan ada di dalam ⚙ Saring.",
           "Cari nama / username / No ID, atau saring dengan tombol jabatan dan pilihan Cabang.",
           "Setiap akun menampilkan jabatan, No ID, cabang, status, dan upline langsungnya (No ID · nama). Di desktop ada juga kolom Jalur upline (mis. M05 › R09 › B09 › B96).",
           "Di HP, ketuk kartu untuk melihat data lengkap dan tombol aksinya.",
