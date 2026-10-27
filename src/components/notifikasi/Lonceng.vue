@@ -41,6 +41,7 @@ import PanelNotifikasi from "@/components/notifikasi/PanelNotifikasi.vue";
 import { dengarChat } from "@/utils/chatKoneksi";
 import { muatNotifikasi, notifState, resetNotifikasi, terimaNotifikasi } from "@/utils/notifikasi";
 import { muatTugas } from "@/utils/tugasMenunggu";
+import { bunyikan } from "@/utils/suara";
 
 const buka = ref(false);
 const kabar = reactive({ tampil: false, judul: "" });
@@ -56,6 +57,7 @@ onMounted(() => {
   berhenti = dengarChat((event, data) => {
     if (event !== "notifikasi") return;
     terimaNotifikasi(data);
+    bunyikan("notifikasi");
     kabar.judul = data?.judul || "Notifikasi baru";
     kabar.tampil = !buka.value;
     muatTugas(true); // angka merah di menu ikut berubah (mis. pendaftar baru)

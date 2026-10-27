@@ -5,6 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { io } from "socket.io-client";
 import { CHAT_SOCKET_PATH, CHAT_URL } from "@/config";
+import { bunyikan } from "@/utils/suara";
 
 export const chatState = reactive({
   total: 0, // jumlah pesan belum dibaca di semua grup
@@ -95,6 +96,7 @@ export function mulaiChat() {
     if (!dariSaya && !sedangDibuka) {
       chatState.perGrup = { ...chatState.perGrup, [m.room_id]: (chatState.perGrup[m.room_id] || 0) + 1 };
       chatState.total += 1;
+      bunyikan("chat"); // tidak berbunyi untuk pesan sendiri / grup yang sedang dibuka
     }
   });
   // Teruskan semua event ke pendengar (halaman Chat)

@@ -34,12 +34,21 @@
         <v-btn variant="text" size="small" :loading="notifState.memuat" @click="muatNotifikasiLama">Muat lebih lama</v-btn>
       </div>
     </div>
+
+    <!-- Suara notifikasi & chat (disimpan per perangkat) -->
+    <div class="pn-suara">
+      <v-icon size="18" class="mr-2">{{ suaraState.aktif ? 'mdi-volume-high' : 'mdi-volume-off' }}</v-icon>
+      <span class="pn-suara-teks">Suara notifikasi & chat</span>
+      <v-switch :model-value="suaraState.aktif" color="primary" density="compact" hide-details inset
+        :label="suaraState.aktif ? 'Aktif' : 'Mati'" class="pn-suara-switch" @update:model-value="aturSuara" />
+    </div>
   </v-card>
 </template>
 
 <script setup>
 import { useRouter } from "vue-router";
 import { IKON_NOTIFIKASI, muatNotifikasiLama, notifState, tandaiDibaca, waktuLalu } from "@/utils/notifikasi";
+import { aturSuara, suaraState } from "@/utils/suara";
 
 defineProps({ hp: { type: Boolean, default: false } });
 const emit = defineEmits(["tutup"]);
@@ -166,6 +175,27 @@ function buka(n) {
   margin-top: 6px;
   border-radius: 50%;
   background: rgb(var(--v-theme-error));
+}
+
+.pn-suara {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 4px 8px 4px 14px;
+  border-top: 1px solid var(--baba-border);
+  background: var(--baba-surface);
+  color: var(--baba-text);
+  padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+}
+
+.pn-suara-teks {
+  flex: 1 1 auto;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.pn-suara-switch {
+  flex: 0 0 auto;
 }
 
 .pn-lagi {

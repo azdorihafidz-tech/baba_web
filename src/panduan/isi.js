@@ -43,7 +43,7 @@ export const MULAI_CEPAT = {
     { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
     { t: "Menyaring daftar", j: "Di Input Data, Verifikasi ID, Akun Belum Approve, Document Belum Approve, dan Mutasi ada baris filter yang sama: kolom cari (nama / No ID), pilihan Cabang, dan tombol jabatan beserta jumlahnya (TM, MVO, Regional, FO, GM, Supplier, Dist, Reseller). Klik tombol jabatan untuk menampilkan jabatan itu saja, klik Semua untuk kembali. Di HP, Cabang, tombol status, dan tombol jabatan ada di dalam tombol ⚙ Saring di samping kolom cari: ketuk Saring, pilih, lalu Tampilkan hasil. Filter yang sedang aktif tampil di bawah kolom cari (mis. Belum aktif ✕, GM ✕); ketuk ✕ untuk menghapusnya, atau Hapus semua. Angka di tombol Saring = jumlah filter yang aktif." },
     { t: "Angka merah di menu", j: "Menunjukkan pekerjaan yang menunggu Anda. Chat: pesan baru. Akun Belum Approve: pendaftar yang belum Anda approve. Document Belum Approve: dokumen yang sedang giliran Anda setujui. Verifikasi ID (superadmin): akun yang semua uplinenya sudah approve. Di HP, angka menu yang tersimpan di Lainnya dijumlah di tombol Lainnya. Angka berkurang sendiri setelah pekerjaannya selesai." },
-    { t: "Lonceng notifikasi 🔔", j: "Tombol lonceng di kanan atas berisi kabar untuk Anda; angka merahnya = notifikasi yang belum dibaca. Kabar baru juga muncul sebentar di atas layar (tekan Lihat). Ketuk satu notifikasi untuk langsung membuka halamannya, atau tekan Tandai semua dibaca. Isinya: pendaftar baru yang mencantumkan Anda sebagai upline, dokumen yang giliran Anda approve, akun Anda sudah aktif, downline baru sudah aktif, dokumen RO Anda disetujui, posisi Anda berubah lewat Mutasi Jabatan, downline langsung baru dari Mutasi, dan perubahan hak Anda di menu Hak Akses. Superadmin hanya menerima yang menunggu tindakannya: akun siap diverifikasi dan dokumen menunggu persetujuan akhir." },
+    { t: "Lonceng notifikasi 🔔", j: "Tombol lonceng di kanan atas berisi kabar untuk Anda; angka merahnya = notifikasi yang belum dibaca. Kabar baru juga muncul sebentar di atas layar (tekan Lihat) disertai bunyi “ting”; pesan chat baru berbunyi lebih lembut (tidak berbunyi untuk grup yang sedang dibuka). Bunyi hanya keluar selama aplikasi terbuka dan setelah Anda pernah mengetuk layar sekali. Matikan / nyalakan di bagian bawah panel lonceng: Suara notifikasi & chat (berlaku untuk HP/laptop itu saja). Ketuk satu notifikasi untuk langsung membuka halamannya, atau tekan Tandai semua dibaca. Isinya: pendaftar baru yang mencantumkan Anda sebagai upline, dokumen yang giliran Anda approve, akun Anda sudah aktif, downline baru sudah aktif, dokumen RO Anda disetujui, posisi Anda berubah lewat Mutasi Jabatan, downline langsung baru dari Mutasi, dan perubahan hak Anda di menu Hak Akses. Superadmin hanya menerima yang menunggu tindakannya: akun siap diverifikasi dan dokumen menunggu persetujuan akhir." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
   ],
 };
@@ -704,7 +704,10 @@ export const PANDUAN = [
         ],
       },
     ],
-    tips: ["Grup cabang lain tidak bisa dibuka; pesannya hanya untuk anggota cabang itu."],
+    tips: [
+      "Grup cabang lain tidak bisa dibuka; pesannya hanya untuk anggota cabang itu.",
+      "Pesan baru berbunyi pendek bila grupnya sedang tidak dibuka. Bunyi bisa dimatikan di panel lonceng 🔔: Suara notifikasi & chat.",
+    ],
     tanya: [
       { t: "Bisakah saya menghapus pesan yang sudah terkirim?", j: "Tidak. Hanya superadmin yang bisa menghapus pesan. Periksa pesan sebelum dikirim, atau minta bantuan superadmin." },
       { t: "Kenapa saya tidak bisa membuat grup?", j: "Grup dibuat otomatis: GLOBAL untuk semua member dan satu grup per cabang." },
