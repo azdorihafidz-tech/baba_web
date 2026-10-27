@@ -2,9 +2,9 @@
   <Breadcrumb :items="[{ title: 'Dashboard', href: '/admin/dashboard' }, { title: 'Hak Akses' }]" />
 
   <div class="d-flex flex-wrap align-center ga-2 mb-3">
-    <v-tabs v-model="tab" color="#B8890F" density="compact">
+    <v-tabs v-model="tab" color="#B8890F" density="compact" show-arrows>
       <v-tab value="akun">Per akun</v-tab>
-      <v-tab value="jabatan" @click="muatAturan">Aturan per jabatan</v-tab>
+      <v-tab value="jabatan" @click="muatAturan">Aturan dokumen per jabatan</v-tab>
       <v-tab value="aktif">Hak aktif ({{ daftar.length }})</v-tab>
       <v-tab value="riwayat" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
@@ -92,8 +92,13 @@
   <template v-else-if="tab === 'jabatan'">
     <v-progress-linear v-if="memuatAturan" indeterminate color="primary" class="mb-2" />
     <div v-isi-layar class="baba-gulir">
-      <p class="meta mb-3">Centang jabatan yang boleh. Berlaku untuk semua akun berjabatan itu, kecuali akun yang diizinkan /
-        dilarang khusus di tab Per akun. Superadmin selalu boleh.</p>
+      <div class="aturan-penjelas mb-3">
+        <div><v-icon size="18" color="#B8890F">mdi-checkbox-marked</v-icon> <b>Dicentang</b> = semua akun berjabatan ini
+          <b>boleh</b> menambah, mengubah, menghapus, dan import dokumen (untuk akun di jaringannya).</div>
+        <div><v-icon size="18">mdi-checkbox-blank-outline</v-icon> <b>Tidak dicentang</b> = hanya bisa <b>melihat</b> dokumen.</div>
+        <div class="meta mt-1">Perubahan langsung berlaku. Untuk satu akun saja (mis. "semua GM boleh, kecuali B70"), pakai
+          tombol Izinkan / Larang di tab Per akun. Superadmin selalu boleh.</div>
+      </div>
       <v-card v-for="a in aturan" :key="a.kode" class="aturan-kartu mb-3" variant="outlined">
         <div class="aturan-judul">{{ a.label }}</div>
         <div class="aturan-grid">
@@ -605,6 +610,14 @@ onMounted(muat);
 .aksi-netral {
   border: 1px solid var(--baba-border);
   color: var(--baba-muted);
+}
+
+.aturan-penjelas {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--baba-gold-soft);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .aturan-kartu {

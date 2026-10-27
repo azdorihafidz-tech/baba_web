@@ -553,9 +553,9 @@ export const PANDUAN = [
         ],
       },
       {
-        judul: "Aturan per jabatan",
+        judul: "Aturan dokumen per jabatan",
         isi: [
-          "Tab Aturan per jabatan: centang jabatan yang boleh untuk tiap kemampuan, mis. GM ikut boleh menambah dokumen. Perubahan langsung berlaku.",
+          "Tab Aturan dokumen per jabatan: centang = semua akun berjabatan itu boleh menambah, mengubah, menghapus, dan import dokumen; tidak dicentang = hanya bisa melihat dokumen. Contoh: centang GM agar semua GM boleh menginput dokumen. Perubahan langsung berlaku.",
           "Aturan jabatan berlaku untuk semua akun berjabatan itu, kecuali akun yang diizinkan / dilarang khusus di tab Per akun.",
         ],
       },
