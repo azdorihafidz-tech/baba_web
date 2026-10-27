@@ -4,6 +4,7 @@ import { reactive } from "vue";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_URL } from "@/config";
+import { notifState } from "@/utils/notifikasi";
 
 export const tugasState = reactive({ jumlah: {} });
 
@@ -21,7 +22,10 @@ export function muatTugas(paksa = false) {
   if (!paksa && Date.now() - terakhir < 3000) return Promise.resolve();
   berjalan = axios
     .get(`${API_URL}/api/notifikasi/tugas`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
-    .then((r) => { tugasState.jumlah = r.data?.data || {}; })
+    .then((r) => {
+      tugasState.jumlah = r.data?.data || {};
+      if (r.data?.belum_dibaca !== undefined) notifState.belumDibaca = Number(r.data.belum_dibaca) || 0;
+    })
     .catch(() => { /* angka tetap yang lama */ })
     .finally(() => { berjalan = null; terakhir = Date.now(); });
   return berjalan;

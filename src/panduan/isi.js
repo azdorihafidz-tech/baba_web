@@ -43,6 +43,7 @@ export const MULAI_CEPAT = {
     { t: "Menggulir daftar & tabel", j: "Daftar akun dan tabel digulir di dalam kotaknya sendiri (geser di dalam kotak). Kolom cari, judul kolom, dan tombol halaman berikutnya tetap terlihat, jadi tidak perlu menggulir halaman sampai bawah." },
     { t: "Menyaring daftar", j: "Di Input Data, Verifikasi ID, Akun Belum Approve, Document Belum Approve, dan Mutasi ada baris filter yang sama: kolom cari (nama / No ID), pilihan Cabang, dan tombol jabatan beserta jumlahnya (TM, MVO, Regional, FO, GM, Supplier, Dist, Reseller). Klik tombol jabatan untuk menampilkan jabatan itu saja, klik Semua untuk kembali." },
     { t: "Angka merah di menu", j: "Menunjukkan pekerjaan yang menunggu Anda. Chat: pesan baru. Akun Belum Approve: pendaftar yang belum Anda approve. Document Belum Approve: dokumen yang sedang giliran Anda setujui. Verifikasi ID (superadmin): akun yang semua uplinenya sudah approve. Di HP, angka menu yang tersimpan di Lainnya dijumlah di tombol Lainnya. Angka berkurang sendiri setelah pekerjaannya selesai." },
+    { t: "Lonceng notifikasi 🔔", j: "Tombol lonceng di kanan atas berisi kabar untuk Anda; angka merahnya = notifikasi yang belum dibaca. Kabar baru juga muncul sebentar di atas layar (tekan Lihat). Ketuk satu notifikasi untuk langsung membuka halamannya, atau tekan Tandai semua dibaca. Isinya: pendaftar baru yang mencantumkan Anda sebagai upline, dokumen yang giliran Anda approve, akun Anda sudah aktif, downline baru sudah aktif, dokumen RO Anda disetujui, posisi Anda berubah lewat Mutasi Jabatan, downline langsung baru dari Mutasi, dan perubahan hak Anda di menu Hak Akses. Superadmin hanya menerima yang menunggu tindakannya: akun siap diverifikasi dan dokumen menunggu persetujuan akhir." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
   ],
 };
@@ -508,6 +509,7 @@ export const PANDUAN = [
       "Saran RO hanya saran — sistem tidak mengubah jabatan secara otomatis.",
       "Seluruh langkah rencana tersimpan dalam satu proses: berhasil semua atau tidak sama sekali. Setiap langkah tercatat terpisah di Riwayat.",
       "Mutasi satu gerbong tercatat di Riwayat dengan Jenis Satu gerbong.",
+      "Setelah Simpan, setiap akun yang posisinya berubah menerima notifikasi di lonceng 🔔 (No ID / jabatan lama → baru dan upline langsungnya), dan upline yang mendapat downline langsung baru juga diberi tahu.",
       "Akun yang diberi hak Mutasi (menu Hak Akses) hanya bisa memutasi akun di bawah pemilik gerbongnya, dengan jabatan paling tinggi 1 jenjang di bawah pemilik gerbong (gerbong Regional → paling tinggi Founder, gerbong Founder → GM, gerbong GM → Supplier). Pemilik gerbong sendiri dan akun di gerbong lain tidak bisa dipilih. Daftar member, upline, No ID, Riwayat, dan Saran RO otomatis hanya berisi gerbongnya.",
     ],
     tanya: [
@@ -591,6 +593,7 @@ export const PANDUAN = [
       "Satu akun boleh diberi hak untuk beberapa gerbong.",
       "Gerbong boleh bertumpuk: bila Regional R03 dan Founder B27 di bawahnya sama-sama diberi hak, keduanya bisa memutasi gerbong B27. Riwayat Mutasi mencatat siapa yang melakukannya.",
       "Superadmin sudah memiliki semua hak, tidak perlu diberi hak tambahan.",
+      "Akun yang diberi / dicabut haknya, diizinkan, dilarang, atau dikembalikan ke aturan langsung menerima notifikasi di lonceng 🔔 beserta catatan/alasannya. Perubahan aturan per jabatan tidak dikirim sebagai notifikasi.",
       "Akun yang memegang hak atau menjadi cakupan gerbong tidak bisa dihapus sebelum haknya dicabut.",
     ],
     tanya: [

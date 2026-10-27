@@ -33,6 +33,8 @@
     </div>
 
     <template v-slot:append>
+      <!-- Lonceng notifikasi (pendaftar baru, dokumen menunggu, Mutasi, Hak Akses, ...) -->
+      <Lonceng />
       <!-- Panduan cara pakai halaman yang sedang dibuka -->
       <CaraPakai />
 
@@ -167,10 +169,12 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import CaraPakai from "@/components/panduan/CaraPakai.vue";
+import Lonceng from "@/components/notifikasi/Lonceng.vue";
 import { hentikanChat } from "@/utils/chatKoneksi";
+import { resetNotifikasi } from "@/utils/notifikasi";
 
 export default {
-  components: { CaraPakai },
+  components: { CaraPakai, Lonceng },
   setup() {
     const app = useAppStore();
     return { app };
@@ -625,6 +629,7 @@ export default {
     performLocalLogout(apiSuccess = true) {
 
       hentikanChat();
+      resetNotifikasi();
       Cookies.remove("token");
       localStorage.removeItem("peran");
       localStorage.removeItem("user");
