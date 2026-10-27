@@ -534,6 +534,15 @@ export const PANDUAN = [
       "Hak akses terpisah dari jabatan: jabatan mengatur posisi di struktur, hak akses mengatur apa yang boleh dikerjakan di aplikasi. Contoh: Founder B27 diberi hak Mutasi Jabatan untuk gerbongnya sendiri, sehingga bisa membantu superadmin memutasi akun di bawahnya tanpa bisa menyentuh gerbong lain. Satu gerbong = pemilik gerbong beserta seluruh jaringan di bawahnya (mis. Founder → GM → Supplier → Distributor → Reseller).",
     langkah: [
       {
+        judul: "Melihat hak satu akun (tab Per akun)",
+        isi: [
+          "Buka tab Per akun, lalu ketik nama, No ID, atau username di kolom Pilih akun.",
+          "Tampil semua yang bisa dilakukan akun itu, dikelompokkan menurut asalnya: Semua member, Menurut jabatan, Menurut posisi upline, Hak tambahan, dan Khusus superadmin. Tanda ✔ = bisa, ✘ = tidak bisa, dengan keterangan batasnya (mis. hanya akun di jaringannya, atau jumlah pendaftar yang menunggu approve-nya).",
+          "Pada baris Mutasi Jabatan, tekan Beri hak untuk langsung memberi hak ke akun tersebut, atau Lihat untuk membuka kartunya di tab Hak aktif.",
+          "Akun yang belum aktif (belum diverifikasi) belum bisa login, jadi semua haknya belum berlaku.",
+        ],
+      },
+      {
         judul: "Memberi hak",
         isi: [
           "Tekan Beri hak.",

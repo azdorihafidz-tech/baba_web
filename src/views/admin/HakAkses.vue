@@ -3,12 +3,50 @@
 
   <div class="d-flex flex-wrap align-center ga-2 mb-3">
     <v-tabs v-model="tab" color="#B8890F" density="compact">
+      <v-tab value="akun">Per akun</v-tab>
       <v-tab value="aktif">Hak aktif ({{ daftar.length }})</v-tab>
       <v-tab value="riwayat" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
     <v-spacer />
     <v-btn color="primary" prepend-icon="mdi-shield-plus" @click="bukaBeri">Beri hak</v-btn>
   </div>
+
+  <!-- Per akun: semua kemampuan satu akun beserta asalnya -->
+  <template v-if="tab === 'akun'">
+    <v-autocomplete v-model="akunDilihat" :items="akunLihatItems" item-title="label" item-value="id" no-filter clearable
+      :loading="memuatAkunLihat" label="Pilih akun" placeholder="Cari nama, No ID, atau username" variant="outlined"
+      density="comfortable" prepend-inner-icon="mdi-account-search" hide-details class="mb-3"
+      @update:search="cariAkunLihat" @update:model-value="muatKemampuan" />
+    <v-progress-linear v-if="memuatKemampuan" indeterminate color="primary" class="mb-2" />
+    <div v-isi-layar class="baba-gulir">
+      <div v-if="!profil" class="kosong">
+        <v-icon size="40">mdi-account-key-outline</v-icon>
+        <p>Pilih akun untuk melihat apa saja yang bisa dilakukannya di aplikasi, beserta asal haknya.</p>
+      </div>
+      <template v-else>
+        <v-card class="profil-kartu mb-3" variant="outlined">
+          <div class="profil-nama">{{ profil.akun.nama }}</div>
+          <div class="meta">{{ profil.akun.jabatan || '-' }} · {{ profil.akun.no_id || 'tanpa No ID' }} · {{ profil.akun.cabang || '-' }}
+            <template v-if="profil.akun.kode"> · {{ profil.akun.kode }}</template></div>
+          <div v-if="!profil.akun.aktif" class="profil-catatan">Akun belum aktif (belum diverifikasi): belum bisa login, jadi semua hak belum berlaku.</div>
+        </v-card>
+        <div v-for="g in kelompokKemampuan" :key="g.nama" class="kel">
+          <div class="kel-judul">{{ g.nama }}</div>
+          <div v-for="k in g.isi" :key="k.kode" class="kem-baris" :class="{ 'kem-tidak': !k.boleh }">
+            <v-icon :color="k.boleh ? 'success' : undefined" size="20">{{ k.boleh ? 'mdi-check-circle' : 'mdi-close-circle-outline' }}</v-icon>
+            <div class="kem-teks">
+              <div class="kem-label">{{ k.label }}</div>
+              <div class="meta">{{ k.ket }}</div>
+            </div>
+            <template v-if="k.kode === 'mutasi' && profil.akun.aktif">
+              <v-btn v-if="k.boleh" size="small" variant="text" color="#B8890F" @click="lihatHakAktif(profil.akun)">Lihat</v-btn>
+              <v-btn size="small" variant="text" color="#B8890F" prepend-icon="mdi-shield-plus" @click="beriUntuk(profil.akun)">Beri hak</v-btn>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
 
   <!-- Hak aktif -->
   <template v-if="tab === 'aktif'">
@@ -129,7 +167,7 @@ const debounce = (fn, ms = 350) => {
 const tanggal = (v, jam = false) => (v ? (jam ? String(v).slice(0, 16).replace("T", " ") : String(v).slice(0, 10)) : "-");
 const labelAkun = (u) => `${u.no_id || "tanpa No ID"} · ${u.nama} — ${u.jabatan || "-"} · ${u.cabang || "-"}`;
 
-const tab = ref("aktif");
+const tab = ref("akun");
 const daftar = ref([]);
 const hakTersedia = ref({});
 const memuat = ref(false);
@@ -164,6 +202,58 @@ async function muatRiwayat() {
   } finally {
     memuatRiwayat.value = false;
   }
+}
+
+/* ---------- Per akun ---------- */
+const akunDilihat = ref(null);
+const akunLihatItems = ref([]);
+const memuatAkunLihat = ref(false);
+const profil = ref(null); // { akun, kemampuan[] }
+const memuatKemampuan = ref(false);
+const cariAkunLihat = debounce(async (q) => {
+  if (q && akunLihatItems.value.some((x) => x.id === akunDilihat.value && x.label === q)) return;
+  memuatAkunLihat.value = true;
+  try {
+    const { data } = await api.get("/hak-akses/cari-akun", { params: { q: q || "" } });
+    akunLihatItems.value = gabung(akunLihatItems.value, data.data.map((u) => ({ ...u, label: labelAkun(u) })), akunDilihat.value);
+  } finally {
+    memuatAkunLihat.value = false;
+  }
+});
+async function muatKemampuan(id) {
+  if (!id) {
+    profil.value = null;
+    return;
+  }
+  memuatKemampuan.value = true;
+  try {
+    const { data } = await api.get(`/hak-akses/akun/${id}`);
+    profil.value = { akun: data.akun, kemampuan: data.kemampuan };
+  } catch (e) {
+    toast(pesanError(e, "Gagal memuat hak akun"), "error");
+  } finally {
+    memuatKemampuan.value = false;
+  }
+}
+// Kelompok sesuai urutan dari server: semua member, jabatan, posisi upline, hak tambahan, khusus superadmin
+const kelompokKemampuan = computed(() => {
+  const hasil = [];
+  for (const k of profil.value?.kemampuan || []) {
+    let g = hasil.find((x) => x.nama === k.kelompok);
+    if (!g) hasil.push((g = { nama: k.kelompok, isi: [] }));
+    g.isi.push(k);
+  }
+  return hasil;
+});
+function lihatHakAktif(akun) {
+  tab.value = "aktif";
+  cari.value = akun.no_id || akun.nama;
+}
+function beriUntuk(akun) {
+  bukaBeri();
+  const item = { ...akun, label: labelAkun(akun) };
+  akunItems.value = [item, ...akunItems.value.filter((x) => x.id !== akun.id)];
+  form.user_id = akun.id;
 }
 
 /* ---------- Beri hak ---------- */
@@ -226,6 +316,8 @@ async function simpanBeri() {
     toast(data.message);
     dialogBeri.value = false;
     muat();
+    if (profil.value) muatKemampuan(profil.value.akun.id);
+    else tab.value = "aktif";
     if (riwayat.value.length) muatRiwayat();
   } catch (e) {
     toast(pesanError(e, "Gagal memberi hak"), "error");
@@ -250,6 +342,7 @@ async function simpanCabut() {
     toast(data.message);
     dialogCabut.value = false;
     muat();
+    if (profil.value) muatKemampuan(profil.value.akun.id);
     if (riwayat.value.length) muatRiwayat();
   } catch (e) {
     toast(pesanError(e, "Gagal mencabut hak"), "error");
@@ -316,6 +409,58 @@ onMounted(muat);
   margin-top: 8px;
   font-size: 0.75rem;
   color: var(--baba-muted);
+}
+
+.profil-kartu {
+  padding: 12px 14px;
+  border-color: var(--baba-gold);
+}
+
+.profil-nama {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.profil-catatan {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--baba-danger);
+}
+
+.kel {
+  margin-bottom: 14px;
+}
+
+.kel-judul {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--baba-gold-dark);
+  margin-bottom: 4px;
+}
+
+.kem-baris {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--baba-border);
+  flex-wrap: wrap;
+}
+
+.kem-teks {
+  flex: 1;
+  min-width: 200px;
+}
+
+.kem-label {
+  font-weight: 600;
+}
+
+.kem-tidak .kem-label {
+  color: var(--baba-muted);
+  font-weight: 500;
 }
 
 .kosong {
