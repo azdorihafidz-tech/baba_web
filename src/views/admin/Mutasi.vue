@@ -237,19 +237,34 @@
           <v-card-text>
             <v-alert v-for="(e, i) in pratinjau.errors" :key="i" type="warning" variant="tonal" density="compact"
               class="mb-2">{{ e }}</v-alert>
-            <!-- Kursi kosong yang masih punya downline: wajib diisi pengganti / dipindahkan sebelum simpan -->
+            <!-- Kursi kosong yang masih punya downline: wajib diisi pengganti / dipindahkan sebelum simpan.
+                 Rantai pengganti: satu downline kursi itu naik mengisinya; kursi yang ia tinggal muncul berikutnya. -->
             <div v-for="k in kursiKosong" :key="k.id" class="kursi-kosong mb-2">
-              <v-icon icon="mdi-seat-outline" color="error" class="kk-ikon" />
-              <div class="kk-teks">
-                <b>Kursi {{ labelKursi(k) }} ({{ k.jabatan }}) kosong</b>, masih ada {{ k.jumlah_downline }} downline:
-                {{ k.downline.join(', ') }}<template v-if="k.jumlah_downline > k.downline.length">, …</template>
-                <span v-if="k.upline" class="kk-meta"> · upline kursi: {{ k.upline.nama }} ({{ k.upline.no_id || '-' }})</span>
+              <div class="kk-kepala">
+                <v-icon icon="mdi-seat-outline" color="error" class="kk-ikon" />
+                <div class="kk-teks">
+                  <b>Kursi {{ labelKursi(k) }} ({{ k.jabatan }})</b>
+                  <template v-if="k.asal"> ditinggal {{ k.asal }}</template> — siapa yang naik?
+                  <div class="kk-meta">{{ k.jumlah_downline }} downline menunggu<template v-if="k.upline"> · upline kursi:
+                    {{ k.upline.nama }} ({{ k.upline.no_id || '-' }})</template></div>
+                </div>
+              </div>
+              <div v-if="k.calon?.length" class="kk-calon">
+                <button v-for="c in k.calon" :key="c.id" type="button" class="kk-calon-item" :disabled="!bisaLanjut"
+                  @click="naikkanCalon(k, c)">
+                  <div class="kk-calon-teks">
+                    <div class="kk-calon-nama">{{ c.nama }}</div>
+                    <div class="kk-calon-meta">{{ c.jabatan }} · {{ c.no_id || '-' }} ·
+                      {{ c.jumlah_downline ? `${c.jumlah_downline} downline langsung` : 'tanpa downline' }}</div>
+                  </div>
+                  <span class="kk-calon-aksi"><v-icon icon="mdi-arrow-up-bold" size="16" /> Naik</span>
+                </button>
               </div>
               <div class="kk-aksi">
-                <v-btn size="small" color="primary" variant="flat" prepend-icon="mdi-account-arrow-right"
-                  :disabled="!bisaLanjut" @click="mulaiPengganti(k)">Pilih pengganti</v-btn>
-                <v-btn size="small" variant="tonal" color="#B8890F" prepend-icon="mdi-account-group"
-                  :disabled="!bisaLanjut" @click="bukaPindahkan(k)">Pindahkan ke upline lain</v-btn>
+                <v-btn size="small" variant="tonal" color="#B8890F" prepend-icon="mdi-account-search"
+                  :disabled="!bisaLanjut" @click="mulaiPengganti(k)">Pilih orang lain…</v-btn>
+                <v-btn size="small" variant="text" prepend-icon="mdi-account-group"
+                  :disabled="!bisaLanjut" @click="bukaPindahkan(k)">Kosongkan, pindahkan tim</v-btn>
               </div>
             </div>
             <p v-if="kursiKosong.length && !bisaLanjut && !loadingPratinjau" class="hint mb-2">
@@ -261,7 +276,7 @@
               <template v-if="member">
                 <span class="r-chip">Downline: <b>{{ pratinjau.ringkasan.jumlah_anggota }}</b></span>
                 <span class="r-chip">Ikut: <b>{{ pratinjau.ringkasan.jumlah_ikut }}</b></span>
-                <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
+                <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : naikTetap ? "Tetap di kursi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
               </template>
               <span class="r-chip r-gold">No ID berubah: <b>{{ pratinjau.ringkasan.no_id_berubah }}</b></span>
             </div>
@@ -608,6 +623,9 @@ const tampilGerbong = computed(() => selisihJenjang.value !== 0 && !kursiTarget.
   && anakLangsung.value.length > 0);
 const bisaGerbong = computed(() => tampilGerbong.value && Math.abs(selisihJenjang.value) === 1);
 const arahGerbong = computed(() => (selisihJenjang.value > 0 ? "turun" : "naik"));
+// Naik (bukan tukar / satu gerbong): hanya orang ini yang naik; downline-nya bawaannya tetap di kursi lama,
+// kursi lama tetap di bawahnya dan diisi salah satu downline lewat rantai pengganti di Pratinjau
+const naikTetap = computed(() => selisihJenjang.value < 0 && !pakaiTukar.value && !duaLangkah.value && !(bisaGerbong.value && gerbong.value));
 const contohGerbong = computed(() => (selisihJenjang.value > 0
   ? "Supplier di tim menjadi Distributor, Distributor menjadi Reseller"
   : "Distributor di tim menjadi Supplier, Reseller menjadi Distributor"));
@@ -778,7 +796,15 @@ const anakTukar = computed(() => anakPer.value.y);
 const anakKetiga = computed(() => anakPer.value.z);
 const jumlahAnakLangsung = computed(() => anakLangsung.value.length + anakTukar.value.length + anakKetiga.value.length);
 // Downline yang belum punya status: ikut bila jenjangnya cocok (sama dengan centang bawaan)
-const ikutKah = (state, a) => (a.id in state ? !!state[a.id] : a.boleh_ikut !== false);
+const ikutKah = (state, a) => (a.id in state ? !!state[a.id] : a.boleh_ikut !== false && !(state === ikutState.value && naikTetap.value));
+// Naik ↔ tidak naik (ganti jabatan / Satu gerbong): centang downline kembali ke bawaan yang baru
+watch(naikTetap, () => {
+  ikutState.value = {};
+  dilepasOtomatis.delete(ikutState);
+  jadwalkanPratinjau();
+});
+// No ID orang ini sebelum langkah sekarang (posisi menurut rencana bila sudah diubah)
+const noIdAwal = computed(() => posisiRencana.value?.no_id_baru ?? member.value?.no_id);
 const adaTidakIkut = computed(() => anakLangsung.value.some((a) => !ikutKah(ikutState.value, a)));
 
 // Kelompok checklist: downline orang yang dipindah, pemegang lama kursi tujuan, dan (rotasi) orang ketiga
@@ -792,7 +818,9 @@ const kelompokDownline = computed(() => {
       kunci: "x", judul: `Downline ${nama}`, nama, daftar: anakLangsung.value, state: ikutState.value,
       kalauTidak: pakaiTukar.value
         ? `tetap di posisi, pindah ke ${z ? z.nama : y.nama}`
-        : "menunggu di kursi lama yang kosong, atau ke upline penampung bila dipilih",
+        : naikTetap.value
+          ? `tetap di kursi ${noIdAwal.value || "lama"}, lalu salah satunya naik mengisi kursi itu (pilih di Pratinjau)`
+          : "menunggu di kursi lama yang kosong, atau ke upline penampung bila dipilih",
     });
   }
   if (ambilKursiTerisi.value && anakTukar.value.length) {
@@ -897,6 +925,7 @@ const draftLangkah = () => {
     tidak_ikut_tukar: pakaiTukar.value ? tidak(anakTukar.value, ikutStateTukar.value) : [],
     tidak_ikut_ketiga: rotasi.value ? tidak(anakKetiga.value, ikutStateKetiga.value) : [],
     gerbong: bisaGerbong.value && gerbong.value,
+    kursi_di_bawah: naikTetap.value,
   }];
 };
 
@@ -928,7 +957,7 @@ const jadwalkanPratinjau = debounce(async () => {
       const lepas = dilepasOtomatis.get(st);
       daftar.forEach((a) => {
         if (!(a.id in baru)) {
-          baru[a.id] = a.boleh_ikut !== false;
+          baru[a.id] = ikutKah(st.value, a);
           lepas.delete(a.id);
         } else if (a.boleh_ikut === false && baru[a.id]) {
           baru[a.id] = false;
@@ -1043,6 +1072,18 @@ function mulaiPengganti(k) {
   tetapkanDraft();
   kursiTarget.value = k;
   window.scrollTo({ top: 0, behavior: "smooth" });
+  jadwalkanPratinjau();
+}
+
+// Rantai pengganti: satu downline kursi kosong naik mengisinya; downline-nya tetap di kursinya
+// (kursi yang ia tinggal muncul berikutnya di Pratinjau)
+function naikkanCalon(k, c) {
+  tetapkanDraft();
+  rencana.value = [...rencana.value, {
+    kunci: ++kunciRencana,
+    langkah: [{ user_id: c.id, no_id_tujuan: k.no_id, kursi_id: k.id, downline_tetap: true }],
+    teks: [`${c.nama} (${c.jabatan} ${c.no_id || "-"}) naik mengisi kursi ${labelKursi(k)} (${k.jabatan})`],
+  }];
   jadwalkanPratinjau();
 }
 
@@ -1451,13 +1492,18 @@ else {
 
 .kursi-kosong {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 8px 10px;
+  flex-direction: column;
+  gap: 8px;
   padding: 10px 12px;
   border: 1px solid #f5c2c0;
   border-radius: var(--baba-radius);
   background: #fdf3f2;
+}
+
+.kk-kepala {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .kk-ikon {
@@ -1465,13 +1511,69 @@ else {
 }
 
 .kk-teks {
-  flex: 1 1 260px;
+  flex: 1;
   min-width: 0;
   font-size: 0.88rem;
 }
 
 .kk-meta {
   color: var(--baba-muted);
+  font-size: 0.8rem;
+}
+
+/* Calon pengganti = downline langsung kursi itu; digulir bila banyak */
+.kk-calon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.kk-calon-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--baba-border);
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kk-calon-item:hover:not(:disabled) {
+  border-color: var(--baba-gold-dark);
+  background: var(--baba-gold-soft);
+}
+
+.kk-calon-item:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.kk-calon-teks {
+  flex: 1;
+  min-width: 0;
+}
+
+.kk-calon-nama {
+  font-weight: 600;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.kk-calon-meta {
+  color: var(--baba-muted);
+  font-size: 0.76rem;
+}
+
+.kk-calon-aksi {
+  flex-shrink: 0;
+  color: var(--baba-gold-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
 }
 
 .kk-aksi {
