@@ -153,9 +153,13 @@
                 <b>{{ atasanTerpilih.nama }}</b>
                 <span class="atasan-meta">{{ atasanTerpilih.no_id || '-' }}<template v-if="atasanTerpilih.jabatan"> · {{ atasanTerpilih.jabatan }}</template></span>
               </div>
+              <div v-else-if="pakaiKursiLama" class="atasan-teks">
+                <b>Pengganti kursi {{ noIdAwal || 'lama' }}</b>
+                <span class="atasan-meta">orang yang naik mengisi kursi lama {{ member.nama }} (dipilih di Pratinjau)</span>
+              </div>
               <div v-else class="atasan-teks atasan-kosong">{{ bolehTanpaAtasan ? `Langsung di bawah ${teksOwner()}` : 'Belum dipilih' }}</div>
               <v-btn variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-account-arrow-up"
-                @click="pilihAtasanTerbuka = true">{{ atasanTerpilih ? 'Ganti upline' : 'Pilih upline' }}</v-btn>
+                @click="pilihAtasanTerbuka = true">{{ atasanTerpilih || pakaiKursiLama ? 'Ganti upline' : 'Pilih upline' }}</v-btn>
             </div>
             <template v-else>
               <p class="hint mb-2">Calon upline yang sah untuk jabatan ini. Cabang {{ member.cabang }} ditampilkan paling atas.</p>
@@ -164,8 +168,10 @@
                 :terpilih-id="atasanBaru" placeholder="Cari nama / No ID upline"
                 kosong="Tidak ada calon upline untuk jabatan ini" @pilih="pilihAtasan" />
               <div class="d-flex flex-wrap ga-2 mt-2">
+                <v-btn v-if="turunKotak" variant="tonal" color="#B8890F" size="small" prepend-icon="mdi-seat-outline"
+                  @click="pilihKursiLama">Di bawah pengganti kursi lamanya ({{ noIdAwal || '-' }})</v-btn>
                 <v-btn v-if="bolehTanpaAtasan" variant="text" size="small" @click="pilihAtasan(null)">Langsung di bawah Owner</v-btn>
-                <v-btn v-if="atasanTerpilih" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
+                <v-btn v-if="atasanTerpilih || pakaiKursiLama" variant="text" size="small" @click="pilihAtasanTerbuka = false">Batal</v-btn>
               </div>
             </template>
             </template>
@@ -193,8 +199,43 @@
                 lalu tekan Tambah langkah untuk jenjang berikutnya.
               </v-alert>
             </div>
+            <!-- Turun: setiap downline langsung ikut turun 1 jenjang bersama orangnya, atau tetap di kursi lama
+                 (kursi itu lalu diisi salah satu dari mereka lewat rantai pengganti di Pratinjau) -->
+            <div v-if="turunKotak && anakLangsung.length" class="turun-kotak mb-4">
+              <div class="tk-kotak tk-ikut">
+                <div class="tk-judul"><v-icon icon="mdi-arrow-down-bold" size="18" /> Ikut turun bersama {{ member.nama }}
+                  <span class="tk-jumlah">{{ anakIkut.length }}</span></div>
+                <p class="hint mb-2">
+                  <template v-if="selisihJenjang === 1">Turun 1 jenjang beserta seluruh timnya (mis. {{ contohGerbong }}). No ID tim ikut berubah.</template>
+                  <template v-else>Ikut turun hanya bisa untuk turun 1 jenjang. Turunkan 1 jenjang dulu, tekan Tambah langkah, lalu 1 jenjang lagi.</template>
+                </p>
+                <div v-for="a in anakIkut" :key="a.id" class="tk-item">
+                  <div class="anak-text">
+                    <div class="anak-nama">{{ a.nama }}</div>
+                    <div class="anak-meta">{{ a.jabatan_lama }} · {{ a.no_id_lama || '-' }}<span v-if="a.jumlah_tim"> · beserta {{ a.jumlah_tim }} downline</span></div>
+                  </div>
+                  <v-btn size="small" variant="text" append-icon="mdi-arrow-right" @click="toggleIkut('x', a.id, false)">Tetap</v-btn>
+                </div>
+                <div v-if="!anakIkut.length" class="tk-kosong">Belum ada</div>
+              </div>
+              <div class="tk-kotak tk-tetap">
+                <div class="tk-judul"><v-icon icon="mdi-seat-outline" size="18" /> Tetap di kursi {{ noIdAwal || 'lama' }}
+                  <span class="tk-jumlah">{{ anakTetap.length }}</span></div>
+                <p class="hint mb-2">Jabatan & No ID tidak berubah. Salah satunya naik mengisi kursi {{ noIdAwal || 'lama' }} (pilih di Pratinjau).</p>
+                <div v-for="a in anakTetap" :key="a.id" class="tk-item">
+                  <div class="anak-text">
+                    <div class="anak-nama">{{ a.nama }}</div>
+                    <div class="anak-meta">{{ a.jabatan_lama }} · {{ a.no_id_lama || '-' }}<span v-if="a.jumlah_tim"> · beserta {{ a.jumlah_tim }} downline</span></div>
+                    <div v-if="a.boleh_ikut === false && selisihJenjang === 1" class="anak-alasan">Tidak bisa ikut turun: tidak ada jenjang di bawahnya.</div>
+                  </div>
+                  <v-btn size="small" variant="text" prepend-icon="mdi-arrow-left" :disabled="a.boleh_ikut === false"
+                    @click="toggleIkut('x', a.id, true)">Ikut turun</v-btn>
+                </div>
+                <div v-if="!anakTetap.length" class="tk-kosong">Belum ada</div>
+              </div>
+            </div>
             <!-- Satu kelompok per pemilik downline: orang yang dipindah, pemegang lama kursi tujuan, dan (rotasi) orang ketiga -->
-            <div v-for="g in kelompokDownline" :key="g.kunci" class="mb-4">
+            <div v-for="g in kelompokCentang" :key="g.kunci" class="mb-4">
               <div class="kelompok-head">
                 <b>{{ g.judul }}</b>
                 <v-spacer />
@@ -276,7 +317,7 @@
               <template v-if="member">
                 <span class="r-chip">Downline: <b>{{ pratinjau.ringkasan.jumlah_anggota }}</b></span>
                 <span class="r-chip">Ikut: <b>{{ pratinjau.ringkasan.jumlah_ikut }}</b></span>
-                <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : naikTetap ? "Tetap di kursi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
+                <span class="r-chip">{{ pratinjau.ringkasan.tukar_dengan ? "Tetap di posisi" : naikTetap || turunKotak ? "Tetap di kursi" : "Tidak ikut" }}: <b>{{ pratinjau.ringkasan.jumlah_tidak_ikut }}</b></span>
               </template>
               <span class="r-chip r-gold">No ID berubah: <b>{{ pratinjau.ringkasan.no_id_berubah }}</b></span>
             </div>
@@ -619,13 +660,18 @@ const selisihJenjang = computed(() => {
   const awal = levelJabatan(r ? r.mvo_type_id : member.value.mvo_type_id);
   return awal == null ? 0 : jabatanDipilih.value.level - awal;
 });
-const tampilGerbong = computed(() => selisihJenjang.value !== 0 && !kursiTarget.value && !pakaiTukar.value && !duaLangkah.value
+// Turun: dua kotak (ikut turun 1 jenjang / tetap di kursi) menggantikan saklar Satu gerbong
+const tampilGerbong = computed(() => selisihJenjang.value < 0 && !kursiTarget.value && !pakaiTukar.value && !duaLangkah.value
   && anakLangsung.value.length > 0);
 const bisaGerbong = computed(() => tampilGerbong.value && Math.abs(selisihJenjang.value) === 1);
 const arahGerbong = computed(() => (selisihJenjang.value > 0 ? "turun" : "naik"));
 // Naik (bukan tukar / satu gerbong): hanya orang ini yang naik; downline-nya bawaannya tetap di kursi lama,
 // kursi lama tetap di bawahnya dan diisi salah satu downline lewat rantai pengganti di Pratinjau
 const naikTetap = computed(() => selisihJenjang.value < 0 && !pakaiTukar.value && !duaLangkah.value && !(bisaGerbong.value && gerbong.value));
+// Turun (bukan tukar / mengisi kursi): downline ikut turun 1 jenjang (satu gerbong) atau tetap di kursi lama
+const turunKotak = computed(() => selisihJenjang.value > 0 && !kursiTarget.value && !pakaiTukar.value && !duaLangkah.value);
+// Turun ke bawah kursi lamanya sendiri: upline = orang yang naik mengisi kursi itu
+const pakaiKursiLama = ref(false);
 const contohGerbong = computed(() => (selisihJenjang.value > 0
   ? "Supplier di tim menjadi Distributor, Distributor menjadi Reseller"
   : "Distributor di tim menjadi Supplier, Reseller menjadi Distributor"));
@@ -723,6 +769,7 @@ function gabungTerpilih(terpilih, items, q) {
 
 function pilihMember() {
   pratinjau.value = null;
+  pakaiKursiLama.value = false;
   ikutState.value = {};
   gerbong.value = false;
   penampung.value = null;
@@ -748,6 +795,7 @@ function pilihMember() {
 
 // Jabatan berubah → atasan lama belum tentu sah, jadi daftar calon atasan langsung dibuka
 function gantiJabatan() {
+  pakaiKursiLama.value = false;
   atasanBaru.value = null;
   atasanTerpilih.value = null;
   pilihAtasanTerbuka.value = true;
@@ -757,7 +805,16 @@ function gantiJabatan() {
   jadwalkanPratinjau();
 }
 
+function pilihKursiLama() {
+  pakaiKursiLama.value = true;
+  atasanBaru.value = null;
+  atasanTerpilih.value = null;
+  pilihAtasanTerbuka.value = false;
+  jadwalkanPratinjau();
+}
+
 function pilihAtasan(a) {
+  pakaiKursiLama.value = false;
   atasanBaru.value = a ? a.id : null;
   atasanTerpilih.value = a;
   pilihAtasanTerbuka.value = false;
@@ -796,15 +853,20 @@ const anakTukar = computed(() => anakPer.value.y);
 const anakKetiga = computed(() => anakPer.value.z);
 const jumlahAnakLangsung = computed(() => anakLangsung.value.length + anakTukar.value.length + anakKetiga.value.length);
 // Downline yang belum punya status: ikut bila jenjangnya cocok (sama dengan centang bawaan)
-const ikutKah = (state, a) => (a.id in state ? !!state[a.id] : a.boleh_ikut !== false && !(state === ikutState.value && naikTetap.value));
-// Naik ↔ tidak naik (ganti jabatan / Satu gerbong): centang downline kembali ke bawaan yang baru
-watch(naikTetap, () => {
+// Naik & turun: downline bawaannya tetap di kursi lama
+const ikutKah = (state, a) => (a.id in state ? !!state[a.id]
+  : a.boleh_ikut !== false && !(state === ikutState.value && (naikTetap.value || turunKotak.value)));
+// Naik / turun / tidak keduanya (ganti jabatan / Satu gerbong): centang downline kembali ke bawaan yang baru
+watch(() => `${naikTetap.value}-${turunKotak.value}`, () => {
+  if (!turunKotak.value) pakaiKursiLama.value = false;
   ikutState.value = {};
   dilepasOtomatis.delete(ikutState);
   jadwalkanPratinjau();
 });
 // No ID orang ini sebelum langkah sekarang (posisi menurut rencana bila sudah diubah)
 const noIdAwal = computed(() => posisiRencana.value?.no_id_baru ?? member.value?.no_id);
+const anakIkut = computed(() => anakLangsung.value.filter((a) => ikutKah(ikutState.value, a)));
+const anakTetap = computed(() => anakLangsung.value.filter((a) => !ikutKah(ikutState.value, a)));
 const adaTidakIkut = computed(() => anakLangsung.value.some((a) => !ikutKah(ikutState.value, a)));
 
 // Kelompok checklist: downline orang yang dipindah, pemegang lama kursi tujuan, dan (rotasi) orang ketiga
@@ -839,6 +901,9 @@ const kelompokDownline = computed(() => {
   }
   return g;
 });
+
+// Kelompok dengan centang; saat turun, downline orang ini memakai dua kotak di atasnya
+const kelompokCentang = computed(() => kelompokDownline.value.filter((g) => !(g.kunci === "x" && turunKotak.value)));
 
 function setStateIkut(kunci, id, nilai) {
   const s = { x: ikutState, y: ikutStateTukar, z: ikutStateKetiga }[kunci];
@@ -916,7 +981,8 @@ const draftLangkah = () => {
   return [{
     user_id: memberId.value,
     mvo_type_id: jabatanBaru.value,
-    parent_id: atasanBaru.value,
+    parent_id: pakaiKursiLama.value ? null : atasanBaru.value,
+    di_bawah_kursi_lama: turunKotak.value && pakaiKursiLama.value,
     no_id_tujuan: modeNoId.value === "pilih" ? noIdTujuan.value : null,
     tukar: pakaiTukar.value,
     no_id_tujuan_2: rotasi.value ? kursiPemegang.value.no_id_tujuan : null,
@@ -924,7 +990,7 @@ const draftLangkah = () => {
     tidak_ikut: tidakX,
     tidak_ikut_tukar: pakaiTukar.value ? tidak(anakTukar.value, ikutStateTukar.value) : [],
     tidak_ikut_ketiga: rotasi.value ? tidak(anakKetiga.value, ikutStateKetiga.value) : [],
-    gerbong: bisaGerbong.value && gerbong.value,
+    gerbong: turunKotak.value ? selisihJenjang.value === 1 : bisaGerbong.value && gerbong.value,
     kursi_di_bawah: naikTetap.value,
   }];
 };
@@ -1036,6 +1102,7 @@ function resetDraft() {
   jabatanBaru.value = null;
   atasanBaru.value = null;
   atasanTerpilih.value = null;
+  pakaiKursiLama.value = false;
   pilihAtasanTerbuka.value = false;
   penampung.value = null;
   penampungItems.value = [];
@@ -1488,6 +1555,59 @@ else {
   flex: 1;
   min-width: 0;
   font-size: 0.88rem;
+}
+
+/* Turun: kotak ikut turun / tetap di kursi (berdampingan di desktop, bertumpuk di HP) */
+.turun-kotak {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.tk-kotak {
+  padding: 10px 12px;
+  border: 1px solid var(--baba-border);
+  border-radius: var(--baba-radius);
+  background: #fff;
+}
+
+.tk-ikut {
+  border-color: var(--baba-gold-dark);
+  background: var(--baba-gold-soft);
+}
+
+.tk-judul {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.tk-jumlah {
+  margin-left: auto;
+  min-width: 24px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: var(--baba-ink);
+  color: var(--baba-gold);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.tk-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px dashed var(--baba-border);
+}
+
+.tk-kosong {
+  color: var(--baba-muted);
+  font-size: 0.8rem;
+  padding: 4px 0;
 }
 
 .kursi-kosong {
