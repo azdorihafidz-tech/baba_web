@@ -382,7 +382,7 @@ export const PANDUAN = [
     menu: "Excel Struktur",
     icon: "mdi-microsoft-excel",
     peran: "superadmin",
-    ringkas: "Unduh struktur akun sebagai Excel berbentuk pohon.",
+    ringkas: "Unduh struktur akun sebagai Excel berbentuk pohon, lalu unggah perubahannya.",
     kegunaan:
       "Seluruh struktur akun aktif dalam satu file Excel: urut dari Owner ke bawah, nama menjorok sesuai jenjang, dan baris bisa dilipat per tim. File yang sama menjadi template untuk mengubah struktur (kolom kuning BARU).",
     langkah: [
@@ -405,6 +405,25 @@ export const PANDUAN = [
           "Sheet Petunjuk berisi cara mengisi perubahan beserta contoh; sheet Daftar berisi pilihan jabatan & kode cabang.",
         ],
       },
+      {
+        judul: "Mengisi perubahan di Excel",
+        isi: [
+          "Isi hanya kolom kuning di baris akun yang berubah. Kolom yang kosong = tidak berubah.",
+          "Jabatan BARU: pilih dari daftar. Upline BARU: tulis No ID upline yang sekarang (mis. M03) atau No Member-nya (mis. BP-00287). Tulis OWNER untuk TM/MVO yang langsung di bawah Owner.",
+          "No ID BARU biasanya dikosongkan (diisi sistem). Isi bila orang itu menggantikan kursi orang lain, mis. pengganti Founder B07 cukup diisi B07: jabatan & upline otomatis mengikuti kursi B07.",
+          "Downline yang barisnya tidak diubah: bila upline-nya hanya pindah upline, ikut pindah bersama timnya; bila upline-nya berganti jabatan, tetap di kursi lama dan menjadi downline penggantinya.",
+          "Cabang BARU: hanya untuk akun tanpa downline dan tanpa dokumen yang belum di-approve.",
+        ],
+      },
+      {
+        judul: "Unggah dan periksa",
+        isi: [
+          "Simpan file Excel, lalu di bagian Unggah perubahan pilih file tersebut dan tekan Periksa.",
+          "Bila ada masalah, setiap masalah ditampilkan dengan nomor barisnya di Excel (mis. Baris 754). Perbaiki di Excel, simpan, lalu unggah dan Periksa lagi.",
+          "Bila tidak ada masalah, Pratinjau menampilkan setiap akun yang terdampak: Status, Jabatan, No ID, Upline, Cabang, dan Kode Akun lama → baru. Status Diubah = baris yang Anda isi, Mengisi kursi = pengganti kursi, Tetap di kursi = downline yang kini di bawah pengganti, Ikut upline = tim yang ikut pindah.",
+          "Memeriksa tidak menyimpan apa pun.",
+        ],
+      },
     ],
     tips: [
       "Kolom kuning (Jabatan BARU, Upline BARU, No ID BARU, Cabang BARU) adalah tempat mengisi perubahan. Kosong = tidak berubah.",
@@ -415,6 +434,9 @@ export const PANDUAN = [
       { t: "Kenapa ada akun dari cabang lain di file cabang saya?", j: "Itu upline akun cabang tersebut (huruf abu-abu), dicantumkan supaya pohonnya utuh." },
       { t: "Kenapa nomor HP dan alamat tidak ada?", j: "File ini hanya untuk struktur. Data pribadi sengaja tidak disertakan karena file Excel mudah tersebar." },
       { t: "Akun yang belum diverifikasi ada di file?", j: "Tidak. Hanya akun aktif yang sudah masuk struktur." },
+      { t: "Muncul “Kursi B07 ditinggal … masih punya downline”?", j: "Orang di kursi B07 berganti jabatan, tetapi kursinya belum ada pengganti. Isi No ID BARU = B07 pada orang yang menggantikan, atau ubah Upline BARU downline-nya ke upline lain." },
+      { t: "Muncul “Data akun ini sudah berubah sejak file diunduh”?", j: "Akun itu sudah diubah (mis. lewat Mutasi Jabatan) setelah file Anda unduh. Unduh ulang file terbaru, lalu isi lagi perubahannya." },
+      { t: "Bolehkah menambah akun baru atau menghapus baris?", j: "Menambah akun tidak bisa lewat Excel (tetap lewat Registrasi). Baris yang dihapus dianggap tidak berubah." },
     ],
   },
   {

@@ -19,6 +19,81 @@
       <v-alert v-if="selesai" type="success" variant="tonal" density="compact" class="mt-3">{{ selesai }}</v-alert>
     </v-card>
 
+    <v-card class="kartu mb-3" variant="outlined">
+      <div class="kartu-judul"><v-icon color="#B8890F">mdi-file-upload-outline</v-icon> Unggah perubahan</div>
+      <p class="meta mb-3">
+        Isi kolom kuning (BARU) di file unduhan, simpan, lalu unggah di sini. Semua perubahan diperiksa dulu dan
+        ditampilkan sebagai pratinjau; belum ada yang tersimpan.
+      </p>
+      <div class="isian isian--unggah">
+        <v-file-input v-model="berkas" accept=".xlsx" label="File Excel Struktur (.xlsx)" variant="outlined"
+          density="comfortable" hide-details prepend-icon="" prepend-inner-icon="mdi-microsoft-excel" show-size
+          @update:model-value="hasil = null; galatUnggah = ''" />
+        <v-btn color="primary" size="large" prepend-icon="mdi-clipboard-check-outline" :loading="memeriksa"
+          :disabled="!fileDipilih" @click="periksa">Periksa</v-btn>
+      </div>
+      <v-alert v-if="galatUnggah" type="error" variant="tonal" density="compact" class="mt-3">{{ galatUnggah }}</v-alert>
+
+      <template v-if="hasil">
+        <v-alert v-if="hasil.galat.length" type="error" variant="tonal" density="compact" class="mt-3">
+          Ditemukan {{ hasil.galat.length }} masalah. Perbaiki di Excel, simpan, lalu unggah dan periksa lagi.
+        </v-alert>
+        <v-alert v-else type="success" variant="tonal" density="compact" class="mt-3">
+          Tidak ada masalah: {{ hasil.info.berubah }} baris diubah, {{ hasil.info.akun_terdampak }} akun terdampak,
+          {{ hasil.info.no_id_berubah }} No ID berubah, {{ hasil.info.kode_baru }} kode akun baru.
+        </v-alert>
+        <div v-if="hasil.info.keterangan" class="meta mt-2">File: {{ hasil.info.keterangan }}</div>
+
+        <div v-if="hasil.galat.length" class="galat-daftar mt-3">
+          <div v-for="(g, i) in hasil.galat" :key="i" class="galat-baris">
+            <span class="galat-chip">{{ g.baris ? `Baris ${g.baris}` : 'File' }}</span>
+            <div><b v-if="g.nama">{{ g.nama }}: </b>{{ g.pesan }}</div>
+          </div>
+        </div>
+
+        <template v-if="hasil.perubahan.length">
+          <div class="kartu-judul mt-4"><v-icon color="#B8890F">mdi-eye-outline</v-icon> Pratinjau ({{ hasil.perubahan.length }} akun)</div>
+          <div v-if="!compact" class="tabel-wrap">
+            <table class="tabel">
+              <thead>
+                <tr><th>Baris</th><th>Nama</th><th>Status</th><th>Jabatan</th><th>No ID</th><th>Upline</th><th>Cabang</th><th>Kode Akun</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="p in hasil.perubahan" :key="p.id" :class="{ 'baris-kosong': p.kosong }">
+                  <td>{{ p.baris || '' }}</td>
+                  <td><div class="nama">{{ p.nama }}</div><div class="meta">{{ p.no_member }}</div></td>
+                  <td><span class="status" :class="`status--${p.peran}`">{{ labelPeran(p.peran) }}</span></td>
+                  <td v-html="lamaBaru(p.jabatan_lama, p.jabatan_baru)" />
+                  <td v-html="lamaBaru(p.no_id_lama, p.no_id_baru)" />
+                  <td v-html="lamaBaru(p.upline_lama, p.upline_baru)" />
+                  <td v-html="lamaBaru(p.cabang_lama, p.cabang_baru)" />
+                  <td v-html="lamaBaru(p.kode_lama, p.kode_baru)" />
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else class="kartu-hp-daftar">
+            <div v-for="p in hasil.perubahan" :key="p.id" class="kartu-hp" :class="{ 'baris-kosong': p.kosong }">
+              <div class="d-flex align-center ga-2">
+                <span class="status" :class="`status--${p.peran}`">{{ labelPeran(p.peran) }}</span>
+                <span v-if="p.baris" class="meta">Baris {{ p.baris }}</span>
+              </div>
+              <div class="nama mt-1">{{ p.nama }} <span class="meta">{{ p.no_member }}</span></div>
+              <div class="detail-label">Jabatan</div><div class="detail-value" v-html="lamaBaru(p.jabatan_lama, p.jabatan_baru)" />
+              <div class="detail-label">No ID</div><div class="detail-value" v-html="lamaBaru(p.no_id_lama, p.no_id_baru)" />
+              <div class="detail-label">Upline</div><div class="detail-value" v-html="lamaBaru(p.upline_lama, p.upline_baru)" />
+              <template v-if="p.cabang_lama !== p.cabang_baru">
+                <div class="detail-label">Cabang</div><div class="detail-value" v-html="lamaBaru(p.cabang_lama, p.cabang_baru)" />
+              </template>
+              <template v-if="p.kode_lama !== p.kode_baru">
+                <div class="detail-label">Kode Akun</div><div class="detail-value" v-html="lamaBaru(p.kode_lama, p.kode_baru)" />
+              </template>
+            </div>
+          </div>
+        </template>
+      </template>
+    </v-card>
+
     <v-card class="kartu" variant="outlined">
       <div class="kartu-judul"><v-icon color="#B8890F">mdi-information-outline</v-icon> Isi file</div>
       <ul class="daftar">
@@ -34,19 +109,20 @@
         <li>Satu tim: saring kolom <b>Jalur (No ID)</b> → Text Filters → Contains → No ID ketua tim.</li>
         <li>Tanda − / + di kiri nomor baris melipat atau membuka tim.</li>
       </ul>
-      <p class="meta mt-3">
-        Unggah perubahan dari file ini sedang disiapkan. Sementara itu, ubah jabatan & upline lewat menu Mutasi Jabatan.
-      </p>
     </v-card>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useDisplay } from "vuetify";
 import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
+
+const { smAndDown } = useDisplay();
+const compact = computed(() => smAndDown.value);
 
 const api = axios.create({ baseURL: `${API_URL}/api`, timeout: 120000 });
 api.interceptors.request.use((cfg) => {
@@ -107,6 +183,41 @@ async function unduh() {
     memuat.value = false;
   }
 }
+
+// Unggah & periksa (belum menyimpan)
+const berkas = ref(null);
+const memeriksa = ref(false);
+const galatUnggah = ref("");
+const hasil = ref(null);
+const fileDipilih = computed(() => (Array.isArray(berkas.value) ? berkas.value[0] : berkas.value) || null);
+
+const PERAN = {
+  dipindah: "Diubah",
+  mengisi: "Mengisi kursi",
+  tetap: "Tetap di kursi",
+  ikut: "Ikut upline",
+  kosong: "Kursi kosong",
+};
+const labelPeran = (p) => PERAN[p] || p;
+const esc = (s) => String(s ?? "-").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const lamaBaru = (a, b) => (a || "-") === (b || "-") ? esc(a) : `<span class="lama">${esc(a)}</span> → <b>${esc(b)}</b>`;
+
+async function periksa() {
+  if (!fileDipilih.value) return;
+  memeriksa.value = true;
+  galatUnggah.value = "";
+  hasil.value = null;
+  try {
+    const fd = new FormData();
+    fd.append("file", fileDipilih.value);
+    const { data } = await api.post("/struktur-excel/periksa", fd);
+    hasil.value = data;
+  } catch (e) {
+    galatUnggah.value = e.response?.data?.message || "Gagal memeriksa file.";
+  } finally {
+    memeriksa.value = false;
+  }
+}
 </script>
 
 <style scoped>
@@ -137,8 +248,105 @@ async function unduh() {
   font-size: 0.9rem;
   line-height: 1.6;
 }
+.isian--unggah {
+  grid-template-columns: minmax(240px, 552px) auto;
+}
+.galat-daftar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.galat-baris {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  border: 1px solid var(--baba-border);
+  border-left: 3px solid var(--baba-danger);
+  border-radius: 8px;
+  background: var(--baba-surface);
+}
+.galat-chip {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--baba-ink);
+  color: var(--baba-gold);
+  white-space: nowrap;
+}
+.tabel-wrap {
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--baba-border);
+  border-radius: 8px;
+}
+.tabel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.tabel th {
+  position: sticky;
+  top: 0;
+  background: var(--baba-ink);
+  color: var(--baba-gold);
+  text-align: left;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+.tabel td {
+  padding: 7px 10px;
+  border-top: 1px solid var(--baba-border);
+  vertical-align: top;
+}
+.nama {
+  font-weight: 600;
+  color: var(--baba-ink);
+}
+.baris-kosong {
+  background: var(--baba-gold-soft);
+}
+.status {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--baba-bg);
+  color: var(--baba-muted);
+  white-space: nowrap;
+}
+.status--dipindah,
+.status--mengisi {
+  background: var(--baba-gold-soft);
+  color: var(--baba-gold-dark);
+}
+.status--kosong {
+  background: var(--baba-danger);
+  color: #fff;
+}
+.tabel :deep(.lama),
+.kartu-hp :deep(.lama) {
+  color: var(--baba-muted);
+  text-decoration: line-through;
+}
+.kartu-hp-daftar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kartu-hp {
+  padding: 10px 12px;
+  border: 1px solid var(--baba-border);
+  border-radius: 10px;
+  background: var(--baba-surface);
+}
 @media (max-width: 959px) {
-  .isian {
+  .isian,
+  .isian--unggah {
     grid-template-columns: 1fr;
   }
 }
