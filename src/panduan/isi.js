@@ -495,7 +495,7 @@ export const PANDUAN = [
     peran: "hak:mutasi",
     ringkas: "Menaikkan, menurunkan, atau memindahkan upline member beserta downline-nya.",
     kegunaan:
-      "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh downline-nya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Saran RO dan Riwayat.",
+      "Satu-satunya cara mengubah jabatan atau upline akun yang sudah aktif. Sistem otomatis menyesuaikan No ID orang tersebut dan seluruh downline-nya, kode akun, struktur upline, serta dokumen yang masih menunggu persetujuan. Ada juga tab Bagan (geser orang ke kursi pada bagan tim), Saran RO, dan Riwayat.",
     langkah: [
       {
         judul: "Jenis mutasi & caranya",
@@ -582,6 +582,23 @@ export const PANDUAN = [
         ],
       },
       {
+        judul: "Mutasi Bagan (geser orang ke kursi)",
+        isi: [
+          "Buka tab Bagan, lalu di kolom Buka tim cari ketua tim (mis. R05 atau B07) dan pilih. Bagan tim tampil: setiap baris = satu kursi (jabatan · No ID, warna sesuai jabatan) berisi orangnya (No Member + nama).",
+          "Kursi tetap di tempatnya; yang digeser orangnya. Di komputer: tarik nama orang lalu lepas di tujuan. Di HP: ketuk nama orang (berwarna hitam), lalu ketuk tujuannya.",
+          "Ke kursi kosong (merah): orang itu mengisi kursi tersebut, termasuk jabatan & No ID-nya.",
+          "Ke kursi yang sudah berisi: pilih Tukar posisi, atau … ke bangku tunggu (pemegang lama keluar dulu dari kursinya).",
+          "Ke + downline (muncul saat menggeser/di HP selalu tampil) di samping seseorang: orang itu pindah sendiri ke kursi baru di bawahnya; pilih jabatannya di kotak yang muncul. Baris Upline di atas bagan juga punya + downline.",
+          "Ke Bangku tunggu (kotak di kanan / di atas pada HP): orang itu keluar dulu dari kursinya, ditempatkan nanti.",
+          "Menggeser kursi (pegangan ⋮ di kiri jabatan, hanya komputer) ke + downline seseorang = kursi beserta seluruh timnya pindah ke bawah orang itu.",
+          "Setiap geseran langsung diperiksa. Bila melanggar aturan (mis. Supplier di bawah Founder), muncul pesan Tidak bisa: … dan bagan tidak berubah.",
+          "Orang yang dikeluarkan dari kursinya meninggalkan kursi kosong (merah). Downline langsungnya bertanda calon naik: geser salah satunya ke kursi itu. Kursi yang ditinggal orang yang naik menjadi kosong berikutnya, dan seterusnya.",
+          "Buka tim kedua lewat kolom Buka tim untuk memindah orang antar tim (dua tim tampil berdampingan).",
+          "Kotak Rencana mencatat setiap geseran. Batal = urungkan geseran terakhir, Ulang dari awal = buang semua.",
+          "Simpan aktif bila tidak ada kursi kosong yang masih punya downline dan bangku tunggu kosong. Tekan Simpan, periksa tabel perubahan (jabatan, No ID, upline lama → baru), isi Catatan bila perlu, lalu Simpan. Tercatat di Riwayat dengan Jenis Mutasi Bagan.",
+        ],
+      },
+      {
         judul: "Riwayat",
         isi: [
           "Tab Riwayat berisi semua mutasi. Kolom Jenis menampilkan Pindah, Mengisi kursi, Tukar posisi, Pindahkan downline, atau Import Excel (perubahan yang disimpan dari menu Excel Struktur).",
@@ -598,6 +615,8 @@ export const PANDUAN = [
       "Akun yang diberi hak Mutasi (menu Hak Akses) hanya bisa memutasi akun di bawah pemilik gerbongnya, dengan jabatan paling tinggi 1 jenjang di bawah pemilik gerbong (gerbong Regional → paling tinggi Founder, gerbong Founder → GM, gerbong GM → Supplier). Pemilik gerbong sendiri dan akun di gerbong lain tidak bisa dipilih. Daftar member, upline, No ID, Riwayat, dan Saran RO otomatis hanya berisi gerbongnya.",
     ],
     tanya: [
+      { t: "Bedanya Mutasi Baru dan Bagan?", j: "Hasilnya sama (aturan jabatan, No ID, kode akun, riwayat). Mutasi Baru memandu langkah demi langkah lewat isian; Bagan memperlihatkan tim sebagai pohon dan Anda cukup menggeser orang ke kursi." },
+      { t: "Di Bagan, Simpan tidak bisa ditekan?", j: "Masih ada kursi kosong (merah) yang punya downline, atau masih ada orang di bangku tunggu. Geser orang ke kursi kosong itu (calon naik bertanda emas), atau tempatkan orang di bangku tunggu ke kursi." },
       { t: "Kenapa upline yang saya cari tidak ada di daftar?", j: "Upline harus berjenjang sah untuk jabatan baru (Supplier ke bawah tepat satu jenjang di bawah upline-nya) dan tidak boleh downline orang yang dipindah." },
       { t: "B02 mau pindah ke B03 yang sudah terisi?", j: "Pilih member B02, Pilih No ID → B03, lalu aktifkan Tukar posisi. Pemegang B03 otomatis menempati B02. Atur downline masing-masing: ikut orangnya, atau tetap di posisi." },
       { t: "B52-01 naik ke B52, tapi GM B52 tidak mau turun?", j: "Setelah memilih No ID B52, pilih \"… pindah ke kursi lain\". Isi kursi barunya, mis. No ID Otomatis (nomor GM kosong berikutnya) dengan upline yang sama. Kursi B52-01 jadi kosong: pilih Upline penampung untuk downline-nya." },
