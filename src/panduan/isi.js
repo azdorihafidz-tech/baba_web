@@ -382,7 +382,7 @@ export const PANDUAN = [
     menu: "Excel Struktur",
     icon: "mdi-microsoft-excel",
     peran: "superadmin",
-    ringkas: "Unduh struktur akun sebagai Excel berbentuk pohon, lalu unggah perubahannya.",
+    ringkas: "Unduh struktur akun sebagai Excel berbentuk pohon, ubah, lalu unggah & simpan.",
     kegunaan:
       "Seluruh struktur akun aktif dalam satu file Excel: urut dari Owner ke bawah, nama menjorok sesuai jenjang, dan baris bisa dilipat per tim. File yang sama menjadi template untuk mengubah struktur (kolom kuning BARU).",
     langkah: [
@@ -424,9 +424,20 @@ export const PANDUAN = [
           "Memeriksa tidak menyimpan apa pun.",
         ],
       },
+      {
+        judul: "Menyimpan",
+        isi: [
+          "Bila tidak ada masalah, muncul tombol Simpan … perubahan. Isi Catatan bila perlu (mis. Penataan struktur Oktober), tekan Simpan, lalu Simpan lagi di kotak konfirmasi.",
+          "Semua baris disimpan sekaligus: bila satu saja gagal, tidak ada yang tersimpan. Jabatan, No ID, upline, kode akun, dan dokumen yang masih menunggu approval ikut disesuaikan, sama seperti Mutasi Jabatan.",
+          "Akun yang berubah dan upline yang mendapat downline baru menerima notifikasi.",
+          "Perubahan tercatat di menu Mutasi Jabatan › Riwayat dengan Jenis Import Excel (satu baris per akun yang Anda ubah). Tekan Lihat di Riwayat Mutasi untuk membukanya.",
+          "Setelah disimpan, file tadi tidak berlaku lagi. Unduh ulang Excel terbaru sebelum mengubah lagi.",
+        ],
+      },
     ],
     tips: [
       "Kolom kuning (Jabatan BARU, Upline BARU, No ID BARU, Cabang BARU) adalah tempat mengisi perubahan. Kosong = tidak berubah.",
+      "Maksimal 250 baris diubah per unggahan. Perubahan besar bisa dibagi beberapa kali (unduh ulang file terbaru setiap kali selesai menyimpan).",
       "Jangan mengubah kolom No Member: kolom ini pengenal tetap setiap akun.",
       "File ini berisi data member asli: simpan baik-baik dan jangan dibagikan ke luar.",
     ],
@@ -573,7 +584,7 @@ export const PANDUAN = [
       {
         judul: "Riwayat",
         isi: [
-          "Tab Riwayat berisi semua mutasi. Kolom Jenis menampilkan Pindah, Mengisi kursi, Tukar posisi, atau Pindahkan downline.",
+          "Tab Riwayat berisi semua mutasi. Kolom Jenis menampilkan Pindah, Mengisi kursi, Tukar posisi, Pindahkan downline, atau Import Excel (perubahan yang disimpan dari menu Excel Struktur).",
           "Mutasi yang disimpan sebagai rencana bertanda \"Rencana #… · langkah 1/3\". Klik barisnya untuk melihat seluruh langkah rencana itu dan perubahan setiap akun.",
         ],
       },

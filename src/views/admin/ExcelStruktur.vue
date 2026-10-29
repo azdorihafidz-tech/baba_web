@@ -33,6 +33,13 @@
           :disabled="!fileDipilih" @click="periksa">Periksa</v-btn>
       </div>
       <v-alert v-if="galatUnggah" type="error" variant="tonal" density="compact" class="mt-3">{{ galatUnggah }}</v-alert>
+      <v-alert v-if="tersimpan" type="success" variant="tonal" class="mt-3">
+        <div>{{ tersimpan }}</div>
+        <div class="meta mt-1">File yang tadi sudah tidak berlaku. Unduh ulang Excel terbaru sebelum mengubah lagi.</div>
+        <v-btn class="mt-2" size="small" variant="outlined" color="#B8890F" prepend-icon="mdi-history" to="/admin/mutasi?tab=riwayat">
+          Lihat di Riwayat Mutasi
+        </v-btn>
+      </v-alert>
 
       <template v-if="hasil">
         <v-alert v-if="hasil.galat.length" type="error" variant="tonal" density="compact" class="mt-3">
@@ -49,6 +56,14 @@
             <span class="galat-chip">{{ g.baris ? `Baris ${g.baris}` : 'File' }}</span>
             <div><b v-if="g.nama">{{ g.nama }}: </b>{{ g.pesan }}</div>
           </div>
+        </div>
+
+        <div v-if="hasil.boleh_simpan" class="simpan-baris mt-3">
+          <v-text-field v-model="catatan" label="Catatan (opsional)" placeholder="mis. Penataan struktur Oktober"
+            variant="outlined" density="comfortable" hide-details maxlength="500" />
+          <v-btn color="primary" size="large" prepend-icon="mdi-content-save" :loading="menyimpan" @click="konfirmasi = true">
+            Simpan {{ hasil.info.berubah }} perubahan
+          </v-btn>
         </div>
 
         <template v-if="hasil.perubahan.length">
@@ -93,6 +108,22 @@
         </template>
       </template>
     </v-card>
+
+    <v-dialog v-model="konfirmasi" max-width="460">
+      <v-card>
+        <v-card-title class="text-h6">Simpan perubahan struktur?</v-card-title>
+        <v-card-text v-if="hasil">
+          <b>{{ hasil.info.berubah }} baris</b> dari Excel disimpan sekaligus: {{ hasil.info.akun_terdampak }} akun terdampak,
+          {{ hasil.info.no_id_berubah }} No ID berubah, {{ hasil.info.kode_baru }} kode akun baru. Akun yang berubah dan
+          upline-nya mendapat notifikasi. Perubahan tercatat di Riwayat Mutasi.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="konfirmasi = false">Batal</v-btn>
+          <v-btn color="primary" variant="flat" :loading="menyimpan" @click="simpan">Simpan</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-card class="kartu" variant="outlined">
       <div class="kartu-judul"><v-icon color="#B8890F">mdi-information-outline</v-icon> Isi file</div>
@@ -202,10 +233,43 @@ const labelPeran = (p) => PERAN[p] || p;
 const esc = (s) => String(s ?? "-").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const lamaBaru = (a, b) => (a || "-") === (b || "-") ? esc(a) : `<span class="lama">${esc(a)}</span> → <b>${esc(b)}</b>`;
 
+// Simpan: file yang sama diperiksa ulang di server lalu disimpan dalam satu transaksi
+const catatan = ref("");
+const konfirmasi = ref(false);
+const menyimpan = ref(false);
+const tersimpan = ref("");
+
+async function simpan() {
+  if (!fileDipilih.value) return;
+  menyimpan.value = true;
+  galatUnggah.value = "";
+  try {
+    const fd = new FormData();
+    fd.append("file", fileDipilih.value);
+    if (catatan.value?.trim()) fd.append("catatan", catatan.value.trim());
+    const { data } = await api.post("/struktur-excel/simpan", fd);
+    konfirmasi.value = false;
+    tersimpan.value = data.message;
+    hasil.value = null;
+    berkas.value = null;
+    catatan.value = "";
+  } catch (e) {
+    konfirmasi.value = false;
+    const d = e.response?.data;
+    if (d?.galat) {
+      hasil.value = d; // data berubah sejak diperiksa: tampilkan masalah terbaru
+    }
+    galatUnggah.value = d?.message || "Gagal menyimpan. Tidak ada perubahan yang tersimpan.";
+  } finally {
+    menyimpan.value = false;
+  }
+}
+
 async function periksa() {
   if (!fileDipilih.value) return;
   memeriksa.value = true;
   galatUnggah.value = "";
+  tersimpan.value = "";
   hasil.value = null;
   try {
     const fd = new FormData();
@@ -250,6 +314,12 @@ async function periksa() {
 }
 .isian--unggah {
   grid-template-columns: minmax(240px, 552px) auto;
+}
+.simpan-baris {
+  display: grid;
+  grid-template-columns: minmax(240px, 552px) auto;
+  gap: 12px;
+  align-items: center;
 }
 .galat-daftar {
   display: flex;
@@ -346,7 +416,8 @@ async function periksa() {
 }
 @media (max-width: 959px) {
   .isian,
-  .isian--unggah {
+  .isian--unggah,
+  .simpan-baris {
     grid-template-columns: 1fr;
   }
 }

@@ -531,6 +531,7 @@
 
 <script setup>
 import { computed, reactive, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_URL } from "@/config";
@@ -1277,7 +1278,7 @@ const loadingRiwayat = ref(false);
 const cariRiwayat = ref("");
 const detail = reactive({ show: false, items: [], langkah: [], loading: false });
 
-const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline", gerbong: "Satu gerbong" };
+const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline", gerbong: "Satu gerbong", excel: "Import Excel", bagan: "Mutasi Bagan" };
 const headersRiwayat = [
   { title: "Tanggal", key: "created_at" },
   { title: "Jenis", key: "langkah", sortable: false },
@@ -1310,6 +1311,12 @@ async function muatRiwayat() {
   }
 }
 const muatRiwayatDebounce = debounce(muatRiwayat);
+
+// /admin/mutasi?tab=riwayat (mis. dari Excel Struktur setelah simpan) langsung membuka tab Riwayat
+if (useRoute().query.tab === "riwayat") {
+  tab.value = "riwayat";
+  muatRiwayat();
+}
 
 async function bukaDetail(item) {
   Object.assign(detail, { show: true, items: [], langkah: [], loading: true });
