@@ -192,6 +192,15 @@ const routes = [
         },
       },
       {
+        path: "struktur-excel",
+        name: "struktur-excel",
+        component: () => import("@/views/admin/ExcelStruktur.vue"),
+        meta: {
+          title: "Excel Struktur || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "hak-akses",
         name: "hak-akses",
         component: () => import("@/views/admin/HakAkses.vue"),

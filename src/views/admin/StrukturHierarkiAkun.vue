@@ -14,6 +14,9 @@
         <button class="hdr-btn hdr-btn--open" title="Buka Semua" aria-label="Buka Semua" @click="expandAll">
           <v-icon size="16">mdi-unfold-more-horizontal</v-icon><span class="hdr-btn-teks">Buka Semua</span>
         </button>
+        <router-link v-if="superadmin" to="/admin/struktur-excel" class="hdr-btn" title="Excel Struktur" aria-label="Excel Struktur">
+          <v-icon size="16">mdi-microsoft-excel</v-icon><span class="hdr-btn-teks">Excel</span>
+        </router-link>
       </div>
     </div>
 
@@ -171,6 +174,8 @@ import { idDariNoMember, noMember } from '@/utils/noMember';
 // HP/tablet (< 960px): baris pohon dua tingkat (nama, lalu jabatan · No ID) dan indentasi lebih kecil
 const { smAndDown } = useDisplay();
 const compact = computed(() => smAndDown.value);
+// Superadmin: pintasan ke menu Excel Struktur (unduh pohon sebagai Excel)
+const superadmin = localStorage.getItem("mvo_type_id") === "superadmin";
 
 // OWNER = puncak di atas Top Management (akun Owner, No ID OW01) — akar pohon dari backend
 const ROLE_ORDER = ['OWNER', 'TOP MANAGEMENT', 'MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
@@ -455,6 +460,10 @@ onMounted(fetchData);
 .hdr-btn--open:hover {
   background: #1e40af;
   border-color: #1e40af;
+}
+
+a.hdr-btn {
+  text-decoration: none;
 }
 
 /* ── Root: fullscreen ────────────────────────────────────────────────────── */

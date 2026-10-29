@@ -367,12 +367,54 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      { teks: "Tombol Excel di kanan atas membuka menu Excel Struktur untuk mengunduh pohon ini sebagai file Excel.", peran: "superadmin" },
       "Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office.",
       "No ID Supplier ke bawah mengikuti No ID upline-nya, jadi dari No ID saja sudah terlihat jalurnya: B78-04-01-04 = Reseller di bawah Distributor B78-04-01.",
     ],
     tanya: [
       { t: "Akun saya tidak muncul?", j: "Hanya akun yang sudah aktif (diverifikasi) yang tampil di pohon." },
       { t: "Kenapa upline Top Management tertulis Owner?", j: "Owner adalah puncak struktur. Semua akun tanpa upline berada langsung di bawah Owner." },
+    ],
+  },
+  {
+    id: "excel-struktur",
+    route: "/admin/struktur-excel",
+    menu: "Excel Struktur",
+    icon: "mdi-microsoft-excel",
+    peran: "superadmin",
+    ringkas: "Unduh struktur akun sebagai Excel berbentuk pohon.",
+    kegunaan:
+      "Seluruh struktur akun aktif dalam satu file Excel: urut dari Owner ke bawah, nama menjorok sesuai jenjang, dan baris bisa dilipat per tim. File yang sama menjadi template untuk mengubah struktur (kolom kuning BARU).",
+    langkah: [
+      {
+        judul: "Mengunduh",
+        isi: [
+          "Pilih Cabang (bawaan Semua cabang). Upline dari cabang lain tetap dicantumkan dengan huruf abu-abu supaya bentuk pohonnya utuh.",
+          "Bila hanya perlu satu tim, isi Tim dengan No ID atau No Member ketua tim (mis. B07 atau BP-00320).",
+          "Tekan Unduh Excel. Nama file berisi tanggal & jam unduh, mis. Struktur-Akun-20261030-0915.xlsx.",
+        ],
+      },
+      {
+        judul: "Membaca file",
+        isi: [
+          "Sheet Struktur: No Member, Struktur (No ID · Nama), Jabatan, No ID, Upline, Cabang, Kode Akun, jumlah Downline (langsung) dan Tim (seluruh jaringan), serta Jalur (No ID dari atas, mis. M03 › R05 › B07).",
+          "Warna kolom Struktur & Jabatan berbeda per jabatan. Upline bertanda ⚠ belum punya upline = data lama yang perlu dirapikan.",
+          "Cari orang: Ctrl+F lalu ketik nama, No ID, atau No Member.",
+          "Lihat satu tim: tombol saring di judul kolom Jalur (No ID) → Text Filters → Contains → ketik No ID ketua tim.",
+          "Lipat / buka tim: tanda − / + di kiri nomor baris, atau angka 1–8 di pojok kiri atas untuk melihat sampai jenjang tertentu.",
+          "Sheet Petunjuk berisi cara mengisi perubahan beserta contoh; sheet Daftar berisi pilihan jabatan & kode cabang.",
+        ],
+      },
+    ],
+    tips: [
+      "Kolom kuning (Jabatan BARU, Upline BARU, No ID BARU, Cabang BARU) adalah tempat mengisi perubahan. Kosong = tidak berubah.",
+      "Jangan mengubah kolom No Member: kolom ini pengenal tetap setiap akun.",
+      "File ini berisi data member asli: simpan baik-baik dan jangan dibagikan ke luar.",
+    ],
+    tanya: [
+      { t: "Kenapa ada akun dari cabang lain di file cabang saya?", j: "Itu upline akun cabang tersebut (huruf abu-abu), dicantumkan supaya pohonnya utuh." },
+      { t: "Kenapa nomor HP dan alamat tidak ada?", j: "File ini hanya untuk struktur. Data pribadi sengaja tidak disertakan karena file Excel mudah tersebar." },
+      { t: "Akun yang belum diverifikasi ada di file?", j: "Tidak. Hanya akun aktif yang sudah masuk struktur." },
     ],
   },
   {

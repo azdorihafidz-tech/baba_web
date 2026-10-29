@@ -98,6 +98,7 @@ export default {
           // ["mdi-badge-account", "Master Jabatan", "/admin/jabatan"],
           ["mdi-domain", "Data Cabang", "/admin/provinsi"],
           ["mdi-domain", "Struktur Akun", "/admin/strukturhierarkiakun"],
+          ["mdi-microsoft-excel", "Excel Struktur", "/admin/struktur-excel"],
           // ["mdi-file-document-multiple", "Document Akun", "/admin/mvodocument"],
           ["mdi-file-document-alert", "Document Belum Approve", "/admin/documentbelumapprove"],
           // ["mdi-file-document-alert", "Pending Approval Documen", "/admin/pendingapprovaldocumen"],
