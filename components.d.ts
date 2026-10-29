@@ -29,6 +29,7 @@ declare module 'vue' {
     KursiTujuan: typeof import('./src/components/mutasi/KursiTujuan.vue')['default']
     Lonceng: typeof import('./src/components/notifikasi/Lonceng.vue')['default']
     Main: typeof import('./src/components/layouts/admin/Main.vue')['default']
+    MutasiBagan: typeof import('./src/components/mutasi/MutasiBagan.vue')['default']
     PanduanIsi: typeof import('./src/components/panduan/PanduanIsi.vue')['default']
     PanelNotifikasi: typeof import('./src/components/notifikasi/PanelNotifikasi.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

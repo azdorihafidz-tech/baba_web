@@ -14,6 +14,7 @@
 
     <v-tabs v-if="bolehMutasi" v-model="tab" color="#B8890F" class="mb-4">
       <v-tab value="baru" prepend-icon="mdi-account-switch">Mutasi Baru</v-tab>
+      <v-tab value="bagan" prepend-icon="mdi-sitemap">Bagan</v-tab>
       <v-tab value="saran" prepend-icon="mdi-chart-timeline-variant" @click="muatSaranAwal">Saran RO</v-tab>
       <v-tab value="riwayat" prepend-icon="mdi-history" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
@@ -437,6 +438,11 @@
         </v-card>
       </v-window-item>
 
+      <!-- ================= MUTASI BAGAN (geser orang ke kursi) ================= -->
+      <v-window-item value="bagan">
+        <MutasiBagan v-if="tab === 'bagan'" :ketuk="$vuetify.display.smAndDown" @tersimpan="muatRiwayat" />
+      </v-window-item>
+
       <v-window-item value="riwayat">
         <v-card class="step-card">
           <v-card-text>
@@ -538,6 +544,7 @@ import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 import KursiTujuan from "@/components/mutasi/KursiTujuan.vue";
+import MutasiBagan from "@/components/mutasi/MutasiBagan.vue";
 import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
 import { muatOwner, teksOwner } from "@/utils/owner";
 import { muatHak, punyaHak } from "@/utils/hakAkses";
