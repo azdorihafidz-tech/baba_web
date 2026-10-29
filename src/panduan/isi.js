@@ -29,6 +29,7 @@ export const MULAI_CEPAT = {
   istilah: [
     { t: "Owner", j: "Puncak struktur, di atas Top Management. Hanya satu orang, No ID OW01. Akun tanpa upline (Top Management, juga MVO yang belum di bawah Top Management) berarti langsung di bawah Owner." },
     { t: "No ID", j: "Nomor member yang dibuat otomatis oleh sistem saat akun diverifikasi. Contoh: OW01 (Owner), TM01 (Top Management), M01 (MVO), R01 (Regional), B01 (Founder), B51 (GM), B51-01 (Supplier), B51-01-01 (Distributor), B51-01-01-01 (Reseller). Supplier ke bawah mengikuti No ID upline-nya." },
+    { t: "No. Member", j: "Nomor tetap setiap akun, mis. BP-00284. Tidak pernah berubah walau No ID, jabatan, upline, atau cabang berubah lewat Mutasi, dan tidak pernah dipakai akun lain. No ID menunjukkan posisi (kursi) di struktur, No. Member menunjukkan orangnya. RO dan dokumen selalu tercatat atas nama orangnya, jadi tidak ikut pindah ke pengganti kursi. Lihat di Profil Saya, kolom No. Member di Input Data & Verifikasi ID, atau ketik BP-00284 di kolom cari." },
     { t: "Upline", j: "Akun di atas Anda dalam struktur jaringan. Upline langsung = satu jenjang tepat di atas Anda." },
     { t: "Downline", j: "Akun di bawah Anda dalam struktur jaringan. Downline langsung = satu jenjang tepat di bawah Anda." },
     { t: "RO (Repeat Order)", j: "Nilai pembelian ulang yang dicatat lewat dokumen di menu Input Data (kolom Range Point)." },
@@ -141,7 +142,7 @@ export const PANDUAN = [
         peran: "superadmin",
         isi: [
           { teks: "Excel: mengunduh seluruh data akun.", peran: "superadmin" },
-          { teks: "Template lalu Import Dokumen: mengisi banyak dokumen sekaligus dari file Excel (nama MVO, Rating Star, Range Point, tanggal).", peran: "superadmin" },
+          { teks: "Template lalu Import Dokumen: mengisi banyak dokumen sekaligus dari file Excel (No Member, No ID, Nama, Rating Star, Range Point, Tanggal Input). Akun dicari lewat No Member dulu, lalu No ID; Nama hanya dipakai bila tidak ada akun lain dengan nama sama. Baris yang gagal disebutkan nomornya beserta alasannya.", peran: "superadmin" },
           { teks: "Approve dokumen (persetujuan akhir) bisa juga dilakukan dari detail akun.", peran: "superadmin" },
           { teks: "Hapus akun dilakukan di menu Verifikasi ID (tombol Hapus). Dialognya menampilkan data terkait yang harus dibereskan dulu, mis. downline atau dokumen.", peran: "superadmin" },
         ],
@@ -176,7 +177,7 @@ export const PANDUAN = [
       {
         judul: "Mengaktifkan pendaftar baru",
         isi: [
-          "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID. Di HP, tombol-tombol ini ada di dalam ⚙ Saring.",
+          "Tekan tombol Belum aktif untuk melihat pendaftar yang menunggu verifikasi (angka di tombol = jumlahnya). Saring juga per jabatan atau cabang, atau cari nama / username / No ID / No. Member (mis. BP-00284). Di HP, tombol-tombol ini ada di dalam ⚙ Saring.",
           "Tombol Siap diverifikasi = pendaftar yang semua uplinenya sudah approve (tidak termasuk yang ditolak). Jumlah ini juga tampil sebagai angka merah di menu Verifikasi ID.",
           "Akun yang ditunda/ditolak di menu Akun Belum Approve diberi label Ditunda / Ditolak di kolom Aktivasi (arahkan kursor untuk melihat alasannya). Akun tetap bisa diperbaiki dan diaktifkan.",
           "Periksa data dan foto profilnya (tombol Edit untuk melihat lengkap).",
@@ -723,7 +724,7 @@ export const PANDUAN = [
     icon: "mdi-account-circle",
     peran: "semua",
     ringkas: "Melihat data diri, mengganti foto profil, dan mengganti password.",
-    kegunaan: "Dibuka dari foto profil di kanan atas → Profil Saya. Menampilkan data akun Anda, status akun, dan No ID.",
+    kegunaan: "Dibuka dari foto profil di kanan atas → Profil Saya. Menampilkan data akun Anda, status akun, No ID, dan No. Member.",
     langkah: [
       {
         judul: "Mengganti foto profil",
@@ -738,7 +739,10 @@ export const PANDUAN = [
         ],
       },
     ],
-    tips: ["No ID, jabatan, dan cabang tidak bisa diubah sendiri. Hubungi superadmin bila ada data yang salah."],
+    tips: [
+      "No ID, jabatan, dan cabang tidak bisa diubah sendiri. Hubungi superadmin bila ada data yang salah.",
+      "No. Member (mis. BP-00284) adalah nomor tetap akun Anda: tidak berubah walau No ID atau jabatan Anda berubah lewat Mutasi. Sebutkan nomor ini bila menghubungi admin.",
+    ],
     tanya: [],
   },
 ];

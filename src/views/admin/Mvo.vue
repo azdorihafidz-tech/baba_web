@@ -87,6 +87,7 @@
               </v-chip>
             </template>
 
+            <template v-slot:item.no_member="{ item }"><span class="no-member">{{ noMember(item.nomor_id) }}</span></template>
             <template v-slot:item.mvo_type="{ item }">{{ getMvoTypeName(item.mvo_type_id) }}</template>
             <template v-slot:item.province="{ item }">{{ item.province_code || '-' }}</template>
             <template v-slot:item.tgl_lahir="{ item }">{{ formatDate(item.tgl_lahir) }}</template>
@@ -133,7 +134,7 @@
           <v-card-text class="pa-0">
             <KepalaKartuAkun :nomor="((pagination.page - 1) * pagination.itemsPerPage) + index + 1"
               :jabatan="getMvoTypeName(item.mvo_type_id)" :no-id="item.no_id" :cabang="item.province_code"
-              :nama="item.nama" :info="[item.code, jalurRingkas(item)].filter(Boolean).join(' · ')"
+              :nama="item.nama" :no-member="noMember(item.nomor_id)" :info="[item.code, jalurRingkas(item)].filter(Boolean).join(' · ')"
               :terbuka="expandedMobileCard === item.id" />
           </v-card-text>
 
@@ -323,6 +324,7 @@
               <v-data-table class="bg-grey-lighten-4 text-no-wrap custom-detail-table" :headers="detailHeaders"
                 :items="getCurrentDetailData()" :search="detailSearch" hide-default-footer items-per-page="-1">
 
+                <template v-slot:item.no_member="{ item }"><span class="no-member">{{ noMember(item.nomor_id) }}</span></template>
                 <template v-slot:item.mvo_type="{ item }">{{ getMvoTypeName(item.mvo_type_id) }}</template>
                 <template v-slot:item.province="{ item }">{{ item.province_code || '-' }}</template>
                 <template v-slot:item.tgl_lahir="{ item }">{{ formatDate(item.tgl_lahir) }}</template>
@@ -661,6 +663,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 import { JALUR_LEVELS as UPLINE_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
+import { noMember } from "@/utils/noMember";
 import { hakState, muatHak } from "@/utils/hakAkses";
 
 const API_BASE = `${API_URL}/api`;
@@ -744,6 +747,7 @@ export default {
           { key: "code", title: "Kode", fixed: "start", width: 100 },
           { key: "no_id", title: "No ID", fixed: "start", width: 120 },
           { key: "nama", title: "Nama", fixed: "start", width: 180 },
+          { key: "no_member", title: "No. Member", sortable: false },
           { key: "nama_panggilan", title: "Nama Panggilan" },
           { key: "tempat_lahir", title: "Tempat Lahir" },
           { key: "tgl_lahir", title: "Tanggal Lahir" },
@@ -763,6 +767,7 @@ export default {
       detailHeaders: [
         { key: "no_id", title: "No ID" },
         { key: "nama", title: "Nama" },
+        { key: "no_member", title: "No. Member", sortable: false },
         { key: "nama_panggilan", title: "Nama Panggilan" },
         { key: "tempat_lahir", title: "Tempat Lahir" },
         { key: "tgl_lahir", title: "Tanggal Lahir" },
@@ -869,6 +874,7 @@ export default {
   },
 
   methods: {
+    noMember,
     atasanPada,
     jalurRingkas,
 
@@ -1642,9 +1648,10 @@ export default {
     },
 
     downloadImportTemplate() {
+      // Akun dicari lewat No Member (tetap) → No ID → Nama (nama hanya bila tidak ada yang sama)
       const ws = XLSX.utils.aoa_to_sheet([
-        ["Nama MVO", "Rating Star", "Range Point", "Tanggal Input", "Nama File"],
-        ["Budi Santoso", 3, 100000, "2025-01-31", "Dokumen Januari"],
+        ["No Member", "No ID", "Nama", "Rating Star", "Range Point", "Tanggal Input", "Nama File"],
+        ["BP-00284", "B02", "Budi Santoso", 3, 100000, "2025-01-31", "Dokumen Januari"],
       ]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template Dokumen");
@@ -1687,6 +1694,8 @@ export default {
 
         const rows = json
           .map(r => ({
+            no_member: String(pick(r, "no member", "no. member", "no_member", "nomor member")).trim(),
+            no_id: String(pick(r, "no id", "no_id", "noid")).trim(),
             nama_mvo: String(pick(r, "nama mvo", "nama_mvo", "nama", "name")).trim(),
             pointbintang: pick(r, "rating star", "pointbintang", "bintang"),
             repeat_order: pick(r, "range point", "repeat_order", "range"),
@@ -1695,10 +1704,10 @@ export default {
             ),
             file_name: pick(r, "nama file", "file_name", "file"),
           }))
-          .filter(r => r.nama_mvo);
+          .filter(r => r.no_member || r.no_id || r.nama_mvo);
 
         if (rows.length === 0) {
-          this.showSnackbar("File tidak berisi data yang valid (kolom 'Nama MVO' wajib).", "error");
+          this.showSnackbar("File tidak berisi data yang valid (isi kolom 'No Member', 'No ID', atau 'Nama').", "error");
           return;
         }
 
@@ -1733,7 +1742,8 @@ export default {
 
     // ========== EXPORT / PRINT ==========
     exportExcel() {
-      const worksheet = XLSX.utils.json_to_sheet(this.datatable.items);
+      // No Member di kolom pertama: nomor tetap akun (dipakai juga untuk Import Dokumen)
+      const worksheet = XLSX.utils.json_to_sheet(this.datatable.items.map((i) => ({ no_member: noMember(i.nomor_id), ...i })));
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Data MVO dan Anggota");
       XLSX.writeFile(workbook, "Data_MVO_dan_Anggota.xlsx");

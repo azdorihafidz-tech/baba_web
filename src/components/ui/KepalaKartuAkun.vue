@@ -9,7 +9,7 @@
         <span class="kka-noid">{{ noId || 'tanpa No ID' }}</span>
         <span v-if="cabang" class="kka-cab">{{ cabang }}</span>
       </div>
-      <div class="kka-nama">{{ nama }}</div>
+      <div class="kka-nama">{{ nama }}<span v-if="noMember" class="kka-member">{{ noMember }}</span></div>
       <div v-if="info" class="kka-info">{{ info }}</div>
       <slot name="tambahan" />
     </div>
@@ -24,6 +24,7 @@ defineProps({
   noId: String,
   cabang: String,
   nama: String,
+  noMember: String, // No. Member permanen (utils/noMember.js), tampil kecil di samping nama
   info: String,
   terbuka: Boolean,
 });
@@ -95,6 +96,14 @@ defineProps({
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.kka-member {
+  margin-left: 8px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--baba-muted);
 }
 
 .kka-info {

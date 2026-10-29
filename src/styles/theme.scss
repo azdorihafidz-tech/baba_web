@@ -145,6 +145,15 @@ html .v-tab.v-tab.v-btn {
   box-shadow: var(--baba-shadow) !important;
 }
 
+/* No. Member permanen (utils/noMember.js), mis. BP-00284 */
+.no-member {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.82em;
+  font-weight: 600;
+  color: var(--baba-muted);
+  white-space: nowrap;
+}
+
 .mobile-number {
   display: inline-flex;
   align-items: center;

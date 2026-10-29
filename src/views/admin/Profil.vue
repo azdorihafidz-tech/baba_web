@@ -141,6 +141,15 @@
                                                     disabled></v-text-field>
                                             </v-col>
 
+                                            <!-- No. Member permanen: tidak berubah walau No ID / jabatan berubah lewat Mutasi -->
+                                            <v-col cols="12" md="6">
+                                                <v-text-field :model-value="noMember(editedData.id)" label="NO. MEMBER"
+                                                    prepend-inner-icon="mdi-identifier" variant="outlined" color="amber"
+                                                    readonly bg-color="grey-darken-4" class="profile-field"
+                                                    hint="Nomor tetap akun Anda, tidak berubah walau No ID atau jabatan berubah"
+                                                    persistent-hint disabled></v-text-field>
+                                            </v-col>
+
                                             <v-col cols="12" md="6">
                                                 <v-select v-model="editedData.jenis_kelamin" label="Jenis Kelamin"
                                                     prepend-inner-icon="mdi-gender-male-female" :items="genderOptions"
@@ -307,6 +316,7 @@ import { API_URL, FILE_URL } from "@/config";
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { hentikanChat } from '@/utils/chatKoneksi';
+import { noMember } from '@/utils/noMember';
 
 export default {
     name: 'ProfilPage',
@@ -379,6 +389,7 @@ export default {
     },
 
     methods: {
+        noMember,
         async fetchMvoTypes() {
             try {
                 const token = Cookies.get('token');

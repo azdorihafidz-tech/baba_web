@@ -54,6 +54,8 @@
             </v-chip>
           </template>
 
+          <template v-slot:item.no_member="{ item }"><span class="no-member">{{ noMember(item.id) }}</span></template>
+
           <template v-slot:item.cabang="{ item }">
             {{ item.cabang || '-' }}
           </template>
@@ -140,7 +142,7 @@
         <v-card-text class="pa-0">
           <KepalaKartuAkun :nomor="((pagination.page - 1) * pagination.itemsPerPage) + index + 1"
             :jabatan="getJabatanNameById(item.mvo_type_id) || item.mvo_type_id" :no-id="item.no_id" :cabang="item.cabang"
-            :nama="item.nama" :info="[item.username, jalurRingkas(item)].filter(Boolean).join(' · ')"
+            :nama="item.nama" :no-member="noMember(item.id)" :info="[item.username, jalurRingkas(item)].filter(Boolean).join(' · ')"
             :terbuka="expandedMobileCard === item.id">
             <template #tambahan>
               <span class="status-mini" :class="Number(item.aktivasi) === 1 ? 'status-aktif' : 'status-belum'">
@@ -403,6 +405,7 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
+import { noMember } from "@/utils/noMember";
 import { opsiUpline, propsUpline } from "@/utils/pilihanUpline";
 import { muatTugas } from "@/utils/tugasMenunggu";
 
@@ -509,6 +512,7 @@ export default {
           { key: "no_id", title: "NO ID" },
           { key: "username", title: "Username" },
           { key: "nama", title: "Nama Lengkap" },
+          { key: "no_member", title: "No. Member", sortable: false },
           { key: "jabatan", title: "Jabatan" },
           { key: "cabang", title: "Cabang" },
           { key: "jlh_bintang", title: "Bintang" },
@@ -563,6 +567,7 @@ export default {
   },
 
   methods: {
+    noMember,
     propsUpline,
     atasanPada,
     jalurRingkas,

@@ -98,6 +98,7 @@
           <div class="detail-meta">
             <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.label_jabatan || selected.jabatan) }}</span>
             <span class="noid-chip">No ID {{ selected.no_id || '—' }}</span>
+            <span v-if="noMember(selected.id)" class="noid-chip" title="No. Member: nomor tetap akun">{{ noMember(selected.id) }}</span>
             <span class="dot">·</span>
             <span class="meta-small">{{ formatDate(selected.tanggal_bergabung) }}</span>
           </div>
@@ -165,6 +166,7 @@ import { ref, computed, onMounted, defineComponent, h } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useDisplay } from 'vuetify';
+import { idDariNoMember, noMember } from '@/utils/noMember';
 
 // HP/tablet (< 960px): baris pohon dua tingkat (nama, lalu jabatan · No ID) dan indentasi lebih kecil
 const { smAndDown } = useDisplay();
@@ -238,8 +240,10 @@ function buildTree(flat) {
 }
 
 function collectMatchIds(nodes, query, result = new Set()) {
+  const idMember = idDariNoMember(query); // "BP-00284" → akun 284
   for (const n of nodes) {
-    if (n.nama.toLowerCase().includes(query.toLowerCase()) || (n.no_id || "").toLowerCase().includes(query.toLowerCase())) result.add(n.id);
+    if (idMember ? Number(n.id) === idMember
+      : n.nama.toLowerCase().includes(query.toLowerCase()) || (n.no_id || "").toLowerCase().includes(query.toLowerCase())) result.add(n.id);
     if (n.children?.length) collectMatchIds(n.children, query, result);
   }
   return result;

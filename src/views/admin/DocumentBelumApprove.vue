@@ -179,6 +179,7 @@
           <v-card-text class="pa-0">
             <KepalaKartuAkun :nomor="index + 1" :jabatan="namaJabatan(item.mvo?.mvo_type_id)"
               :no-id="item.mvo?.no_id" :cabang="item.mvo?.province_code" :nama="item.mvo?.nama || item.file_name"
+              :no-member="noMember(item.user_id)"
               :info="getMvoCodeById(item.mvo_id)" :terbuka="expandedMobileCard === item.id">
               <template #tambahan>
                 <span class="status-mini status-belum">{{ getApprovalStatusText(item) }}</span>
@@ -381,6 +382,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import * as XLSX from "xlsx";
 import { JALUR_LEVELS, atasanPada, teksAtasan } from "@/utils/jalur.js";
+import { idDariNoMember, noMember } from "@/utils/noMember";
 import { muatTugas } from "@/utils/tugasMenunggu";
 
 const LVL_MVO = JALUR_LEVELS.find((l) => l.level === 1);
@@ -480,6 +482,8 @@ export default {
       }
 
       const searchTerm = this.datatable.search.toLowerCase();
+      const idMember = idDariNoMember(searchTerm); // "BP-00284" → dokumen milik akun 284
+      if (idMember) return this.datatable.items.filter(item => Number(item.user_id) === idMember);
       return this.datatable.items.filter(item => {
         return (
           (item.mvo?.nama && item.mvo.nama.toLowerCase().includes(searchTerm)) ||
@@ -527,6 +531,7 @@ export default {
   },
 
   methods: {
+    noMember,
     atasanPada,
     namaJabatan(id) {
       return this.mvoTypeList.find((t) => String(t.id) === String(id))?.name || "";

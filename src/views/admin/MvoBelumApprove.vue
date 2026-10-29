@@ -111,7 +111,7 @@
         <!-- Header -->
         <v-card-text class="pa-0">
           <KepalaKartuAkun :nomor="index + 1" :jabatan="namaJabatan(item.mvo_type_id)" :no-id="item.no_id"
-            :cabang="item.cabang" :nama="item.nama" :info="teksAtasanLangsung(item)"
+            :cabang="item.cabang" :nama="item.nama" :no-member="noMember(item.id)" :info="teksAtasanLangsung(item)"
             :terbuka="expandedMobileCard === item.id">
             <template #tambahan>
               <span class="status-mini" :class="kelasStatus(item)">{{ labelStatus(item) }}</span>
@@ -249,6 +249,7 @@ import CardDataTable from "@/components/ui/CardDataTable.vue";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanLangsung, atasanPada, jalurRingkas, teksAtasan } from "@/utils/jalur.js";
+import { idDariNoMember, noMember } from "@/utils/noMember";
 import { hakState, muatHak } from "@/utils/hakAkses";
 import { muatTugas } from "@/utils/tugasMenunggu";
 
@@ -346,6 +347,8 @@ export default {
 
       // Apply search filter
       const s = (this.search || "").toLowerCase();
+      const idMember = idDariNoMember(s); // "BP-00284" → akun 284
+      if (idMember) return itemsWithoutSuperadmin.filter(i => Number(i.id) === idMember);
       return itemsWithoutSuperadmin.filter(i => (
         i.nama?.toLowerCase().includes(s) ||
         i.username?.toLowerCase().includes(s) ||
@@ -395,6 +398,7 @@ export default {
   },
 
   methods: {
+    noMember,
     atasanLangsung,
     atasanPada,
     teksAtasan,
