@@ -104,7 +104,7 @@
             <v-tooltip text="Aktivasi" color="#125C13" location="top start">
               <template v-slot:activator="{ props }">
                 <v-btn size="small" color="success" @click="aktivasiUser(item.id)" class="mr-2 mb-2" v-bind="props"
-                  icon>
+                  :disabled="isButtonLoading" :loading="aktivasiId === item.id" icon>
                   <v-icon>mdi-account-check</v-icon>
                 </v-btn>
               </template>
@@ -205,7 +205,7 @@
                 <v-btn size="small" :color="app.colors.secondary" @click.stop="deleteUser(item.id)" class="mr-2 mb-2"
                   prepend-icon="mdi-delete">Hapus</v-btn>
                 <v-btn size="small" color="success" @click.stop="aktivasiUser(item.id)" class="mb-2"
-                  prepend-icon="mdi-account-check">Aktivasi</v-btn>
+                  :disabled="isButtonLoading" :loading="aktivasiId === item.id" prepend-icon="mdi-account-check">Aktivasi</v-btn>
               </div>
             </v-card-text>
           </div>
@@ -486,6 +486,7 @@ export default {
 
       dialog: { show: false, mode: "add" },
       isButtonLoading: false,
+      aktivasiId: null, // akun yang sedang diaktivasi (tombolnya berputar, tombol lain dikunci)
       isShowDialogDelete: false,
 
       previewFotoProfile: null,
@@ -991,9 +992,12 @@ export default {
     aktivasiUser(id) {
       const token = Cookies.get("token");
       if (!token) { this.$router.push({ name: "Login" }); return; }
+      // Klik kedua selama proses berjalan diabaikan (dulu membuat data akun dobel)
+      if (this.isButtonLoading) return;
 
       this.expandedMobileCard = null;
       this.isButtonLoading = true;
+      this.aktivasiId = id;
 
       axios.post(`${API_BASE}/user/aktivasi/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
@@ -1004,7 +1008,7 @@ export default {
           this.showSnackbar(response.data?.message || "Status aktivasi berhasil diubah", "success");
         })
         .catch(error => { this.showSnackbar(error.response?.data?.message, "error"); })
-        .finally(() => { this.isButtonLoading = false; });
+        .finally(() => { this.isButtonLoading = false; this.aktivasiId = null; });
     },
   },
 

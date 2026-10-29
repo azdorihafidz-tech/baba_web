@@ -204,6 +204,8 @@ export const PANDUAN = [
     ],
     tips: [
       "Setiap perubahan No ID tercatat di riwayat.",
+      "Setelah tombol Aktivasi ditekan, tombol itu berputar dan terkunci sampai proses selesai, jadi akun tidak bisa teraktivasi dua kali.",
+      "Kode akun (mis. FO-BDG-007) yang pernah dipakai tidak akan diberikan lagi ke akun lain, walau pemiliknya sudah berganti kode karena Mutasi atau pindah cabang.",
       "Kolom DISTRIBUTOR sampai TOP MANAGEMENT menampilkan No ID dan nama upline. Untuk akun yang belum diaktivasi, isinya diambil dari pilihan upline saat registrasi.",
       "Akun yang belum diaktivasi tidak bisa login.",
       "Hapus akun bersifat permanen. Sebelum menghapus, sistem memeriksa data terkait: downline, dokumen, persetujuan yang pernah diberikan, dan riwayat Mutasi. Bila masih ada, dialog Hapus menampilkan apa yang harus dibereskan dulu dan tombol Ya, hapus tidak muncul.",
