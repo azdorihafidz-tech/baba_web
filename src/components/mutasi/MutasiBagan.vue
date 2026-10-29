@@ -3,10 +3,28 @@
     <!-- Pilih tim -->
     <div class="bg-atas">
       <v-autocomplete v-model="pilihTim" v-model:search="teksCari" :items="hasilCari" item-title="label" item-value="id" no-filter clearable
-        :loading="mencari" label="Buka tim" placeholder="Cari ketua tim: nama, No ID, atau No Member" variant="outlined"
-        density="comfortable" hide-details prepend-inner-icon="mdi-sitemap" class="bg-cari"
-        @update:search="cari" @update:model-value="bukaTim" />
+        :loading="mencari" label="Buka tim" placeholder="Ketik nama / No ID / No Member, atau pilih dari daftar" variant="outlined"
+        density="comfortable" hide-details prepend-inner-icon="mdi-sitemap" class="bg-cari" no-data-text="Tidak ada akun yang cocok."
+        @update:search="cari" @update:model-value="bukaTim" @update:focused="(f) => f && !hasilCari.length && cari('')">
+        <template #item="{ props: ip, item }">
+          <v-list-item v-bind="ip" title="" class="bg-pilih">
+            <span class="kursi" :class="`jab-${String(item.raw.jab || '').toLowerCase()}`">{{ item.raw.jab }}</span> <b class="ml-1">{{ item.raw.judul }}</b>
+            <div class="meta">{{ item.raw.sub }}</div>
+          </v-list-item>
+        </template>
+        <template #append-item>
+          <div v-if="adaLagi" class="meta px-4 py-2">Menampilkan 50 akun pertama. Ketik nama / No ID, atau pilih jabatan & cabang untuk menyaring.</div>
+        </template>
+      </v-autocomplete>
+      <v-select v-model="saringCabang" :items="daftarCabang" label="Cabang" clearable variant="outlined" density="comfortable" hide-details
+        class="bg-cabang" @update:model-value="cari(teksCari, true)" />
       <span v-if="panel.length" class="meta">{{ panel.length === 1 ? 'Buka tim kedua untuk memindah antar tim.' : 'Dua tim terbuka.' }}</span>
+    </div>
+    <div class="bg-jab">
+      <span class="meta">Jabatan:</span>
+      <v-chip size="small" :variant="saringJab ? 'outlined' : 'flat'" :color="saringJab ? undefined : 'primary'" @click="pilihJab(null)">Semua</v-chip>
+      <v-chip v-for="j in metaJabatan" :key="j.id" size="small" :variant="saringJab === j.id ? 'flat' : 'outlined'"
+        :color="saringJab === j.id ? 'primary' : undefined" @click="pilihJab(j.id)">{{ j.name }} <span class="ml-1 jml">{{ j.jumlah }}</span></v-chip>
     </div>
 
     <div v-if="!panel.length" class="kosong-info">
@@ -20,7 +38,7 @@
       <div class="bg-panel-wrap">
         <div v-for="(p, pi) in panel" :key="p.akar" class="bg-panel">
           <div class="bg-panel-kepala">
-            <b>Tim {{ asli[p.akar]?.no_id }} {{ asli[p.akar]?.nama }}</b>
+            <b>{{ asli[p.akar]?.owner ? 'Seluruh struktur' : `Tim ${asli[p.akar]?.no_id || ''} ${asli[p.akar]?.nama || ''}` }}</b>
             <v-spacer />
             <v-btn size="x-small" variant="text" @click="bukaSemua(p, true)">Buka semua</v-btn>
             <v-btn size="x-small" variant="text" @click="bukaSemua(p, false)">Tutup</v-btn>
@@ -28,7 +46,7 @@
           </div>
           <div v-isi-layar="16" class="bg-pohon baba-gulir">
             <!-- Upline tim (tujuan "+ downline") -->
-            <div class="bg-baris bg-upline">
+            <div v-if="!uplinePanel(p).owner" class="bg-baris bg-upline">
               <span class="meta">Upline:</span>
               <span class="nama">{{ uplinePanel(p).label }}</span>
               <span class="bg-plus" :class="{ sorot: sorot === `u${pi}` }" @dragover.prevent="sorot = `u${pi}`" @dragleave="sorot = null"
@@ -43,12 +61,12 @@
               <button class="bg-lipat" :class="{ tak: !r.punyaAnak }" @click.stop="lipat(r.n.id)">
                 <v-icon size="16">{{ buka.has(r.n.id) ? 'mdi-chevron-down' : 'mdi-chevron-right' }}</v-icon>
               </button>
-              <span class="kursi" :class="kelasJab(r.n.mvo_type_id)" :draggable="!r.n.kosong" title="Geser kursi ini beserta timnya"
+              <span class="kursi" :class="kelasJab(r.n.mvo_type_id)" :draggable="!r.n.kosong && !r.n.owner" :title="r.n.owner ? 'Owner' : 'Geser kursi ini beserta timnya'"
                 @dragstart="mulai($event, 'kursi', r.n.id)" @dragend="selesai">
-                <v-icon v-if="!r.n.kosong" size="14" class="pegangan">mdi-drag-vertical</v-icon>{{ namaJab(r.n.mvo_type_id) }} · {{ r.n.no_id || 'baru' }}
+                <v-icon v-if="!r.n.kosong && !r.n.owner" size="14" class="pegangan">mdi-drag-vertical</v-icon>{{ namaJab(r.n.mvo_type_id) }} · {{ r.n.no_id || 'baru' }}
               </span>
               <span v-if="r.n.kosong" class="kosong-teks">Kursi kosong — geser orang ke sini</span>
-              <span v-else class="orang" draggable="true" title="Geser orang ini ke kursi lain"
+              <span v-else class="orang" :draggable="!r.n.owner" :title="r.n.owner ? '' : 'Geser orang ini ke kursi lain'"
                 @dragstart="mulai($event, 'orang', r.n.id)" @dragend="selesai" @click.stop="ketukOrang(r.n)">
                 <span class="nm">{{ noMember(r.n.id) }}</span> {{ r.n.nama }}
               </span>
@@ -197,9 +215,10 @@ const toast = (teks, warna = "error") => Object.assign(pesan, { show: true, teks
 
 // Jabatan (aturan No ID)
 const jabatan = ref([]);
+const gerbong = ref([]); // pemegang hak Mutasi: akar gerbongnya (superadmin: kosong)
 const jab = (t) => jabatan.value.find((j) => j.id === String(t));
-const namaJab = (t) => jab(t)?.name || "-";
-const levelJab = (t) => jab(t)?.level ?? 99;
+const namaJab = (t) => (t === "superadmin" ? "OWNER" : jab(t)?.name || "-");
+const levelJab = (t) => (t === "superadmin" ? -1 : jab(t)?.level ?? 99);
 const kelasJab = (t) => `jab-${(namaJab(t) || "").toLowerCase()}`;
 
 // Data asli (semua tim yang dibuka + upline-nya) dan panel tim
@@ -218,35 +237,74 @@ onMounted(async () => {
   try {
     const { data } = await api.get("/mutasi/jabatan");
     jabatan.value = data.data;
+    gerbong.value = data.cakupan || [];
   } catch {
     toast("Gagal memuat daftar jabatan.");
   }
 });
 
-// Cari & buka tim
+// Cari & buka tim: daftar tampil tanpa mengetik, disaring jabatan & cabang; superadmin juga bisa membuka seluruh struktur (Owner)
+const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
 const pilihTim = ref(null);
 const teksCari = ref("");
 const hasilCari = ref([]);
+const adaLagi = ref(false);
 const mencari = ref(false);
+const saringJab = ref(null);
+const saringCabang = ref(null);
+const metaJabatan = ref([]);
+const daftarCabang = ref([]);
 let tundaCari = null;
-function cari(q) {
+let nomorCari = 0;
+function cari(q, segera = false) {
   clearTimeout(tundaCari);
   tundaCari = setTimeout(async () => {
-    if (!q || q.length < 2) return;
+    q = (q || "").trim();
+    // Teks dari pilihan yang baru dipilih bukan pencarian
+    if (q && hasilCari.value.some((m) => m.label === q)) return;
+    const no = ++nomorCari;
     mencari.value = true;
     try {
-      const { data } = await api.get("/mutasi/cari-member", { params: { q, limit: 20 } });
-      hasilCari.value = data.data.map((m) => ({ ...m, label: `${m.jabatan} ${m.no_id || ""} · ${m.nama} (${m.jumlah_anggota || 0} downline)` }));
+      const { data } = await api.get("/mutasi/cari-member", {
+        params: { q: q || undefined, mvo_type_id: saringJab.value || undefined, cabang: saringCabang.value || undefined, limit: 50, meta: 1 },
+      });
+      if (no !== nomorCari) return;
+      metaJabatan.value = data.meta?.jabatan || [];
+      if (!daftarCabang.value.length) daftarCabang.value = data.meta?.cabang || [];
+      const daftar = data.data.map((m) => ({
+        ...m, jab: m.jabatan, judul: `${m.no_id || ""} · ${m.nama}`,
+        sub: `${noMember(m.id)} · ${m.cabang || "-"} · Upline ${m.atasan_no_id ? `${m.atasan_no_id} ${m.atasan_nama}` : "Owner"} · ${m.jumlah_anggota || 0} downline langsung`,
+        label: `${m.jabatan} ${m.no_id || ""} · ${m.nama}`,
+      }));
+      const total = metaJabatan.value.reduce((s, j) => s + j.jumlah, 0);
+      const cocokOwner = !q || /^(ow|own|owne|owner|ow01|seluruh|semua)/i.test(q);
+      if (isSuperadmin && !saringJab.value && !saringCabang.value && cocokOwner) {
+        daftar.unshift({ id: "owner", mvo_type_id: "superadmin", jab: "OWNER", judul: "Seluruh struktur (mulai dari Owner)",
+          sub: `${total.toLocaleString("id-ID")} akun aktif — buka bertahap lewat tanda ›, atau Buka semua`, label: "OWNER · Seluruh struktur" });
+      }
+      // Pemegang hak: ketua gerbongnya sendiri di atas (bisa dibuka seluruhnya)
+      if (!saringJab.value && !saringCabang.value) {
+        const cocok = (c) => !q || `${c.no_id} ${c.nama}`.toLowerCase().includes(q.toLowerCase());
+        daftar.unshift(...gerbong.value.filter(cocok).map((c) => ({ id: c.id, jab: c.jabatan,
+          judul: `${c.no_id || ""} · ${c.nama}`, sub: "Seluruh gerbong Anda", label: `${c.jabatan} ${c.no_id || ""} · ${c.nama}` })));
+      }
+      hasilCari.value = daftar;
+      adaLagi.value = !!data.ada_lagi;
     } catch {
-      hasilCari.value = [];
+      if (no === nomorCari) hasilCari.value = [];
     } finally {
-      mencari.value = false;
+      if (no === nomorCari) mencari.value = false;
     }
-  }, 350);
+  }, segera ? 0 : 350);
+}
+function pilihJab(id) {
+  saringJab.value = id;
+  cari(teksCari.value, true);
 }
 async function bukaTim(id) {
   if (!id) return;
-  if (panel.value.some((p) => p.akar === id)) {
+  const kunci = id; // "owner" atau id ketua tim (dipakai lagi setelah simpan)
+  if (panel.value.some((p) => p.kunci === id)) {
     pilihTim.value = null;
     return;
   }
@@ -257,7 +315,8 @@ async function bukaTim(id) {
     for (const n of data.data) a[n.id] = n;
     if (data.upline && !a[data.upline.id]) a[data.upline.id] = { ...data.upline, luar: true };
     asli.value = a;
-    const p = { akar: id, upline: data.upline?.id ?? null, ids: new Set(data.data.map((n) => n.id)) };
+    if (id === "owner") id = data.data.find((n) => n.owner).id;
+    const p = { kunci, akar: id, upline: data.upline?.id ?? null, ids: new Set(data.data.map((n) => n.id)) };
     panel.value = panel.value.length >= 2 ? [panel.value[0], p] : [...panel.value, p];
     // Tim kecil langsung terbuka semua; tim besar sampai downline langsung ketua tim
     const b = new Set(buka.value);
@@ -293,12 +352,15 @@ const akhir = computed(() => {
 });
 const urutNoId = (a, b) => levelJab(a.mvo_type_id) - levelJab(b.mvo_type_id)
   || String(a.no_id || "").localeCompare(String(b.no_id || ""), undefined, { numeric: true }) || a.nama?.localeCompare(b.nama || "");
+const idOwner = computed(() => Object.values(asli.value).find((n) => n.owner)?.id ?? null);
 const anak = computed(() => {
   const m = new Map();
   for (const n of akhir.value.values()) {
-    if (n.peran === "tunggu" || n.parent_id == null) continue;
-    if (!m.has(n.parent_id)) m.set(n.parent_id, []);
-    m.get(n.parent_id).push(n);
+    if (n.peran === "tunggu" || n.owner) continue;
+    const up = n.parent_id ?? idOwner.value;
+    if (up == null) continue;
+    if (!m.has(up)) m.set(up, []);
+    m.get(up).push(n);
   }
   for (const l of m.values()) l.sort(urutNoId);
   return m;
@@ -330,7 +392,7 @@ function uplinePanel(p) {
   const akar = akhir.value.get(akarPanel(p));
   const id = akar?.parent_id ?? null;
   const u = id != null ? akhir.value.get(id) : null;
-  return { id: id ?? "owner", label: u ? `${namaJab(u.mvo_type_id)} ${u.no_id || ""} · ${u.nama}` : "Owner" };
+  return { id: id ?? "owner", owner: !!akar?.owner, label: u ? `${namaJab(u.mvo_type_id)} ${u.no_id || ""} · ${u.nama}` : "Owner" };
 }
 function barisPanel(p) {
   return barisDari(akarPanel(p));
@@ -487,6 +549,7 @@ function ambilGeser() {
 const dipilih = ref(null);
 function ketukOrang(n) {
   if (!props.ketuk) return;
+  if (n.owner && dipilih.value == null) return;
   const diBangku = bangku.value.some((o) => o.id === n.id);
   if (dipilih.value != null && dipilih.value !== n.id && !diBangku) return ketukKursi(akhir.value.get(n.id));
   dipilih.value = dipilih.value === n.id ? null : n.id;
@@ -516,6 +579,7 @@ const dialogPilihan = ref(false);
 function keKursi(target) {
   const g = ambilGeser();
   if (!g || g.jenis !== "orang" || g.id === target.id) return;
+  if (target.owner) return toast("Kursi Owner tidak bisa ditempati. Untuk menaruh orang langsung di bawah Owner, pakai + downline pada baris Owner.");
   const P = g.id;
   if (target.kosong) {
     if (!target.no_id) return toast("Kursi ini belum bernomor. Pakai + downline pada upline-nya.");
@@ -546,7 +610,7 @@ function keDownline(u) {
   if (!g) return;
   if (typeof u === "number" && u < 0) return toast("Isi dulu kursi kosong ini sebelum menambah downline di bawahnya.");
   if (g.id === u) return;
-  const U = u === "owner" ? null : u;
+  const U = u === "owner" || akhir.value.get(u)?.owner ? null : u;
   const namaU = U == null ? "Owner" : `${akhir.value.get(U)?.no_id || ""} ${namaOrang(U)}`.trim();
   if (g.jenis === "kursi") {
     const r = { ...(baris.value[g.id] || {}), parent_id: U };
@@ -599,7 +663,7 @@ async function simpan() {
     });
     dialogSimpan.value = false;
     toast(data.message, "success");
-    const akar = panel.value.map((p) => p.akar);
+    const akar = panel.value.map((p) => p.kunci);
     ulang();
     catatan.value = "";
     panel.value = [];
@@ -627,6 +691,24 @@ defineExpose({ bukaTim });
 .bg-cari {
   flex: 1 1 320px;
   max-width: 520px;
+}
+.bg-cabang {
+  flex: 0 1 200px;
+  min-width: 160px;
+}
+.bg-jab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+.bg-jab .jml {
+  opacity: 0.7;
+  font-size: 0.72rem;
+}
+.bg-pilih .kursi {
+  cursor: pointer;
 }
 .meta {
   font-size: 0.8rem;
@@ -739,6 +821,7 @@ defineExpose({ bukaTim });
 .jab-supplier { color: var(--baba-jab-supplier); }
 .jab-dist { color: var(--baba-jab-dist); }
 .jab-reseller { color: var(--baba-jab-reseller); }
+.jab-owner { color: var(--baba-ink); }
 .orang {
   padding: 2px 8px;
   border-radius: 6px;

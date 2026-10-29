@@ -584,7 +584,10 @@ export const PANDUAN = [
       {
         judul: "Mutasi Bagan (geser orang ke kursi)",
         isi: [
-          "Buka tab Bagan, lalu di kolom Buka tim cari ketua tim (mis. R05 atau B07) dan pilih. Bagan tim tampil: setiap baris = satu kursi (jabatan · No ID, warna sesuai jabatan) berisi orangnya (No Member + nama).",
+          "Buka tab Bagan, lalu ketuk kolom Buka tim. Daftar akun langsung tampil tanpa perlu mengetik. Saring dengan tombol Jabatan (angka = jumlah akun) dan pilihan Cabang, atau ketik nama / No ID / No Member.",
+          "Pilih ketua tim (mis. R05 atau B07). Bagan tim tampil: setiap baris = satu kursi (jabatan · No ID, warna sesuai jabatan) berisi orangnya (No Member + nama).",
+          "Superadmin: pilihan paling atas, Seluruh struktur (mulai dari Owner), membuka semua akun di bawah Owner. Yang terbuka awalnya TM, MVO, dan Regional; buka lebih dalam dengan tanda › atau tombol Buka semua.",
+          "Pemegang hak Mutasi: pilihan paling atas adalah ketua gerbong Anda (Seluruh gerbong Anda).",
           "Kursi tetap di tempatnya; yang digeser orangnya. Di komputer: tarik nama orang lalu lepas di tujuan. Di HP: ketuk nama orang (berwarna hitam), lalu ketuk tujuannya.",
           "Ke kursi kosong (merah): orang itu mengisi kursi tersebut, termasuk jabatan & No ID-nya.",
           "Ke kursi yang sudah berisi: pilih Tukar posisi, atau … ke bangku tunggu (pemegang lama keluar dulu dari kursinya).",
