@@ -378,6 +378,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Baris bertulisan “Kursi kosong — menunggu pengganti” adalah kursi yang dibiarkan kosong lewat Mutasi Jabatan. Downline-nya tetap di bawah kursi itu dengan No ID yang sama. Kursi kosong tidak dihitung di kartu jumlah maupun Total akun.",
       { teks: "Tombol Excel di kanan atas membuka menu Excel Struktur untuk mengunduh pohon ini sebagai file Excel.", peran: "superadmin" },
       { teks: "Nama Owner diubah di sini: klik baris OWNER di puncak pohon, lalu tekan Ubah nama Owner di panel detail. Akun Owner tidak tampil di Verifikasi ID.", peran: "superadmin" },
       "Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office.",
@@ -449,6 +450,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Kursi kosong tampil sebagai baris KURSI KOSONG (abu-abu, tanpa No Member). Baris itu tidak bisa diubah dan tidak bisa dipakai sebagai Upline BARU. Untuk mengisinya, tulis No ID kursi itu di No ID BARU pada baris penggantinya.",
       "Kolom kuning (Jabatan BARU, Upline BARU, No ID BARU, Cabang BARU) adalah tempat mengisi perubahan. Kosong = tidak berubah.",
       "Maksimal 250 baris diubah per unggahan. Perubahan besar bisa dibagi beberapa kali (unduh ulang file terbaru setiap kali selesai menyimpan).",
       "Jangan mengubah kolom No Member: kolom ini pengenal tetap setiap akun.",

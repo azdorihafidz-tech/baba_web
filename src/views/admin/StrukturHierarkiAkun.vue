@@ -7,7 +7,7 @@
         <h1 class="page-title">Struktur akun</h1>
       </div>
       <div class="header-right">
-        <div class="total-chip">{{ compact ? '' : 'Total: ' }}{{ rawData.length }} akun</div>
+        <div class="total-chip">{{ compact ? '' : 'Total: ' }}{{ jumlahAkun }} akun</div>
         <button class="hdr-btn" title="Tutup Semua" aria-label="Tutup Semua" @click="collapseAll">
           <v-icon size="16">mdi-unfold-less-horizontal</v-icon><span class="hdr-btn-teks">Tutup Semua</span>
         </button>
@@ -89,7 +89,10 @@
 
         <template v-if="selected">
           <div class="detail-avatar-row">
-            <v-avatar v-if="selected.path_gambar_profile" :image="getImageUrl(selected.path_gambar_profile)" size="60"
+            <v-avatar v-if="selected.kursi_kosong" size="60" rounded="lg" style="background:#3f3f46;">
+              <v-icon icon="mdi-seat-outline" size="30" color="#d4d4d8" />
+            </v-avatar>
+            <v-avatar v-else-if="selected.path_gambar_profile" :image="getImageUrl(selected.path_gambar_profile)" size="60"
               rounded="lg" />
             <v-avatar v-else size="60" rounded="lg" :style="{ background: roleGradient(selected.jabatan) }">
               <span style="font-size:20px; font-weight:700; color:#fff; letter-spacing:1px;">{{ initials(selected.nama)
@@ -97,7 +100,12 @@
             </v-avatar>
           </div>
 
-          <div class="detail-name">{{ selected.nama }}</div>
+          <div class="detail-name">{{ selected.kursi_kosong ? 'Kursi kosong' : selected.nama }}</div>
+          <!-- Kursi yang dibiarkan kosong (Mutasi): tanpa orang, downline-nya tetap dengan No ID yang sama -->
+          <div v-if="selected.kursi_kosong" class="detail-aksi kursi-info">
+            Kursi ini belum ada orangnya. Downline-nya tetap di kursi ini dengan No ID yang sama.
+            <template v-if="bolehMutasi"> Isi lewat <router-link to="/admin/mutasi?tab=kosong">Mutasi Jabatan › Kursi kosong</router-link>.</template>
+          </div>
           <!-- Akun Owner = superadmin, tidak tampil di Verifikasi ID: namanya diubah di sini -->
           <div v-if="superadmin && selected.is_owner" class="detail-aksi">
             <v-btn size="small" variant="tonal" color="primary" prepend-icon="mdi-pencil" @click="bukaUbahNama">Ubah nama Owner</v-btn>
@@ -105,9 +113,9 @@
           <div class="detail-meta">
             <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.label_jabatan || selected.jabatan) }}</span>
             <span class="noid-chip">No ID {{ selected.no_id || '—' }}</span>
-            <span v-if="noMember(selected.id)" class="noid-chip" title="No. Member: nomor tetap akun">{{ noMember(selected.id) }}</span>
-            <span class="dot">·</span>
-            <span class="meta-small">{{ formatDate(selected.tanggal_bergabung) }}</span>
+            <span v-if="!selected.kursi_kosong && noMember(selected.id)" class="noid-chip" title="No. Member: nomor tetap akun">{{ noMember(selected.id) }}</span>
+            <template v-if="!selected.kursi_kosong"><span class="dot">·</span>
+            <span class="meta-small">{{ formatDate(selected.tanggal_bergabung) }}</span></template>
           </div>
 
           <div class="detail-stats">
@@ -192,12 +200,16 @@ import Cookies from 'js-cookie';
 import { useDisplay } from 'vuetify';
 import { idDariNoMember, noMember } from '@/utils/noMember';
 import { owner } from '@/utils/owner';
+import { muatHak, punyaHak } from '@/utils/hakAkses';
 
 // HP/tablet (< 960px): baris pohon dua tingkat (nama, lalu jabatan · No ID) dan indentasi lebih kecil
 const { smAndDown } = useDisplay();
 const compact = computed(() => smAndDown.value);
 // Superadmin: pintasan ke menu Excel Struktur (unduh pohon sebagai Excel)
 const superadmin = localStorage.getItem("mvo_type_id") === "superadmin";
+// Tautan isi kursi kosong: superadmin atau pemegang hak Mutasi
+const bolehMutasi = ref(superadmin);
+if (!superadmin) muatHak().then(() => { bolehMutasi.value = punyaHak("mutasi"); }).catch(() => {});
 
 // OWNER = puncak di atas Top Management (akun Owner, No ID OW01) — akar pohon dari backend
 const ROLE_ORDER = ['OWNER', 'TOP MANAGEMENT', 'MVO', 'REGIONAL', 'FOUNDER', 'GENERAL MANAGER', 'SUPPLIER', 'DISTRIBUTOR', 'RESELLER'];
@@ -221,16 +233,20 @@ const expandSignal = ref(0);
 const activeRoleFilter = ref(null);
 const mobileDetailOpen = ref(false);
 
+// Kursi kosong (Mutasi) bukan akun
+const jumlahAkun = computed(() => rawData.value.filter(n => !n.kursi_kosong).length);
+
 const roleCounts = computed(() => {
   const counts = {};
-  rawData.value.forEach(n => { const j = n.jabatan?.toUpperCase(); counts[j] = (counts[j] ?? 0) + 1; });
+  // Kursi kosong (Mutasi) bukan akun: tidak dihitung
+  rawData.value.forEach(n => { if (n.kursi_kosong) return; const j = n.jabatan?.toUpperCase(); counts[j] = (counts[j] ?? 0) + 1; });
   return counts;
 });
 
 const roleFilteredIds = computed(() => {
   if (!activeRoleFilter.value) return null;
   const ids = new Set();
-  rawData.value.forEach(n => { if (n.jabatan?.toUpperCase() === activeRoleFilter.value) ids.add(n.id); });
+  rawData.value.forEach(n => { if (!n.kursi_kosong && n.jabatan?.toUpperCase() === activeRoleFilter.value) ids.add(n.id); });
   return ids;
 });
 
@@ -449,7 +465,9 @@ const TreeNode = defineComponent({
           h('span', { style: badgeSty }, jabatan),
           node.no_id ? h('span', { style: noIdSty }, node.no_id) : null,
         ]),
-        h('div', { style: { ...nameSty, display: 'block', fontSize: '14px', marginTop: '3px' } }, node.nama),
+        node.kursi_kosong
+          ? h('div', { style: { ...nameSty, display: 'block', fontSize: '13.5px', marginTop: '3px', color: '#a1a1aa', fontStyle: 'italic' } }, 'Kursi kosong — menunggu pengganti')
+          : h('div', { style: { ...nameSty, display: 'block', fontSize: '14px', marginTop: '3px' } }, node.nama),
       ])];
 
       return h('div', { style: { width: '100%' } }, [
@@ -727,6 +745,16 @@ a.hdr-btn {
 
 .detail-aksi {
   padding: 0 18px 10px;
+}
+
+.kursi-info {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #a1a1aa;
+}
+
+.kursi-info a {
+  color: var(--baba-gold-light);
 }
 
 .detail-meta {
