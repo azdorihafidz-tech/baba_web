@@ -36,4 +36,5 @@ export const KETERANGAN_TUGAS = {
   "/admin/mvobelumapprove": "pendaftar menunggu approve Anda",
   "/admin/user": "akun siap diverifikasi",
   "/admin/documentbelumapprove": "dokumen menunggu approve Anda",
+  "/admin/mutasi": "kursi kosong menunggu pengganti",
 };

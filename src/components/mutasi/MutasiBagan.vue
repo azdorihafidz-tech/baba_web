@@ -97,13 +97,17 @@
           <ol v-else class="daftar-langkah">
             <li v-for="(l, i) in langkah" :key="i">{{ l.teks }}</li>
           </ol>
-          <div v-for="k in kursiKosong" :key="k.id" class="peringatan kotak-naik">
-            <div>Kursi <b>{{ k.jabatan }} {{ k.no_id || '(baru)' }}</b> kosong, masih ada {{ k.jumlah_downline }} downline — <b>siapa yang naik?</b></div>
+          <div v-for="k in kursiKosong" :key="k.id" class="peringatan kotak-naik" :class="{ dibiarkan: k.dibiarkan }">
+            <div v-if="k.dibiarkan">Kursi <b>{{ k.jabatan }} {{ k.no_id }}</b> <b>dibiarkan kosong</b>; {{ k.jumlah_downline }} downline tetap di kursinya.
+              <v-btn v-if="!k.tersimpan" size="x-small" variant="text" :disabled="memuat" @click="jadiBiarkan(k, false)">Batalkan</v-btn></div>
+            <div v-else>Kursi <b>{{ k.jabatan }} {{ k.no_id || '(baru)' }}</b> kosong, masih ada {{ k.jumlah_downline }} downline — <b>siapa yang naik?</b></div>
             <div class="calon-list">
               <v-btn v-for="c in k.calon" :key="c.id" size="small" variant="outlined" class="calon-btn" :disabled="!k.no_id || memuat"
                 @click="isiKursi(c.id, k)">{{ c.jabatan }} {{ c.no_id }} · {{ c.nama }}<span class="meta ml-1">({{ c.jumlah_tim }} tim)</span></v-btn>
             </div>
             <div class="meta">Atau {{ ketuk ? 'ketuk orang lain lalu ketuk' : 'geser orang lain ke' }} kursi merah itu.</div>
+            <v-btn v-if="!k.dibiarkan && k.no_id" size="small" variant="tonal" prepend-icon="mdi-seat-outline" class="mt-1" :disabled="memuat"
+              @click="jadiBiarkan(k, true)">Biarkan kosong</v-btn>
           </div>
           <div v-if="kursiBebas.length" class="meta mt-2">
             Kursi kosong tanpa downline (nomornya bebas dipakai lagi): {{ kursiBebas.map((k) => `${k.jabatan} ${k.no_id}`).join(', ') }}.
@@ -221,6 +225,7 @@ const buka = ref(new Set());
 
 // Rencana: baris langkah "atur" per akun, hasil pratinjau terakhir, dan riwayat langkah untuk Batal
 const baris = ref({});
+const biarkan = ref([]); // No ID kursi kosong yang dibiarkan kosong (langkah "kosongkan" sesudah langkah atur)
 const hasil = ref(null);
 const langkah = ref([]);
 const memuat = ref(false);
@@ -339,7 +344,7 @@ function tutupPanel(i) {
 const akhir = computed(() => {
   const m = new Map();
   for (const n of Object.values(asli.value)) {
-    m.set(n.id, { ...n, kosong: false, peran: null, berubah: false, no_id_lama: n.no_id });
+    m.set(n.id, { ...n, kosong: !!n.kosong, peran: null, berubah: false, no_id_lama: n.no_id });
   }
   for (const b of hasil.value?.baris || []) {
     m.set(b.id, {
@@ -369,7 +374,8 @@ const kursiKosong = computed(() => hasil.value?.ringkasan?.kursi_kosong || []);
 const idKosong = computed(() => new Set(kursiKosong.value.map((k) => k.id)));
 const bangku = computed(() => hasil.value?.ringkasan?.bangku || []);
 const kursiBebas = computed(() => {
-  const dipegang = new Set([...akhir.value.values()].filter((n) => !n.kosong).map((n) => n.no_id));
+  // Nomor yang masih dipakai orang, atau kursi kosong yang masih punya downline (menunggu / dibiarkan)
+  const dipegang = new Set([...akhir.value.values()].map((n) => n.no_id));
   return (hasil.value?.baris || []).filter((b) => !b.kosong && b.no_id_lama && b.no_id_lama !== b.no_id_baru && !dipegang.has(b.no_id_lama))
     .map((b) => ({ no_id: b.no_id_lama, jabatan: b.jabatan_lama }));
 });
@@ -486,7 +492,9 @@ function rapikan(r) {
   if (a && "parent_id" in x && x.parent_id === a.parent_id && !x.lepas) delete x.parent_id;
   return Object.keys(x).length > 1 ? x : null;
 }
-async function ubah(tambahan, teks) {
+const langkahBagan = (akun, kosong) => [{ jenis: "atur", sumber: "bagan", judul: "Mutasi Bagan", akun },
+  ...kosong.map((no) => ({ jenis: "kosongkan", no_id_tujuan: no }))];
+async function ubah(tambahan, teks, kosongBaru = biarkan.value) {
   const baru = { ...baris.value };
   for (const [id, r] of Object.entries(tambahan)) {
     const x = rapikan({ user_id: Number(id), ...r });
@@ -498,7 +506,7 @@ async function ubah(tambahan, teks) {
     let data = null;
     const akun = Object.values(baru);
     if (akun.length) {
-      const res = await api.post("/mutasi/pratinjau", { langkah: [{ jenis: "atur", sumber: "bagan", judul: "Mutasi Bagan", akun }] })
+      const res = await api.post("/mutasi/pratinjau", { langkah: langkahBagan(akun, kosongBaru) })
         .catch((e) => ({ data: e.response?.data || { errors: ["Gagal memeriksa perubahan."] } }));
       data = res.data;
       if (data?.errors?.length) {
@@ -510,8 +518,10 @@ async function ubah(tambahan, teks) {
         data = null; // semua kembali seperti semula
       }
     }
-    langkah.value = [...langkah.value, { teks, baris: baris.value, hasil: hasil.value }];
+    langkah.value = [...langkah.value, { teks, baris: baris.value, hasil: hasil.value, biarkan: biarkan.value }];
     baris.value = data ? baru : {};
+    // Kursi yang sudah terisi lagi tidak perlu dicatat "dibiarkan"
+    biarkan.value = data ? kosongBaru.filter((no) => (data.ringkasan?.kursi_kosong || []).some((k) => k.no_id === no)) : [];
     hasil.value = data;
     bukaYangBerubah();
     return true;
@@ -523,11 +533,13 @@ function batal() {
   const l = langkah.value.at(-1);
   if (!l) return;
   baris.value = l.baris;
+  biarkan.value = l.biarkan || [];
   hasil.value = l.hasil;
   langkah.value = langkah.value.slice(0, -1);
 }
 function ulang() {
   baris.value = {};
+  biarkan.value = [];
   hasil.value = null;
   langkah.value = [];
 }
@@ -596,6 +608,12 @@ function keDownline(u) {
   if (!g || g.jenis !== "orang" || g.id === u) return;
   if (typeof u === "number" && u < 0) return toast("Isi dulu kursi kosong ini sebelum menambah downline di bawahnya.");
   bukaMenu(g.id, u, null);
+}
+// Kursi kosong dibiarkan kosong (timnya tetap, No ID tidak berubah) / dibatalkan
+function jadiBiarkan(k, ya) {
+  const no = k.no_id;
+  const daftar = ya ? [...new Set([...biarkan.value, no])] : biarkan.value.filter((x) => x !== no);
+  ubah({}, ya ? `Kursi ${no} (${k.jabatan}) dibiarkan kosong` : `Kursi ${no} tidak jadi dibiarkan kosong`, daftar);
 }
 function isiKursi(P, k) {
   ubah({ [P]: { no_id: k.no_id } }, `${namaOrang(P)} naik mengisi kursi ${k.no_id} (${k.jabatan})`);
@@ -690,7 +708,7 @@ const perubahan = computed(() => (hasil.value?.baris || []).filter((b) => !b.kos
 const jumlahAkun = computed(() => Object.keys(baris.value).length);
 const ringkas = computed(() => (hasil.value ? `${jumlahAkun.value} akun digeser, ${perubahan.value.length} akun terdampak, `
   + `${hasil.value.ringkasan?.no_id_berubah || 0} No ID berubah` : ""));
-const bolehSimpan = computed(() => jumlahAkun.value > 0 && !!hasil.value && !kursiKosong.value.length && !bangku.value.length && !memuat.value);
+const bolehSimpan = computed(() => jumlahAkun.value > 0 && !!hasil.value && !kursiKosong.value.some((k) => !k.dibiarkan) && !bangku.value.length && !memuat.value);
 const dialogSimpan = ref(false);
 const esc = (s) => String(s ?? "-").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const lamaBaru = (a, b) => ((a || "-") === (b || "-") ? esc(a) : `<span class="lama">${esc(a)}</span> → <b>${esc(b)}</b>`);
@@ -699,7 +717,7 @@ async function simpan() {
   memuat.value = true;
   try {
     const { data } = await api.post("/mutasi", {
-      langkah: [{ jenis: "atur", sumber: "bagan", judul: "Mutasi Bagan", akun: Object.values(baris.value) }],
+      langkah: langkahBagan(Object.values(baris.value), biarkan.value),
       catatan: catatan.value?.trim() || null,
     });
     dialogSimpan.value = false;
@@ -849,6 +867,11 @@ defineExpose({ bukaTim });
   border-radius: 6px;
   border-left: 3px solid currentColor;
   background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.kotak-naik.dibiarkan {
+  border-left-color: var(--baba-muted);
+  background: #f6f6f4;
+  color: inherit;
 }
 .kotak-naik .calon-list {
   display: flex;

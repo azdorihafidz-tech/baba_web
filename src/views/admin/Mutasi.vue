@@ -15,6 +15,8 @@
     <v-tabs v-if="bolehMutasi" v-model="tab" color="#B8890F" class="mb-4">
       <v-tab value="baru" prepend-icon="mdi-account-switch">Mutasi Baru</v-tab>
       <v-tab value="bagan" prepend-icon="mdi-sitemap">Bagan</v-tab>
+      <v-tab value="kosong" prepend-icon="mdi-seat-outline" @click="muatKursiKosong">Kursi kosong
+        <span v-if="daftarKosong.length" class="tab-lencana">{{ daftarKosong.length }}</span></v-tab>
       <v-tab value="saran" prepend-icon="mdi-chart-timeline-variant" @click="muatSaranAwal">Saran RO</v-tab>
       <v-tab value="riwayat" prepend-icon="mdi-history" @click="muatRiwayat">Riwayat</v-tab>
     </v-tabs>
@@ -35,8 +37,8 @@
               <v-btn v-if="i === rencana.length - 1" icon="mdi-close" size="small" variant="text"
                 title="Batalkan langkah ini" @click="hapusRencanaTerakhir" />
             </div>
-            <p class="hint mt-2">Langkah berikutnya diisi di bawah. Kursi kosong yang masih punya downline harus diisi
-              atau dipindahkan sebelum rencana disimpan.</p>
+            <p class="hint mt-2">Langkah berikutnya diisi di bawah. Kursi kosong yang masih punya downline harus diisi,
+              dibiarkan kosong, atau dipindahkan timnya sebelum rencana disimpan.</p>
           </v-card-text>
         </v-card>
 
@@ -279,15 +281,17 @@
           <v-card-text>
             <v-alert v-for="(e, i) in pratinjau.errors" :key="i" type="warning" variant="tonal" density="compact"
               class="mb-2">{{ e }}</v-alert>
-            <!-- Kursi kosong yang masih punya downline: wajib diisi pengganti / dipindahkan sebelum simpan.
+            <!-- Kursi kosong yang masih punya downline: diisi pengganti, dibiarkan kosong, atau dipindahkan timnya sebelum simpan.
                  Rantai pengganti: satu downline kursi itu naik mengisinya; kursi yang ia tinggal muncul berikutnya. -->
-            <div v-for="k in kursiKosong" :key="k.id" class="kursi-kosong mb-2">
+            <div v-for="k in kursiKosong" :key="k.id" class="kursi-kosong mb-2" :class="{ 'kk-dibiarkan': k.dibiarkan }">
               <div class="kk-kepala">
-                <v-icon icon="mdi-seat-outline" color="error" class="kk-ikon" />
+                <v-icon icon="mdi-seat-outline" :color="k.dibiarkan ? 'grey' : 'error'" class="kk-ikon" />
                 <div class="kk-teks">
                   <b>Kursi {{ labelKursi(k) }} ({{ k.jabatan }})</b>
-                  <template v-if="k.asal"> ditinggal {{ k.asal }}</template> — siapa yang naik?
-                  <div class="kk-meta">{{ k.jumlah_downline }} downline menunggu<template v-if="k.upline"> · upline kursi:
+                  <template v-if="k.asal"> ditinggal {{ k.asal }}</template>
+                  <template v-if="k.dibiarkan"> — <b>dibiarkan kosong</b></template>
+                  <template v-else> — siapa yang naik?</template>
+                  <div class="kk-meta">{{ k.jumlah_downline }} downline {{ k.dibiarkan ? 'tetap di kursi ini' : 'menunggu' }}<template v-if="k.upline"> · upline kursi:
                     {{ k.upline.nama }} ({{ k.upline.no_id || '-' }})</template></div>
                 </div>
               </div>
@@ -305,8 +309,10 @@
               <div class="kk-aksi">
                 <v-btn size="small" variant="tonal" color="#B8890F" prepend-icon="mdi-account-search"
                   :disabled="!bisaLanjut" @click="mulaiPengganti(k)">Pilih orang lain…</v-btn>
+                <v-btn v-if="!k.dibiarkan && k.no_id" size="small" variant="tonal" prepend-icon="mdi-seat-outline"
+                  :disabled="!bisaLanjut" @click="biarkanKosong(k)">Biarkan kosong</v-btn>
                 <v-btn size="small" variant="text" prepend-icon="mdi-account-group"
-                  :disabled="!bisaLanjut" @click="bukaPindahkan(k)">Kosongkan, pindahkan tim</v-btn>
+                  :disabled="!bisaLanjut" @click="bukaPindahkan(k)">Pindahkan tim ke upline lain</v-btn>
               </div>
             </div>
             <p v-if="kursiKosong.length && !bisaLanjut && !loadingPratinjau" class="hint mb-2">
@@ -440,7 +446,46 @@
 
       <!-- ================= MUTASI BAGAN (geser orang ke kursi) ================= -->
       <v-window-item value="bagan">
-        <MutasiBagan v-if="tab === 'bagan'" :ketuk="$vuetify.display.smAndDown" @tersimpan="muatRiwayat" />
+        <MutasiBagan v-if="tab === 'bagan'" :ketuk="$vuetify.display.smAndDown" @tersimpan="setelahSimpanBagan" />
+      </v-window-item>
+
+      <!-- ================= KURSI KOSONG (dibiarkan, menunggu pengganti) ================= -->
+      <v-window-item value="kosong">
+        <v-card class="step-card">
+          <v-card-text>
+            <p class="hint mb-3">Kursi yang dibiarkan kosong beserta downline-nya. No ID downline tidak berubah selama
+              kursi kosong. Isi kursi dengan menaikkan salah satu downline-nya, memilih orang lain, atau pindahkan timnya.</p>
+            <v-progress-linear v-if="loadingKosong" indeterminate color="#B8890F" class="mb-2" />
+            <div v-if="!loadingKosong && !daftarKosong.length" class="kosong-info-kursi">Tidak ada kursi kosong.</div>
+            <div v-for="k in daftarKosong" :key="k.id" class="kursi-kosong mb-2">
+              <div class="kk-kepala">
+                <v-icon icon="mdi-seat-outline" color="error" class="kk-ikon" />
+                <div class="kk-teks">
+                  <b>Kursi {{ labelKursi(k) }} ({{ k.jabatan }})</b> · {{ k.cabang || '-' }}
+                  <div class="kk-meta">{{ k.jumlah_downline }} downline langsung · {{ k.jumlah_tim }} orang di timnya
+                    <template v-if="k.upline"> · upline kursi: {{ k.upline.nama }} ({{ k.upline.no_id || '-' }})</template>
+                    <template v-if="k.sejak"> · kosong sejak {{ formatTanggal(k.sejak) }}</template></div>
+                </div>
+              </div>
+              <div v-if="k.calon?.length" class="kk-calon">
+                <button v-for="c in k.calon" :key="c.id" type="button" class="kk-calon-item" @click="naikDariDaftar(k, c)">
+                  <div class="kk-calon-teks">
+                    <div class="kk-calon-nama">{{ c.nama }}</div>
+                    <div class="kk-calon-meta">{{ c.jabatan }} · {{ c.no_id || '-' }} ·
+                      {{ c.jumlah_downline ? `${c.jumlah_downline} downline langsung` : 'tanpa downline' }}</div>
+                  </div>
+                  <span class="kk-calon-aksi"><v-icon icon="mdi-arrow-up-bold" size="16" /> Naik</span>
+                </button>
+              </div>
+              <div class="kk-aksi">
+                <v-btn size="small" variant="tonal" color="#B8890F" prepend-icon="mdi-account-search"
+                  @click="penggantiDariDaftar(k)">Pilih orang lain…</v-btn>
+                <v-btn size="small" variant="text" prepend-icon="mdi-account-group"
+                  @click="pindahkanDariDaftar(k)">Pindahkan tim ke upline lain</v-btn>
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
       </v-window-item>
 
       <v-window-item value="riwayat">
@@ -548,6 +593,7 @@ import MutasiBagan from "@/components/mutasi/MutasiBagan.vue";
 import { labelNomor, nomorMenurutRencana } from "@/utils/rencanaMutasi";
 import { muatOwner, teksOwner } from "@/utils/owner";
 import { muatHak, punyaHak } from "@/utils/hakAkses";
+import { muatTugas } from "@/utils/tugasMenunggu";
 
 muatOwner();
 
@@ -1071,7 +1117,7 @@ const barisTampil = computed(() => {
 });
 // Isian sekarang sah (kursi kosong boleh tersisa): boleh lanjut memilih pengganti / memindahkan downline
 const bisaLanjut = computed(() => !!pratinjau.value && !pratinjau.value.errors.length && !loadingPratinjau.value);
-const bisaSimpan = computed(() => bisaLanjut.value && !kursiKosong.value.length);
+const bisaSimpan = computed(() => bisaLanjut.value && !kursiKosong.value.some((k) => !k.dibiarkan));
 const jumlahLangkah = computed(() => pratinjau.value?.ringkasan?.langkah?.length || 0);
 
 const headersPratinjau = [
@@ -1091,6 +1137,8 @@ async function simpan() {
     reset();
     tab.value = "riwayat";
     muatRiwayat();
+    muatKursiKosong();
+    muatTugas(true);
   } catch (e) {
     konfirmasi.value = false;
     toast(pesanError(e, "Gagal menyimpan mutasi"), "error");
@@ -1160,6 +1208,55 @@ function naikkanCalon(k, c) {
     teks: [`${c.nama} (${c.jabatan} ${c.no_id || "-"}) naik mengisi kursi ${labelKursi(k)} (${k.jabatan})`],
   }];
   jadwalkanPratinjau();
+}
+
+// Kursi dibiarkan kosong bersama downline-nya (No ID mereka tetap); muncul di tab Kursi kosong
+function biarkanKosong(k) {
+  tetapkanDraft();
+  rencana.value = [...rencana.value, {
+    kunci: ++kunciRencana,
+    langkah: [{ jenis: "kosongkan", kursi_id: k.id, no_id_tujuan: k.no_id }],
+    teks: [`Kursi ${labelKursi(k)} (${k.jabatan}) dibiarkan kosong; ${k.jumlah_downline} downline tetap di kursinya`],
+  }];
+  jadwalkanPratinjau();
+}
+
+/* ---------- kursi kosong yang dibiarkan (tab Kursi kosong) ---------- */
+const daftarKosong = ref([]);
+const loadingKosong = ref(false);
+async function muatKursiKosong() {
+  loadingKosong.value = true;
+  try {
+    const { data } = await api.get("/mutasi/kursi-kosong");
+    daftarKosong.value = data.data || [];
+  } catch (e) {
+    toast(pesanError(e, "Gagal memuat kursi kosong"), "error");
+  } finally {
+    loadingKosong.value = false;
+  }
+}
+// Dari daftar: mulai rencana baru di Mutasi Baru (rencana yang sedang disusun dikosongkan)
+function mulaiDariDaftar() {
+  reset();
+  tab.value = "baru";
+}
+function naikDariDaftar(k, c) {
+  mulaiDariDaftar();
+  naikkanCalon(k, c);
+}
+function penggantiDariDaftar(k) {
+  mulaiDariDaftar();
+  kursiTarget.value = k;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function pindahkanDariDaftar(k) {
+  mulaiDariDaftar();
+  bukaPindahkan(k);
+}
+function setelahSimpanBagan() {
+  muatRiwayat();
+  muatKursiKosong();
+  muatTugas(true);
 }
 
 function batalPengganti() {
@@ -1285,7 +1382,7 @@ const loadingRiwayat = ref(false);
 const cariRiwayat = ref("");
 const detail = reactive({ show: false, items: [], langkah: [], loading: false });
 
-const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline", gerbong: "Satu gerbong", excel: "Import Excel", bagan: "Mutasi Bagan" };
+const labelJenis = { pindah: "Pindah", isi: "Mengisi kursi", tukar: "Tukar posisi", pindahkan: "Pindahkan downline", gerbong: "Satu gerbong", excel: "Import Excel", bagan: "Mutasi Bagan", kosongkan: "Kursi dibiarkan kosong" };
 const headersRiwayat = [
   { title: "Tanggal", key: "created_at" },
   { title: "Jenis", key: "langkah", sortable: false },
@@ -1344,14 +1441,21 @@ const isSuperadmin = localStorage.getItem("mvo_type_id") === "superadmin";
 // Superadmin: semua akun. Pemegang hak "mutasi" (menu Hak Akses): gerbong Founder cakupannya saja (dijaga server).
 const bolehMutasi = ref(isSuperadmin);
 const hakDimuat = ref(isSuperadmin);
-if (isSuperadmin) muatJabatan();
-else {
+if (isSuperadmin) {
+  muatJabatan();
+  muatKursiKosong();
+} else {
   muatHak().then(() => {
     bolehMutasi.value = punyaHak("mutasi");
     hakDimuat.value = true;
-    if (bolehMutasi.value) muatJabatan();
+    if (bolehMutasi.value) {
+      muatJabatan();
+      muatKursiKosong();
+    }
   });
 }
+// /admin/mutasi?tab=kosong (angka merah menu Mutasi) langsung membuka daftar kursi kosong
+if (useRoute().query.tab === "kosong") tab.value = "kosong";
 </script>
 
 <style scoped>
@@ -1622,6 +1726,30 @@ else {
   color: var(--baba-muted);
   font-size: 0.8rem;
   padding: 4px 0;
+}
+
+.kk-dibiarkan {
+  border-color: var(--baba-border) !important;
+  background: #f6f6f4 !important;
+}
+
+.tab-lencana {
+  margin-left: 6px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgb(var(--v-theme-error));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.kosong-info-kursi {
+  padding: 24px 8px;
+  text-align: center;
+  color: var(--baba-muted, #777);
 }
 
 .kursi-kosong {

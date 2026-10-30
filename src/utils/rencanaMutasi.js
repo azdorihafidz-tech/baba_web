@@ -33,7 +33,7 @@ export function nomorMenurutRencana(daftar, baris) {
 
 /** Label pilihan No ID: kosong / kosong di rencana / pemegang. */
 export function labelNomor(n, memberId) {
-  if (n.kursiKosong) return `${n.no_id} — kursi kosong di rencana (jabatan & upline mengikuti kursi)`;
+  if (n.kursiKosong) return `${n.no_id} — kursi kosong (jabatan & upline mengikuti kursi)`;
   if (!n.pemegang) return `${n.no_id} — kosong`;
   if (n.pemegang.id === memberId) return `${n.no_id} — ${n.pemegang.nama} (posisi sekarang)`;
   return `${n.no_id} — ${n.pemegang.nama} (${n.pemegang.jabatan})`;
