@@ -202,6 +202,16 @@ export const PANDUAN = [
           "Hapus hanya bisa untuk akun yang tidak punya downline dan dokumen.",
         ],
       },
+      {
+        judul: "Menjadikan akun superadmin sebagai member (mis. TM02)",
+        isi: [
+          "Akun superadmin tidak tampil di daftar Verifikasi ID dan tidak punya No ID, jadi tidak bisa ditempatkan di struktur.",
+          "Tekan Akun superadmin di atas daftar. Semua akun superadmin tampil beserta statusnya.",
+          "Pada akun yang dimaksud, tekan Jadikan member, pilih Jabatan (bawaan TOP MANAGEMENT) dan Cabang, lalu Simpan.",
+          "Akun itu sekarang muncul di daftar dengan status belum aktif. Untuk Top Management, tekan Edit bila perlu mengisi Judul Jabatan (mis. CEO) dan Singkatan.",
+          "Tekan Aktivasi. Sistem memberi nomor kosong terkecil, mis. TM02 bila kursi TM02 kosong. Bila nomor yang diinginkan masih dipakai akun lain, kosongkan dulu kursinya (hapus akun contoh, atau pindahkan lewat Mutasi Jabatan).",
+        ],
+      },
     ],
     tips: [
       "Setiap perubahan No ID tercatat di riwayat.",
@@ -215,6 +225,7 @@ export const PANDUAN = [
     tanya: [
       { t: "Kenapa No ID tidak bisa diisi saat Tambah User?", j: "No ID dibuat otomatis saat Aktivasi supaya selalu urut, sesuai jabatan, dan tidak ganda." },
       { t: "Kenapa jabatan akun aktif tidak bisa diubah?", j: "Perubahan jabatan/upline memengaruhi No ID downline-nya, jadi harus lewat Mutasi Jabatan yang menyesuaikan semuanya sekaligus." },
+      { t: "Ada orang yang tidak ditemukan di Verifikasi ID, padahal akunnya ada?", j: "Kemungkinan akunnya superadmin. Tekan Akun superadmin untuk melihatnya. Akun Owner dan akun yang sedang Anda pakai login tidak bisa dijadikan member. Setelah dijadikan member, hak superadmin akun itu hilang; hak tambahan bisa diberikan lewat menu Hak Akses." },
     ],
   },
   {

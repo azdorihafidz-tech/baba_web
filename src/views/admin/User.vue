@@ -13,6 +13,11 @@
       <v-icon start style="color: #E6B422;">mdi-account-plus</v-icon>
       <span class="ml-2">Tambah User</span>
     </v-btn>
+    <!-- Akun superadmin tidak tampil di daftar ini; dari sini bisa dijadikan akun member (mis. TM) -->
+    <v-btn v-if="isSuperadmin" variant="outlined" color="#B8890F" class="ml-2" @click="bukaAkunSuperadmin()"
+      style="border-radius: 12px;">
+      <v-icon start>mdi-shield-account</v-icon> Akun superadmin
+    </v-btn>
   </div>
 
   <!-- Desktop View - Data Table -->
@@ -392,6 +397,70 @@
     </v-card>
   </v-dialog>
 
+  <!-- Akun superadmin (GET /akun-superadmin): dijadikan akun member supaya bisa masuk struktur & dapat No ID -->
+  <v-dialog v-model="superadmin.show" :max-width="$vuetify.display.mobile ? '95%' : '640px'" scrollable>
+    <v-card>
+      <v-card-title class="dialog-header">
+        <v-icon class="mr-2" style="color: #E6B422;">mdi-shield-account</v-icon>
+        <span class="dialog-title">AKUN SUPERADMIN</span>
+      </v-card-title>
+      <v-card-text class="dialog-content">
+        <div class="text-body-2 mb-3">
+          Akun superadmin tidak tampil di Verifikasi ID dan tidak punya No ID. Untuk menempatkannya di struktur
+          (mis. TM02), tekan <b>Jadikan member</b>.
+        </div>
+        <v-progress-linear v-if="superadmin.memuat" indeterminate color="#E6B422" class="mb-2" />
+        <div v-for="a in superadmin.daftar" :key="a.id" class="sa-baris">
+          <div class="d-flex align-center flex-wrap ga-2">
+            <div class="flex-grow-1">
+              <div class="font-weight-bold">{{ a.nama }}</div>
+              <div class="text-caption text-medium-emphasis">
+                {{ a.username }} · {{ a.no_member }} · {{ a.cabang || '-' }}
+                <span v-if="a.no_id"> · No ID: {{ a.no_id }}</span>
+              </div>
+            </div>
+            <v-chip v-if="a.is_owner" size="x-small" color="#B8890F" variant="flat" class="text-white">OWNER</v-chip>
+            <v-chip v-if="a.is_saya" size="x-small" variant="outlined">Anda</v-chip>
+            <v-chip size="x-small" :color="a.aktivasi == 1 ? 'green' : 'red'" variant="flat" class="text-white">
+              {{ a.aktivasi == 1 ? 'Aktif' : 'Belum aktif' }}
+            </v-chip>
+            <v-btn v-if="!a.alasan && superadmin.pilih !== a.id" size="small" :color="app.colors.primary"
+              @click="pilihJadikanMember(a)">Jadikan member</v-btn>
+          </div>
+          <div v-if="a.alasan" class="text-caption text-medium-emphasis mt-1">{{ a.alasan }}</div>
+
+          <div v-if="superadmin.pilih === a.id" class="sa-form">
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-select v-model="superadmin.mvo_type_id" :items="jabatanOptions" item-title="text"
+                  item-value="value" label="Jabatan" density="compact" variant="outlined" hide-details />
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-select v-model="superadmin.cabang" :items="cabangOptions" item-title="text" item-value="value"
+                  label="Cabang" density="compact" variant="outlined" hide-details />
+              </v-col>
+            </v-row>
+            <v-alert type="warning" variant="tonal" density="compact" class="mt-3 text-body-2">
+              Hak superadmin akun ini dicabut. Akun menjadi <b>belum aktif</b> dan muncul di Verifikasi ID.
+              Lengkapi upline bila jabatannya perlu upline, lalu tekan <b>Aktivasi</b> untuk membuat No ID.
+            </v-alert>
+            <div class="d-flex justify-end ga-2 mt-3">
+              <v-btn variant="text" @click="superadmin.pilih = null">Batal</v-btn>
+              <v-btn :color="app.colors.primary" :loading="superadmin.menyimpan"
+                :disabled="!superadmin.mvo_type_id || !superadmin.cabang" @click="simpanJadikanMember(a)">
+                Simpan
+              </v-btn>
+            </div>
+          </div>
+        </div>
+      </v-card-text>
+      <v-card-actions class="dialog-actions">
+        <v-spacer />
+        <v-btn :color="app.colors.primary" @click="superadmin.show = false">Tutup</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <v-snackbar v-model="contentSnackbar.snackbar" :color="contentSnackbar.color">
     {{ contentSnackbar.text }}
   </v-snackbar>
@@ -526,11 +595,15 @@ export default {
 
       form: buildEmptyForm(),
       modelDelete: { id: "", nama: "", alasan: [], memeriksa: false },
+      superadmin: { show: false, memuat: false, daftar: [], pilih: null, mvo_type_id: null, cabang: "", menyimpan: false },
       isTableLoading: false,
     };
   },
 
   computed: {
+    isSuperadmin() {
+      return String(localStorage.getItem("mvo_type_id") || "").toLowerCase() === "superadmin";
+    },
     // Jabatan Top Management (TM) dipilih → tampilkan judul & singkatan jabatan
     isTopManagement() {
       const j = this.jabatanOptions.find(o => o.value == this.form.mvo_type_id);
@@ -1015,6 +1088,45 @@ export default {
         .catch(error => { this.showSnackbar(error.response?.data?.message, "error"); })
         .finally(() => { this.isButtonLoading = false; this.aktivasiId = null; });
     },
+
+    async bukaAkunSuperadmin() {
+      Object.assign(this.superadmin, { show: true, memuat: true, pilih: null });
+      try {
+        const { data } = await axios.get(`${API_BASE}/akun-superadmin`, {
+          headers: { Authorization: `Bearer ${Cookies.get("token")}`, Accept: "application/json" },
+        });
+        this.superadmin.daftar = data.data || [];
+      } catch (err) {
+        this.showSnackbar(err.response?.data?.message || "Gagal memuat akun superadmin", "error");
+      } finally {
+        this.superadmin.memuat = false;
+      }
+    },
+
+    pilihJadikanMember(a) {
+      const tm = this.jabatanOptions.find(j => j.name === "TM");
+      const cabang = this.cabangOptions.some(c => c.value === a.cabang) ? a.cabang : "";
+      Object.assign(this.superadmin, { pilih: a.id, mvo_type_id: tm?.value ?? null, cabang });
+      this.$nextTick(() => document.querySelector(".sa-form")?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+    },
+
+    async simpanJadikanMember(a) {
+      this.superadmin.menyimpan = true;
+      try {
+        const { data } = await axios.post(`${API_BASE}/akun-superadmin/${a.id}/jadikan-member`,
+          { mvo_type_id: this.superadmin.mvo_type_id, cabang: this.superadmin.cabang },
+          { headers: { Authorization: `Bearer ${Cookies.get("token")}`, Accept: "application/json" } });
+        this.superadmin.show = false;
+        this.showSnackbar(data.message, "success");
+        // Tampilkan akun itu di daftar supaya langsung bisa diaktivasi
+        this.filterAktivasi = "";
+        this.searchInput = data.data?.username || a.username;
+      } catch (err) {
+        this.showSnackbar(err.response?.data?.message || "Akun gagal diubah", "error");
+      } finally {
+        this.superadmin.menyimpan = false;
+      }
+    },
   },
 
   created() {
@@ -1067,6 +1179,20 @@ export default {
 
 .alasan-hapus li + li {
   margin-top: 6px;
+}
+
+.sa-baris {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.sa-form {
+  border-top: 1px dashed #e0e0e0;
+  margin-top: 10px;
+  padding-top: 10px;
 }
 
 .box-glass {
