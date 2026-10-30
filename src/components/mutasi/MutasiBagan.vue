@@ -61,10 +61,7 @@
               <button class="bg-lipat" :class="{ tak: !r.punyaAnak }" @click.stop="lipat(r.n.id)">
                 <v-icon size="16">{{ buka.has(r.n.id) ? 'mdi-chevron-down' : 'mdi-chevron-right' }}</v-icon>
               </button>
-              <span class="kursi" :class="kelasJab(r.n.mvo_type_id)" :draggable="!r.n.kosong && !r.n.owner" :title="r.n.owner ? 'Owner' : 'Geser kursi ini beserta timnya'"
-                @dragstart="mulai($event, 'kursi', r.n.id)" @dragend="selesai">
-                <v-icon v-if="!r.n.kosong && !r.n.owner" size="14" class="pegangan">mdi-drag-vertical</v-icon>{{ namaJab(r.n.mvo_type_id) }} · {{ r.n.no_id || 'baru' }}
-              </span>
+              <span class="kursi" :class="kelasJab(r.n.mvo_type_id)">{{ namaJab(r.n.mvo_type_id) }} · {{ r.n.no_id || 'baru' }}</span>
               <span v-if="r.n.kosong" class="kosong-teks">Kursi kosong — geser orang ke sini</span>
               <span v-else class="orang" :draggable="!r.n.owner" :title="r.n.owner ? '' : 'Geser orang ini ke kursi lain'"
                 @dragstart="mulai($event, 'orang', r.n.id)" @dragend="selesai" @click.stop="ketukOrang(r.n)">
@@ -100,12 +97,19 @@
           <ol v-else class="daftar-langkah">
             <li v-for="(l, i) in langkah" :key="i">{{ l.teks }}</li>
           </ol>
-          <div v-if="kursiKosong.length" class="peringatan">
-            <div v-for="k in kursiKosong" :key="k.id">Kursi <b>{{ k.no_id || k.jabatan }}</b> ({{ k.jabatan }}) kosong, masih ada
-              {{ k.jumlah_downline }} downline: geser salah satu orang ke kursi ini (calon naik bertanda emas).</div>
+          <div v-for="k in kursiKosong" :key="k.id" class="peringatan kotak-naik">
+            <div>Kursi <b>{{ k.jabatan }} {{ k.no_id || '(baru)' }}</b> kosong, masih ada {{ k.jumlah_downline }} downline — <b>siapa yang naik?</b></div>
+            <div class="calon-list">
+              <v-btn v-for="c in k.calon" :key="c.id" size="small" variant="outlined" class="calon-btn" :disabled="!k.no_id || memuat"
+                @click="isiKursi(c.id, k)">{{ c.jabatan }} {{ c.no_id }} · {{ c.nama }}<span class="meta ml-1">({{ c.jumlah_tim }} tim)</span></v-btn>
+            </div>
+            <div class="meta">Atau {{ ketuk ? 'ketuk orang lain lalu ketuk' : 'geser orang lain ke' }} kursi merah itu.</div>
+          </div>
+          <div v-if="kursiBebas.length" class="meta mt-2">
+            Kursi kosong tanpa downline (nomornya bebas dipakai lagi): {{ kursiBebas.map((k) => `${k.jabatan} ${k.no_id}`).join(', ') }}.
           </div>
           <div v-if="bangku.length" class="peringatan">{{ bangku.length }} orang di bangku tunggu: tempatkan dulu ke kursi.</div>
-          <div v-if="ringkas" class="meta mt-2">{{ ringkas }}</div>
+          <div v-if="ringkas" class="meta mt-2 ringkas">{{ ringkas }}</div>
           <div class="tombol">
             <v-btn size="small" variant="outlined" prepend-icon="mdi-undo" :disabled="!langkah.length || memuat" @click="batal">Batal</v-btn>
             <v-btn size="small" variant="outlined" prepend-icon="mdi-restore" :disabled="!langkah.length || memuat" @click="ulang">Ulang dari awal</v-btn>
@@ -116,38 +120,26 @@
       </div>
     </div>
 
-    <!-- Kursi berisi: tukar atau pemegang ke bangku -->
-    <v-dialog v-model="dialogPilihan" max-width="440">
-      <v-card v-if="pilihan">
-        <v-card-title class="text-h6">Kursi {{ akhir.get(pilihan.Q)?.no_id }} sudah ditempati</v-card-title>
+    <!-- Menu saat orang dilepas di atas orang lain / + downline -->
+    <v-dialog v-model="dialogMenu" max-width="500" scrollable>
+      <v-card v-if="menu">
+        <v-card-title class="text-h6 text-wrap">{{ namaOrang(menu.P) }} → {{ menu.namaU }}</v-card-title>
         <v-card-text>
-          <b>{{ namaOrang(pilihan.P) }}</b> digeser ke kursi <b>{{ namaOrang(pilihan.Q) }}</b>. Apa yang terjadi pada {{ namaOrang(pilihan.Q) }}?
-        </v-card-text>
-        <v-card-actions class="flex-column align-stretch ga-2 px-4 pb-4">
-          <v-btn color="primary" variant="flat" prepend-icon="mdi-swap-horizontal" :disabled="!kursiDari(pilihan.P)" @click="pilihKursiBerisi('tukar')">
-            Tukar posisi
-          </v-btn>
-          <v-btn variant="outlined" prepend-icon="mdi-seat-outline" @click="pilihKursiBerisi('bangku')">
-            {{ namaOrang(pilihan.Q) }} ke bangku tunggu
-          </v-btn>
-          <v-btn variant="text" @click="dialogPilihan = false">Batal</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Downline baru: pilih jabatan -->
-    <v-dialog v-model="dialogJabatan" max-width="420">
-      <v-card v-if="calonDownline">
-        <v-card-title class="text-h6">Jadikan downline {{ calonDownline.namaU }}</v-card-title>
-        <v-card-text>
-          <p class="mb-3"><b>{{ namaOrang(calonDownline.P) }}</b> pindah sendiri ke kursi baru di bawah {{ calonDownline.namaU }}; timnya tetap di kursi lama.</p>
-          <v-select v-model="calonDownline.jabatan" :items="calonDownline.pilihan" item-title="name" item-value="id" label="Jabatan"
-            variant="outlined" density="comfortable" hide-details />
+          <p class="meta mb-2">{{ menu.infoP }}. Pilih yang akan dilakukan:</p>
+          <v-radio-group v-model="menu.aksi" hide-details class="menu-aksi">
+            <v-radio v-for="o in menu.opsi" :key="o.aksi" :value="o.aksi">
+              <template #label><div><b>{{ o.judul }}</b><div class="meta">{{ o.ket }}</div></div></template>
+            </v-radio>
+          </v-radio-group>
+          <v-select v-if="menu.aksi === 'sendiri'" v-model="menu.jabSendiri" :items="menu.pilihSendiri" item-title="name" item-value="id"
+            label="Jabatan baru" variant="outlined" density="comfortable" hide-details class="mt-3" />
+          <v-select v-if="menu.aksi === 'gerbong'" v-model="menu.jabGerbong" :items="menu.pilihGerbong" item-title="name" item-value="id"
+            label="Jabatan baru" variant="outlined" density="comfortable" hide-details class="mt-3" />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="dialogJabatan = false">Batal</v-btn>
-          <v-btn color="primary" variant="flat" :disabled="!calonDownline.jabatan" @click="simpanDownline">Pindahkan</v-btn>
+          <v-btn variant="text" @click="dialogMenu = false">Batal</v-btn>
+          <v-btn color="primary" variant="flat" :disabled="!menu.aksi" @click="terapkanMenu">Terapkan</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -198,6 +190,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { API_URL } from "@/config";
 import { noMember } from "@/utils/noMember";
+import { owner, muatOwner } from "@/utils/owner";
 
 const props = defineProps({ ketuk: { type: Boolean, default: false } }); // HP: ketuk orang → ketuk tujuan
 const emit = defineEmits(["tersimpan"]);
@@ -234,6 +227,7 @@ const memuat = ref(false);
 const catatan = ref("");
 
 onMounted(async () => {
+  if (isSuperadmin) muatOwner();
   try {
     const { data } = await api.get("/mutasi/jabatan");
     jabatan.value = data.data;
@@ -256,6 +250,7 @@ const metaJabatan = ref([]);
 const daftarCabang = ref([]);
 let tundaCari = null;
 let nomorCari = 0;
+let totalAkun = 0;
 function cari(q, segera = false) {
   clearTimeout(tundaCari);
   tundaCari = setTimeout(async () => {
@@ -276,11 +271,16 @@ function cari(q, segera = false) {
         sub: `${noMember(m.id)} · ${m.cabang || "-"} · Upline ${m.atasan_no_id ? `${m.atasan_no_id} ${m.atasan_nama}` : "Owner"} · ${m.jumlah_anggota || 0} downline langsung`,
         label: `${m.jabatan} ${m.no_id || ""} · ${m.nama}`,
       }));
-      const total = metaJabatan.value.reduce((s, j) => s + j.jumlah, 0);
-      const cocokOwner = !q || /^(ow|own|owne|owner|ow01|seluruh|semua)/i.test(q);
-      if (isSuperadmin && !saringJab.value && !saringCabang.value && cocokOwner) {
-        daftar.unshift({ id: "owner", mvo_type_id: "superadmin", jab: "OWNER", judul: "Seluruh struktur (mulai dari Owner)",
-          sub: `${total.toLocaleString("id-ID")} akun aktif — buka bertahap lewat tanda ›, atau Buka semua`, label: "OWNER · Seluruh struktur" });
+      if (!saringCabang.value) totalAkun = metaJabatan.value.reduce((s, j) => s + j.jumlah, 0); // jumlah nasional
+      // Owner: tampil di daftar awal (tanpa saringan), atau bila yang diketik cocok (owner / OW01 / nama / No Member Owner)
+      const o = owner.value;
+      const ql = q.toLowerCase();
+      const cocokOwner = !q ? !saringJab.value && !saringCabang.value
+        : (ql.length >= 2 && ["owner", "seluruh struktur", "semua"].some((k) => k.startsWith(ql) || ql.startsWith(k)))
+          || (!!o && `${o.no_id} ${o.nama} ${noMember(o.id)}`.toLowerCase().includes(ql));
+      if (isSuperadmin && cocokOwner) {
+        daftar.unshift({ id: "owner", mvo_type_id: "superadmin", jab: "OWNER", judul: `${o?.no_id || "OW01"} · ${o?.nama || "Owner"} — Seluruh struktur`,
+          sub: `${totalAkun.toLocaleString("id-ID")} akun aktif di bawah Owner · buka bertahap lewat tanda ›, atau Buka semua`, label: "OWNER · Seluruh struktur" });
       }
       // Pemegang hak: ketua gerbongnya sendiri di atas (bisa dibuka seluruhnya)
       if (!saringJab.value && !saringCabang.value) {
@@ -368,6 +368,11 @@ const anak = computed(() => {
 const kursiKosong = computed(() => hasil.value?.ringkasan?.kursi_kosong || []);
 const idKosong = computed(() => new Set(kursiKosong.value.map((k) => k.id)));
 const bangku = computed(() => hasil.value?.ringkasan?.bangku || []);
+const kursiBebas = computed(() => {
+  const dipegang = new Set([...akhir.value.values()].filter((n) => !n.kosong).map((n) => n.no_id));
+  return (hasil.value?.baris || []).filter((b) => !b.kosong && b.no_id_lama && b.no_id_lama !== b.no_id_baru && !dipegang.has(b.no_id_lama))
+    .map((b) => ({ no_id: b.no_id_lama, jabatan: b.jabatan_lama }));
+});
 const tim = (id) => {
   let j = 0;
   const tumpuk = [...(anak.value.get(id) || [])];
@@ -573,66 +578,99 @@ function ketukBangku() {
   keBangku();
 }
 
-// Orang → kursi
-const pilihan = ref(null);
-const dialogPilihan = ref(false);
+// Orang → kursi kosong: langsung mengisi. Orang → orang lain: menu pilihan.
 function keKursi(target) {
   const g = ambilGeser();
   if (!g || g.jenis !== "orang" || g.id === target.id) return;
-  if (target.owner) return toast("Kursi Owner tidak bisa ditempati. Untuk menaruh orang langsung di bawah Owner, pakai + downline pada baris Owner.");
   const P = g.id;
+  if (target.owner) return bukaMenu(P, target.id, null);
   if (target.kosong) {
     if (!target.no_id) return toast("Kursi ini belum bernomor. Pakai + downline pada upline-nya.");
     return ubah({ [P]: { no_id: target.no_id } }, `${namaOrang(P)} mengisi kursi ${target.no_id} (${namaJab(target.mvo_type_id)})`);
   }
-  if (!kursiDari(target.id)) {
-    return toast(`Kursi ${target.nama} baru dibuat di rencana ini, jadi belum bisa ditempati orang lain. Tekan Batal atau simpan dulu.`);
-  }
-  pilihan.value = { P, Q: target.id };
-  dialogPilihan.value = true;
+  bukaMenu(P, target.id, target.id);
 }
-function pilihKursiBerisi(aksi) {
-  const { P, Q } = pilihan.value;
-  dialogPilihan.value = false;
-  const kQ = kursiDari(Q);
-  const kP = kursiDari(P);
-  if (aksi === "tukar") {
-    return ubah({ [P]: { no_id: kQ }, [Q]: { no_id: kP } }, `Tukar posisi: ${namaOrang(P)} ↔ ${namaOrang(Q)}`);
-  }
-  return ubah({ [P]: { no_id: kQ }, [Q]: { tunggu: true } }, `${namaOrang(P)} menempati kursi ${kQ}; ${namaOrang(Q)} ke bangku tunggu`);
-}
-
-// Orang / kursi → + downline
-const calonDownline = ref(null);
-const dialogJabatan = ref(false);
+// Orang → + downline
 function keDownline(u) {
   const g = ambilGeser();
-  if (!g) return;
+  if (!g || g.jenis !== "orang" || g.id === u) return;
   if (typeof u === "number" && u < 0) return toast("Isi dulu kursi kosong ini sebelum menambah downline di bawahnya.");
-  if (g.id === u) return;
+  bukaMenu(g.id, u, null);
+}
+function isiKursi(P, k) {
+  ubah({ [P]: { no_id: k.no_id } }, `${namaOrang(P)} naik mengisi kursi ${k.no_id} (${k.jabatan})`);
+}
+
+// Menu: P dilepas di atas U (calon upline; null/Owner = langsung di bawah Owner); Q = orang yang ditimpa (tukar / bangku)
+const menu = ref(null);
+const dialogMenu = ref(false);
+function bukaMenu(P, u, Q) {
   const U = u === "owner" || akhir.value.get(u)?.owner ? null : u;
-  const namaU = U == null ? "Owner" : `${akhir.value.get(U)?.no_id || ""} ${namaOrang(U)}`.trim();
-  if (g.jenis === "kursi") {
-    const r = { ...(baris.value[g.id] || {}), parent_id: U };
+  const nU = U != null ? akhir.value.get(U) : null;
+  const namaU = U == null ? "Owner" : `${namaJab(nU?.mvo_type_id)} ${nU?.no_id || ""} · ${namaOrang(U)}`;
+  const lv = U == null ? -1 : levelJab(nU?.mvo_type_id);
+  const bolehDi = (j) => !!j && (U == null ? j.level <= 1 : j.mode === "turunan" ? j.level === lv + 1 : j.level > lv);
+  const nP = akhir.value.get(P);
+  const diBangku = bangku.value.some((o) => o.id === P);
+  const tP = String(nP?.mvo_type_id ?? bangku.value.find((o) => o.id === P)?.mvo_type_id ?? "");
+  const lvP = levelJab(tP);
+  const timP = diBangku ? 0 : tim(P);
+  const sendiri = jabatan.value.filter(bolehDi);
+  const gerbong = !diBangku && timP > 0 && !baris.value[P] ? sendiri.filter((j) => Math.abs(j.level - lvP) === 1) : [];
+  const opsi = [];
+  if (Q != null && kursiDari(P) && kursiDari(Q)) {
+    opsi.push({ aksi: "tukar", judul: `Tukar posisi dengan ${namaOrang(Q)}`, ket: "Saling bertukar jabatan, No ID, dan upline. Downline tetap di kursinya." });
+  }
+  if (sendiri.length) {
+    opsi.push({ aksi: "sendiri", judul: `Naik / turun sendiri menjadi downline ${namaU}`,
+      ket: timP ? `Pindah ke kursi baru; kursi lamanya kosong dan ${timP} orang timnya tetap di sana — lalu pilih siapa yang naik.` : "Pindah ke kursi baru dengan jabatan pilihan." });
+  }
+  if (!diBangku && timP > 0 && bolehDi(jab(tP)) && nP?.parent_id !== U) {
+    opsi.push({ aksi: "tim", judul: `Pindah beserta timnya, tetap ${namaJab(tP)}`, ket: `Kursi ${nP?.no_id || ""} dan ${timP} orang timnya ikut ke bawah ${namaU}.` });
+  }
+  if (gerbong.length) {
+    opsi.push({ aksi: "gerbong", judul: "Naik / turun beserta seluruh timnya (1 jenjang)",
+      ket: `${namaOrang(P)} dan ${timP} orang timnya sama-sama naik/turun 1 jenjang (mis. GM jadi FO, Supplier jadi GM).` });
+  }
+  if (Q != null) {
+    opsi.push({ aksi: "bangku", judul: `Ambil kursi ${namaOrang(Q)}; ${namaOrang(Q)} ke bangku tunggu`, ket: "Pemegang lama ditempatkan belakangan." });
+  }
+  if (!opsi.length) return toast(`Tidak ada jabatan yang bisa berada di bawah ${namaU}.`);
+  const bawah = (l) => l.find((j) => j.level === lv + 1)?.id || l[0]?.id || null;
+  const samaJab = Q != null && String(akhir.value.get(Q)?.mvo_type_id) === tP;
+  menu.value = {
+    P, U, Q, namaU, opsi, pilihSendiri: sendiri, pilihGerbong: gerbong,
+    jabSendiri: bawah(sendiri), jabGerbong: gerbong.find((j) => j.level === lv + 1)?.id || gerbong[0]?.id || null,
+    infoP: diBangku
+      ? `${namaOrang(P)} di bangku tunggu (sebelumnya ${bangku.value.find((o) => o.id === P)?.jabatan || namaJab(tP)} ${bangku.value.find((o) => o.id === P)?.no_id_lama || ""})`
+      : `${namaOrang(P)} sekarang ${namaJab(tP)} ${nP?.no_id || ""}${timP ? ` dengan ${timP} orang timnya` : ""}`,
+    aksi: (samaJab && opsi.some((o) => o.aksi === "tukar") ? "tukar" : opsi.some((o) => o.aksi === "sendiri") ? "sendiri" : opsi[0].aksi),
+  };
+  dialogMenu.value = true;
+}
+function terapkanMenu() {
+  const { P, U, Q, namaU, aksi, jabSendiri, jabGerbong } = menu.value;
+  dialogMenu.value = false;
+  if (aksi === "tukar") {
+    const kQ = kursiDari(Q);
+    const kP = kursiDari(P);
+    return ubah({ [P]: { no_id: kQ }, [Q]: { no_id: kP } }, `Tukar posisi: ${namaOrang(P)} ↔ ${namaOrang(Q)}`);
+  }
+  if (aksi === "bangku") {
+    const kQ = kursiDari(Q);
+    if (!kQ) return toast(`Kursi ${namaOrang(Q)} baru dibuat di rencana ini, jadi belum bisa ditempati orang lain. Tekan Batal atau simpan dulu.`);
+    return ubah({ [P]: { no_id: kQ }, [Q]: { tunggu: true } }, `${namaOrang(P)} menempati kursi ${kQ}; ${namaOrang(Q)} ke bangku tunggu`);
+  }
+  if (aksi === "tim") {
+    const r = { ...(baris.value[P] || {}), parent_id: U };
     delete r.lepas;
     delete r.tunggu;
-    return ubah({ [g.id]: r }, `Kursi ${akhir.value.get(g.id)?.no_id || ""} ${namaOrang(g.id)} beserta timnya pindah ke bawah ${namaU}`);
+    return ubah({ [P]: r }, `${namaOrang(P)} beserta timnya pindah ke bawah ${namaU}`);
   }
-  const lv = U == null ? -1 : levelJab(akhir.value.get(U)?.mvo_type_id);
-  const boleh = jabatan.value.filter((j) => (U == null ? j.level <= 1 : j.mode === "turunan" ? j.level === lv + 1 : j.level > lv));
-  if (!boleh.length) return toast(`Tidak ada jabatan yang bisa berada di bawah ${namaU}.`);
-  const sekarang = akhir.value.get(g.id)?.mvo_type_id ?? bangku.value.find((o) => o.id === g.id)?.mvo_type_id;
-  calonDownline.value = {
-    P: g.id, U, namaU, pilihan: boleh,
-    // Bawaan: satu jenjang tepat di bawah upline; bila tidak ada, jabatan orang itu sekarang
-    jabatan: (boleh.find((j) => j.level === lv + 1) || boleh.find((j) => j.id === String(sekarang)) || boleh[0]).id,
-  };
-  dialogJabatan.value = true;
-}
-function simpanDownline() {
-  const { P, U, namaU, jabatan: j } = calonDownline.value;
-  dialogJabatan.value = false;
-  ubah({ [P]: { parent_id: U, mvo_type_id: j, lepas: true } }, `${namaOrang(P)} menjadi ${namaJab(j)} di bawah ${namaU}`);
+  if (aksi === "gerbong") {
+    return ubah({ [P]: { parent_id: U, mvo_type_id: jabGerbong, gerbong: true } }, `${namaOrang(P)} beserta timnya menjadi ${namaJab(jabGerbong)} di bawah ${namaU}`);
+  }
+  return ubah({ [P]: { parent_id: U, mvo_type_id: jabSendiri, lepas: true } }, `${namaOrang(P)} menjadi ${namaJab(jabSendiri)} di bawah ${namaU}`);
 }
 
 // Orang → bangku tunggu
@@ -804,14 +842,29 @@ defineExpose({ bukaTim });
   align-items: center;
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 2px 8px 2px 4px;
+  padding: 2px 8px;
   border-radius: 6px;
   border-left: 3px solid currentColor;
   background: color-mix(in srgb, currentColor 12%, transparent);
-  cursor: grab;
 }
-.pegangan {
-  opacity: 0.6;
+.kotak-naik .calon-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 4px;
+}
+.calon-btn {
+  text-transform: none;
+  letter-spacing: 0;
+  max-width: 100%;
+}
+.menu-aksi :deep(.v-label) {
+  opacity: 1;
+  white-space: normal;
+}
+.menu-aksi :deep(.v-radio) {
+  margin-bottom: 8px;
+  align-items: flex-start;
 }
 .jab-tm { color: var(--baba-jab-tm); }
 .jab-mvo { color: var(--baba-jab-mvo); }
