@@ -644,7 +644,10 @@ function bukaMenu(P, u, Q) {
     infoP: diBangku
       ? `${namaOrang(P)} di bangku tunggu (sebelumnya ${bangku.value.find((o) => o.id === P)?.jabatan || namaJab(tP)} ${bangku.value.find((o) => o.id === P)?.no_id_lama || ""})`
       : `${namaOrang(P)} sekarang ${namaJab(tP)} ${nP?.no_id || ""}${timP ? ` dengan ${timP} orang timnya` : ""}`,
-    aksi: (samaJab && opsi.some((o) => o.aksi === "tukar") ? "tukar" : opsi.some((o) => o.aksi === "sendiri") ? "sendiri" : opsi[0].aksi),
+    // Bawaan: jabatan sama dengan Q = tukar; jabatan tidak berubah di bawah U = cukup pindah upline beserta tim
+    aksi: samaJab && opsi.some((o) => o.aksi === "tukar") ? "tukar"
+      : opsi.some((o) => o.aksi === "tim") && String(bawah(sendiri)) === tP ? "tim"
+      : opsi.some((o) => o.aksi === "sendiri") ? "sendiri" : opsi[0].aksi,
   };
   dialogMenu.value = true;
 }
