@@ -241,7 +241,12 @@ function buildTree(flat) {
     if (n.parent_id && map[n.parent_id]) map[n.parent_id].children.push(map[n.id]);
     else if (!n.parent_id) roots.push(map[n.id]);
   });
-  return roots;
+  // Sama dengan Excel Struktur: jenjang lebih tinggi dulu, lalu No ID urut angka (TM01, TM02, TM03; B2 sebelum B10), lalu nama
+  const urut = (a, b) => (a.jabatan_level ?? -1) - (b.jabatan_level ?? -1)
+    || String(a.no_id ?? '').localeCompare(String(b.no_id ?? ''), 'id', { numeric: true, sensitivity: 'base' })
+    || String(a.nama ?? '').localeCompare(String(b.nama ?? ''), 'id', { sensitivity: 'base' });
+  Object.values(map).forEach(n => n.children.sort(urut));
+  return roots.sort(urut);
 }
 
 function collectMatchIds(nodes, query, result = new Set()) {
