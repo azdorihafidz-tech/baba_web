@@ -368,6 +368,7 @@ export const PANDUAN = [
     ],
     tips: [
       { teks: "Tombol Excel di kanan atas membuka menu Excel Struktur untuk mengunduh pohon ini sebagai file Excel.", peran: "superadmin" },
+      { teks: "Nama Owner diubah di sini: klik baris OWNER di puncak pohon, lalu tekan Ubah nama Owner di panel detail. Akun Owner tidak tampil di Verifikasi ID.", peran: "superadmin" },
       "Label seperti MVO HO berarti MVO tersebut berada di bawah Top Management Head Office.",
       "Urutan di pohon: jabatan tertinggi dulu, lalu No ID dari angka terkecil (TM01, TM02, TM03, lalu M01, M02, …).",
       "No ID Supplier ke bawah mengikuti No ID upline-nya, jadi dari No ID saja sudah terlihat jalurnya: B78-04-01-04 = Reseller di bawah Distributor B78-04-01.",

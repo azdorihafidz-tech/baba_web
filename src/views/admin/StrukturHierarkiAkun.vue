@@ -98,6 +98,10 @@
           </div>
 
           <div class="detail-name">{{ selected.nama }}</div>
+          <!-- Akun Owner = superadmin, tidak tampil di Verifikasi ID: namanya diubah di sini -->
+          <div v-if="superadmin && selected.is_owner" class="detail-aksi">
+            <v-btn size="small" variant="tonal" color="primary" prepend-icon="mdi-pencil" @click="bukaUbahNama">Ubah nama Owner</v-btn>
+          </div>
           <div class="detail-meta">
             <span class="meta-badge" :style="badgeStyle(selected.jabatan)">{{ getDisplayRole(selected.label_jabatan || selected.jabatan) }}</span>
             <span class="noid-chip">No ID {{ selected.no_id || '—' }}</span>
@@ -159,6 +163,23 @@
       </div>
       </Teleport>
 
+      <v-dialog v-model="dialogNama" max-width="420">
+        <v-card>
+          <!-- padding ditulis langsung: reset CSS * di file ini menghapus padding bawaan Vuetify -->
+          <v-card-title class="text-subtitle-1 font-weight-bold" style="padding: 16px 20px 8px">Ubah nama Owner</v-card-title>
+          <v-card-text style="padding: 8px 20px">
+            <v-text-field v-model="namaBaru" label="Nama Owner" variant="outlined" density="comfortable" autofocus
+              :error-messages="galatNama" maxlength="128" @keyup.enter="simpanNama" />
+            <div class="text-caption text-medium-emphasis">No ID OW01 dan hak akses tidak berubah. Nama lama tersimpan di riwayat akun.</div>
+          </v-card-text>
+          <v-card-actions style="padding: 8px 16px 16px">
+            <v-spacer />
+            <v-btn variant="text" @click="dialogNama = false">Batal</v-btn>
+            <v-btn color="primary" variant="flat" :loading="simpanNamaJalan" :disabled="!namaBaru.trim()" @click="simpanNama">Simpan</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
     </div>
   </div>
 </template>
@@ -170,6 +191,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useDisplay } from 'vuetify';
 import { idDariNoMember, noMember } from '@/utils/noMember';
+import { owner } from '@/utils/owner';
 
 // HP/tablet (< 960px): baris pohon dua tingkat (nama, lalu jabatan · No ID) dan indentasi lebih kecil
 const { smAndDown } = useDisplay();
@@ -281,6 +303,32 @@ function collapseAll() { collapseSignal.value++; }
 function expandAll() { expandSignal.value++; }
 function onSelect(node) { selectedId.value = node.id; selected.value = node; mobileDetailOpen.value = true; }
 function closeMobileDetail() { mobileDetailOpen.value = false; }
+
+// Ubah nama Owner (superadmin)
+const dialogNama = ref(false);
+const namaBaru = ref('');
+const galatNama = ref('');
+const simpanNamaJalan = ref(false);
+function bukaUbahNama() { namaBaru.value = selected.value?.nama || ''; galatNama.value = ''; dialogNama.value = true; }
+async function simpanNama() {
+  if (!namaBaru.value.trim() || simpanNamaJalan.value) return;
+  simpanNamaJalan.value = true; galatNama.value = '';
+  try {
+    const token = Cookies.get('token') || localStorage.getItem('token');
+    const res = await axios.put(`${API_URL}/api/owner/nama`, { nama: namaBaru.value }, { headers: { Authorization: `Bearer ${token}` } });
+    const nama = res.data?.data?.nama;
+    // Perbarui node Owner di pohon & panel detail tanpa memuat ulang seluruh struktur
+    const o = rawData.value.find(n => n.is_owner);
+    if (o) o.nama = nama;
+    if (selected.value?.is_owner) selected.value.nama = nama;
+    if (owner.value) owner.value = { ...owner.value, nama };
+    const u = JSON.parse(localStorage.getItem('user') || 'null');
+    if (u && Number(u.id) === Number(res.data?.data?.id)) localStorage.setItem('user', JSON.stringify({ ...u, nama }));
+    dialogNama.value = false;
+  } catch (e) {
+    galatNama.value = e.response?.data?.errors?.nama?.[0] || e.response?.data?.message || 'Nama Owner gagal disimpan.';
+  } finally { simpanNamaJalan.value = false; }
+}
 
 function getImageUrl(path) {
   if (!path) return null;
@@ -675,6 +723,10 @@ a.hdr-btn {
   font-size: 18px;
   font-weight: 700;
   color: #f3f4f6;
+}
+
+.detail-aksi {
+  padding: 0 18px 10px;
 }
 
 .detail-meta {
