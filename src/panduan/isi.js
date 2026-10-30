@@ -634,6 +634,7 @@ export const PANDUAN = [
           "Tidak ingin ada yang naik? Tekan Biarkan kosong di kotak kursi itu: kursi tetap kosong bersama timnya (abu-abu). Batalkan untuk mengembalikannya.",
           "Naik / turun beserta seluruh timnya harus dikerjakan sebelum mengubah anggota tim itu. Ubah anggota timnya setelah disimpan.",
           "Buka tim kedua lewat kolom Buka tim untuk memindah orang antar tim (dua tim tampil berdampingan).",
+          "Bila ada anggota tim yang di rencana pindah ke upline di luar tim (mis. Founder naik ke bawah MVO lain), ia tampil di bawah judul kuning “Pindah ke luar tim ini — sekarang di bawah …” beserta kursi kosong & timnya, supaya tetap bisa digeser. Anggota yang hanya tersembunyi karena barisnya tertutup tidak tampil di sana.",
           "Kotak Rencana mencatat setiap geseran. Batal = urungkan geseran terakhir, Ulang dari awal = buang semua.",
           "Simpan aktif bila setiap kursi kosong yang masih punya downline sudah diisi atau dibiarkan kosong, dan bangku tunggu kosong. Tekan Simpan, periksa tabel perubahan (jabatan, No ID, upline lama → baru), isi Catatan bila perlu, lalu Simpan. Tercatat di Riwayat dengan Jenis Mutasi Bagan.",
         ],

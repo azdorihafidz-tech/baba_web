@@ -422,13 +422,29 @@ function barisDari(akar) {
 }
 // Isi setiap panel: pohon tim, lalu anggota tim yang kini berada di bawah upline lain (mis. kursi yang ikut
 // orang yang naik ke luar tim) supaya kursi kosong & calon naiknya tetap terlihat dan bisa digeser.
+// Semua keturunan (menurut susunan akhir), tidak peduli baris itu sedang terbuka atau tertutup
+function keturunanSemua(akar) {
+  const hasilSet = new Set([akar]);
+  const tumpuk = [akar];
+  while (tumpuk.length) {
+    for (const c of anak.value.get(tumpuk.pop()) || []) {
+      if (!hasilSet.has(c.id)) {
+        hasilSet.add(c.id);
+        tumpuk.push(c.id);
+      }
+    }
+  }
+  return hasilSet;
+}
 const tampilan = computed(() => {
   const utama = panel.value.map((p) => barisPanel(p));
   const terlihat = new Set(utama.flatMap((rows) => rows.map((r) => r.n.id)));
+  // Masih di dalam pohon salah satu panel (walau barisnya tertutup) = bukan "pindah ke luar tim"
+  const dalamPohon = new Set(panel.value.flatMap((p) => [...keturunanSemua(akarPanel(p))]));
   return panel.value.map((p, i) => {
     const bagian = [{ judul: null, rows: utama[i] }];
     const milik = (n) => p.ids.has(n.id) || (n.kosong && p.ids.has(n.asal_id));
-    const luar = [...akhir.value.values()].filter((n) => milik(n) && !terlihat.has(n.id) && n.peran !== "tunggu");
+    const luar = [...akhir.value.values()].filter((n) => milik(n) && !dalamPohon.has(n.id) && !terlihat.has(n.id) && n.peran !== "tunggu");
     const setLuar = new Set(luar.map((n) => n.id));
     for (const n of luar.filter((x) => !setLuar.has(x.parent_id)).sort(urutNoId)) {
       const up = n.parent_id != null ? akhir.value.get(n.parent_id) : null;
