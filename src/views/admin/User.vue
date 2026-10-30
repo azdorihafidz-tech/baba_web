@@ -318,7 +318,7 @@
 
             <template v-for="lvl in cascadeLevels" :key="`form-${lvl.key}`">
               <v-col v-if="isCascadeVisible(lvl)" :cols="$vuetify.display.mobile ? 12 : 6">
-                <v-select :label="lvl.formLabel" v-model="form[lvl.key]" :items="cascadeOptions[lvl.key]" :item-props="propsUpline"
+                <v-select :label="lvl.formLabel" v-model="form[lvl.key]" :items="tanpaKursiLangsung(cascadeOptions[lvl.key], lvl.level, levelJabatanForm)" :item-props="propsUpline"
                   item-title="text" item-value="value" :loading="cascadeLoading[lvl.key]"
                   @update:modelValue="onCascadeChange(lvl, $event)" density="compact" variant="outlined" color="amber"
                   base-color="grey-lighten-1" clearable />
@@ -475,7 +475,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { JALUR_LEVELS, atasanPada, teksAtasan, jalurRingkas } from "@/utils/jalur.js";
 import { noMember } from "@/utils/noMember";
-import { opsiUpline, propsUpline } from "@/utils/pilihanUpline";
+import { opsiUpline, propsUpline, tanpaKursiLangsung } from "@/utils/pilihanUpline";
 import { muatTugas } from "@/utils/tugasMenunggu";
 
 const API_BASE = `${API_URL}/api`;
@@ -610,6 +610,10 @@ export default {
       return !!j && j.name === "TM";
     },
     cascadeLevels: () => CASCADE_LEVELS,
+    // Level jabatan di form (upline langsung = level - 1, tidak boleh kursi kosong)
+    levelJabatanForm() {
+      return this.jabatanOptions.find(j => j.value == this.form.mvo_type_id)?.level ?? null;
+    },
     jalurLevels: () => JALUR_LEVELS,
 
     daftarStatusAktivasi() {
@@ -642,6 +646,7 @@ export default {
   methods: {
     noMember,
     propsUpline,
+    tanpaKursiLangsung,
     atasanPada,
     jalurRingkas,
 

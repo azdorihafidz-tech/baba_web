@@ -70,32 +70,32 @@
 
                             <!-- MVO -->
                             <v-select v-if="inputRegister.cabang && !isJabatanMvo" v-model="inputRegister.upline_1"
-                                label="Pilih MVO" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="mvoOptions" item-title="text" item-value="value"
+                                label="Pilih MVO" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="tanpaKursiLangsung(mvoOptions, 1, levelJabatan)" item-title="text" item-value="value"
                                 @update:modelValue="onMvoChange" />
 
                             <!-- REGIONAL -->
                             <v-select v-if="inputRegister.upline_1 && hideUplineLevel !== 'upline_2'"
-                                v-model="inputRegister.upline_2" label="Pilih Regional" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="regionalOptions"
+                                v-model="inputRegister.upline_2" label="Pilih Regional" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="tanpaKursiLangsung(regionalOptions, 2, levelJabatan)"
                                 item-title="text" item-value="value" @update:modelValue="onRegionalChange" />
 
                             <!-- FOUNDER -->
                             <v-select v-if="inputRegister.upline_2 && hideUplineLevel !== 'upline_3'"
-                                v-model="inputRegister.upline_3" label="Pilih Founder" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="founderOptions"
+                                v-model="inputRegister.upline_3" label="Pilih Founder" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="tanpaKursiLangsung(founderOptions, 3, levelJabatan)"
                                 item-title="text" item-value="value" @update:modelValue="onFounderChange" />
 
                             <!-- GM -->
                             <v-select v-if="inputRegister.upline_3 && hideUplineLevel !== 'upline_4'"
-                                v-model="inputRegister.upline_4" label="Pilih GM" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="gmOptions" item-title="text"
+                                v-model="inputRegister.upline_4" label="Pilih GM" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="tanpaKursiLangsung(gmOptions, 4, levelJabatan)" item-title="text"
                                 item-value="value" @update:modelValue="onGmChange" />
 
                             <!-- SUPPLIER -->
                             <v-select v-if="inputRegister.upline_4 && hideUplineLevel !== 'upline_5'"
-                                v-model="inputRegister.upline_5" label="Pilih Supplier" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="supplierOptions"
+                                v-model="inputRegister.upline_5" label="Pilih Supplier" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="tanpaKursiLangsung(supplierOptions, 5, levelJabatan)"
                                 item-title="text" item-value="value" @update:modelValue="onSupplierChange" />
 
                             <!-- DISTRIBUTOR -->
                             <v-select v-if="inputRegister.upline_5 && hideUplineLevel !== 'upline_6'"
-                                v-model="inputRegister.upline_6" label="Pilih Distributor" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="distributorOptions"
+                                v-model="inputRegister.upline_6" label="Pilih Distributor" :item-props="propsUpline" density="compact" variant="outlined" prepend-inner-icon="mdi-account-arrow-up" :class="inputClass" color="#E6B422" base-color="grey-lighten-1" :items="tanpaKursiLangsung(distributorOptions, 6, levelJabatan)"
                                 item-title="text" item-value="value" />
 
 
@@ -165,7 +165,7 @@
 <script>
 import { API_URL } from "@/config";
 import axios from 'axios'
-import { opsiUpline, propsUpline } from "@/utils/pilihanUpline";
+import { opsiUpline, propsUpline, tanpaKursiLangsung } from "@/utils/pilihanUpline";
 
 export default {
     code: 'RegisterForm',
@@ -245,6 +245,10 @@ export default {
             if (!jabatan) return null
 
             return `upline_${jabatan.level}`
+        },
+        // Level jabatan yang didaftarkan (upline langsung = level - 1, tidak boleh kursi kosong)
+        levelJabatan() {
+            return this.jabatanOptions.find(j => j.value == this.inputRegister.mvo_type_id)?.level ?? null
         },
         isJabatanMvo() {
             return this.inputRegister.mvo_type_id == 19
@@ -379,6 +383,7 @@ export default {
     },
     methods: {
         propsUpline,
+        tanpaKursiLangsung,
         onCabangChange(val) {
 
             this.inputRegister.upline_1 = ''

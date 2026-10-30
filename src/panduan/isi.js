@@ -214,6 +214,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Bila salah satu upline di rantai pilihan sedang kursi kosong (dibiarkan kosong lewat Mutasi Jabatan), daftar pilihannya memuat “Kursi kosong · No ID (lewati)”. Pilih itu lalu lanjut pilih downline kursi tersebut. Upline langsung tidak boleh kursi kosong.",
       "Setiap perubahan No ID tercatat di riwayat.",
       "Setelah tombol Aktivasi ditekan, tombol itu berputar dan terkunci sampai proses selesai, jadi akun tidak bisa teraktivasi dua kali.",
       "Kode akun (mis. FO-BDG-007) yang pernah dipakai tidak akan diberikan lagi ke akun lain, walau pemiliknya sudah berganti kode karena Mutasi atau pindah cabang.",
@@ -309,6 +310,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Pendaftar yang rantai uplinenya melewati kursi kosong tidak menunggu approve pada level itu. Ia siap diverifikasi setelah semua upline yang ada orangnya approve.",
       "Yang boleh Approve/Tunda/Tolak: superadmin dan upline yang tercatat di akun tersebut, kecuali upline yang haknya dinonaktifkan superadmin di menu Hak Akses (muncul keterangan kuning dan tombolnya disembunyikan).",
       "Superadmin melihat seluruh akun; upline hanya downline-nya.",
       "Angka merah di menu Akun Belum Approve = pendaftar yang belum Anda approve (yang ditolak tidak dihitung). Angkanya berkurang setelah Anda approve atau tolak.",
