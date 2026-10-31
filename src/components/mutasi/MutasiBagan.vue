@@ -168,6 +168,10 @@
             label="Jabatan baru" variant="outlined" density="comfortable" hide-details class="mt-3" />
           <v-select v-if="menu.aksi === 'gerbong'" v-model="menu.jabGerbong" :items="menu.pilihGerbong" item-title="name" item-value="id"
             label="Jabatan baru" variant="outlined" density="comfortable" hide-details class="mt-3" />
+          <!-- Pilih No ID (sama dengan Mutasi Baru): Otomatis, atau salah satu nomor kosong untuk jabatan & upline itu -->
+          <v-select v-if="menu.aksi === 'sendiri' || menu.aksi === 'tim'" v-model="menu.noId" :items="menu.pilihNoId" item-title="teks"
+            item-value="no_id" label="No ID" variant="outlined" density="comfortable" class="mt-3" :loading="menu.memuatNoId"
+            hint="Otomatis = No ID lama dipertahankan bila masih sesuai, atau nomor kosong berikutnya." persistent-hint />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -218,7 +222,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { API_URL } from "@/config";
@@ -743,10 +747,35 @@ function bukaMenu(P, u, Q) {
       : opsi.some((o) => o.aksi === "tim") && String(bawah(sendiri)) === tP ? "tim"
       : opsi.some((o) => o.aksi === "sendiri") ? "sendiri" : opsi[0].aksi,
   };
+  menu.value.noId = null;
+  menu.value.pilihNoId = [{ teks: "Otomatis", no_id: null }];
   dialogMenu.value = true;
 }
+
+// Pilihan No ID di menu: nomor kosong menurut server, dikurangi nomor yang sudah dipakai di rencana ini
+let urutMuatNoId = 0;
+watch(() => menu.value && dialogMenu.value && [menu.value.aksi, menu.value.jabSendiri], async () => {
+  const m = menu.value;
+  if (!m || !dialogMenu.value || (m.aksi !== "sendiri" && m.aksi !== "tim")) return;
+  const jabNo = m.aksi === "sendiri" ? m.jabSendiri : akhir.value.get(m.P)?.mvo_type_id;
+  const nomor = ++urutMuatNoId;
+  m.memuatNoId = true;
+  try {
+    const { data } = await api.get("/mutasi/nomor", { params: { mvo_type_id: jabNo, parent_id: m.U ?? undefined } });
+    if (nomor !== urutMuatNoId) return;
+    const dipakai = new Set([...akhir.value.values()].map((n) => n.no_id).filter(Boolean));
+    const bebas = (data.data || []).filter((n) => !n.pemegang && !n.kursiKosong && !dipakai.has(n.no_id));
+    m.pilihNoId = [{ teks: "Otomatis", no_id: null }, ...bebas.map((n) => ({ teks: `${n.no_id} — kosong`, no_id: n.no_id }))];
+    if (m.noId && !bebas.some((n) => n.no_id === m.noId)) m.noId = null;
+  } catch {
+    m.pilihNoId = [{ teks: "Otomatis", no_id: null }];
+  } finally {
+    if (nomor === urutMuatNoId) m.memuatNoId = false;
+  }
+}, { immediate: false });
+
 function terapkanMenu() {
-  const { P, U, Q, namaU, aksi, jabSendiri, jabGerbong } = menu.value;
+  const { P, U, Q, namaU, aksi, jabSendiri, jabGerbong, noId } = menu.value;
   dialogMenu.value = false;
   if (aksi === "tukar_tim") {
     const upP = akhir.value.get(P)?.parent_id ?? null;
@@ -768,12 +797,14 @@ function terapkanMenu() {
     const r = { ...(baris.value[P] || {}), parent_id: U };
     delete r.lepas;
     delete r.tunggu;
-    return ubah({ [P]: r }, `${namaOrang(P)} beserta timnya pindah ke bawah ${namaU}`);
+    if (noId) r.no_id = noId;
+    return ubah({ [P]: r }, `${namaOrang(P)} beserta timnya pindah ke bawah ${namaU}${noId ? ` (No ID ${noId})` : ''}`);
   }
   if (aksi === "gerbong") {
     return ubah({ [P]: { parent_id: U, mvo_type_id: jabGerbong, gerbong: true } }, `${namaOrang(P)} beserta timnya menjadi ${namaJab(jabGerbong)} di bawah ${namaU}`);
   }
-  return ubah({ [P]: { parent_id: U, mvo_type_id: jabSendiri, lepas: true } }, `${namaOrang(P)} menjadi ${namaJab(jabSendiri)} di bawah ${namaU}`);
+  return ubah({ [P]: { parent_id: U, mvo_type_id: jabSendiri, lepas: true, ...(noId ? { no_id: noId } : {}) } },
+    `${namaOrang(P)} menjadi ${namaJab(jabSendiri)}${noId ? ` ${noId}` : ''} di bawah ${namaU}`);
 }
 
 // Orang → bangku tunggu

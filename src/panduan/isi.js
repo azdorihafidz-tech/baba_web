@@ -623,6 +623,7 @@ export const PANDUAN = [
           "Ke orang lain (mis. lepas Founder B17 di atas MVO M01): muncul menu pilihan, lalu tekan Terapkan:",
           "• Naik / turun sendiri menjadi downline … — pilih Jabatan baru (bawaan 1 jenjang di bawah orang itu). Kursi lamanya menjadi kosong, timnya tetap di kursi itu.",
           "• Pindah beserta timnya, tetap … — jabatan tidak berubah; kursi dan seluruh timnya ikut ke bawah orang itu.",
+          "Pada Naik / turun sendiri dan Pindah beserta timnya ada pilihan No ID: Otomatis (bawaan), atau pilih salah satu nomor kosong untuk jabatan & upline itu — sama dengan Pilih No ID di Mutasi Baru.",
           "• Naik / turun beserta seluruh timnya (1 jenjang) — semua anggota tim ikut naik/turun 1 jenjang (mis. FO jadi Regional, GM jadi FO, Supplier jadi GM). Ditolak bila ada Reseller saat turun.",
           "• Tukar posisi beserta timnya dengan … — saling bertukar kursi (No ID & upline); tim masing-masing ikut orangnya, jabatan tidak berubah. Bawaan bila jabatannya sama. Contoh: M03 ↔ M01, hanya 2 No ID yang berubah. Hasilnya sama dengan Tukar posisi di Mutasi Baru.",
           "• Tukar posisi, tim tetap di kursinya — yang bertukar hanya orangnya; downline tetap di kursi masing-masing dan pindah ke orang yang kini menempati kursi itu.",
