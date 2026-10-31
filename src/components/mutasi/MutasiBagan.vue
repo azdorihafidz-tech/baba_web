@@ -652,8 +652,14 @@ function bukaMenu(P, u, Q) {
   const sendiri = jabatan.value.filter(bolehDi);
   const gerbong = !diBangku && timP > 0 && !baris.value[P] ? sendiri.filter((j) => Math.abs(j.level - lvP) === 1) : [];
   const opsi = [];
+  const samaJab = Q != null && String(akhir.value.get(Q)?.mvo_type_id) === tP;
+  // Tukar beserta tim (sama dengan Tukar posisi di Mutasi Baru): hanya jabatan sama & keduanya belum diubah di rencana ini
+  if (Q != null && samaJab && !diBangku && !baris.value[P] && !baris.value[Q] && kursiDari(P) && kursiDari(Q)) {
+    opsi.push({ aksi: "tukar_tim", judul: `Tukar posisi beserta timnya dengan ${namaOrang(Q)}`,
+      ket: "Saling bertukar kursi (No ID & upline); tim masing-masing ikut orangnya. Jabatan tidak berubah." });
+  }
   if (Q != null && kursiDari(P) && kursiDari(Q)) {
-    opsi.push({ aksi: "tukar", judul: `Tukar posisi dengan ${namaOrang(Q)}`, ket: "Saling bertukar jabatan, No ID, dan upline. Downline tetap di kursinya." });
+    opsi.push({ aksi: "tukar", judul: `Tukar posisi, tim tetap di kursinya`, ket: "Saling bertukar jabatan, No ID, dan upline. Downline tetap di kursinya (pindah ke orang yang kini menempati kursi itu)." });
   }
   if (sendiri.length) {
     opsi.push({ aksi: "sendiri", judul: `Naik / turun sendiri menjadi downline ${namaU}`,
@@ -671,15 +677,15 @@ function bukaMenu(P, u, Q) {
   }
   if (!opsi.length) return toast(`Tidak ada jabatan yang bisa berada di bawah ${namaU}.`);
   const bawah = (l) => l.find((j) => j.level === lv + 1)?.id || l[0]?.id || null;
-  const samaJab = Q != null && String(akhir.value.get(Q)?.mvo_type_id) === tP;
   menu.value = {
     P, U, Q, namaU, opsi, pilihSendiri: sendiri, pilihGerbong: gerbong,
     jabSendiri: bawah(sendiri), jabGerbong: gerbong.find((j) => j.level === lv + 1)?.id || gerbong[0]?.id || null,
     infoP: diBangku
       ? `${namaOrang(P)} di bangku tunggu (sebelumnya ${bangku.value.find((o) => o.id === P)?.jabatan || namaJab(tP)} ${bangku.value.find((o) => o.id === P)?.no_id_lama || ""})`
       : `${namaOrang(P)} sekarang ${namaJab(tP)} ${nP?.no_id || ""}${timP ? ` dengan ${timP} orang timnya` : ""}`,
-    // Bawaan: jabatan sama dengan Q = tukar; jabatan tidak berubah di bawah U = cukup pindah upline beserta tim
-    aksi: samaJab && opsi.some((o) => o.aksi === "tukar") ? "tukar"
+    // Bawaan: jabatan sama dengan Q = tukar beserta tim (atau tukar biasa); jabatan tidak berubah di bawah U = pindah beserta tim
+    aksi: opsi.some((o) => o.aksi === "tukar_tim") ? "tukar_tim"
+      : samaJab && opsi.some((o) => o.aksi === "tukar") ? "tukar"
       : opsi.some((o) => o.aksi === "tim") && String(bawah(sendiri)) === tP ? "tim"
       : opsi.some((o) => o.aksi === "sendiri") ? "sendiri" : opsi[0].aksi,
   };
@@ -688,6 +694,12 @@ function bukaMenu(P, u, Q) {
 function terapkanMenu() {
   const { P, U, Q, namaU, aksi, jabSendiri, jabGerbong } = menu.value;
   dialogMenu.value = false;
+  if (aksi === "tukar_tim") {
+    const upP = akhir.value.get(P)?.parent_id ?? null;
+    const upQ = akhir.value.get(Q)?.parent_id ?? null;
+    return ubah({ [P]: { no_id: kursiDari(Q), parent_id: upQ, bawa_tim: true }, [Q]: { no_id: kursiDari(P), parent_id: upP, bawa_tim: true } },
+      `Tukar posisi beserta tim: ${namaOrang(P)} ↔ ${namaOrang(Q)}`);
+  }
   if (aksi === "tukar") {
     const kQ = kursiDari(Q);
     const kP = kursiDari(P);
