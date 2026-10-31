@@ -71,7 +71,7 @@
               <span v-if="r.calon" class="label-calon">calon naik</span>
               <v-spacer />
               <span v-if="r.tim" class="tim">{{ r.tim }}</span>
-              <span v-if="!r.n.kosong" class="bg-plus" :class="{ sorot: sorot === `d${r.n.id}` }" @dragover.prevent.stop="sorot = `d${r.n.id}`"
+              <span v-if="!r.n.kosong || r.n.no_id" class="bg-plus" :class="{ sorot: sorot === `d${r.n.id}` }" @dragover.prevent.stop="sorot = `d${r.n.id}`"
                 @dragleave="sorot = null" @drop.prevent.stop="keDownline(r.n.id)" @click.stop="ketukDownline(r.n.id)">+ downline</span>
             </div>
             </template>
@@ -656,7 +656,8 @@ function keKursi(target) {
 function keDownline(u) {
   const g = ambilGeser();
   if (!g || g.jenis !== "orang" || g.id === u) return;
-  if (typeof u === "number" && u < 0) return toast("Isi dulu kursi kosong ini sebelum menambah downline di bawahnya.");
+  // Kursi kosong: orang ditaruh di bawah kursi itu (mis. turun ke bawah pengganti kursi lamanya); butuh No ID kursi
+  if (typeof u === "number" && u < 0 && !akhir.value.get(u)?.no_id) return toast("Kursi ini belum bernomor. Isi dulu kursinya.");
   bukaMenu(g.id, u, null);
 }
 // Kursi kosong dibiarkan kosong (timnya tetap, No ID tidak berubah) / dibatalkan
@@ -699,7 +700,7 @@ const dialogMenu = ref(false);
 function bukaMenu(P, u, Q) {
   const U = u === "owner" || akhir.value.get(u)?.owner ? null : u;
   const nU = U != null ? akhir.value.get(U) : null;
-  const namaU = U == null ? "Owner" : `${namaJab(nU?.mvo_type_id)} ${nU?.no_id || ""} · ${namaOrang(U)}`;
+  const namaU = U == null ? "Owner" : nU?.kosong ? `kursi kosong ${namaJab(nU.mvo_type_id)} ${nU.no_id}` : `${namaJab(nU?.mvo_type_id)} ${nU?.no_id || ""} · ${namaOrang(U)}`;
   const lv = U == null ? -1 : levelJab(nU?.mvo_type_id);
   const bolehDi = (j) => !!j && (U == null ? j.level <= 1 : j.mode === "turunan" ? j.level === lv + 1 : j.level > lv);
   const nP = akhir.value.get(P);
@@ -708,7 +709,7 @@ function bukaMenu(P, u, Q) {
   const lvP = levelJab(tP);
   const timP = diBangku ? 0 : tim(P);
   const sendiri = jabatan.value.filter(bolehDi);
-  const gerbong = !diBangku && timP > 0 && !baris.value[P] ? sendiri.filter((j) => Math.abs(j.level - lvP) === 1) : [];
+  const gerbong = !diBangku && timP > 0 && !baris.value[P] && !nU?.kosong ? sendiri.filter((j) => Math.abs(j.level - lvP) === 1) : [];
   const opsi = [];
   const samaJab = Q != null && String(akhir.value.get(Q)?.mvo_type_id) === tP;
   // Tukar beserta tim (sama dengan Tukar posisi di Mutasi Baru): hanya jabatan sama & keduanya belum diubah di rencana ini
@@ -774,6 +775,11 @@ watch(() => menu.value && dialogMenu.value && [menu.value.aksi, menu.value.jabSe
   }
 }, { immediate: false });
 
+// Upline tujuan: kursi kosong dirujuk lewat No ID-nya (parent_kursi), orang lewat id (parent_id)
+function keUpline(U) {
+  const n = U != null ? akhir.value.get(U) : null;
+  return n?.kosong ? { parent_kursi: n.no_id, parent_id: undefined } : { parent_id: U, parent_kursi: undefined };
+}
 function terapkanMenu() {
   const { P, U, Q, namaU, aksi, jabSendiri, jabGerbong, noId } = menu.value;
   dialogMenu.value = false;
@@ -794,7 +800,7 @@ function terapkanMenu() {
     return ubah({ [P]: { no_id: kQ }, [Q]: { tunggu: true } }, `${namaOrang(P)} menempati kursi ${kQ}; ${namaOrang(Q)} ke bangku tunggu`);
   }
   if (aksi === "tim") {
-    const r = { ...(baris.value[P] || {}), parent_id: U };
+    const r = { ...(baris.value[P] || {}), ...keUpline(U) };
     delete r.lepas;
     delete r.tunggu;
     if (noId) r.no_id = noId;
@@ -803,7 +809,7 @@ function terapkanMenu() {
   if (aksi === "gerbong") {
     return ubah({ [P]: { parent_id: U, mvo_type_id: jabGerbong, gerbong: true } }, `${namaOrang(P)} beserta timnya menjadi ${namaJab(jabGerbong)} di bawah ${namaU}`);
   }
-  return ubah({ [P]: { parent_id: U, mvo_type_id: jabSendiri, lepas: true, ...(noId ? { no_id: noId } : {}) } },
+  return ubah({ [P]: { ...keUpline(U), mvo_type_id: jabSendiri, lepas: true, ...(noId ? { no_id: noId } : {}) } },
     `${namaOrang(P)} menjadi ${namaJab(jabSendiri)}${noId ? ` ${noId}` : ''} di bawah ${namaU}`);
 }
 

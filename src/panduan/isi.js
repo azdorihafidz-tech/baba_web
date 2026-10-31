@@ -630,6 +630,7 @@ export const PANDUAN = [
           "• Ambil kursi …; … ke bangku tunggu — pemegang lama ditempatkan belakangan.",
           "Ke + downline (muncul saat menggeser / di HP selalu tampil): menu yang sama tanpa Tukar posisi dan bangku tunggu. Baris Upline di atas bagan (atau baris Owner) juga punya + downline.",
           "Ke Bangku tunggu (kotak di kanan / di atas pada HP): orang itu keluar dulu dari kursinya, ditempatkan nanti.",
+          "Turun tapi tetap di timnya (sama dengan “Di bawah pengganti kursi lamanya” di Mutasi Baru): geser orang itu ke Bangku tunggu, lalu lepas di + downline pada kursi kosong lamanya (merah) dan pilih Naik / turun sendiri dengan jabatan barunya. Setelah ada yang naik mengisi kursi itu, ia otomatis berada di bawah pengganti tersebut.",
           "Setiap geseran langsung diperiksa. Bila melanggar aturan (mis. Supplier di bawah Founder), muncul pesan Tidak bisa: … dan bagan tidak berubah.",
           "Orang yang naik meninggalkan kursi kosong (merah) yang tetap berada di bawahnya. Di kotak Rencana muncul Kursi … kosong — siapa yang naik? berisi downline langsungnya: ketuk salah satu (atau geser orang lain ke kursi merah itu).",
           "Kursi yang ditinggal orang yang naik menjadi kosong berikutnya, dan seterusnya sampai ke bawah (mis. GM naik ke FO, Supplier naik ke GM, … Reseller naik ke Distributor). Kursi terbawah yang tidak punya downline dibiarkan kosong; nomornya bebas dipakai lagi.",
