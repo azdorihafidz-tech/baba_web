@@ -633,6 +633,7 @@ export const PANDUAN = [
           "Orang yang naik meninggalkan kursi kosong (merah) yang tetap berada di bawahnya. Di kotak Rencana muncul Kursi … kosong — siapa yang naik? berisi downline langsungnya: ketuk salah satu (atau geser orang lain ke kursi merah itu).",
           "Kursi yang ditinggal orang yang naik menjadi kosong berikutnya, dan seterusnya sampai ke bawah (mis. GM naik ke FO, Supplier naik ke GM, … Reseller naik ke Distributor). Kursi terbawah yang tidak punya downline dibiarkan kosong; nomornya bebas dipakai lagi.",
           "Tidak ingin ada yang naik? Tekan Biarkan kosong di kotak kursi itu: kursi tetap kosong bersama timnya (abu-abu). Batalkan untuk mengembalikannya.",
+          "Di kotak kursi kosong juga ada Pilih orang lain… (pengganti dari member mana saja, cabang mana saja) dan Pindahkan tim ke upline lain (semua downline kursi itu beserta timnya pindah sekaligus, kursi dihapus). Sama dengan di Mutasi Baru.",
           "Naik / turun beserta seluruh timnya harus dikerjakan sebelum mengubah anggota tim itu. Ubah anggota timnya setelah disimpan.",
           "Buka tim kedua lewat kolom Buka tim untuk memindah orang antar tim (dua tim tampil berdampingan).",
           "Bila ada anggota tim yang di rencana pindah ke upline di luar tim (mis. Founder naik ke bawah MVO lain), ia tampil di bawah judul kuning “Pindah ke luar tim ini — sekarang di bawah …” beserta kursi kosong & timnya, supaya tetap bisa digeser. Anggota yang hanya tersembunyi karena barisnya tertutup tidak tampil di sana.",

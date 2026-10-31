@@ -106,8 +106,15 @@
                 @click="isiKursi(c.id, k)">{{ c.jabatan }} {{ c.no_id }} · {{ c.nama }}<span class="meta ml-1">({{ c.jumlah_tim }} tim)</span></v-btn>
             </div>
             <div class="meta">Atau {{ ketuk ? 'ketuk orang lain lalu ketuk' : 'geser orang lain ke' }} kursi merah itu.</div>
-            <v-btn v-if="!k.dibiarkan && k.no_id" size="small" variant="tonal" prepend-icon="mdi-seat-outline" class="mt-1" :disabled="memuat"
-              @click="jadiBiarkan(k, true)">Biarkan kosong</v-btn>
+            <!-- Sama dengan kotak kursi kosong di Mutasi Baru -->
+            <div class="kk-tombol">
+              <v-btn v-if="k.no_id" size="small" variant="tonal" color="#B8890F" prepend-icon="mdi-account-search" :disabled="memuat"
+                @click="bukaPilihKursi('orang', k)">Pilih orang lain…</v-btn>
+              <v-btn v-if="!k.dibiarkan && k.no_id" size="small" variant="tonal" prepend-icon="mdi-seat-outline" :disabled="memuat"
+                @click="jadiBiarkan(k, true)">Biarkan kosong</v-btn>
+              <v-btn v-if="k.jumlah_downline" size="small" variant="text" prepend-icon="mdi-account-group" :disabled="memuat"
+                @click="bukaPilihKursi('tim', k)">Pindahkan tim ke upline lain</v-btn>
+            </div>
           </div>
           <div v-if="kursiBebas.length" class="meta mt-2">
             Kursi kosong tanpa downline (nomornya bebas dipakai lagi): {{ kursiBebas.map((k) => `${k.jabatan} ${k.no_id}`).join(', ') }}.
@@ -123,6 +130,28 @@
         </div>
       </div>
     </div>
+
+    <!-- Kursi kosong: pengganti dari member mana saja, atau upline baru untuk seluruh downline-nya -->
+    <v-dialog v-model="pilihKursi.show" max-width="640" scrollable>
+      <v-card v-if="pilihKursi.kursi">
+        <v-card-title class="text-h6 text-wrap">{{ pilihKursi.jenis === 'orang'
+          ? `Pilih pengganti kursi ${pilihKursi.kursi.jabatan} ${pilihKursi.kursi.no_id}`
+          : `Pindahkan downline kursi ${pilihKursi.kursi.jabatan} ${pilihKursi.kursi.no_id || '(baru)'}` }}</v-card-title>
+        <v-card-text>
+          <p class="meta mb-2">{{ pilihKursi.jenis === 'orang'
+            ? `Pengganti boleh dari jaringan atau cabang mana saja. Jabatannya menjadi ${pilihKursi.kursi.jabatan}; ${pilihKursi.kursi.jumlah_downline} downline kursi itu pindah ke orang ini.`
+            : `Pilih upline baru untuk ${pilihKursi.kursi.jumlah_downline} downline kursi ini (beserta timnya). Daftar hanya berisi upline dengan jenjang yang sah; kursi lalu dihapus.` }}</p>
+          <DaftarPilihMember v-if="pilihKursi.jenis === 'orang'" :api="api" url="/mutasi/cari-member" filter-jabatan filter-cabang
+            placeholder="Cari nama / No ID / No Member" kosong="Tidak ada member yang cocok" @pilih="pilihPengganti" />
+          <DaftarPilihMember v-else :api="api" url="/mutasi/kandidat-atasan" :params="{ mvo_type_id: pilihKursi.kursi.downline_type }"
+            placeholder="Cari nama / No ID upline" kosong="Tidak ada calon upline" @pilih="pilihPenampung" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="pilihKursi.show = false">Batal</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Menu saat orang dilepas di atas orang lain / + downline -->
     <v-dialog v-model="dialogMenu" max-width="500" scrollable>
@@ -195,6 +224,7 @@ import Cookies from "js-cookie";
 import { API_URL } from "@/config";
 import { noMember } from "@/utils/noMember";
 import { owner, muatOwner } from "@/utils/owner";
+import DaftarPilihMember from "@/components/mutasi/DaftarPilihMember.vue";
 
 const props = defineProps({ ketuk: { type: Boolean, default: false } }); // HP: ketuk orang → ketuk tujuan
 const emit = defineEmits(["tersimpan"]);
@@ -631,6 +661,30 @@ function jadiBiarkan(k, ya) {
   const daftar = ya ? [...new Set([...biarkan.value, no])] : biarkan.value.filter((x) => x !== no);
   ubah({}, ya ? `Kursi ${no} (${k.jabatan}) dibiarkan kosong` : `Kursi ${no} tidak jadi dibiarkan kosong`, daftar);
 }
+// Kotak kursi kosong: Pilih orang lain… / Pindahkan tim ke upline lain (sama dengan Mutasi Baru)
+const pilihKursi = reactive({ show: false, jenis: "orang", kursi: null });
+function bukaPilihKursi(jenis, k) {
+  Object.assign(pilihKursi, { show: true, jenis, kursi: k });
+}
+function pilihPengganti(m) {
+  const k = pilihKursi.kursi;
+  pilihKursi.show = false;
+  ubah({ [m.id]: { ...(baris.value[m.id] || {}), no_id: k.no_id } }, `${m.nama} mengisi kursi ${k.no_id} (${k.jabatan})`);
+}
+function pilihPenampung(u) {
+  const k = pilihKursi.kursi;
+  pilihKursi.show = false;
+  const tambahan = {};
+  for (const c of anak.value.get(k.id) || []) {
+    if (c.kosong) continue;
+    const r = { ...(baris.value[c.id] || {}), parent_id: u.id };
+    delete r.lepas;
+    delete r.tunggu;
+    tambahan[c.id] = r;
+  }
+  if (!Object.keys(tambahan).length) return toast("Kursi ini tidak punya downline orang untuk dipindah.");
+  ubah(tambahan, `Downline kursi ${k.no_id || k.jabatan} (${Object.keys(tambahan).length} orang) dipindah ke ${u.nama}`);
+}
 function isiKursi(P, k) {
   ubah({ [P]: { no_id: k.no_id } }, `${namaOrang(P)} naik mengisi kursi ${k.no_id} (${k.jabatan})`);
 }
@@ -900,6 +954,12 @@ defineExpose({ bukaTim });
   border-left-color: var(--baba-muted);
   background: #f6f6f4;
   color: inherit;
+}
+.kotak-naik .kk-tombol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
 }
 .kotak-naik .calon-list {
   display: flex;
