@@ -46,9 +46,9 @@
               Daftar sekarang
             </v-btn>
           </div>
-          <div class="text-center">
-
-            <v-btn color="amber mt-2" @click="openDownloadLink" :size="linkButtonSize">
+          <!-- APK Android dari server sendiri; tidak tampil di iPhone & di dalam aplikasi yang sudah terpasang -->
+          <div v-if="tampilUnduhApk" class="text-center">
+            <v-btn color="amber mt-2" @click="openDownloadLink" :size="linkButtonSize" prepend-icon="mdi-android">
               Download Aplikasi Android
             </v-btn>
           </div>
@@ -193,6 +193,12 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { useDisplay } from 'vuetify'
+import { diIphone, pasangState } from '@/utils/pasangAplikasi'
+
+// APK Android (TWA) — file di public/unduh, diunggah terpisah ke hosting (tidak masuk git)
+const APK_URL = '/unduh/baba-parfume.apk'
+const iphone = diIphone()
+const tampilUnduhApk = computed(() => !iphone && !pasangState.terpasang)
 
 // Composables
 const router = useRouter()
@@ -704,10 +710,14 @@ const openDownloadLink = () => {
   try {
     if (isButtonLoading.value) return
 
-    const url = 'https://drive.usercontent.google.com/download?id=1q6fifF4ZHl7GZBzwm4JK_kqUXmQznX8b&export=download&authuser=0&confirm=t&uuid=ed5ce839-60cd-4e10-9d82-23bf60cc1e1c&at=APcXIO2R-nVJ81UlwcRNusdHEsnJ:1769850140393'
-
-    // buka di tab baru
-    window.open(url, '_blank')
+    // APK di server web ini sendiri (public/unduh), langsung diunduh
+    const a = document.createElement('a')
+    a.href = APK_URL
+    a.download = 'baba-parfume.apk'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    showSnackbar('Aplikasi sedang diunduh. Buka file baba-parfume.apk lalu ketuk Instal.', 'success')
 
   } catch (error) {
     showSnackbar('Gagal membuka link download', 'error')

@@ -56,6 +56,10 @@ export default defineConfig({
         enabled: true,
       },
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"],
+      // File unduhan APK & bukti kepemilikan aplikasi Android tidak boleh diganti halaman aplikasi oleh service worker
+      workbox: {
+        navigateFallbackDenylist: [/^\/unduh\//, /^\/\.well-known\//],
+      },
       // Dipasang di HP (Android: Pasang aplikasi; iPhone: Tambahkan ke Layar Utama) dan dipakai APK Android (TWA)
       manifest: {
         id: "/",

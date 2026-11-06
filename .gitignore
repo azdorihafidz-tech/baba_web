@@ -23,3 +23,6 @@ pnpm-debug.log*
 
 # File service worker otomatis dari `npm run dev` (vite-plugin-pwa)
 /dev-dist
+
+# APK Android (dibuat di D:\android-build, diunggah terpisah ke hosting)
+/public/unduh/*.apk

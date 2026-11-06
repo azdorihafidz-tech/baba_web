@@ -9,7 +9,8 @@ export const pasangState = reactive({ bisaPasang: false, terpasang: false });
 let tunda = null;
 
 const modeAplikasi = () =>
-  window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true ||
+  document.referrer.startsWith("android-app://"); // dibuka dari APK Android (TWA)
 
 export const diIphone = () =>
   /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);

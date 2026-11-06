@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "id.babaparfume.member",
+      "sha256_cert_fingerprints": [
+        "63:A8:6D:62:30:58:0F:1B:D2:B6:2A:98:23:83:AE:06:2F:55:C3:DC:29:CD:EB:06:24:1C:42:F3:7B:53:E8:FD"
+      ]
+    }
+  }
+]
