@@ -52,6 +52,10 @@
               Download Aplikasi Android
             </v-btn>
           </div>
+          <!-- Pasang ke layar utama HP (Android: jendela pasang; iPhone: petunjuk Safari) -->
+          <div class="text-center mt-2">
+            <PasangAplikasi :size="linkButtonSize" />
+          </div>
 
           <!-- Brand Footer -->
           <div :class="footerClass">

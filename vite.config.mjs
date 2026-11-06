@@ -55,27 +55,25 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
-      includeAssets: ["favicon.svg", "favicon.ico", "robots.txt", "apple-touch-icon.png", "logo.png"],
+      includeAssets: ["favicon.ico", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"],
+      // Dipasang di HP (Android: Pasang aplikasi; iPhone: Tambahkan ke Layar Utama) dan dipakai APK Android (TWA)
       manifest: {
+        id: "/",
         name: "BABA PARFUME",
         short_name: "BABA PARFUME",
         description: "APLIKASI PENDATAAN AKUN MEMBER BABA PARFUME",
+        lang: "id",
+        start_url: "/admin/dashboard",
+        scope: "/",
         theme_color: "#141414",
-        background_color: "#ffffff",
+        background_color: "#141414",
         display: "standalone",
+        orientation: "portrait",
         icons: [
-          {
-            src: "/logo.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-          {
-            src: "/logo.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable",
-          },
+          { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          // Android memotong ikon menjadi bulat/kotak: versi ini hanya daun dengan jarak aman
+          { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       }
 

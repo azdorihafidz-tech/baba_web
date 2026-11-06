@@ -38,6 +38,7 @@ export const MULAI_CEPAT = {
   ],
   akses: [
     { t: "Login", j: "Masukkan username dan password di halaman Login. Akun yang belum diverifikasi superadmin belum bisa masuk." },
+    { t: "Pasang aplikasi di HP", j: "Android: buka aplikasi di Chrome, lalu tekan tombol Pasang aplikasi di halaman Login atau Panduan (atau menu ⋮ Chrome › Instal aplikasi). iPhone: buka di Safari, tekan Pasang di iPhone untuk melihat petunjuk: ketuk Bagikan, pilih Tambahkan ke Layar Utama, lalu Tambah. Setelah itu buka lewat ikon BABA PARFUME di layar utama: tampil layar penuh dan selalu versi terbaru, tanpa perlu update manual. Bila tombolnya tidak muncul, aplikasi sudah terpasang atau browser belum mendukung." },
     { t: "Lupa password", j: "Klik Lupa Password? di halaman Login, isi username atau nomor WhatsApp. Link reset dikirim lewat WhatsApp dan berlaku 60 menit." },
     { t: "Menu di HP", j: "Menu utama ada di bar bawah. Menu lain ada di tombol Lainnya. Foto profil di kanan atas berisi Profil Saya, Info Cabang, Muat Ulang Data, dan Keluar." },
     { t: "Kembali ke Dashboard", j: "Tekan tulisan 🏠 Dashboard di kepala halaman (kotak hitam bertuliskan nama menu) di bagian atas setiap halaman." },
