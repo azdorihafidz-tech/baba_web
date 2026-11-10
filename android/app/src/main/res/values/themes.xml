@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="baba_ink">#141414</color>
+    <color name="baba_gold">#E6B422</color>
+
+    <!-- Hitam-emas, tanpa bilah judul; latar hitam sejak aplikasi dibuka (tidak berkedip putih).
+         Tema terang supaya halaman web tidak dianggap mode gelap (prefers-color-scheme). -->
+    <style name="Theme.Baba" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/baba_ink</item>
+        <item name="colorPrimaryDark">@color/baba_ink</item>
+        <item name="colorAccent">@color/baba_gold</item>
+        <item name="android:windowBackground">@color/baba_ink</item>
+        <item name="android:statusBarColor">@color/baba_ink</item>
+        <item name="android:navigationBarColor">@color/baba_ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

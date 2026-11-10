@@ -4,7 +4,7 @@
       sub="Kegunaan dan cara pakai setiap menu. Di setiap halaman juga ada tombol ❓ Cara Pakai di bagian atas." />
 
     <!-- Pasang aplikasi ke layar utama HP (tidak tampil bila sudah terpasang / browser tidak mendukung) -->
-    <div class="mb-3"><PasangAplikasi size="small" /></div>
+    <div class="mb-3"><PasangAplikasi size="small" qr /></div>
 
     <v-text-field v-model="cari" label="Cari panduan, mis. approve, No ID, dokumen" variant="outlined"
       density="comfortable" prepend-inner-icon="mdi-magnify" hide-details clearable class="mb-4 cari" />

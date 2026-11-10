@@ -56,11 +56,11 @@ export default defineConfig({
         enabled: true,
       },
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png"],
-      // File unduhan APK & bukti kepemilikan aplikasi Android tidak boleh diganti halaman aplikasi oleh service worker
+      // File unduhan APK (/unduh) tidak boleh diganti halaman aplikasi oleh service worker
       workbox: {
-        navigateFallbackDenylist: [/^\/unduh\//, /^\/\.well-known\//],
+        navigateFallbackDenylist: [/^\/unduh\//],
       },
-      // Dipasang di HP (Android: Pasang aplikasi; iPhone: Tambahkan ke Layar Utama) dan dipakai APK Android (TWA)
+      // Dipasang di HP sebagai PWA (iPhone: Tambahkan ke Layar Utama; Android tanpa APK: Pasang aplikasi)
       manifest: {
         id: "/",
         name: "BABA PARFUME",

@@ -20,3 +20,10 @@
 <IfModule mod_mime.c>
   AddType application/vnd.android.package-archive .apk
 </IfModule>
+
+# APK & info versinya selalu diambil baru (aplikasi memeriksa versi.json saat dibuka)
+<IfModule mod_headers.c>
+  <FilesMatch "^(baba-parfume\.apk|versi\.json)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+</IfModule>

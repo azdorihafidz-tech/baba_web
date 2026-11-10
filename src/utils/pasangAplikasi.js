@@ -1,16 +1,26 @@
-// Pasang aplikasi (PWA) ke layar utama HP.
-// Android (Chrome): browser memberi event beforeinstallprompt → tombol "Pasang aplikasi" memunculkan jendela pasang.
-// iPhone (Safari): tidak ada jendela pasang otomatis → tampilkan petunjuk Bagikan › Tambahkan ke Layar Utama.
+// Aplikasi di HP.
+// Android: APK BABA PARFUME (folder android/, dibuat GitHub Actions) diunduh dari /unduh/baba-parfume.apk;
+//          bila APK belum ada di server, cadangannya jendela pasang Chrome (beforeinstallprompt, PWA).
+// iPhone (Safari): petunjuk Bagikan › Tambahkan ke Layar Utama (PWA).
+// Komputer: kode QR untuk memindai alamat APK dengan HP Android.
 // Diimpor di main.js supaya event yang datang sebelum halaman dimuat tidak terlewat.
 import { reactive } from "vue";
 
-export const pasangState = reactive({ bisaPasang: false, terpasang: false });
+export const APK_URL = "/unduh/baba-parfume.apk";
+
+export const pasangState = reactive({
+  bisaPasang: false, // Chrome menawarkan pasang PWA
+  terpasang: false, // sedang dibuka sebagai aplikasi (APK / PWA layar utama)
+  apk: null, // { versionCode, versionName } dari /unduh/versi.json; null = belum ada APK di server
+});
 
 let tunda = null;
 
+/** Dibuka dari APK BABA PARFUME (WebView menambahkan penanda ini di user-agent). */
+export const diAplikasi = () => /BabaParfumeApp\//.test(navigator.userAgent);
+
 const modeAplikasi = () =>
-  window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true ||
-  document.referrer.startsWith("android-app://"); // dibuka dari APK Android (TWA)
+  diAplikasi() || window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
 
 export const diIphone = () =>
   /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -31,7 +41,21 @@ if (typeof window !== "undefined") {
   });
 }
 
-/** Tampilkan jendela pasang (Android). true bila pengguna menekan Pasang. */
+let muatApk = null;
+/** Info APK di server (sekali per halaman). Tanpa file → apk tetap null, tombol unduh/QR tidak tampil. */
+export function muatInfoApk() {
+  if (!muatApk) {
+    muatApk = fetch(`/unduh/versi.json?t=${Date.now()}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (j && Number(j.versionCode) > 0) pasangState.apk = { versionCode: Number(j.versionCode), versionName: String(j.versionName || "") };
+      })
+      .catch(() => {});
+  }
+  return muatApk;
+}
+
+/** Tampilkan jendela pasang PWA (Chrome). true bila pengguna menekan Pasang. */
 export async function pasang() {
   if (!tunda) return false;
   tunda.prompt();

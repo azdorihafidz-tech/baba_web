@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+: layar pembuka bawaan sistem memakai latar hitam + ikon BABA -->
+    <style name="Theme.Baba" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/baba_ink</item>
+        <item name="colorPrimaryDark">@color/baba_ink</item>
+        <item name="colorAccent">@color/baba_gold</item>
+        <item name="android:windowBackground">@color/baba_ink</item>
+        <item name="android:statusBarColor">@color/baba_ink</item>
+        <item name="android:navigationBarColor">@color/baba_ink</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowSplashScreenBackground">@color/baba_ink</item>
+    </style>
+</resources>

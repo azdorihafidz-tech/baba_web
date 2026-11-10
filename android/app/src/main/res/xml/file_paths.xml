@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Foto dari kamera untuk unggah — disimpan sementara di cache -->
+    <cache-path name="foto" path="foto/" />
+    <!-- Android 9 ke bawah: file Excel/PDF di folder Download (untuk tombol Buka) -->
+    <external-path name="download" path="Download/" />
+</paths>

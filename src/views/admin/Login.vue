@@ -46,15 +46,10 @@
               Daftar sekarang
             </v-btn>
           </div>
-          <!-- APK Android dari server sendiri; tidak tampil di iPhone & di dalam aplikasi yang sudah terpasang -->
-          <div v-if="tampilUnduhApk" class="text-center">
-            <v-btn color="amber mt-2" @click="openDownloadLink" :size="linkButtonSize" prepend-icon="mdi-android">
-              Download Aplikasi Android
-            </v-btn>
-          </div>
-          <!-- Pasang ke layar utama HP (Android: jendela pasang; iPhone: petunjuk Safari) -->
+          <!-- Aplikasi di HP: Android = unduh APK, iPhone = petunjuk Safari, komputer = kode QR;
+               tidak tampil di dalam aplikasi -->
           <div class="text-center mt-2">
-            <PasangAplikasi :size="linkButtonSize" />
+            <PasangAplikasi :size="linkButtonSize" qr />
           </div>
 
           <!-- Brand Footer -->
@@ -193,12 +188,6 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { useDisplay } from 'vuetify'
-import { diIphone, pasangState } from '@/utils/pasangAplikasi'
-
-// APK Android (TWA) — file di public/unduh, diunggah terpisah ke hosting (tidak masuk git)
-const APK_URL = '/unduh/baba-parfume.apk'
-const iphone = diIphone()
-const tampilUnduhApk = computed(() => !iphone && !pasangState.terpasang)
 
 // Composables
 const router = useRouter()
@@ -705,23 +694,6 @@ const goToRegister = () => {
 const goToForgotPassword = () => {
   if (isButtonLoading.value) return
   router.push({ name: 'ForgotPassword' })
-}
-const openDownloadLink = () => {
-  try {
-    if (isButtonLoading.value) return
-
-    // APK di server web ini sendiri (public/unduh), langsung diunduh
-    const a = document.createElement('a')
-    a.href = APK_URL
-    a.download = 'baba-parfume.apk'
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    showSnackbar('Aplikasi sedang diunduh. Buka file baba-parfume.apk lalu ketuk Instal.', 'success')
-
-  } catch (error) {
-    showSnackbar('Gagal membuka link download', 'error')
-  }
 }
 
 // Lifecycle
