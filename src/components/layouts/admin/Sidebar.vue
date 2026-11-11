@@ -22,6 +22,9 @@
         <template v-if="lencana(url)" v-slot:append>
           <span class="menu-lencana" :title="judulLencana(url)">{{ teksLencana(lencana(url)) }}</span>
         </template>
+        <template v-else-if="segera(url)" v-slot:append>
+          <span class="menu-segera" title="Segera hadir">Segera</span>
+        </template>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -55,6 +58,7 @@
           <span class="more-tile-icon"><v-icon size="24">{{ icon }}</v-icon>
             <span v-if="lencana(url)" class="tile-lencana">{{ teksLencana(lencana(url)) }}</span></span>
           <span class="more-tile-text">{{ text }}</span>
+          <span v-if="segera(url)" class="tile-segera">Segera</span>
         </router-link>
       </div>
     </v-card>
@@ -66,11 +70,12 @@ import { useAppStore } from "@/stores/app.js";
 import { chatState, mulaiChat } from "@/utils/chatKoneksi";
 import { MENU_HAK, muatHak, punyaHak } from "@/utils/hakAkses";
 import { KETERANGAN_TUGAS, muatTugas, tugasState } from "@/utils/tugasMenunggu";
+import { muatToko, segeraHadir, tokoState } from "@/utils/tokoOnline";
 
 export default {
   setup() {
     const app = useAppStore();
-    return { app, chatState, tugasState };
+    return { app, chatState, tugasState, tokoState };
   },
   data() {
     return {
@@ -106,6 +111,10 @@ export default {
           ["mdi-shield-account", "Hak Akses", "/admin/hak-akses"],
           ["mdi-file-document", "Uploud Documentasi", "/admin/uplouddocumentasi"],
           ["mdi-store", "Store", "/admin/store"],
+          // Belanja online & toko member (ERP BABA) — "Segera hadir" sampai dinyalakan (TOKO_ONLINE_AKTIF)
+          ["mdi-cart-outline", "Belanja", "/admin/belanja"],
+          ["mdi-package-variant-closed", "Pesanan Saya", "/admin/pesanan-saya"],
+          ["mdi-storefront-outline", "Toko Saya", "/admin/toko-saya"],
           ["mdi-chat", "Chat", "/admin/chat"],
           ["mdi-book-open-page-variant", "Panduan", "/admin/panduan"],
         ],
@@ -116,6 +125,9 @@ export default {
         "Document Belum Approve",
         "Akun Belum Approve",
         "Store",
+        "Belanja",
+        "Pesanan Saya",
+        "Toko Saya",
         "Chat",
         "Panduan",
         "Struktur Akun",
@@ -187,6 +199,10 @@ export default {
     },
     judulLencana(url) {
       return `${this.lencana(url)} ${url === "/admin/chat" ? "pesan baru" : KETERANGAN_TUGAS[url] || ""}`;
+    },
+    // Menu toko yang belum dibuka → label "Segera" (membaca tokoState yang reaktif)
+    segera(url) {
+      return segeraHadir(url);
     },
     teksLencana(n) {
       return n > 99 ? "99+" : n;
@@ -265,6 +281,7 @@ export default {
     this.initializeScreen();
     mulaiChat(); // koneksi chat bersama untuk lencana pesan baru
     muatTugas(true);
+    muatToko(); // status Belanja / Pesanan Saya / Toko Saya (label "Segera")
     // Jumlah tugas diperbarui berkala (juga saat pindah halaman)
     this.timerTugas = setInterval(() => { if (!document.hidden) muatTugas(); }, 60000);
 
@@ -471,6 +488,25 @@ export default {
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.2;
+}
+
+/* Label "Segera" untuk menu toko yang belum dibuka */
+.menu-segera,
+.tile-segera {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--baba-gold);
+  color: var(--baba-ink);
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.tile-segera {
+  margin-top: 2px;
+  font-size: 0.6rem;
 }
 
 /* Lencana jumlah pesan chat belum dibaca */

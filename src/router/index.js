@@ -227,6 +227,17 @@ const routes = [
           requiresAuth: true,
         },
       },
+      // Belanja online & toko member (dilayani ERP BABA). Selama belum aktif: halaman "Segera hadir".
+      ...[
+        ["belanja", "Belanja"],
+        ["pesanan-saya", "Pesanan Saya"],
+        ["toko-saya", "Toko Saya"],
+      ].map(([path, judul]) => ({
+        path,
+        name: path,
+        component: () => import("@/views/admin/SegeraHadir.vue"),
+        meta: { title: `${judul} || BABA PARFUME`, requiresAuth: true, menuToko: path },
+      })),
       {
         path: "panduan",
         name: "panduan",

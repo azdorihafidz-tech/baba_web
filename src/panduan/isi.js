@@ -813,6 +813,76 @@ export const PANDUAN = [
     tanya: [],
   },
   {
+    id: "belanja",
+    route: "/admin/belanja",
+    menu: "Belanja",
+    icon: "mdi-cart-outline",
+    peran: "semua",
+    ringkas: "Segera hadir — belanja parfum BABA dari aplikasi ini.",
+    kegunaan: "Nanti dipakai untuk belanja parfum seperti belanja online: pilih dari katalog, masukkan ke keranjang, lalu bayar. Saat ini menu ini masih disiapkan dan bertanda Segera.",
+    langkah: [
+      {
+        judul: "Yang akan bisa dilakukan",
+        isi: [
+          "Memilih parfum dari katalog (aroma, ukuran, harga sesuai jabatan).",
+          "Memasukkan ke keranjang lalu checkout.",
+          "Membayar dengan transfer + unggah bukti, atau tagihan bila diizinkan.",
+          "Memilih diambil sendiri atau dikirim.",
+        ],
+      },
+    ],
+    tips: ["Selama bertanda Segera, menu ini hanya berisi keterangan. Menu lain tetap berjalan seperti biasa."],
+    tanya: [{ t: "Kapan menu Belanja bisa dipakai?", j: "Setelah sistem toko BABA selesai disiapkan. Tanda Segera di menu akan hilang dengan sendirinya." }],
+  },
+  {
+    id: "pesanan-saya",
+    route: "/admin/pesanan-saya",
+    menu: "Pesanan Saya",
+    icon: "mdi-package-variant-closed",
+    peran: "semua",
+    ringkas: "Segera hadir — memantau pesanan sampai barang diterima.",
+    kegunaan: "Nanti dipakai untuk melihat status pesanan Anda (menunggu bayar, dibayar, disiapkan, dikirim, diterima) dan mengajukan retur. Saat ini masih disiapkan.",
+    langkah: [
+      {
+        judul: "Yang akan bisa dilakukan",
+        isi: [
+          "Melihat status setiap pesanan.",
+          "Menekan Diterima setelah barang sampai.",
+          "Mengajukan retur bila ada barang yang bermasalah.",
+          "RO bertambah otomatis dari pesanan Anda.",
+        ],
+      },
+    ],
+    tips: [],
+    tanya: [],
+  },
+  {
+    id: "toko-saya",
+    route: "/admin/toko-saya",
+    menu: "Toko Saya",
+    icon: "mdi-storefront-outline",
+    peran: "semua",
+    ringkas: "Segera hadir — stok parfum Anda dan kasir untuk menjual ke pelanggan.",
+    kegunaan: "Nanti dipakai untuk melihat stok parfum milik Anda dan menjual ke pelanggan lewat kasir sederhana di HP. Saat ini masih disiapkan.",
+    langkah: [
+      {
+        judul: "Yang akan bisa dilakukan",
+        isi: [
+          "Melihat stok parfum milik Anda.",
+          "Menjual ke pelanggan lewat kasir di HP.",
+          "Melihat laporan transaksi, produk, dan kategori.",
+        ],
+      },
+      {
+        judul: "Sambungan ke ERP (superadmin)",
+        peran: "superadmin",
+        isi: [{ teks: "Di halaman ini superadmin melihat Sambungan ke ERP: Terhubung berarti aplikasi member sudah tersambung ke ERP BABA.", peran: "superadmin" }],
+      },
+    ],
+    tips: [],
+    tanya: [],
+  },
+  {
     id: "chat",
     route: "/admin/chat",
     menu: "Chat",
