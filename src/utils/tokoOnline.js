@@ -7,8 +7,9 @@ import { API_URL } from "@/config";
 
 export const MENU_TOKO = ["/admin/belanja", "/admin/pesanan-saya", "/admin/toko-saya"];
 
-// aktif: menu bisa dipakai; sambungan: { ok, pesan } (hanya superadmin)
-export const tokoState = reactive({ aktif: false, sambungan: null, dimuat: false });
+// aktif: Belanja bisa dipakai (saklar toko di ERP dibuka untuk akun ini); riwayat: punya pesanan → Pesanan Saya & Toko Saya tetap terbuka
+// walau toko ditutup; jumlah: angka merah menu; sambungan: { ok, pesan } (hanya superadmin)
+export const tokoState = reactive({ aktif: false, riwayat: false, jumlah: {}, sambungan: null, dimuat: false });
 
 let berjalan = null;
 
@@ -21,6 +22,8 @@ export function muatToko(paksa = false) {
     .get(`${API_URL}/api/toko/status`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
     .then((r) => {
       tokoState.aktif = r.data?.aktif === true;
+      tokoState.riwayat = r.data?.riwayat === true;
+      tokoState.jumlah = r.data?.jumlah || {};
       tokoState.sambungan = r.data?.sambungan || null;
       tokoState.dimuat = true;
     })
@@ -29,8 +32,19 @@ export function muatToko(paksa = false) {
   return berjalan;
 }
 
+/** Menu toko bisa dibuka? Belanja hanya bila toko buka; Pesanan Saya & Toko Saya juga bila sudah punya pesanan. */
+export const menuTokoTerbuka = (url) => tokoState.aktif || (url !== "/admin/belanja" && tokoState.riwayat);
+
 /** Menu toko yang belum bisa dipakai → label "Segera" di menu. */
-export const segeraHadir = (url) => MENU_TOKO.includes(url) && !tokoState.aktif;
+export const segeraHadir = (url) => MENU_TOKO.includes(url) && !menuTokoTerbuka(url);
+
+/** Angka merah menu toko: Pesanan Saya = perlu dibayar, Toko Saya = pesanan masuk perlu tindakan + retur diajukan. */
+export function lencanaToko(url) {
+  const j = tokoState.jumlah || {};
+  if (url === "/admin/pesanan-saya") return j.perlu_bayar || 0;
+  if (url === "/admin/toko-saya") return (j.masuk_perlu || 0) + (j.retur_diajukan || 0);
+  return 0;
+}
 
 // ===== Pemanggil /api/toko/* (diteruskan backend ke ERP atas nama akun login) =====
 

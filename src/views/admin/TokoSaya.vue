@@ -1,6 +1,6 @@
 <template>
   <!-- Toko Saya (ERP BABA Tahap 2c): pesanan masuk dari downline, stok saya, rekening saya. Kasir = Tahap 3. -->
-  <SegeraHadir v-if="tokoState.dimuat && !tokoState.aktif" />
+  <SegeraHadir v-if="tokoState.dimuat && !menuTokoTerbuka(route.path)" />
   <div v-else class="toko-page">
     <Breadcrumb :items="[{ title: 'Dashboard', href: '/admin/dashboard' }, { title: 'Toko Saya' }]" />
 
@@ -233,7 +233,7 @@ import Cookies from "js-cookie";
 import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import SegeraHadir from "@/views/admin/SegeraHadir.vue";
-import { muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
+import { menuTokoTerbuka, muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
 
 const KELOMPOK = [
   { id: "perlu", label: "Perlu tindakan" },
@@ -371,6 +371,7 @@ async function putusRetur(aksi, data) {
     returRinci.value = r.data;
     tampilkan(r.pesan || "Tersimpan.");
     muatRetur();
+    muatToko(true);
   } catch (e) {
     tampilkan(pesanGalat(e, "Gagal menyimpan."), "error");
   } finally {
@@ -448,6 +449,7 @@ async function setelahAksi(r) {
   batalBuka.value = false;
   muatGambar();
   muatMasuk();
+  muatToko(true);
 }
 
 async function aksi(jenis, data = {}) {
@@ -494,12 +496,12 @@ async function aktifRek(id) {
 }
 
 watch(tab, () => muatTab());
-watch(() => route.query.nomor, (n) => { if (n && n !== rinci.value?.nomor && tokoState.aktif) buka(String(n)); });
+watch(() => route.query.nomor, (n) => { if (n && n !== rinci.value?.nomor && menuTokoTerbuka(route.path)) buka(String(n)); });
 onBeforeUnmount(lepasGambar);
 
 onMounted(async () => {
   await muatToko(true);
-  if (!tokoState.aktif) return;
+  if (!menuTokoTerbuka(route.path)) return;
   if (route.query.nomor) {
     tab.value = "masuk";
     kelompok.value = "";

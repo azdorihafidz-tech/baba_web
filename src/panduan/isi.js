@@ -846,7 +846,7 @@ export const PANDUAN = [
       "Stok yang tampil adalah stok yang masih bisa dipesan.",
       "Bila dikirim, ongkir diisi gudang dulu. Anda diberi tahu lewat lonceng, baru kemudian transfer.",
       "Keranjang tersimpan di HP/browser ini sampai pesanan dibuat.",
-      "Bila menu bertanda Segera, toko belum dibuka dan halaman hanya berisi keterangan.",
+      "Bila menu bertanda Segera, toko belum dibuka dan halaman hanya berisi keterangan. Pesanan Saya dan Toko Saya tetap bisa dibuka bila Anda sudah punya pesanan.",
     ],
     tanya: [
       { t: "Kenapa pilihan Tagihan tidak ada?", j: "Tagihan hanya untuk akun atau jabatan yang diizinkan gudang. Bila ada tetapi tidak bisa dipilih, total belanja melewati sisa batas tagihan Anda." },
@@ -895,6 +895,7 @@ export const PANDUAN = [
     ],
     tips: [
       "Setiap perubahan status dikabarkan lewat lonceng 🔔.",
+      "Angka merah di menu Pesanan Saya = pesanan yang perlu Anda bayar.",
       "Pesanan transfer yang tidak dibayar sampai batas waktu dibatalkan otomatis.",
       "Bila Anda lupa menekan Pesanan Diterima, pesanan diterima otomatis beberapa hari setelah dikirim.",
       "Pesanan tagihan dibayar dengan cara yang sama (Unggah bukti transfer) sebelum jatuh tempo.",
@@ -952,6 +953,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Angka merah di menu Toko Saya = pesanan masuk yang perlu tindakan + retur yang menunggu keputusan Anda.",
       "Setiap pesanan baru, bukti transfer, dan pembatalan dari downline dikabarkan lewat lonceng 🔔.",
       "Tombol Kirim / Siap diambil mati bila stok Anda kurang.",
       "Kasir untuk menjual ke pelanggan bertanda Segera — menyusul.",

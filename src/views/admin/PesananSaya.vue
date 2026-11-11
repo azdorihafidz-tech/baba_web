@@ -1,6 +1,6 @@
 <template>
   <!-- Pesanan Saya (ERP BABA). Selama toko belum dibuka: halaman "Segera hadir". -->
-  <SegeraHadir v-if="tokoState.dimuat && !tokoState.aktif" />
+  <SegeraHadir v-if="tokoState.dimuat && !menuTokoTerbuka(route.path)" />
   <div v-else class="pesanan-page">
     <Breadcrumb :items="[{ title: 'Dashboard', href: '/admin/dashboard' }, { title: 'Pesanan Saya' }]" />
 
@@ -186,7 +186,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import SegeraHadir from "@/views/admin/SegeraHadir.vue";
-import { muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
+import { menuTokoTerbuka, muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
 
 const KELOMPOK = [
   { id: "berjalan", label: "Berjalan" },
@@ -388,6 +388,7 @@ async function pilihBukti(ev) {
     rinci.value = r.data;
     tampilkan(r.pesan || "Bukti terkirim.");
     muat();
+    muatToko(true);
   } catch (e) {
     tampilkan(pesanGalat(e, "Bukti gagal diunggah."), "error");
   } finally {
@@ -403,6 +404,7 @@ async function aksi(jenis, data = {}) {
     rinci.value = r.data;
     tampilkan(r.pesan || "Tersimpan.");
     muat();
+    muatToko(true);
   } catch (e) {
     tampilkan(pesanGalat(e, "Gagal menyimpan."), "error");
   } finally {
@@ -414,11 +416,11 @@ async function aksi(jenis, data = {}) {
 }
 
 // lonceng / tautan dengan ?nomor= saat halaman sudah terbuka
-watch(() => route.query.nomor, (n) => { if (n && n !== rinci.value?.nomor && tokoState.aktif) buka(String(n)); });
+watch(() => route.query.nomor, (n) => { if (n && n !== rinci.value?.nomor && menuTokoTerbuka(route.path)) buka(String(n)); });
 
 onMounted(async () => {
   await muatToko(true);
-  if (!tokoState.aktif) {
+  if (!menuTokoTerbuka(route.path)) {
     memuat.value = false;
     return;
   }

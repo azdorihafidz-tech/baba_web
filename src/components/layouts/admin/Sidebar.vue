@@ -70,7 +70,7 @@ import { useAppStore } from "@/stores/app.js";
 import { chatState, mulaiChat } from "@/utils/chatKoneksi";
 import { MENU_HAK, muatHak, punyaHak } from "@/utils/hakAkses";
 import { KETERANGAN_TUGAS, muatTugas, tugasState } from "@/utils/tugasMenunggu";
-import { muatToko, segeraHadir, tokoState } from "@/utils/tokoOnline";
+import { lencanaToko, muatToko, segeraHadir, tokoState } from "@/utils/tokoOnline";
 
 export default {
   setup() {
@@ -195,10 +195,12 @@ export default {
     },
     // Lencana menu: pesan chat belum dibaca, atau pekerjaan yang menunggu tindakan (approve, verifikasi)
     lencana(url) {
-      return url === "/admin/chat" ? this.chatState.total : this.tugasState.jumlah[url] || 0;
+      if (url === "/admin/chat") return this.chatState.total;
+      return (this.tugasState.jumlah[url] || 0) + lencanaToko(url);
     },
     judulLencana(url) {
-      return `${this.lencana(url)} ${url === "/admin/chat" ? "pesan baru" : KETERANGAN_TUGAS[url] || ""}`;
+      const toko = { "/admin/pesanan-saya": "pesanan perlu dibayar", "/admin/toko-saya": "pesanan masuk / retur menunggu Anda" };
+      return `${this.lencana(url)} ${url === "/admin/chat" ? "pesan baru" : KETERANGAN_TUGAS[url] || toko[url] || ""}`;
     },
     // Menu toko yang belum dibuka → label "Segera" (membaca tokoState yang reaktif)
     segera(url) {
@@ -284,6 +286,8 @@ export default {
     muatToko(); // status Belanja / Pesanan Saya / Toko Saya (label "Segera")
     // Jumlah tugas diperbarui berkala (juga saat pindah halaman)
     this.timerTugas = setInterval(() => { if (!document.hidden) muatTugas(); }, 60000);
+    // status & angka toko online (ERP) — lebih jarang supaya tidak membebani ERP
+    this.timerToko = setInterval(() => { if (!document.hidden) muatToko(true); }, 120000);
 
     if (typeof window !== "undefined") {
       window.addEventListener("resize", this.handleResize);
@@ -291,6 +295,7 @@ export default {
   },
   beforeUnmount() {
     clearInterval(this.timerTugas);
+    clearInterval(this.timerToko);
     if (typeof window !== "undefined") {
       window.removeEventListener("resize", this.handleResize);
     }
