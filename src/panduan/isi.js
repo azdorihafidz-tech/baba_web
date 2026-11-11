@@ -916,7 +916,7 @@ export const PANDUAN = [
     menu: "Toko Saya",
     icon: "mdi-storefront-outline",
     peran: "semua",
-    ringkas: "Pesanan dari downline, stok parfum Anda, dan rekening untuk menerima transfer.",
+    ringkas: "Pesanan dari downline, kasir untuk menjual ke pelanggan, stok parfum, laporan, dan rekening.",
     kegunaan: "Melayani downline yang belanja ke Anda (upline): isi ongkir, cek bukti transfer atau catat bayar tunai, lalu kirim atau siapkan untuk diambil. Juga melihat stok parfum milik Anda.",
     langkah: [
       {
@@ -940,6 +940,23 @@ export const PANDUAN = [
         ],
       },
       {
+        judul: "Menjual ke pelanggan (Kasir)",
+        isi: [
+          "Buka tab Kasir. Ketuk parfum untuk memasukkannya ke Keranjang; atur jumlah dengan − dan +.",
+          "Harga bisa diubah langsung di keranjang. Centang Ingat harga untuk berikutnya supaya harga itu dipakai lagi.",
+          "Pilih Tunai, Transfer, atau QRIS. Untuk tunai, isi Uang diterima bila ingin melihat kembalian.",
+          "Ketuk Simpan penjualan. Struk tampil: ketuk Cetak atau Bagikan (mis. lewat WhatsApp).",
+          "Salah input? Buka transaksi di Transaksi terakhir lalu ketuk Batalkan (hanya transaksi hari ini; stok kembali).",
+        ],
+      },
+      {
+        judul: "Laporan",
+        isi: [
+          "Tab Laporan berisi Transaksi (penjualan kasir & pembelian), Produk (terjual, dibeli, stok, laba), dan Kategori.",
+          "Atur tanggal di kanan atas; ringkasan penjualan, laba kotor, dan pembelian ikut menyesuaikan.",
+        ],
+      },
+      {
         judul: "Stok dan rekening",
         isi: [
           "Tab Stok Saya: jumlah parfum milik Anda dan riwayat keluar-masuknya. Stok bertambah otomatis saat pesanan Anda di menu Belanja diterima.",
@@ -956,7 +973,7 @@ export const PANDUAN = [
       "Angka merah di menu Toko Saya = pesanan masuk yang perlu tindakan + retur yang menunggu keputusan Anda.",
       "Setiap pesanan baru, bukti transfer, dan pembatalan dari downline dikabarkan lewat lonceng 🔔.",
       "Tombol Kirim / Siap diambil mati bila stok Anda kurang.",
-      "Kasir untuk menjual ke pelanggan bertanda Segera — menyusul.",
+      "Penjualan di kasir mengurangi stok Anda tetapi tidak menambah RO (RO hanya dari belanja ke gudang / upline).",
     ],
     tanya: [
       { t: "Kenapa downline tidak bisa belanja ke saya?", j: "Belanja ke upline harus diizinkan admin, dan Anda harus punya stok parfum tersebut." },

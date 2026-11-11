@@ -9,7 +9,8 @@
       <v-tab value="retur" data-uji="tab-retur">Retur<v-badge v-if="jumlahRetur" :content="jumlahRetur" color="error" inline /></v-tab>
       <v-tab value="stok" data-uji="tab-stok">Stok Saya</v-tab>
       <v-tab value="rekening" data-uji="tab-rekening">Rekening</v-tab>
-      <v-tab value="kasir">Kasir <span class="chip-segera">Segera</span></v-tab>
+      <v-tab value="kasir" data-uji="tab-kasir">Kasir</v-tab>
+      <v-tab value="laporan" data-uji="tab-laporan">Laporan</v-tab>
     </v-tabs>
 
     <v-alert v-if="galat" type="error" variant="tonal" density="compact" class="mb-2">{{ galat }}</v-alert>
@@ -96,12 +97,8 @@
       </v-card>
     </template>
 
-    <template v-if="tab === 'kasir'">
-      <v-card class="kartu" style="max-width: 560px">
-        <div class="font-weight-bold mb-1">Kasir — segera hadir</div>
-        <div class="text-body-2">Nanti Anda bisa menjual parfum dari stok Anda ke pelanggan langsung dari HP, lengkap dengan struk dan laporan transaksi, produk, dan kategori.</div>
-      </v-card>
-    </template>
+    <KasirMember v-if="tab === 'kasir'" />
+    <LaporanToko v-if="tab === 'laporan'" />
 
     <!-- ========== Rincian pesanan masuk ========== -->
     <v-dialog v-model="rinciBuka" :fullscreen="hp" max-width="660" scrollable>
@@ -233,6 +230,8 @@ import Cookies from "js-cookie";
 import { API_URL } from "@/config";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import SegeraHadir from "@/views/admin/SegeraHadir.vue";
+import KasirMember from "@/components/toko/KasirMember.vue";
+import LaporanToko from "@/components/toko/LaporanToko.vue";
 import { menuTokoTerbuka, muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
 
 const KELOMPOK = [
@@ -247,7 +246,7 @@ const router = useRouter();
 const { smAndDown } = useDisplay();
 const hp = computed(() => smAndDown.value);
 
-const tab = ref(["masuk", "retur", "stok", "rekening", "kasir"].includes(route.query.tab) ? route.query.tab : "masuk");
+const tab = ref(["masuk", "retur", "stok", "rekening", "kasir", "laporan"].includes(route.query.tab) ? route.query.tab : "masuk");
 const returList = ref([]);
 const jumlahRetur = ref(0);
 const memuatRetur = ref(false);
