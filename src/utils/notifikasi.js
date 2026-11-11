@@ -82,6 +82,9 @@ export const IKON_NOTIFIKASI = {
   mutasi_downline: "mdi-account-arrow-right",
   hak_akses: "mdi-shield-account",
   kemampuan: "mdi-shield-key",
+  pesanan: "mdi-package-variant-closed",
+  retur: "mdi-keyboard-return",
+  ro: "mdi-star-circle",
 };
 
 /** "baru saja", "5 menit lalu", "3 jam lalu", "kemarin", lalu tanggal. */

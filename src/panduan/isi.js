@@ -818,21 +818,37 @@ export const PANDUAN = [
     menu: "Belanja",
     icon: "mdi-cart-outline",
     peran: "semua",
-    ringkas: "Segera hadir — belanja parfum BABA dari aplikasi ini.",
-    kegunaan: "Nanti dipakai untuk belanja parfum seperti belanja online: pilih dari katalog, masukkan ke keranjang, lalu bayar. Saat ini menu ini masih disiapkan dan bertanda Segera.",
+    ringkas: "Belanja parfum BABA langsung ke gudang, seperti belanja online.",
+    kegunaan: "Pilih parfum dari katalog dengan harga sesuai jabatan Anda, masukkan ke keranjang, lalu checkout. Bayar dengan transfer + unggah bukti, atau tagihan bila akun Anda diizinkan.",
     langkah: [
       {
-        judul: "Yang akan bisa dilakukan",
+        judul: "Memilih parfum",
         isi: [
-          "Memilih parfum dari katalog (aroma, ukuran, harga sesuai jabatan).",
-          "Memasukkan ke keranjang lalu checkout.",
-          "Membayar dengan transfer + unggah bukti, atau tagihan bila diizinkan.",
-          "Memilih diambil sendiri atau dikirim.",
+          "Cari parfum dengan kolom Cari parfum, atau ketuk kategori (mis. Pria, Wanita, Unisex).",
+          "Ketuk Tambah pada parfum yang diinginkan. Atur jumlahnya dengan tombol − dan +.",
+          "Harga yang tampil sudah sesuai akun Anda (keterangannya di bawah harga, mis. Harga jabatan).",
+        ],
+      },
+      {
+        judul: "Checkout",
+        isi: [
+          "Ketuk tombol Keranjang di kanan atas, periksa barang dan jumlahnya, lalu ketuk Checkout.",
+          "Pilih Cara terima barang: Ambil sendiri di gudang, atau Dikirim (isi nama penerima, nomor HP, dan alamat lengkap).",
+          "Pilih Cara bayar: Transfer + unggah bukti, atau Tagihan bila tersedia untuk akun Anda.",
+          "Ketuk Buat Pesanan. Anda dibawa ke Pesanan Saya untuk langkah berikutnya.",
         ],
       },
     ],
-    tips: ["Selama bertanda Segera, menu ini hanya berisi keterangan. Menu lain tetap berjalan seperti biasa."],
-    tanya: [{ t: "Kapan menu Belanja bisa dipakai?", j: "Setelah sistem toko BABA selesai disiapkan. Tanda Segera di menu akan hilang dengan sendirinya." }],
+    tips: [
+      "Stok yang tampil adalah stok yang masih bisa dipesan.",
+      "Bila dikirim, ongkir diisi gudang dulu. Anda diberi tahu lewat lonceng, baru kemudian transfer.",
+      "Keranjang tersimpan di HP/browser ini sampai pesanan dibuat.",
+      "Bila menu bertanda Segera, toko belum dibuka dan halaman hanya berisi keterangan.",
+    ],
+    tanya: [
+      { t: "Kenapa pilihan Tagihan tidak ada?", j: "Tagihan hanya untuk akun atau jabatan yang diizinkan gudang. Bila ada tetapi tidak bisa dipilih, total belanja melewati sisa batas tagihan Anda." },
+      { t: "Kenapa parfum tidak bisa ditambah?", j: "Stoknya habis atau jumlah di keranjang sudah sama dengan stok yang tersedia." },
+    ],
   },
   {
     id: "pesanan-saya",
@@ -840,21 +856,40 @@ export const PANDUAN = [
     menu: "Pesanan Saya",
     icon: "mdi-package-variant-closed",
     peran: "semua",
-    ringkas: "Segera hadir — memantau pesanan sampai barang diterima.",
-    kegunaan: "Nanti dipakai untuk melihat status pesanan Anda (menunggu bayar, dibayar, disiapkan, dikirim, diterima) dan mengajukan retur. Saat ini masih disiapkan.",
+    ringkas: "Pantau pesanan, bayar, dan konfirmasi barang diterima.",
+    kegunaan: "Melihat status setiap pesanan dari menu Belanja: menunggu ongkir, menunggu pembayaran, bukti dicek, disiapkan, dikirim / siap diambil, sampai diterima.",
     langkah: [
       {
-        judul: "Yang akan bisa dilakukan",
+        judul: "Membayar dengan transfer",
         isi: [
-          "Melihat status setiap pesanan.",
-          "Menekan Diterima setelah barang sampai.",
-          "Mengajukan retur bila ada barang yang bermasalah.",
-          "RO bertambah otomatis dari pesanan Anda.",
+          "Ketuk pesanan yang berlabel Perlu dibayar.",
+          "Transfer sesuai total ke rekening yang tampil (ketuk Salin untuk menyalin nomor rekening).",
+          "Ketuk Unggah bukti transfer, lalu pilih foto atau PDF bukti transfer.",
+          "Tunggu gudang mengecek bukti. Bila ditolak, alasannya tampil dan Anda bisa mengunggah bukti yang benar.",
         ],
       },
+      {
+        judul: "Menerima barang",
+        isi: [
+          "Saat status Dikirim, nomor resi tampil di rincian pesanan.",
+          "Setelah barang sampai (atau sudah diambil di gudang), ketuk Pesanan Diterima lalu Ya, sudah diterima.",
+        ],
+      },
+      {
+        judul: "Membatalkan pesanan",
+        isi: ["Pesanan bisa dibatalkan sendiri selama masih Menunggu ongkir atau Menunggu pembayaran: buka pesanan, ketuk Batalkan."],
+      },
     ],
-    tips: [],
-    tanya: [],
+    tips: [
+      "Setiap perubahan status dikabarkan lewat lonceng 🔔.",
+      "Pesanan transfer yang tidak dibayar sampai batas waktu dibatalkan otomatis.",
+      "Bila Anda lupa menekan Pesanan Diterima, pesanan diterima otomatis beberapa hari setelah dikirim.",
+      "Pesanan tagihan dibayar dengan cara yang sama (Unggah bukti transfer) sebelum jatuh tempo.",
+    ],
+    tanya: [
+      { t: "Bukti transfer sudah diunggah, kenapa belum diproses?", j: "Gudang mencocokkan bukti dengan rekening lebih dulu. Status berubah menjadi Disiapkan setelah pembayaran diterima." },
+      { t: "Bisa membatalkan setelah membayar?", j: "Tidak bisa sendiri. Hubungi admin gudang; bila dibatalkan, dana dikembalikan oleh gudang." },
+    ],
   },
   {
     id: "toko-saya",
