@@ -881,6 +881,8 @@ export default {
     // Dokumen yang sudah disetujui final hanya bisa diubah/dihapus superadmin (aturan server)
     bolehKelolaDok(doc) {
       if (!this.bolehKelolaDokumen) return false;
+      // RO dari belanja online (ERP) tidak diubah/dihapus di sini — koreksi lewat retur pesanan
+      if (doc?.erp_ref) return false;
       return this.mvo_type_id === "superadmin" || String(doc?.status_inputan || "").toLowerCase() !== "approved";
     },
 

@@ -152,6 +152,7 @@ export const PANDUAN = [
       },
     ],
     tips: [
+      "Dokumen bernama Belanja online … dibuat otomatis dari pesanan di menu Belanja (RO = jumlah botol; retur menjadi RO minus). Dokumen ini tidak bisa diubah atau dihapus — koreksi lewat retur pesanan.",
       "Dokumen hanya bisa dilihat untuk akun Anda sendiri dan downline Anda. Akun cabang yang sama tapi di luar jaringan Anda menampilkan keterangan \"Akun ini di luar jaringan Anda\", dan tombol Tambah Dokumen tidak aktif.",
       "Yang bisa menambah, mengubah, dan menghapus dokumen diatur superadmin di menu Hak Akses (awalnya: MVO, Regional, dan Founder). Selain superadmin hanya untuk akun di jaringannya sendiri. Akun tanpa hak ini tetap bisa melihat dokumen; tombol Tambah Dokumen tidak aktif dan ada keterangannya.",
       "Dokumen yang sudah disetujui final ikut dihitung di Star/RO, jadi hanya superadmin yang bisa mengubah atau menghapusnya (ada peringatan sebelum dihapus).",
@@ -499,6 +500,7 @@ export const PANDUAN = [
     ],
     tips: [
       "Upline hanya bisa menyetujui dokumen milik downline-nya sendiri.",
+      "Dokumen bernama Belanja online … dibuat otomatis dari pesanan di menu Belanja (RO = jumlah botol). Disetujui dengan cara yang sama bila toko memakai mode RO yang perlu persetujuan.",
       "Angka merah di menu Document Belum Approve = dokumen yang sedang giliran Anda setujui. Urutannya Regional dulu, lalu MVO.",
       { teks: "Superadmin: angka merah = dokumen yang semua uplinenya sudah approve dan tinggal persetujuan akhir.", peran: "superadmin" },
       "Kolom KODE = kode akun pemilik dokumen, No ID di sebelahnya. Kolom MVO dan Regional menampilkan No ID dan nama upline yang menyetujui.",
@@ -898,6 +900,7 @@ export const PANDUAN = [
       "Pesanan tagihan dibayar dengan cara yang sama (Unggah bukti transfer) sebelum jatuh tempo.",
       "Pesanan ke upline dengan cara bayar Tunai: bayar langsung ke upline, lalu upline mencatat pembayarannya.",
       "Barang yang sudah Anda terima otomatis masuk Stok Saya (menu Toko Saya).",
+      "RO Anda bertambah otomatis sebesar jumlah botol pesanan (saat lunas atau setelah disetujui, sesuai aturan toko) dan ikut dihitung di Dashboard. Retur yang disetujui mengurangi RO.",
     ],
     tanya: [
       { t: "Bukti transfer sudah diunggah, kenapa belum diproses?", j: "Gudang mencocokkan bukti dengan rekening lebih dulu. Status berubah menjadi Disiapkan setelah pembayaran diterima." },
