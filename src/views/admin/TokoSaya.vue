@@ -6,6 +6,7 @@
 
     <v-tabs v-model="tab" density="compact" color="primary" class="mb-2" show-arrows>
       <v-tab value="masuk" data-uji="tab-masuk">Pesanan Masuk<v-badge v-if="jumlah.perlu" :content="jumlah.perlu" color="error" inline /></v-tab>
+      <v-tab value="retur" data-uji="tab-retur">Retur<v-badge v-if="jumlahRetur" :content="jumlahRetur" color="error" inline /></v-tab>
       <v-tab value="stok" data-uji="tab-stok">Stok Saya</v-tab>
       <v-tab value="rekening" data-uji="tab-rekening">Rekening</v-tab>
       <v-tab value="kasir">Kasir <span class="chip-segera">Segera</span></v-tab>
@@ -35,6 +36,22 @@
             <span class="text-caption" :class="{ 'text-error font-weight-bold': p.perlu_tindakan }">{{ p.perlu_tindakan ? 'Perlu tindakan' : `${caraBayar(p.cara_bayar)} · ${p.status_bayar_label}` }}</span>
             <strong>{{ p.ongkir === null ? rupiah(p.subtotal) + ' + ongkir' : rupiah(p.total) }}</strong>
           </div>
+        </v-card>
+      </div>
+    </template>
+
+    <!-- ========== Retur masuk ========== -->
+    <template v-if="tab === 'retur'">
+      <div v-isi-layar="48" class="baba-gulir">
+        <div v-if="memuatRetur" class="text-center py-8"><v-progress-circular indeterminate color="primary" /></div>
+        <div v-else-if="!returList.length" class="text-center text-medium-emphasis py-8">Belum ada retur dari downline.</div>
+        <v-card v-for="rt in returList" :key="rt.nomor" class="kartu" data-uji="kartu-retur" @click="bukaRetur(rt.nomor)">
+          <div class="d-flex justify-space-between align-start ga-2">
+            <div><div class="font-weight-bold">{{ rt.nomor }}</div><div class="text-caption">{{ rt.pembeli?.no_id }} · {{ rt.pembeli?.nama }} · pesanan {{ rt.pesanan }}</div></div>
+            <span class="chip-status" :class="`rt-${rt.status}`">{{ rt.status_label }}</span>
+          </div>
+          <div class="text-body-2 text-truncate mt-1">{{ rt.item.map((i) => i.nama + ' ×' + i.qty).join(', ') }} — {{ rt.alasan }}</div>
+          <div class="text-right font-weight-bold">{{ rupiah(rt.nilai) }}</div>
         </v-card>
       </div>
     </template>
@@ -169,6 +186,40 @@
       </v-card>
     </v-dialog>
 
+    <!-- ========== Rincian retur masuk ========== -->
+    <v-dialog v-model="returBuka" :fullscreen="hp" max-width="560" scrollable>
+      <v-card>
+        <div class="panel-kepala"><span class="panel-judul">{{ returRinci?.nomor || 'Retur' }}</span><v-spacer />
+          <v-btn icon variant="text" size="small" aria-label="Tutup" @click="returBuka = false"><v-icon>mdi-close</v-icon></v-btn></div>
+        <v-card-text>
+          <div v-if="!returRinci" class="text-center py-6"><v-progress-circular indeterminate color="primary" /></div>
+          <template v-else>
+            <div class="d-flex flex-wrap align-center ga-2 mb-2"><span class="chip-status" :class="`rt-${returRinci.status}`" data-uji="status-retur">{{ returRinci.status_label }}</span>
+              <span class="text-caption">{{ tanggal(returRinci.tanggal) }} · pesanan {{ returRinci.pesanan }}</span></div>
+            <div class="text-body-2 mb-2">Pembeli: <strong>{{ returRinci.pembeli?.nama }}</strong> · {{ returRinci.pembeli?.no_id }}</div>
+            <div v-for="i in returRinci.item" :key="i.nama" class="baris-item"><span>{{ i.nama }} ×{{ i.qty }}</span><span>{{ rupiah(i.subtotal) }}</span></div>
+            <div class="baris-item font-weight-bold"><span>Nilai retur</span><span>{{ rupiah(returRinci.nilai) }}</span></div>
+            <div class="bagian-judul">Alasan</div><div class="text-body-2" style="white-space: pre-line">{{ returRinci.alasan }}</div>
+            <img v-if="fotoRetur" :src="fotoRetur" alt="Foto retur" class="gambar-bukti mt-2" data-uji="foto-retur-masuk" />
+            <div v-if="returRinci.catatan_penjual" class="text-caption mt-2">{{ returRinci.status === 'ditolak' ? 'Alasan ditolak' : 'Catatan' }}: {{ returRinci.catatan_penjual }}</div>
+            <div v-if="returRinci.pengembalian_label" class="text-caption">Pengembalian: {{ returRinci.pengembalian_label }}</div>
+
+            <div v-if="returRinci.boleh.putuskan" class="kotak-aksi mt-3">
+              <div class="font-weight-bold mb-1">Putuskan retur</div>
+              <div class="text-caption mb-2">Setujui setelah barang retur <strong>sudah kembali</strong> ke Anda. Stok Anda bertambah, stok pembeli berkurang.
+                {{ returRinci.pesanan_lunas ? 'Pesanan sudah lunas: kembalikan dananya ke pembeli.' : 'Pesanan belum lunas: nilai retur memotong yang harus dibayar.' }}</div>
+              <v-radio-group v-if="returRinci.pesanan_lunas" v-model="pengembalian" density="compact" hide-details class="mb-1">
+                <v-radio value="transfer" label="Dana ditransfer kembali" /><v-radio value="tunai" label="Dana dikembalikan tunai" />
+              </v-radio-group>
+              <v-btn color="success" :loading="memproses" data-uji="setujui-retur" @click="putusRetur('setujui', { pengembalian })">Setujui retur</v-btn>
+              <div class="d-flex ga-2 mt-2"><v-text-field v-model="alasanTolakRetur" label="Alasan ditolak" density="compact" variant="outlined" hide-details maxlength="255" />
+                <v-btn color="error" variant="outlined" :loading="memproses" data-uji="tolak-retur" @click="putusRetur('tolak', { alasan: alasanTolakRetur })">Tolak</v-btn></div>
+            </div>
+          </template>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-snackbar v-model="kabar.tampil" :color="kabar.warna" timeout="3500" data-uji="kabar">{{ kabar.teks }}</v-snackbar>
   </div>
 </template>
@@ -196,7 +247,15 @@ const router = useRouter();
 const { smAndDown } = useDisplay();
 const hp = computed(() => smAndDown.value);
 
-const tab = ref(["masuk", "stok", "rekening", "kasir"].includes(route.query.tab) ? route.query.tab : "masuk");
+const tab = ref(["masuk", "retur", "stok", "rekening", "kasir"].includes(route.query.tab) ? route.query.tab : "masuk");
+const returList = ref([]);
+const jumlahRetur = ref(0);
+const memuatRetur = ref(false);
+const returBuka = ref(false);
+const returRinci = ref(null);
+const fotoRetur = ref("");
+const pengembalian = ref("transfer");
+const alasanTolakRetur = ref("");
 const kelompok = ref("perlu");
 const daftar = ref([]);
 const jumlah = ref({});
@@ -267,8 +326,63 @@ async function muatRekening() {
   }
 }
 
+async function muatRetur() {
+  memuatRetur.value = true;
+  galat.value = "";
+  try {
+    const r = await tokoApi("get", "/retur-masuk");
+    returList.value = r.data || [];
+    jumlahRetur.value = r.jumlah?.diajukan || 0;
+  } catch (e) {
+    galat.value = pesanGalat(e, "Retur belum bisa dimuat.");
+  } finally {
+    memuatRetur.value = false;
+  }
+}
+
+function lepasFotoRetur() {
+  if (fotoRetur.value) URL.revokeObjectURL(fotoRetur.value);
+  fotoRetur.value = "";
+}
+
+async function bukaRetur(nomor) {
+  returBuka.value = true;
+  returRinci.value = null;
+  lepasFotoRetur();
+  alasanTolakRetur.value = "";
+  pengembalian.value = "transfer";
+  try {
+    returRinci.value = (await tokoApi("get", `/retur-masuk/${encodeURIComponent(nomor)}`)).data;
+    if (returRinci.value.ada_foto) {
+      const token = Cookies.get("token") || localStorage.getItem("token") || "";
+      const f = await axios.get(`${API_URL}/api/toko/retur-masuk/${encodeURIComponent(nomor)}/foto`, { responseType: "blob", headers: { Authorization: `Bearer ${token}` }, timeout: 60000 });
+      fotoRetur.value = URL.createObjectURL(f.data);
+    }
+  } catch (e) {
+    if (!returRinci.value) returBuka.value = false;
+    tampilkan(pesanGalat(e, "Retur tidak bisa dibuka."), "error");
+  }
+}
+
+async function putusRetur(aksi, data) {
+  memproses.value = true;
+  try {
+    const r = await tokoApi("post", `/retur-masuk/${encodeURIComponent(returRinci.value.nomor)}/${aksi}`, data);
+    returRinci.value = r.data;
+    tampilkan(r.pesan || "Tersimpan.");
+    muatRetur();
+  } catch (e) {
+    tampilkan(pesanGalat(e, "Gagal menyimpan."), "error");
+  } finally {
+    memproses.value = false;
+  }
+}
+
+watch(returBuka, (b) => { if (!b) lepasFotoRetur(); });
+
 function muatTab() {
-  if (tab.value === "masuk") muatMasuk();
+  if (tab.value === "retur") muatRetur();
+  else if (tab.value === "masuk") muatMasuk();
   else if (tab.value === "stok") muatStok();
   else if (tab.value === "rekening") muatRekening();
 }
@@ -393,6 +507,8 @@ onMounted(async () => {
   }
   muatTab();
   if (tab.value !== "masuk") tokoApi("get", "/masuk", undefined, { kelompok: "perlu" }).then((r) => { jumlah.value = r.jumlah || {}; }).catch(() => {});
+  if (tab.value !== "retur") tokoApi("get", "/retur-masuk", undefined, { kelompok: "diajukan" }).then((r) => { jumlahRetur.value = r.jumlah?.diajukan || 0; }).catch(() => {});
+  if (route.query.retur) { tab.value = "retur"; bukaRetur(String(route.query.retur)); }
 });
 </script>
 
@@ -430,6 +546,9 @@ onMounted(async () => {
 .st-menunggu_cek { background: rgba(var(--v-theme-info), 0.18); }
 .st-diterima { background: rgba(var(--v-theme-success), 0.18); color: rgb(var(--v-theme-success)); }
 .st-batal { background: rgba(0, 0, 0, 0.08); color: rgba(0, 0, 0, 0.55); }
+.rt-diajukan { background: rgba(var(--v-theme-warning), 0.2); }
+.rt-disetujui { background: rgba(var(--v-theme-success), 0.18); color: rgb(var(--v-theme-success)); }
+.rt-ditolak, .rt-batal { background: rgba(0, 0, 0, 0.08); color: rgba(0, 0, 0, 0.55); }
 
 .stok-angka {
   font-size: 1.3rem;

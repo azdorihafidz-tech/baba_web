@@ -881,6 +881,15 @@ export const PANDUAN = [
         judul: "Membatalkan pesanan",
         isi: ["Pesanan bisa dibatalkan sendiri selama masih Menunggu ongkir atau Menunggu pembayaran: buka pesanan, ketuk Batalkan."],
       },
+      {
+        judul: "Mengajukan retur",
+        isi: [
+          "Buka pesanan yang sudah Diterima, ketuk Ajukan retur.",
+          "Atur jumlah barang yang dikembalikan dengan tombol + dan −, tulis Alasan retur, dan bila perlu ketuk Tambah foto.",
+          "Ketuk Kirim pengajuan retur, lalu kirim / bawa barangnya ke penjual (gudang atau upline).",
+          "Penjual menyetujui setelah barang diperiksa. Status retur tampil di rincian pesanan; selama masih Diajukan, retur bisa dibatalkan.",
+        ],
+      },
     ],
     tips: [
       "Setiap perubahan status dikabarkan lewat lonceng 🔔.",
@@ -893,6 +902,8 @@ export const PANDUAN = [
     tanya: [
       { t: "Bukti transfer sudah diunggah, kenapa belum diproses?", j: "Gudang mencocokkan bukti dengan rekening lebih dulu. Status berubah menjadi Disiapkan setelah pembayaran diterima." },
       { t: "Bisa membatalkan setelah membayar?", j: "Tidak bisa sendiri. Hubungi admin gudang; bila dibatalkan, dana dikembalikan oleh gudang." },
+      { t: "Kapan retur bisa diajukan?", j: "Setelah pesanan diterima, dalam batas hari yang diatur toko, dan selama barangnya masih ada di stok Anda (belum dijual)." },
+      { t: "Bagaimana uang retur dikembalikan?", j: "Bila pesanan belum lunas (tagihan / tunai), nilai retur memotong yang harus dibayar. Bila sudah lunas, penjual mengembalikan dananya (transfer atau tunai)." },
     ],
   },
   {
@@ -913,6 +924,15 @@ export const PANDUAN = [
           "Bila bayar tunai: setelah uang diterima, ketuk Uang tunai sudah diterima.",
           "Ketuk Kirim (isi kurir dan resi) atau Siap diambil. Stok Anda berkurang saat tombol ini ditekan.",
           "Bila pembeli mengambil sendiri, ketuk Sudah diambil pembeli setelah barang diserahkan.",
+        ],
+      },
+      {
+        judul: "Memutuskan retur dari downline",
+        isi: [
+          "Buka tab Retur (angka merah = retur yang menunggu keputusan), ketuk returnya.",
+          "Periksa barang, jumlah, alasan, dan foto. Setelah barangnya sudah kembali ke Anda, ketuk Setujui retur (bila pesanan sudah lunas, pilih Dana ditransfer kembali atau Dana dikembalikan tunai).",
+          "Bila retur tidak bisa diterima, isi Alasan ditolak lalu ketuk Tolak.",
+          "Saat disetujui, stok Anda bertambah dan stok pembeli berkurang.",
         ],
       },
       {
