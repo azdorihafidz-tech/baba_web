@@ -15,6 +15,12 @@
       </v-btn>
     </div>
 
+    <div v-if="pilihSumber" class="belanja-sumber" data-uji="pilih-sumber">
+      <span class="text-caption mr-1">Belanja ke:</span>
+      <v-chip v-for="[nilai, label] in [['gudang', 'Gudang'], ['upline', 'Upline']]" :key="nilai" size="small" :data-uji="'sumber-' + nilai"
+        :variant="sumber === nilai ? 'flat' : 'outlined'" :color="sumber === nilai ? 'primary' : undefined" @click="sumber = nilai">{{ label }}</v-chip>
+    </div>
+    <div v-if="sumber === 'upline' && opsi?.upline" class="text-caption mb-2" data-uji="info-upline">Upline: <strong>{{ opsi.upline.label }}</strong> — stok dan harga mengikuti stok upline Anda.</div>
     <div v-if="kategoriAda.length > 1" class="belanja-kategori">
       <v-chip v-for="k in ['Semua', ...kategoriAda]" :key="k" size="small" :variant="kategori === k ? 'flat' : 'outlined'"
         :color="kategori === k ? 'primary' : undefined" @click="kategori = k">{{ k }}</v-chip>
@@ -30,7 +36,7 @@
     <div v-isi-layar class="baba-gulir">
       <div v-if="memuat" class="text-center py-8"><v-progress-circular indeterminate color="primary" /></div>
       <div v-else-if="!tampil.length && !galat" class="text-center text-medium-emphasis py-8">
-        {{ produk.length ? 'Tidak ada parfum yang cocok.' : 'Belum ada parfum yang dijual untuk akun Anda.' }}
+        {{ produk.length ? 'Tidak ada parfum yang cocok.' : (sumber === 'upline' ? 'Upline Anda belum punya stok parfum.' : 'Belum ada parfum yang dijual untuk akun Anda.') }}
       </div>
       <div v-else class="produk-grid">
         <v-card v-for="p in tampil" :key="p.id" class="produk-kartu" :class="{ habis: p.stok <= 0 }" data-uji="produk">
@@ -93,10 +99,10 @@
           <template v-else>
             <div class="bagian-judul">Cara terima barang</div>
             <v-radio-group v-model="form.cara_ambil" hide-details density="compact" class="mb-1">
-              <v-radio value="ambil" label="Ambil sendiri di gudang" />
-              <v-radio value="kirim" label="Dikirim (ongkir diisi gudang)" />
+              <v-radio value="ambil" :label="sumber === 'upline' ? 'Ambil sendiri ke upline' : 'Ambil sendiri di gudang'" />
+              <v-radio value="kirim" :label="sumber === 'upline' ? 'Dikirim (ongkir diisi upline)' : 'Dikirim (ongkir diisi gudang)'" />
             </v-radio-group>
-            <div v-if="form.cara_ambil === 'ambil' && gudang" class="text-caption mb-2">📍 {{ gudang.nama }}{{ gudang.alamat ? ' — ' + gudang.alamat : '' }}</div>
+            <div v-if="form.cara_ambil === 'ambil' && gudang && sumber === 'gudang'" class="text-caption mb-2">📍 {{ gudang.nama }}{{ gudang.alamat ? ' — ' + gudang.alamat : '' }}</div>
             <template v-if="form.cara_ambil === 'kirim'">
               <v-text-field v-model="form.kirim_nama" label="Nama penerima" density="compact" variant="outlined" maxlength="100" class="mb-1" />
               <v-text-field v-model="form.kirim_hp" label="Nomor HP penerima" density="compact" variant="outlined" maxlength="30" inputmode="tel" class="mb-1" />
@@ -106,18 +112,19 @@
             <div class="bagian-judul">Cara bayar</div>
             <v-radio-group v-model="form.cara_bayar" hide-details density="compact" class="mb-1">
               <v-radio value="transfer" label="Transfer + unggah bukti" :disabled="!adaRekening" />
-              <v-radio v-if="opsi?.tagihan" value="tagihan" :disabled="opsi.tagihan.sisa < totalKeranjang"
+              <v-radio v-if="sumber === 'upline'" value="tunai" label="Tunai (bayar langsung ke upline)" />
+              <v-radio v-if="opsi?.tagihan && sumber === 'gudang'" value="tagihan" :disabled="opsi.tagihan.sisa < totalKeranjang"
                 :label="`Tagihan (bayar dalam ${opsi.tagihan.tempo_hari} hari)`" />
             </v-radio-group>
-            <div v-if="opsi?.tagihan" class="text-caption mb-1" :class="{ 'text-error': opsi.tagihan.sisa < totalKeranjang }">
+            <div v-if="opsi?.tagihan && sumber === 'gudang'" class="text-caption mb-1" :class="{ 'text-error': opsi.tagihan.sisa < totalKeranjang }">
               Sisa batas tagihan {{ rupiah(opsi.tagihan.sisa) }} dari {{ rupiah(opsi.tagihan.batas) }}.
             </div>
-            <div v-if="opsi && !adaRekening" class="text-caption text-error mb-1">Gudang belum mencantumkan rekening transfer.</div>
+            <div v-if="opsi && !adaRekening" class="text-caption text-error mb-1">{{ sumber === 'upline' ? 'Upline belum mencantumkan rekening — pilih tunai.' : 'Gudang belum mencantumkan rekening transfer.' }}</div>
             <div v-if="form.cara_bayar === 'transfer' && adaRekening" class="text-caption mb-2">
               Rekening tujuan tampil setelah pesanan dibuat{{ opsi?.jam_batas_bayar ? `; bayar dalam ${opsi.jam_batas_bayar} jam` : '' }}.
             </div>
 
-            <v-textarea v-model="form.catatan" label="Catatan untuk gudang (opsional)" density="compact" variant="outlined" rows="1" auto-grow maxlength="500" />
+            <v-textarea v-model="form.catatan" :label="sumber === 'upline' ? 'Catatan untuk upline (opsional)' : 'Catatan untuk gudang (opsional)'" density="compact" variant="outlined" rows="1" auto-grow maxlength="500" />
             <v-alert v-if="galatCheckout" type="error" variant="tonal" density="compact" class="mt-2" data-uji="galat-checkout">{{ galatCheckout }}</v-alert>
           </template>
         </v-card-text>
@@ -145,7 +152,7 @@ import { VDialog } from "vuetify/components/VDialog";
 import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import SegeraHadir from "@/views/admin/SegeraHadir.vue";
 import {
-  aturKeranjang, jumlahDiKeranjang, keranjang, kosongkanKeranjang, muatToko, muatUlangKeranjang, pesanGalat, rupiah, tokoApi, tokoState,
+  aturKeranjang, jumlahDiKeranjang, keranjang, kosongkanKeranjang, muatToko, muatUlangKeranjang, pakaiKeranjang, pesanGalat, rupiah, tokoApi, tokoState,
 } from "@/utils/tokoOnline";
 
 const router = useRouter();
@@ -161,6 +168,8 @@ const kategori = ref("Semua");
 const panel = ref(false);
 const langkah = ref(1);
 const opsi = ref(null);
+const sumber = ref("gudang");
+const pilihSumber = computed(() => !!(opsi.value?.sumber?.gudang && opsi.value?.sumber?.upline && opsi.value?.upline));
 const hilang = ref(false);
 const mengirim = ref(false);
 const galatCheckout = ref("");
@@ -187,13 +196,16 @@ const gudang = computed(() => {
   const id = barisKeranjang.value[0]?.gudang_id;
   return opsi.value?.gudang?.find((g) => g.id === id) || opsi.value?.gudang?.[0] || null;
 });
-const adaRekening = computed(() => (gudang.value?.rekening || []).length > 0);
+const adaRekening = computed(() => ((sumber.value === "upline" ? opsi.value?.upline?.rekening : gudang.value?.rekening) || []).length > 0);
 
 async function muat() {
+  const diminta = sumber.value;
   memuat.value = true;
   galat.value = "";
   try {
-    const r = await tokoApi("get", "/katalog");
+    pakaiKeranjang(diminta);
+    const r = await tokoApi("get", "/katalog", undefined, diminta === "upline" ? { sumber: "upline" } : undefined);
+    if (diminta !== sumber.value) return; // sumber sudah diganti saat menunggu — hasil lama dibuang
     produk.value = r.data || [];
     // barang yang sudah tidak dijual dibuang dari keranjang
     muatUlangKeranjang();
@@ -202,9 +214,9 @@ async function muat() {
     keranjang.isi.filter((k) => !ada.has(k.id)).forEach((k) => aturKeranjang(k.id, 0));
     hilang.value = keranjang.isi.length < sebelum;
   } catch (e) {
-    galat.value = pesanGalat(e, "Katalog belum bisa dimuat.");
+    if (diminta === sumber.value) galat.value = pesanGalat(e, "Katalog belum bisa dimuat.");
   } finally {
-    memuat.value = false;
+    if (diminta === sumber.value) memuat.value = false;
   }
 }
 
@@ -217,14 +229,10 @@ function bukaKeranjang() {
 async function keCheckout() {
   galatCheckout.value = "";
   langkah.value = 2;
-  if (!opsi.value) {
-    try {
-      opsi.value = await tokoApi("get", "/checkout-opsi");
-    } catch (e) {
-      galatCheckout.value = pesanGalat(e, "Pilihan checkout belum bisa dimuat.");
-    }
-  }
-  if (!adaRekening.value && opsi.value?.tagihan) form.cara_bayar = "tagihan";
+  if (!opsi.value) await muatOpsi(true);
+  if (sumber.value === "upline") { if (form.cara_bayar === "tagihan" || !adaRekening.value) form.cara_bayar = adaRekening.value ? "transfer" : "tunai"; }
+  else if (form.cara_bayar === "tunai") form.cara_bayar = "transfer";
+  if (sumber.value === "gudang" && !adaRekening.value && opsi.value?.tagihan) form.cara_bayar = "tagihan";
 }
 
 async function buatPesanan() {
@@ -235,7 +243,7 @@ async function buatPesanan() {
   }
   mengirim.value = true;
   try {
-    const r = await tokoApi("post", "/pesanan", { ...form, item: barisKeranjang.value.map((b) => ({ produk_online_id: b.id, qty: b.qty })) });
+    const r = await tokoApi("post", "/pesanan", { ...form, sumber: sumber.value, item: barisKeranjang.value.map((b) => ({ produk_online_id: b.id, qty: b.qty })) });
     if (form.cara_ambil === "kirim") {
       try { localStorage.setItem(ALAMAT_KEY, JSON.stringify({ nama: form.kirim_nama, hp: form.kirim_hp, alamat: form.kirim_alamat })); } catch { /* abaikan */ }
     }
@@ -250,12 +258,26 @@ async function buatPesanan() {
   }
 }
 
+async function muatOpsi(tampilkanGalat = false) {
+  try {
+    opsi.value = await tokoApi("get", "/checkout-opsi");
+    // hanya boleh ke upline → langsung upline
+    if (opsi.value?.sumber && !opsi.value.sumber.gudang && opsi.value.sumber.upline && opsi.value.upline) sumber.value = "upline";
+  } catch (e) {
+    if (tampilkanGalat) galatCheckout.value = pesanGalat(e, "Pilihan checkout belum bisa dimuat.");
+  }
+}
+
+watch(sumber, () => { muat(); });
 watch(() => tokoState.aktif, (aktif) => { if (aktif && !produk.value.length) muat(); });
 
 onMounted(async () => {
   await muatToko(true);
-  if (tokoState.aktif) muat();
-  else memuat.value = false;
+  if (tokoState.aktif) {
+    // katalog & pilihan checkout dimuat bersamaan; bila hanya boleh ke upline, muatOpsi mengganti sumber → katalog dimuat ulang (watch)
+    muat();
+    if (!isSuperadmin) muatOpsi();
+  } else memuat.value = false;
 });
 </script>
 
@@ -275,6 +297,13 @@ onMounted(async () => {
 .tombol-keranjang {
   height: 40px !important;
   white-space: nowrap;
+}
+
+.belanja-sumber {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .belanja-kategori {

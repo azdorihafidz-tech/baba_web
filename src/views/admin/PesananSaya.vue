@@ -30,7 +30,7 @@
         <div class="d-flex justify-space-between align-start ga-2">
           <div>
             <div class="font-weight-bold">{{ p.nomor }}</div>
-            <div class="text-caption">{{ tanggal(p.tanggal) }} · {{ p.cara_ambil === 'kirim' ? 'Dikirim' : 'Ambil sendiri' }} · {{ p.cara_bayar === 'tagihan' ? 'Tagihan' : 'Transfer' }}</div>
+            <div class="text-caption">{{ tanggal(p.tanggal) }} · {{ p.cara_ambil === 'kirim' ? 'Dikirim' : 'Ambil sendiri' }} · {{ caraBayar(p.cara_bayar) }}</div>
           </div>
           <span class="chip-status" :class="`st-${p.status}`">{{ p.status_label }}</span>
         </div>
@@ -86,7 +86,7 @@
             <div class="baris-item text-medium-emphasis"><span>Subtotal</span><span>{{ rupiah(rinci.subtotal) }}</span></div>
             <div class="baris-item text-medium-emphasis"><span>Ongkir</span><span>{{ rinci.ongkir === null ? 'menunggu gudang' : rupiah(rinci.ongkir) }}</span></div>
             <div class="baris-item font-weight-bold"><span>Total</span><span>{{ rinci.ongkir === null ? '—' : rupiah(rinci.total) }}</span></div>
-            <div class="text-caption mt-1">Pembayaran: {{ rinci.cara_bayar === 'tagihan' ? 'Tagihan' : 'Transfer' }} · {{ rinci.status_bayar_label }}</div>
+            <div class="text-caption mt-1">Pembayaran: {{ caraBayar(rinci.cara_bayar) }} · {{ rinci.status_bayar_label }}</div>
 
             <div class="bagian-judul">{{ rinci.cara_ambil === 'kirim' ? 'Pengiriman' : 'Ambil di' }}</div>
             <div v-if="rinci.kirim" class="text-body-2">
@@ -184,21 +184,22 @@ const inputBukti = ref(null);
 const perluBayar = (p) => p.status_bayar === "belum" && ((p.cara_bayar === "transfer" && p.status === "menunggu_bayar")
   || (p.cara_bayar === "tagihan" && ["disiapkan", "dikirim", "siap_diambil", "diterima"].includes(p.status)));
 
-const PESAN_STATUS = {
-  menunggu_ongkir: { jenis: "info", teks: "Gudang sedang menghitung ongkir. Anda akan diberi tahu lewat lonceng setelah ongkir diisi." },
-  menunggu_cek: { jenis: "info", teks: "Bukti transfer sedang dicek gudang." },
-  disiapkan: { jenis: "info", teks: "Pesanan sedang disiapkan gudang." },
+// penjual = gudang atau upline (pesanan ke upline, Tahap 2c)
+const PESAN_STATUS = (penjual, p) => ({
+  menunggu_ongkir: { jenis: "info", teks: `${penjual === "gudang" ? "Gudang" : "Upline"} sedang menghitung ongkir. Anda akan diberi tahu lewat lonceng setelah ongkir diisi.` },
+  menunggu_cek: { jenis: "info", teks: `Bukti transfer sedang dicek ${penjual}.` },
+  disiapkan: { jenis: "info", teks: `Pesanan sedang disiapkan ${penjual}.${p.cara_bayar === "tunai" && p.status_bayar !== "lunas" ? " Bayar tunai langsung ke upline Anda." : ""}` },
   dikirim: { jenis: "success", teks: "Pesanan sedang dikirim. Tekan Pesanan Diterima setelah barang sampai." },
-  siap_diambil: { jenis: "success", teks: "Pesanan siap diambil di gudang. Tekan Pesanan Diterima setelah barang Anda ambil." },
-  batal: { jenis: "warning", teks: "" },
-};
+  siap_diambil: { jenis: "success", teks: `Pesanan siap diambil di ${penjual}. Tekan Pesanan Diterima setelah barang Anda ambil.` },
+});
 const pesanStatus = computed(() => {
   const p = rinci.value;
   if (!p) return null;
   if (p.status === "batal") return { jenis: "warning", teks: `Dibatalkan: ${p.batal_alasan || "-"}` };
   if (p.status === "diterima") return { jenis: "success", teks: p.diterima_otomatis ? "Pesanan diterima otomatis." : "Pesanan sudah diterima. Terima kasih!" };
-  return PESAN_STATUS[p.status] || null;
+  return PESAN_STATUS(p.sumber === "upline" ? "upline" : "gudang", p)[p.status] || null;
 });
+const caraBayar = (c) => ({ transfer: "Transfer", tagihan: "Tagihan", tunai: "Tunai" }[c] || c);
 
 const tanggal = (t) => (t ? new Date(t).toLocaleString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
 const tanggalSaja = (t) => (t ? new Date(t + "T00:00:00").toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" }) : "");

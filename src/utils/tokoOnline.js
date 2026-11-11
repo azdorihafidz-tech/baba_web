@@ -64,10 +64,12 @@ export const rupiah = (n) => (n === null || n === undefined ? "—" : "Rp " + Ma
 
 // ===== Keranjang (disimpan di HP/browser per akun; harga selalu dibaca ulang dari katalog) =====
 
+let sumberKeranjang = "gudang";
+
 function kunciKeranjang() {
   let id = "";
   try { id = JSON.parse(localStorage.getItem("user") || "{}")?.id || ""; } catch { /* abaikan */ }
-  return `keranjang_${id}`;
+  return sumberKeranjang === "upline" ? `keranjang_${id}_upline` : `keranjang_${id}`;
 }
 
 function bacaKeranjang() {
@@ -87,6 +89,12 @@ function simpanKeranjang() {
 
 export function muatUlangKeranjang() {
   keranjang.isi = bacaKeranjang();
+}
+
+/** Keranjang terpisah per sumber barang (gudang / upline). */
+export function pakaiKeranjang(sumber) {
+  sumberKeranjang = sumber === "upline" ? "upline" : "gudang";
+  muatUlangKeranjang();
 }
 
 export function jumlahDiKeranjang(id) {

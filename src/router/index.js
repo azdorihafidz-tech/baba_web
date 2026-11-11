@@ -227,7 +227,7 @@ const routes = [
           requiresAuth: true,
         },
       },
-      // Belanja online & toko member (dilayani ERP BABA). Selama belum aktif: halaman "Segera hadir" (Belanja/PesananSaya menampilkannya sendiri).
+      // Belanja online & toko member (dilayani ERP BABA). Selama belum aktif: halaman "Segera hadir" (Belanja/PesananSaya/TokoSaya menampilkannya sendiri).
       ...[
         ["belanja", "Belanja"],
         ["pesanan-saya", "Pesanan Saya"],
@@ -235,7 +235,7 @@ const routes = [
       ].map(([path, judul]) => ({
         path,
         name: path,
-        component: { belanja: () => import("@/views/admin/Belanja.vue"), "pesanan-saya": () => import("@/views/admin/PesananSaya.vue") }[path] || (() => import("@/views/admin/SegeraHadir.vue")),
+        component: { belanja: () => import("@/views/admin/Belanja.vue"), "pesanan-saya": () => import("@/views/admin/PesananSaya.vue"), "toko-saya": () => import("@/views/admin/TokoSaya.vue") }[path] || (() => import("@/views/admin/SegeraHadir.vue")),
         meta: { title: `${judul} || BABA PARFUME`, requiresAuth: true, menuToko: path },
       })),
       {

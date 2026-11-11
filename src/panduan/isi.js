@@ -827,6 +827,7 @@ export const PANDUAN = [
           "Cari parfum dengan kolom Cari parfum, atau ketuk kategori (mis. Pria, Wanita, Unisex).",
           "Ketuk Tambah pada parfum yang diinginkan. Atur jumlahnya dengan tombol − dan +.",
           "Harga yang tampil sudah sesuai akun Anda (keterangannya di bawah harga, mis. Harga jabatan).",
+          "Bila tampil pilihan Belanja ke: Gudang / Upline, pilih ke mana Anda memesan. Stok dan harga menyesuaikan pilihan itu.",
         ],
       },
       {
@@ -834,7 +835,7 @@ export const PANDUAN = [
         isi: [
           "Ketuk tombol Keranjang di kanan atas, periksa barang dan jumlahnya, lalu ketuk Checkout.",
           "Pilih Cara terima barang: Ambil sendiri di gudang, atau Dikirim (isi nama penerima, nomor HP, dan alamat lengkap).",
-          "Pilih Cara bayar: Transfer + unggah bukti, atau Tagihan bila tersedia untuk akun Anda.",
+          "Pilih Cara bayar: Transfer + unggah bukti, atau Tagihan bila tersedia untuk akun Anda. Belanja ke upline: Transfer atau Tunai (bayar langsung ke upline).",
           "Ketuk Buat Pesanan. Anda dibawa ke Pesanan Saya untuk langkah berikutnya.",
         ],
       },
@@ -848,6 +849,7 @@ export const PANDUAN = [
     tanya: [
       { t: "Kenapa pilihan Tagihan tidak ada?", j: "Tagihan hanya untuk akun atau jabatan yang diizinkan gudang. Bila ada tetapi tidak bisa dipilih, total belanja melewati sisa batas tagihan Anda." },
       { t: "Kenapa parfum tidak bisa ditambah?", j: "Stoknya habis atau jumlah di keranjang sudah sama dengan stok yang tersedia." },
+      { t: "Kenapa pilihan Upline tidak ada?", j: "Belanja ke upline harus diizinkan admin untuk akun atau jabatan Anda, dan upline Anda harus akun yang aktif." },
     ],
   },
   {
@@ -885,6 +887,8 @@ export const PANDUAN = [
       "Pesanan transfer yang tidak dibayar sampai batas waktu dibatalkan otomatis.",
       "Bila Anda lupa menekan Pesanan Diterima, pesanan diterima otomatis beberapa hari setelah dikirim.",
       "Pesanan tagihan dibayar dengan cara yang sama (Unggah bukti transfer) sebelum jatuh tempo.",
+      "Pesanan ke upline dengan cara bayar Tunai: bayar langsung ke upline, lalu upline mencatat pembayarannya.",
+      "Barang yang sudah Anda terima otomatis masuk Stok Saya (menu Toko Saya).",
     ],
     tanya: [
       { t: "Bukti transfer sudah diunggah, kenapa belum diproses?", j: "Gudang mencocokkan bukti dengan rekening lebih dulu. Status berubah menjadi Disiapkan setelah pembayaran diterima." },
@@ -897,25 +901,42 @@ export const PANDUAN = [
     menu: "Toko Saya",
     icon: "mdi-storefront-outline",
     peran: "semua",
-    ringkas: "Segera hadir — stok parfum Anda dan kasir untuk menjual ke pelanggan.",
-    kegunaan: "Nanti dipakai untuk melihat stok parfum milik Anda dan menjual ke pelanggan lewat kasir sederhana di HP. Saat ini masih disiapkan.",
+    ringkas: "Pesanan dari downline, stok parfum Anda, dan rekening untuk menerima transfer.",
+    kegunaan: "Melayani downline yang belanja ke Anda (upline): isi ongkir, cek bukti transfer atau catat bayar tunai, lalu kirim atau siapkan untuk diambil. Juga melihat stok parfum milik Anda.",
     langkah: [
       {
-        judul: "Yang akan bisa dilakukan",
+        judul: "Memproses pesanan masuk",
         isi: [
-          "Melihat stok parfum milik Anda.",
-          "Menjual ke pelanggan lewat kasir di HP.",
-          "Melihat laporan transaksi, produk, dan kategori.",
+          "Buka tab Pesanan Masuk. Pilihan Perlu tindakan berisi pesanan yang menunggu Anda (angka merah).",
+          "Ketuk pesanan. Bila dikirim, isi Ongkir lalu ketuk Simpan.",
+          "Bila bayar transfer: periksa gambar bukti, ketuk Terima pembayaran atau Tolak… (tulis alasan).",
+          "Bila bayar tunai: setelah uang diterima, ketuk Uang tunai sudah diterima.",
+          "Ketuk Kirim (isi kurir dan resi) atau Siap diambil. Stok Anda berkurang saat tombol ini ditekan.",
+          "Bila pembeli mengambil sendiri, ketuk Sudah diambil pembeli setelah barang diserahkan.",
+        ],
+      },
+      {
+        judul: "Stok dan rekening",
+        isi: [
+          "Tab Stok Saya: jumlah parfum milik Anda dan riwayat keluar-masuknya. Stok bertambah otomatis saat pesanan Anda di menu Belanja diterima.",
+          "Tab Rekening: isi Bank, Nomor rekening, Atas nama, lalu ketuk Tambah rekening. Rekening ini tampil ke downline yang bayar transfer.",
         ],
       },
       {
         judul: "Sambungan ke ERP (superadmin)",
         peran: "superadmin",
-        isi: [{ teks: "Di halaman ini superadmin melihat Sambungan ke ERP: Terhubung berarti aplikasi member sudah tersambung ke ERP BABA.", peran: "superadmin" }],
+        isi: [{ teks: "Bila toko online belum dibuka, halaman ini menampilkan Sambungan ke ERP: Terhubung berarti aplikasi member sudah tersambung ke ERP BABA.", peran: "superadmin" }],
       },
     ],
-    tips: [],
-    tanya: [],
+    tips: [
+      "Setiap pesanan baru, bukti transfer, dan pembatalan dari downline dikabarkan lewat lonceng 🔔.",
+      "Tombol Kirim / Siap diambil mati bila stok Anda kurang.",
+      "Kasir untuk menjual ke pelanggan bertanda Segera — menyusul.",
+    ],
+    tanya: [
+      { t: "Kenapa downline tidak bisa belanja ke saya?", j: "Belanja ke upline harus diizinkan admin, dan Anda harus punya stok parfum tersebut." },
+      { t: "Bisa membatalkan pesanan masuk?", j: "Bisa selama barang belum dikirim / disiapkan: buka pesanan, ketuk Batalkan pesanan… dan tulis alasannya." },
+    ],
   },
   {
     id: "chat",
