@@ -19,6 +19,7 @@
   --baba-radius: 14px;
   --baba-shadow: 0 2px 10px rgba(20, 20, 20, 0.06);
   --baba-bottom-nav-h: 64px;
+  --baba-bilah-kasir-h: 72px; // bilah total + Simpan penjualan di Kasir HP
   // Warna per jabatan (sama dengan kartu Struktur Akun & Excel Struktur)
   --baba-jab-tm: #b8890f;
   --baba-jab-mvo: #dc2626;
@@ -311,5 +312,14 @@ html .v-tab.v-tab.v-btn {
   // Notifikasi di bawah muncul di atas menu bawah, tidak tertutup.
   .v-snackbar--bottom:not(.v-snackbar--absolute) .v-snackbar__wrapper {
     margin-bottom: calc(var(--baba-bottom-nav-h) + 8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  // Bilah bawah Kasir (Toko Saya) tampil → pemutar musik & notifikasi bawah naik di atas bilah itu.
+  body.ada-bilah-bawah .music-player-compact {
+    bottom: calc(var(--baba-bottom-nav-h) + var(--baba-bilah-kasir-h) + 12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.ada-bilah-bawah .v-snackbar--bottom:not(.v-snackbar--absolute) .v-snackbar__wrapper {
+    margin-bottom: calc(var(--baba-bottom-nav-h) + var(--baba-bilah-kasir-h) + 8px + env(safe-area-inset-bottom, 0px));
   }
 }

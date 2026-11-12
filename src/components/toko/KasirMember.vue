@@ -1,6 +1,6 @@
 <template>
   <!-- Toko Saya › Kasir: jual parfum dari stok member ke pelanggan (ERP BABA Tahap 3). Tidak menambah RO. -->
-  <div class="kasir">
+  <div class="kasir" :class="{ 'ada-bilah': bilahHp }">
     <v-alert v-if="galat" type="error" variant="tonal" density="compact" class="mb-2">{{ galat }}</v-alert>
     <div class="kasir-grid">
       <!-- Daftar barang -->
@@ -20,7 +20,7 @@
       </div>
 
       <!-- Keranjang & bayar -->
-      <v-card class="kartu-bayar" data-uji="kasir-keranjang">
+      <v-card ref="kartuBayar" class="kartu-bayar" data-uji="kasir-keranjang">
         <div class="font-weight-bold mb-1">Keranjang</div>
         <div v-if="!keranjang.length" class="text-caption text-medium-emphasis mb-2">Ketuk parfum untuk menambahkan.</div>
         <div v-for="(k, n) in keranjang" :key="k.item_id" class="baris-kasir">
@@ -39,6 +39,7 @@
         </div>
         <v-text-field v-if="bayar === 'tunai'" v-model="diterima" label="Uang diterima (opsional)" type="number" density="compact" variant="outlined" hide-details class="mb-1" data-uji="kasir-diterima" />
         <div v-if="bayar === 'tunai' && Number(diterima) >= total && total > 0" class="text-caption mb-1">Kembalian {{ rupiah(Number(diterima) - total) }}</div>
+        <div v-if="uangKurang" class="text-caption text-error mb-1" data-uji="kasir-kurang">Uang kurang {{ rupiah(total - Number(diterima)) }}</div>
         <v-expansion-panels variant="accordion" class="mb-2">
           <v-expansion-panel title="Pelanggan (opsional)">
             <v-expansion-panel-text>
@@ -48,7 +49,8 @@
           </v-expansion-panel>
         </v-expansion-panels>
         <v-checkbox v-model="simpanHarga" label="Ingat harga untuk berikutnya" density="compact" hide-details class="mb-1" />
-        <v-btn block color="primary" :disabled="!keranjang.length" :loading="memproses" data-uji="kasir-simpan" @click="simpan">Simpan penjualan</v-btn>
+        <!-- HP: tombol Simpan ada di bilah bawah yang selalu terlihat -->
+        <v-btn v-if="!bilahHp" block color="primary" :disabled="!bisaSimpan" :loading="memproses" data-uji="kasir-simpan" @click="simpan">Simpan penjualan</v-btn>
       </v-card>
     </div>
 
@@ -58,6 +60,16 @@
     <div v-for="r in riwayat" :key="r.nomor" class="baris-riwayat" data-uji="kasir-riwayat" @click="struk = r">
       <span>{{ r.nomor }} <span class="text-caption">· {{ waktu(r.tanggal) }} · {{ r.bayar_label }}</span></span>
       <span :class="{ 'text-decoration-line-through text-medium-emphasis': r.status === 'batal' }">{{ rupiah(r.total) }}</span>
+    </div>
+
+    <!-- HP: bilah bawah menempel di atas menu bawah (total + Simpan penjualan selalu terlihat) -->
+    <div v-if="bilahHp" class="bilah-kasir" data-uji="kasir-bilah">
+      <div class="flex-grow-1 min-w-0" role="button" aria-label="Lihat keranjang" data-uji="kasir-bilah-info" @click="keKeranjang">
+        <div class="text-caption">{{ jumlahBarang }} barang · {{ labelBayar }} <v-icon size="14">mdi-chevron-up</v-icon></div>
+        <div class="font-weight-bold total-bilah" data-uji="kasir-bilah-total">{{ rupiah(total) }}</div>
+        <div v-if="uangKurang" class="text-caption text-error">Uang kurang {{ rupiah(total - Number(diterima)) }}</div>
+      </div>
+      <v-btn color="primary" :disabled="!bisaSimpan" :loading="memproses" data-uji="kasir-simpan" @click="simpan">Simpan penjualan</v-btn>
     </div>
 
     <!-- Struk -->
@@ -93,7 +105,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { pesanGalat, rupiah, tokoApi } from "@/utils/tokoOnline";
 import { buatStruk, cetakBytes, printerSiap, printerState, rupiahStruk } from "@/utils/printer";
@@ -120,6 +132,19 @@ const tampil = computed(() => {
   return produk.value.filter((p) => !q || p.nama.toLowerCase().includes(q));
 });
 const total = computed(() => keranjang.value.reduce((t, k) => t + k.qty * (Number(k.harga) || 0), 0));
+const jumlahBarang = computed(() => keranjang.value.reduce((t, k) => t + k.qty, 0));
+const labelBayar = computed(() => BAYAR.find(([k]) => k === bayar.value)?.[1] || "");
+// sama dengan aturan server: tunai + uang diterima diisi tetapi kurang dari total → ditolak
+const uangKurang = computed(() => bayar.value === "tunai" && diterima.value !== "" && diterima.value !== null && total.value > 0 && Number(diterima.value) < total.value);
+const bisaSimpan = computed(() => keranjang.value.length > 0 && !uangKurang.value);
+const bilahHp = computed(() => hp.value && keranjang.value.length > 0);
+const kartuBayar = ref(null);
+function keKeranjang() {
+  kartuBayar.value?.$el?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+// pemutar musik & kabar bawah digeser naik selama bilah tampil (theme.scss body.ada-bilah-bawah)
+watch(bilahHp, (v) => document.body.classList.toggle("ada-bilah-bawah", v));
+onBeforeUnmount(() => document.body.classList.remove("ada-bilah-bawah"));
 const dipakai = (id) => keranjang.value.find((k) => k.item_id === id)?.qty || 0;
 const waktu = (t) => (t ? new Date(t).toLocaleString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "");
 const tampilkan = (teks, warna = "success") => Object.assign(kabar, { tampil: true, teks, warna });
@@ -151,6 +176,7 @@ async function muat() {
 }
 
 async function simpan() {
+  if (!bisaSimpan.value) return;
   memproses.value = true;
   try {
     const r = await tokoApi("post", "/kasir", {
@@ -280,6 +306,26 @@ defineExpose({ muat });
 .qty { min-width: 24px; text-align: center; font-weight: 800; }
 .min-w-0 { min-width: 0; }
 .bagian-judul { font-weight: 800; font-size: 0.85rem; margin: 14px 0 4px; }
+
+.bilah-kasir {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--baba-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  z-index: 1001;
+  box-sizing: border-box;
+  min-height: var(--baba-bilah-kasir-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--baba-surface);
+  border-top: 2px solid var(--baba-gold);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.total-bilah { font-size: 1.15rem; line-height: 1.2; }
+.ada-bilah { padding-bottom: calc(var(--baba-bilah-kasir-h) + 8px); }
 
 .struk {
   font-family: ui-monospace, monospace;
