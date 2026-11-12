@@ -11,6 +11,7 @@
       <v-tab value="rekening" data-uji="tab-rekening">Rekening</v-tab>
       <v-tab value="kasir" data-uji="tab-kasir">Kasir</v-tab>
       <v-tab value="laporan" data-uji="tab-laporan">Laporan</v-tab>
+      <v-tab value="printer" data-uji="tab-printer"><v-icon start size="small">mdi-printer</v-icon>Printer</v-tab>
     </v-tabs>
 
     <v-alert v-if="galat" type="error" variant="tonal" density="compact" class="mb-2">{{ galat }}</v-alert>
@@ -99,6 +100,7 @@
 
     <KasirMember v-if="tab === 'kasir'" />
     <LaporanToko v-if="tab === 'laporan'" />
+    <PengaturanPrinter v-if="tab === 'printer'" />
 
     <!-- ========== Rincian pesanan masuk ========== -->
     <v-dialog v-model="rinciBuka" :fullscreen="hp" max-width="660" scrollable>
@@ -106,6 +108,7 @@
         <div class="panel-kepala">
           <span class="panel-judul">{{ rinci?.nomor || 'Pesanan masuk' }}</span>
           <v-spacer />
+          <v-btn v-if="rinci && !memuatRinci" variant="text" size="small" prepend-icon="mdi-printer" data-uji="cetak-nota" @click="cetakNota">Cetak nota</v-btn>
           <v-btn icon variant="text" size="small" aria-label="Tutup" @click="rinciBuka = false"><v-icon>mdi-close</v-icon></v-btn>
         </div>
         <v-card-text class="panel-isi">
@@ -232,6 +235,8 @@ import Breadcrumb from "@/components/ui/Breadcrumb.vue";
 import SegeraHadir from "@/views/admin/SegeraHadir.vue";
 import KasirMember from "@/components/toko/KasirMember.vue";
 import LaporanToko from "@/components/toko/LaporanToko.vue";
+import PengaturanPrinter from "@/components/toko/PengaturanPrinter.vue";
+import { buatStruk, cetakBytes, printerSiap, printerState, rupiahStruk } from "@/utils/printer";
 import { menuTokoTerbuka, muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
 
 const KELOMPOK = [
@@ -246,7 +251,7 @@ const router = useRouter();
 const { smAndDown } = useDisplay();
 const hp = computed(() => smAndDown.value);
 
-const tab = ref(["masuk", "retur", "stok", "rekening", "kasir", "laporan"].includes(route.query.tab) ? route.query.tab : "masuk");
+const tab = ref(["masuk", "retur", "stok", "rekening", "kasir", "laporan", "printer"].includes(route.query.tab) ? route.query.tab : "masuk");
 const returList = ref([]);
 const jumlahRetur = ref(0);
 const memuatRetur = ref(false);
@@ -286,6 +291,45 @@ const stokKurang = computed(() => (rinci.value?.boleh?.keluarkan ? rinci.value.i
 
 function tampilkan(teks, warna = "success") {
   Object.assign(kabar, { tampil: true, teks, warna });
+}
+
+/** Tahap 6c — nota pesanan masuk: ke printer Bluetooth (aplikasi Android) atau jendela cetak browser. */
+function dataNota(p) {
+  const hargaSatuan = (i) => (i.harga !== undefined && i.harga !== null ? i.harga : (Number(i.subtotal) || 0) / (Number(i.qty) || 1));
+  const kirim = p.kirim ? [`Kirim ke: ${p.kirim.nama} (${p.kirim.hp})`, p.kirim.alamat, p.kurir ? `Kurir ${p.kurir}${p.nomor_resi ? ` - Resi ${p.nomor_resi}` : ""}` : ""]
+    : ["Diambil sendiri oleh pembeli"];
+  return {
+    judul: "BABA PARFUME", sub: ["NOTA PESANAN"], nomor: p.nomor, waktu: tanggal(p.tanggal), tanda: p.status === "batal" ? "*** DIBATALKAN ***" : "",
+    baris: p.item.map((i) => ({ nama: i.nama, qty: i.qty, harga: hargaSatuan(i), subtotal: i.subtotal })),
+    ringkas: [...(p.ongkir ? [["Ongkir", rupiahStruk(p.ongkir)]] : []), ["TOTAL", rupiahStruk(p.total), true], ["Bayar", `${caraBayar(p.cara_bayar)} - ${p.status_bayar_label}`]],
+    catatan: [`Pembeli: ${p.pembeli.nama} (${p.pembeli.no_id || "-"})`, ...kirim, p.catatan ? `Catatan: ${p.catatan}` : ""].filter(Boolean),
+    kaki: "Terima kasih",
+  };
+}
+
+async function cetakNota() {
+  const d = dataNota(rinci.value);
+  if (printerSiap()) {
+    try {
+      await cetakBytes(buatStruk(d));
+      tampilkan(`Nota dicetak ke ${printerState.nama}.`);
+    } catch (e) {
+      tampilkan(`Gagal cetak: ${e.message}`, "error");
+    }
+    return;
+  }
+  const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const baris = d.baris.map((b) => `<div>${esc(b.nama)}</div><div class="kk"><span>${b.qty} x ${esc(rupiahStruk(b.harga))}</span><span>${esc(rupiahStruk(b.subtotal))}</span></div>`).join("");
+  const ringkas = d.ringkas.map(([l, v, t]) => `<div class="kk${t ? " tb" : ""}"><span>${esc(l)}</span><span>${esc(v)}</span></div>`).join("");
+  const w = window.open("", "_blank", "width=380,height=640");
+  if (!w) { tampilkan("Jendela cetak diblokir browser.", "warning"); return; }
+  w.document.write(`<html><head><title>${esc(d.nomor)}</title><style>body{font-family:monospace;font-size:12px;width:58mm;margin:0 auto}
+    .c{text-align:center}.tb{font-weight:bold}.kk{display:flex;justify-content:space-between}hr{border:0;border-top:1px dashed #000}</style></head><body>
+    <div class="c tb">${esc(d.judul)}</div><div class="c">${esc(d.sub[0])}</div><div class="c">${esc(d.nomor)} - ${esc(d.waktu)}</div>${d.tanda ? `<div class="c tb">${esc(d.tanda)}</div>` : ""}
+    <hr>${baris}<hr>${ringkas}<hr>${d.catatan.map((c) => `<div style="white-space:pre-line">${esc(c)}</div>`).join("")}<div class="c" style="margin-top:6px">${esc(d.kaki)}</div></body></html>`);
+  w.document.close();
+  w.focus();
+  w.print();
 }
 
 async function muatMasuk() {

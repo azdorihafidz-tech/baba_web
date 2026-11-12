@@ -916,7 +916,7 @@ export const PANDUAN = [
     menu: "Toko Saya",
     icon: "mdi-storefront-outline",
     peran: "semua",
-    ringkas: "Pesanan dari downline, kasir untuk menjual ke pelanggan, stok parfum, laporan, dan rekening.",
+    ringkas: "Pesanan dari downline, kasir untuk menjual ke pelanggan, stok parfum, laporan, rekening, dan printer struk.",
     kegunaan: "Melayani downline yang belanja ke Anda (upline): isi ongkir, cek bukti transfer atau catat bayar tunai, lalu kirim atau siapkan untuk diambil. Juga melihat stok parfum milik Anda.",
     langkah: [
       {
@@ -928,6 +928,7 @@ export const PANDUAN = [
           "Bila bayar tunai: setelah uang diterima, ketuk Uang tunai sudah diterima.",
           "Ketuk Kirim (isi kurir dan resi) atau Siap diambil. Stok Anda berkurang saat tombol ini ditekan.",
           "Bila pembeli mengambil sendiri, ketuk Sudah diambil pembeli setelah barang diserahkan.",
+          "Perlu nota untuk ditempel di paket atau diserahkan? Ketuk Cetak nota di atas rincian pesanan.",
         ],
       },
       {
@@ -954,6 +955,17 @@ export const PANDUAN = [
         isi: [
           "Tab Laporan berisi Transaksi (penjualan kasir & pembelian), Produk (terjual, dibeli, stok, laba), dan Kategori.",
           "Atur tanggal di kanan atas; ringkasan penjualan, laba kotor, dan pembelian ikut menyesuaikan.",
+        ],
+      },
+      {
+        judul: "Printer struk (aplikasi Android)",
+        isi: [
+          "Cetak langsung ke printer Bluetooth hanya bisa dari aplikasi Android BABA PARFUME. Di browser, ketuk Cetak untuk memakai printer yang terpasang di perangkat, atau Bagikan.",
+          "Pairing printer dulu di Pengaturan › Bluetooth HP (PIN biasanya 0000 atau 1234).",
+          "Buka Toko Saya › tab Printer. Ketuk Izinkan bila diminta akses Perangkat di sekitar, lalu Muat daftar printer dan pilih printer Anda.",
+          "Pilih ukuran kertas 58 mm atau 80 mm, lalu ketuk Tes cetak sampai kertas tes keluar.",
+          "Nyalakan Cetak struk otomatis setelah jual di Kasir bila ingin struk langsung keluar setiap penjualan.",
+          "Setelah itu tombol Cetak di struk Kasir dan Cetak nota di Pesanan Masuk langsung mencetak ke printer itu.",
         ],
       },
       {

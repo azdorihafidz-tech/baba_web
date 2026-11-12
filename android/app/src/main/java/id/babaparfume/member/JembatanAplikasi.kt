@@ -3,6 +3,8 @@ package id.babaparfume.member
 import android.util.Base64
 import android.webkit.JavascriptInterface
 import android.widget.Toast
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * `window.BabaApp` di halaman web. WebView tidak bisa menyimpan file "blob:" yang dibuat halaman
@@ -33,6 +35,59 @@ class JembatanAplikasi(private val act: MainActivity) {
 
     @JavascriptInterface
     fun versi(): String = BuildConfig.VERSION_NAME
+
+    // ===== Printer Bluetooth (Toko Saya: struk kasir & nota pesanan) =====
+    // Isi struk (ESC/POS) dibuat web — aplikasi hanya meneruskan byte ke printer yang sudah di-pairing di HP.
+
+    @JavascriptInterface
+    fun printerIzin(): Boolean = act.bolehBluetooth()
+
+    /** Minta izin Bluetooth; hasil → window.BabaAppIzinPrinter(true/false). */
+    @JavascriptInterface
+    fun mintaIzinPrinter() {
+        act.runOnUiThread { act.mintaIzinBluetooth() }
+    }
+
+    /** JSON {izin, bluetooth, printer:[{mac,nama}]} — printer yang sudah di-pairing di pengaturan Bluetooth HP. */
+    @JavascriptInterface
+    fun printerDaftar(): String {
+        if (!act.bolehBluetooth()) return JSONObject().put("izin", false).put("bluetooth", false).put("printer", JSONArray()).toString()
+        val ad = BluetoothPrinter.adapter(act) ?: return JSONObject().put("izin", true).put("bluetooth", false).put("ada", false).put("printer", JSONArray()).toString()
+        val daftar = JSONArray()
+        try {
+            BluetoothPrinter.pairedDevices(act).forEach { daftar.put(JSONObject().put("mac", it.address).put("nama", it.name ?: it.address)) }
+        } catch (_: SecurityException) {
+        }
+        return JSONObject().put("izin", true).put("bluetooth", ad.isEnabled).put("ada", true).put("printer", daftar).toString()
+    }
+
+    /** Kirim byte (base64) ke printer [mac]; hasil → window.BabaAppCetakHasil(id, ok, pesan). */
+    @JavascriptInterface
+    fun cetak(base64: String, mac: String, id: String) {
+        val data = try {
+            Base64.decode(base64, Base64.DEFAULT)
+        } catch (_: IllegalArgumentException) {
+            hasilCetak(id, false, "Data struk tidak valid.")
+            return
+        }
+        if (!act.bolehBluetooth()) {
+            hasilCetak(id, false, "Izinkan akses Perangkat di sekitar (Bluetooth) untuk mencetak.")
+            return
+        }
+        Thread {
+            try {
+                BluetoothPrinter.kirim(act, mac, data)
+                hasilCetak(id, true, "Struk tercetak")
+            } catch (_: SecurityException) {
+                hasilCetak(id, false, "Izin Bluetooth belum diberikan.")
+            } catch (e: Exception) {
+                hasilCetak(id, false, e.message ?: "Gagal mencetak.")
+            }
+        }.start()
+    }
+
+    private fun hasilCetak(id: String, ok: Boolean, pesan: String) =
+        act.kirimKeWeb("window.BabaAppCetakHasil && window.BabaAppCetakHasil(${JSONObject.quote(id)}, $ok, ${JSONObject.quote(pesan)})")
 
     companion object {
         /**

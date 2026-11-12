@@ -89,6 +89,22 @@ class MainActivity : AppCompatActivity() {
         unduhan.izinSimpanSelesai(ok)
     }
 
+    /** Toko Saya › Printer: izin Bluetooth diminta saat member membuka/memakai printer (bukan saat aplikasi dibuka). */
+    private val izinBluetooth = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        kirimKeWeb("window.BabaAppIzinPrinter && window.BabaAppIzinPrinter($ok)")
+    }
+
+    fun bolehBluetooth(): Boolean = android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+        ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+
+    fun mintaIzinBluetooth() {
+        if (bolehBluetooth()) kirimKeWeb("window.BabaAppIzinPrinter && window.BabaAppIzinPrinter(true)")
+        else izinBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
+    }
+
+    /** Jalankan skrip di halaman (hasil cetak / izin) dari thread mana pun. */
+    fun kirimKeWeb(js: String) = runOnUiThread { if (::webView.isInitialized) webView.evaluateJavascript(js, null) }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

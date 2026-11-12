@@ -35,6 +35,7 @@ declare module 'vue' {
     PanduanIsi: typeof import('./src/components/panduan/PanduanIsi.vue')['default']
     PanelNotifikasi: typeof import('./src/components/notifikasi/PanelNotifikasi.vue')['default']
     PasangAplikasi: typeof import('./src/components/ui/PasangAplikasi.vue')['default']
+    PengaturanPrinter: typeof import('./src/components/toko/PengaturanPrinter.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelAtasan: typeof import('./src/components/ui/SelAtasan.vue')['default']

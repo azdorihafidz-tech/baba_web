@@ -81,7 +81,7 @@
           </div>
         </v-card-text>
         <v-card-actions class="flex-wrap">
-          <v-btn variant="tonal" @click="cetak"><v-icon start>mdi-printer</v-icon>Cetak</v-btn>
+          <v-btn variant="tonal" data-uji="kasir-cetak" @click="cetak"><v-icon start>mdi-printer</v-icon>Cetak<span v-if="printerSiap()" class="text-caption ml-1">({{ printerState.nama }})</span></v-btn>
           <v-btn variant="tonal" @click="bagikan"><v-icon start>mdi-share-variant</v-icon>Bagikan</v-btn>
           <v-btn v-if="struk.boleh_batal" variant="text" color="error" :loading="memproses" data-uji="kasir-batal" @click="batal">Batalkan</v-btn>
           <v-spacer /><v-btn variant="text" @click="struk = null">Tutup</v-btn>
@@ -96,6 +96,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { useDisplay } from "vuetify";
 import { pesanGalat, rupiah, tokoApi } from "@/utils/tokoOnline";
+import { buatStruk, cetakBytes, printerSiap, printerState, rupiahStruk } from "@/utils/printer";
 
 const BAYAR = [["tunai", "Tunai"], ["transfer", "Transfer"], ["qris", "QRIS"]];
 const { smAndDown } = useDisplay();
@@ -158,6 +159,7 @@ async function simpan() {
       pelanggan_nama: pelanggan.nama, pelanggan_hp: pelanggan.hp, simpan_harga: simpanHarga.value,
     });
     struk.value = r.data;
+    if (printerSiap() && printerState.otomatis) cetakPrinter(true); // Tahap 6c: cetak otomatis ke printer Bluetooth
     keranjang.value = [];
     diterima.value = "";
     Object.assign(pelanggan, { nama: "", hp: "" });
@@ -189,7 +191,29 @@ function teksStruk() {
   return [`BABA PARFUME — ${s.nomor}`, ...s.item.map((i) => `${i.nama} ${i.qty} x ${rupiah(i.harga)} = ${rupiah(i.subtotal)}`), `TOTAL ${rupiah(s.total)} (${s.bayar_label})`, "Terima kasih"].join("\n");
 }
 
+/** Tahap 6c — byte ESC/POS struk kasir untuk printer Bluetooth (aplikasi Android). */
+function strukBytes(s) {
+  return buatStruk({
+    judul: "BABA PARFUME", sub: [s.penjual + (s.penjual_no_id ? ` - ${s.penjual_no_id}` : "")], nomor: s.nomor, waktu: waktu(s.tanggal),
+    tanda: s.status === "batal" ? "*** DIBATALKAN ***" : "",
+    baris: s.item.map((i) => ({ nama: i.nama, qty: i.qty, harga: i.harga, subtotal: i.subtotal })),
+    ringkas: [["TOTAL", rupiahStruk(s.total), true], [s.bayar_label, s.diterima !== null && s.diterima !== undefined ? rupiahStruk(s.diterima) : ""],
+      ...(s.kembali ? [["Kembali", rupiahStruk(s.kembali)]] : [])],
+    catatan: s.pelanggan_nama ? [`Pelanggan: ${s.pelanggan_nama}`] : [], kaki: "Terima kasih",
+  });
+}
+
+async function cetakPrinter(otomatis = false) {
+  try {
+    await cetakBytes(strukBytes(struk.value));
+    tampilkan(otomatis ? `Struk dicetak ke ${printerState.nama}.` : "Struk tercetak.");
+  } catch (e) {
+    tampilkan(`Gagal cetak: ${e.message}`, "error");
+  }
+}
+
 function cetak() {
+  if (printerSiap()) return cetakPrinter();
   const isi = document.getElementById("struk-kasir")?.innerHTML || "";
   const w = window.open("", "_blank", "width=380,height=600");
   if (!w) { tampilkan("Jendela cetak diblokir. Pakai Bagikan.", "warning"); return; }
