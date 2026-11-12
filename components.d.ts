@@ -32,6 +32,7 @@ declare module 'vue' {
     Lonceng: typeof import('./src/components/notifikasi/Lonceng.vue')['default']
     Main: typeof import('./src/components/layouts/admin/Main.vue')['default']
     MutasiBagan: typeof import('./src/components/mutasi/MutasiBagan.vue')['default']
+    OpnameStok: typeof import('./src/components/toko/OpnameStok.vue')['default']
     PanduanIsi: typeof import('./src/components/panduan/PanduanIsi.vue')['default']
     PanelNotifikasi: typeof import('./src/components/notifikasi/PanelNotifikasi.vue')['default']
     PasangAplikasi: typeof import('./src/components/ui/PasangAplikasi.vue')['default']
