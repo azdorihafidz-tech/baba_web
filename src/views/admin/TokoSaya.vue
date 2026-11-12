@@ -61,6 +61,8 @@
     <!-- ========== Stok saya ========== -->
     <template v-if="tab === 'stok'">
       <div v-isi-layar class="baba-gulir">
+        <!-- tetap terpasang saat stok dimuat ulang (dialog hasil opname tidak ikut tertutup) -->
+        <OpnameStok :stok="stok" class="mb-2" @tersimpan="muatStok" />
         <div v-if="memuatStok" class="text-center py-8"><v-progress-circular indeterminate color="primary" /></div>
         <template v-else>
           <div v-if="!stok.length" class="text-center text-medium-emphasis py-6">Belum ada stok. Stok bertambah otomatis saat pesanan Anda (Belanja) diterima.</div>
@@ -236,6 +238,7 @@ import SegeraHadir from "@/views/admin/SegeraHadir.vue";
 import KasirMember from "@/components/toko/KasirMember.vue";
 import LaporanToko from "@/components/toko/LaporanToko.vue";
 import PengaturanPrinter from "@/components/toko/PengaturanPrinter.vue";
+import OpnameStok from "@/components/toko/OpnameStok.vue";
 import { buatStruk, cetakBytes, printerSiap, printerState, rupiahStruk } from "@/utils/printer";
 import { menuTokoTerbuka, muatToko, pesanGalat, rupiah, tokoApi, tokoState } from "@/utils/tokoOnline";
 

@@ -956,6 +956,7 @@ export const PANDUAN = [
         isi: [
           "Tab Laporan berisi Transaksi (penjualan kasir & pembelian), Produk (terjual, dibeli, stok, laba), dan Kategori.",
           "Atur tanggal di kanan atas; ringkasan penjualan, laba kotor, dan pembelian ikut menyesuaikan.",
+          "Bila ada stok opname pada rentang itu, tampil juga Kerugian stok (opname) dan Laba bersih (laba kotor dikurangi kerugian stok).",
         ],
       },
       {
@@ -977,6 +978,16 @@ export const PANDUAN = [
         ],
       },
       {
+        judul: "Stok opname (barang rusak, hilang, dll.)",
+        isi: [
+          "Buka tab Stok Saya, ketuk Stok opname.",
+          "Hitung parfum di rak, lalu isi kolom Fisik pada barang yang jumlahnya kurang. Barang yang jumlahnya sama boleh dibiarkan kosong.",
+          "Untuk setiap barang yang kurang, pilih Penyebab: Rusak / pecah / bocor, Hilang, Susut / menguap, Tester / promosi, Kedaluwarsa, atau Salah catat. Catatan dan Foto bukti boleh diisi.",
+          "Ketuk Simpan opname. Stok langsung berkurang tanpa perlu persetujuan, dan hasilnya bisa dicetak.",
+          "Riwayat stok opname tampil di bawah tombol itu; ketuk salah satu untuk melihat rincian, foto, dan Cetak.",
+        ],
+      },
+      {
         judul: "Sambungan ke ERP (superadmin)",
         peran: "superadmin",
         isi: [{ teks: "Bila toko online belum dibuka, halaman ini menampilkan Sambungan ke ERP: Terhubung berarti aplikasi member sudah tersambung ke ERP BABA.", peran: "superadmin" }],
@@ -987,9 +998,12 @@ export const PANDUAN = [
       "Setiap pesanan baru, bukti transfer, dan pembatalan dari downline dikabarkan lewat lonceng 🔔.",
       "Tombol Kirim / Siap diambil mati bila stok Anda kurang.",
       "Penjualan di kasir mengurangi stok Anda tetapi tidak menambah RO (RO hanya dari belanja ke gudang / upline).",
+      "Stok opname hanya bisa mengurangi stok dan tidak mengubah RO. Nilainya dihitung dari modal rata-rata Anda.",
     ],
     tanya: [
       { t: "Kenapa downline tidak bisa belanja ke saya?", j: "Belanja ke upline harus diizinkan admin, dan Anda harus punya stok parfum tersebut." },
+      { t: "Fisik ternyata lebih banyak dari stok?", j: "Stok lebih tidak bisa dicatat sendiri lewat Stok opname. Hubungi admin gudang BABA untuk dikoreksi." },
+      { t: "Kenapa stok opname ditolak karena dipesan downline?", j: "Jumlah fisik tidak boleh lebih kecil dari barang yang sedang dipesan downline. Selesaikan atau batalkan pesanan itu dulu di Pesanan Masuk." },
       { t: "Bisa membatalkan pesanan masuk?", j: "Bisa selama barang belum dikirim / disiapkan: buka pesanan, ketuk Batalkan pesanan… dan tulis alasannya." },
     ],
   },

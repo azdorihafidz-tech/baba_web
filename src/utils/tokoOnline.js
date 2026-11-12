@@ -48,7 +48,7 @@ export function lencanaToko(url) {
 
 // ===== Pemanggil /api/toko/* (diteruskan backend ke ERP atas nama akun login) =====
 
-function tokenSaya() {
+export function tokenSaya() {
   return Cookies.get("token") || localStorage.getItem("token") || "";
 }
 

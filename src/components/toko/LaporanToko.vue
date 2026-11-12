@@ -16,6 +16,8 @@
       <div><span>Transaksi</span><strong>{{ hasil.ringkas.transaksi }}</strong></div>
       <div><span>Botol terjual</span><strong>{{ hasil.ringkas.botol_terjual }}</strong></div>
       <div><span>Pembelian</span><strong>{{ rupiah(hasil.ringkas.pembelian) }}</strong></div>
+      <div v-if="hasil.ringkas.kerugian_stok"><span>Kerugian stok (opname)</span><strong class="text-error" data-uji="lap-kerugian">{{ rupiah(hasil.ringkas.kerugian_stok) }}</strong></div>
+      <div v-if="hasil.ringkas.kerugian_stok"><span>Laba bersih</span><strong data-uji="lap-laba-bersih">{{ rupiah(hasil.ringkas.laba_bersih) }}</strong></div>
     </div>
     <div v-isi-layar="24" class="baba-gulir">
       <div v-if="memuat" class="text-center py-6"><v-progress-circular indeterminate color="primary" /></div>
@@ -23,9 +25,9 @@
         <div v-if="!hasil.data.length" class="text-center text-medium-emphasis py-6">Tidak ada data pada rentang ini.</div>
         <template v-if="hasil.jenis === 'transaksi'">
           <div v-for="(r, n) in hasil.data" :key="n" class="baris" data-uji="lap-baris">
-            <div class="flex-grow-1 min-w-0"><div class="font-weight-bold">{{ r.jenis === 'jual' ? 'Jual' : 'Beli' }} · {{ r.nomor }}</div>
+            <div class="flex-grow-1 min-w-0"><div class="font-weight-bold">{{ r.jenis === 'jual' ? 'Jual' : r.jenis === 'opname' ? 'Stok opname' : 'Beli' }} · {{ r.nomor }}</div>
               <div class="text-caption text-truncate">{{ tanggal(r.tanggal) }} · {{ r.keterangan }}</div></div>
-            <strong :class="r.jenis === 'jual' ? 'text-success' : ''">{{ r.jenis === 'jual' ? '+' : '−' }}{{ rupiah(r.nilai) }}</strong>
+            <strong :class="r.jenis === 'jual' ? 'text-success' : r.jenis === 'opname' ? 'text-error' : ''">{{ r.jenis === 'jual' ? '+' : '−' }}{{ rupiah(Math.abs(r.nilai)) }}</strong>
           </div>
         </template>
         <template v-else-if="hasil.jenis === 'produk'">
