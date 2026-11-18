@@ -37,6 +37,8 @@
       <Lonceng />
       <!-- Panduan cara pakai halaman yang sedang dibuka -->
       <CaraPakai />
+      <!-- Kamus Menu: fungsi, syarat & akibat menu yang sedang dibuka -->
+      <TombolKamus />
 
       <!-- Desktop: tombol aksi terpisah -->
       <div class="d-none d-md-flex align-center">
@@ -169,12 +171,13 @@ import { useAppStore } from "@/stores/app.js";
 import axios from "axios";
 import Cookies from "js-cookie";
 import CaraPakai from "@/components/panduan/CaraPakai.vue";
+import TombolKamus from "@/components/kamus/TombolKamus.vue";
 import Lonceng from "@/components/notifikasi/Lonceng.vue";
 import { hentikanChat } from "@/utils/chatKoneksi";
 import { resetNotifikasi } from "@/utils/notifikasi";
 
 export default {
-  components: { CaraPakai, Lonceng },
+  components: { CaraPakai, TombolKamus, Lonceng },
   setup() {
     const app = useAppStore();
     return { app };

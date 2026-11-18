@@ -117,6 +117,7 @@ export default {
           ["mdi-storefront-outline", "Toko Saya", "/admin/toko-saya"],
           ["mdi-chat", "Chat", "/admin/chat"],
           ["mdi-book-open-page-variant", "Panduan", "/admin/panduan"],
+          ["mdi-book-search-outline", "Kamus Menu", "/admin/kamus"],
         ],
       },
       nonSuperadminMenus: [
@@ -130,6 +131,7 @@ export default {
         "Toko Saya",
         "Chat",
         "Panduan",
+        "Kamus Menu",
         "Struktur Akun",
 
       ],

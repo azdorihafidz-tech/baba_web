@@ -239,6 +239,15 @@ const routes = [
         meta: { title: `${judul} || BABA PARFUME`, requiresAuth: true, menuToko: path },
       })),
       {
+        path: "kamus",
+        name: "kamus",
+        component: () => import("@/views/admin/KamusMenu.vue"),
+        meta: {
+          title: "Kamus Menu || BABA PARFUME",
+          requiresAuth: true,
+        },
+      },
+      {
         path: "panduan",
         name: "panduan",
         component: () => import("@/views/admin/Panduan.vue"),

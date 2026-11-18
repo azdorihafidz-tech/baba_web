@@ -24,6 +24,7 @@ declare module 'vue' {
     FMain: typeof import('./src/components/layouts/frontend/FMain.vue')['default']
     Footer: typeof import('./src/components/layouts/admin/Footer.vue')['default']
     Header: typeof import('./src/components/layouts/admin/Header.vue')['default']
+    KamusIsi: typeof import('./src/components/kamus/KamusIsi.vue')['default']
     KasirMember: typeof import('./src/components/toko/KasirMember.vue')['default']
     KepalaKartuAkun: typeof import('./src/components/ui/KepalaKartuAkun.vue')['default']
     KodeNoIdFields: typeof import('./src/components/ui/KodeNoIdFields.vue')['default']
@@ -45,5 +46,6 @@ declare module 'vue' {
     Snackbar: typeof import('./src/components/ui/Snackbar.vue')['default']
     TextArea: typeof import('./src/components/ui/TextArea.vue')['default']
     TextField: typeof import('./src/components/ui/TextField.vue')['default']
+    TombolKamus: typeof import('./src/components/kamus/TombolKamus.vue')['default']
   }
 }

@@ -49,6 +49,7 @@ export const MULAI_CEPAT = {
     { t: "Angka merah di menu", j: "Menunjukkan pekerjaan yang menunggu Anda. Chat: pesan baru. Akun Belum Approve: pendaftar yang belum Anda approve. Document Belum Approve: dokumen yang sedang giliran Anda setujui. Verifikasi ID (superadmin): akun yang semua uplinenya sudah approve. Di HP, angka menu yang tersimpan di Lainnya dijumlah di tombol Lainnya. Angka berkurang sendiri setelah pekerjaannya selesai." },
     { t: "Lonceng notifikasi 🔔", j: "Tombol lonceng di kanan atas berisi kabar untuk Anda; angka merahnya = notifikasi yang belum dibaca. Kabar baru juga muncul sebentar di atas layar (tekan Lihat) disertai bunyi “ting”; pesan chat baru berbunyi lebih lembut (tidak berbunyi untuk grup yang sedang dibuka). Bunyi hanya keluar selama aplikasi terbuka dan setelah Anda pernah mengetuk layar sekali. Matikan / nyalakan di bagian bawah panel lonceng: Suara notifikasi & chat (berlaku untuk HP/laptop itu saja). Ketuk satu notifikasi untuk langsung membuka halamannya, atau tekan Tandai semua dibaca. Isinya: pendaftar baru yang mencantumkan Anda sebagai upline, dokumen yang giliran Anda approve, akun Anda sudah aktif, downline baru sudah aktif, dokumen RO Anda disetujui, posisi Anda berubah lewat Mutasi Jabatan, downline langsung baru dari Mutasi, dan perubahan hak Anda di menu Hak Akses. Superadmin hanya menerima yang menunggu tindakannya: akun siap diverifikasi dan dokumen menunggu persetujuan akhir." },
     { t: "Butuh bantuan di suatu halaman?", j: "Tekan tombol ❓ Cara Pakai di bagian atas untuk melihat panduan halaman yang sedang dibuka." },
+    { t: "Kamus Menu 📖", j: "Tombol Kamus di bagian atas (di samping Cara Pakai) menjelaskan menu yang sedang dibuka: untuk apa, apa yang harus ada dulu supaya menu muncul, dan apa akibat setiap tombol ke data, RO, stok, dan lonceng. Semua penjelasan ada di menu Kamus Menu, bisa dicari dengan kata sehari-hari (mis. ro belum masuk, belanja ke upline)." },
   ],
 };
 
@@ -1067,6 +1068,37 @@ export const PANDUAN = [
       { t: "Kenapa saya tidak bisa membuat grup?", j: "Grup dibuat otomatis: GLOBAL untuk semua member dan satu grup per cabang." },
       { t: "Kolom tulis berganti keterangan \"Hak kirim pesan … dinonaktifkan superadmin\"?", j: "Superadmin menonaktifkan hak kirim pesan untuk akun Anda di menu Hak Akses. Anda tetap bisa membaca semua pesan grup. Hubungi superadmin bila perlu." },
     ],
+  },
+  {
+    id: "kamus",
+    route: "/admin/kamus",
+    menu: "Kamus Menu",
+    icon: "mdi-book-search-outline",
+    peran: "semua",
+    ringkas: "Penjelasan setiap menu: fungsi, syarat supaya muncul, alur, dan akibat setiap tombol.",
+    kegunaan: "Panduan berisi langkah klik; Kamus Menu menjelaskan untuk apa sebuah menu, apa yang harus ada dulu supaya menu itu muncul, dan apa akibat setiap tombol ke data, RO, stok, dan lonceng. Ada juga bagian Cara Melakukan untuk pertanyaan sehari-hari.",
+    langkah: [
+      {
+        judul: "Mencari penjelasan",
+        isi: [
+          "Buka menu Kamus Menu (di HP ada di Lainnya), atau tekan tombol 📖 Kamus di bagian atas halaman mana pun untuk langsung membaca penjelasan halaman itu.",
+          "Ketik pertanyaan dengan kata sehari-hari di kolom cari, mis. ro belum masuk, belanja ke upline, akun belum aktif. Atau ketuk salah satu contoh di bawah kolom cari.",
+          "Ketuk judul untuk membuka penjelasannya. Tombol Buka menu ini membuka menunya; Cara pakai membuka panduan langkahnya.",
+        ],
+      },
+      {
+        judul: "Membaca penjelasan",
+        isi: [
+          "Setiap penjelasan berurutan: Fungsi → Supaya menu ini muncul & bisa dipakai → Alur → Apa yang terjadi kalau tombol diklik → Wajib → Jangan → Menu yang mirip & bedanya.",
+          "Bagian Cara Melakukan menjawab pertanyaan yang menyangkut beberapa menu sekaligus, mis. Kenapa RO saya belum masuk?",
+        ],
+      },
+    ],
+    tips: [
+      "Yang tampil hanya penjelasan menu yang boleh Anda buka. Penjelasan khusus superadmin tidak tampil untuk member.",
+      "Bila tombol Kamus membuka pesan belum ada penjelasan khusus, cari nama menunya di Kamus Menu.",
+    ],
+    tanya: [],
   },
   {
     id: "profil",
